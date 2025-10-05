@@ -11,6 +11,8 @@ const ExportPdfStep = ({
   fontFamily,
   setFontFamily,
   fontFamilies,
+  enableWatermark,
+  setEnableWatermark,
   onPreview,
   onExport,
   onBack,
@@ -90,6 +92,21 @@ const ExportPdfStep = ({
               </select>
               <p className="setting-note">
                 Choose font family for all document text
+              </p>
+            </div>
+
+            <div className="setting-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={enableWatermark}
+                  onChange={(e) => setEnableWatermark(e.target.checked)}
+                  className="setting-checkbox"
+                />
+                <span>Add Watermark</span>
+              </label>
+              <p className="setting-note">
+                {enableWatermark ? 'Adds repeating "Educational Use Only" watermarks to every page' : 'No watermark will be added'}
               </p>
             </div>
           </div>

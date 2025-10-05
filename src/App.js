@@ -28,6 +28,7 @@ function App() {
   const [qualityLevel, setQualityLevel] = useState('standard'); // 'poor', 'standard', 'high'
   const [fontFamily, setFontFamily] = useState('Times New Roman');
   const [showPreview, setShowPreview] = useState(false);
+  const [enableWatermark, setEnableWatermark] = useState(false);
 
   // Available font families for the report
   const fontFamilies = [
@@ -73,10 +74,10 @@ function App() {
       if (exportFormat === 'canvas') {
         await exportToPDFAsImage(elementId, `${filename}-canvas`, {
           qualityLevel: qualityLevel
-        });
+        }, enableWatermark);
         alert(`${filename}-canvas.pdf has been downloaded successfully!`);
       } else {
-        await exportToPDF(elementId, filename);
+        await exportToPDF(elementId, filename, {}, enableWatermark);
         alert(`${filename}.pdf has been downloaded successfully!`);
       }
     } catch (error) {
@@ -153,6 +154,8 @@ function App() {
             fontFamily={fontFamily}
             setFontFamily={setFontFamily}
             fontFamilies={fontFamilies}
+            enableWatermark={enableWatermark}
+            setEnableWatermark={setEnableWatermark}
             onPreview={handlePreview}
             onExport={handleExportPDF}
             onBack={handlePreviousStep}

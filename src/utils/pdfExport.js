@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { applyWatermarkToAllPages, enhanceWatermarkOptions } from './watermark.js';
 
 /**
  * Log element dimensions for debugging
@@ -37,8 +38,9 @@ const logElementDimensions = (element, context) => {
  * @param {string} elementId - The ID of the HTML element to export
  * @param {string} filename - The name of the PDF file (without extension)
  * @param {Object} customOptions - Custom options to override defaults
+ * @param {boolean} enableWatermark - Whether to add watermark to all pages
  */
-export const exportToPDF = async (elementId, filename = 'report', customOptions = {}) => {
+export const exportToPDF = async (elementId, filename = 'report', customOptions = {}, enableWatermark = false) => {
   try {
     // Get the HTML element
     const element = document.getElementById(elementId);
@@ -98,7 +100,66 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
             pdf.deletePage(pageNumber);
           }
         }
-        
+
+        // Apply watermark if enabled
+        if (enableWatermark) {
+          const pageInfo = { width: 210, height: 297 }; // A4 dimensions in mm
+          const watermarkOptions = enhanceWatermarkOptions({
+            color: '#999999',
+            opacity: 0.18,
+            font: {
+              family: 'helvetica',
+              style: 'bold'
+            },
+            items: [
+              {
+                text: 'Educational Use Only',
+                position: 'diagonal',
+                rotation: -45,
+                opacity: 0.22
+              },
+              {
+                text: 'Educational Use Only',
+                position: 'diagonal',
+                rotation: -45,
+                offsetX: -70,
+                offsetY: -110
+              },
+              {
+                text: 'Educational Use Only',
+                position: 'diagonal',
+                rotation: -45,
+                offsetX: 70,
+                offsetY: 110
+              },
+              {
+                text: 'Educational Use Only',
+                position: 'diagonal',
+                rotation: 45,
+                opacity: 0.22
+              },
+              {
+                text: 'Educational Use Only',
+                position: 'diagonal',
+                rotation: 45,
+                offsetX: -70,
+                offsetY: 110
+              },
+              {
+                text: 'Educational Use Only',
+                position: 'diagonal',
+                rotation: 45,
+                offsetX: 70,
+                offsetY: -110
+              }
+            ]
+          }, pageInfo);
+          
+          console.log('Adding watermark to all pages...');
+          applyWatermarkToAllPages(pdf, watermarkOptions);
+          console.log('Watermark applied successfully');
+        }
+
         console.log(`Total pages after cleanup: ${pdf.internal.getNumberOfPages()}`);
         pdf.save(`${filename}.pdf`);
         console.log("PDF saved successfully!");
@@ -130,8 +191,9 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
  * @param {string} elementId - The ID of the HTML element to export
  * @param {string} filename - The name of the PDF file (without extension)
  * @param {Object} customOptions - Custom options to override defaults
+ * @param {boolean} enableWatermark - Whether to add watermark to all pages
  */
-export const exportToPDFAsImage = async (elementId, filename = 'report-image', customOptions = {}) => {
+export const exportToPDFAsImage = async (elementId, filename = 'report-image', customOptions = {}, enableWatermark = false) => {
 
   const imageQuality = {
     poor: {
@@ -283,6 +345,64 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
         // Clean up page container
         document.body.removeChild(pageContainer);
       }
+    }
+
+    // Apply watermark if enabled
+    if (enableWatermark) {
+      const watermarkOptions = enhanceWatermarkOptions({
+        color: '#999999',
+        opacity: 0.18,
+        font: {
+          family: 'helvetica',
+          style: 'bold'
+        },
+        items: [
+          {
+            text: 'Educational Use Only',
+            position: 'diagonal',
+            rotation: -45,
+            opacity: 0.22
+          },
+          {
+            text: 'Educational Use Only',
+            position: 'diagonal',
+            rotation: -45,
+            offsetX: -70,
+            offsetY: -110
+          },
+          {
+            text: 'Educational Use Only',
+            position: 'diagonal',
+            rotation: -45,
+            offsetX: 70,
+            offsetY: 110
+          },
+          {
+            text: 'Educational Use Only',
+            position: 'diagonal',
+            rotation: 45,
+            opacity: 0.22
+          },
+          {
+            text: 'Educational Use Only',
+            position: 'diagonal',
+            rotation: 45,
+            offsetX: -70,
+            offsetY: 110
+          },
+          {
+            text: 'Educational Use Only',
+            position: 'diagonal',
+            rotation: 45,
+            offsetX: 70,
+            offsetY: -110
+          }
+        ]
+      }, { width: pageWidthMM, height: pageHeightMM });
+      
+      console.log('Adding watermark to all pages...');
+      applyWatermarkToAllPages(pdf, watermarkOptions);
+      console.log('Watermark applied successfully');
     }
 
     // Save the PDF

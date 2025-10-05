@@ -3,6 +3,133 @@
  * Provides functions to add watermarks to PDF pages using jsPDF
  */
 
+const DEFAULT_WATERMARK_FONT = {
+  family: 'helvetica',
+  style: 'bold'
+};
+
+const DEFAULT_WATERMARK_ITEM = {
+  opacity: 0.3,
+  position: 'diagonal',
+  rotation: -45,
+  color: '#999999',
+  fontSize: 72,
+  align: 'center',
+  baseline: 'middle',
+  offsetX: 0,
+  offsetY: 0,
+  lineHeightMultiplier: 0.75
+};
+
+const normalizeWatermarkOptions = (watermarkOptions = {}) => {
+  if (!watermarkOptions) {
+    return {
+      items: [],
+      __isNormalized: true
+    };
+  }
+
+  if (watermarkOptions.__isNormalized) {
+    return watermarkOptions;
+  }
+
+  const {
+    items,
+    font,
+    text,
+    ...shared
+  } = watermarkOptions;
+
+  const baseFont = {
+    ...DEFAULT_WATERMARK_FONT,
+    ...(font || {})
+  };
+
+  const topLevelFontSizeProvided = Object.prototype.hasOwnProperty.call(watermarkOptions, 'fontSize');
+
+  const sourceItems = Array.isArray(items) && items.length > 0
+    ? items
+    : (text ? [{ text }] : []);
+
+  const normalizedItems = sourceItems
+    .map((rawItem) => {
+      if (!rawItem) return null;
+
+      const fontSizeProvided = topLevelFontSizeProvided || Object.prototype.hasOwnProperty.call(rawItem, 'fontSize');
+
+      const merged = {
+        ...DEFAULT_WATERMARK_ITEM,
+        ...shared,
+        ...rawItem
+      };
+
+      const resolvedFont = {
+        ...baseFont,
+        ...(rawItem?.font || {})
+      };
+
+      merged.font = resolvedFont;
+      merged._autoFontSize = !fontSizeProvided;
+
+      if (!merged.text) {
+        return null;
+      }
+
+      return merged;
+    })
+    .filter(Boolean);
+
+  const normalized = {
+    ...watermarkOptions,
+    items: normalizedItems,
+    __isNormalized: true
+  };
+
+  if (!normalized.text && normalizedItems[0]?.text) {
+    normalized.text = normalizedItems[0].text;
+  }
+
+  return normalized;
+};
+
+const shouldRenderOnPage = (item, pageNumber) => {
+  if (!item) {
+    return false;
+  }
+
+  const { pages } = item;
+
+  if (!pages) {
+    return true;
+  }
+
+  if (Array.isArray(pages)) {
+    return pages.includes(pageNumber);
+  }
+
+  if (typeof pages === 'function') {
+    try {
+      return !!pages(pageNumber);
+    } catch (error) {
+      console.error('Error evaluating watermark page rule function:', error);
+      return false;
+    }
+  }
+
+  if (typeof pages === 'object') {
+    const { from = 1, to = Number.POSITIVE_INFINITY, interval = 1 } = pages;
+
+    if (pageNumber < from || pageNumber > to) {
+      return false;
+    }
+
+    const effectiveInterval = interval || 1;
+    return ((pageNumber - from) % effectiveInterval) === 0;
+  }
+
+  return false;
+};
+
 /**
  * Calculate watermark position based on page dimensions and position setting
  * @param {Object} pageInfo - Page information (width, height)
@@ -12,66 +139,91 @@
  */
 export const calculateWatermarkPosition = (pageInfo, watermarkOptions, textDimensions) => {
   const { width, height } = pageInfo;
-  const { position } = watermarkOptions;
+  const { position = 'center', offsetX = 0, offsetY = 0 } = watermarkOptions;
   const { textWidth, textHeight } = textDimensions;
 
   const margin = 20; // Margin from edges
 
+  let coordinates = {
+    x: width / 2,
+    y: height / 2
+  };
+
   switch (position) {
     case 'center':
-      return {
+      coordinates = {
         x: width / 2,
         y: height / 2
       };
-    
+      break;
+
     case 'diagonal':
-      return {
+      coordinates = {
         x: width / 2,
         y: height / 2
       };
-    
+      break;
+
     case 'header':
-      return {
+      coordinates = {
         x: width / 2,
         y: margin + textHeight
       };
-    
+      break;
+
     case 'footer':
-      return {
+      coordinates = {
         x: width / 2,
         y: height - margin
       };
-    
+      break;
+
     case 'top-left':
-      return {
+      coordinates = {
         x: margin + textWidth / 2,
         y: margin + textHeight
       };
-    
+      break;
+
     case 'top-right':
-      return {
+      coordinates = {
         x: width - margin - textWidth / 2,
         y: margin + textHeight
       };
-    
+      break;
+
     case 'bottom-left':
-      return {
+      coordinates = {
         x: margin + textWidth / 2,
         y: height - margin
       };
-    
+      break;
+
     case 'bottom-right':
-      return {
+      coordinates = {
         x: width - margin - textWidth / 2,
         y: height - margin
       };
-    
+      break;
+
+    case 'custom':
+      coordinates = {
+        x: typeof watermarkOptions.x === 'number' ? watermarkOptions.x : width / 2,
+        y: typeof watermarkOptions.y === 'number' ? watermarkOptions.y : height / 2
+      };
+      break;
+
     default:
-      return {
+      coordinates = {
         x: width / 2,
         y: height / 2
       };
   }
+
+  return {
+    x: coordinates.x + offsetX,
+    y: coordinates.y + offsetY
+  };
 };
 
 /**
@@ -95,82 +247,108 @@ export const hexToRgb = (hex) => {
  * @param {number} pageNumber - Current page number (1-based)
  */
 export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
-  if (!watermarkOptions || !watermarkOptions.text) {
+  if (!pdf) {
     return;
   }
 
-  const {
-    text,
-    opacity = 0.3,
-    position = 'diagonal',
-    rotation = -45,
-    color = '#999999',
-    fontSize = 50
-  } = watermarkOptions;
+  const normalized = normalizeWatermarkOptions(watermarkOptions);
+  const { items = [] } = normalized;
 
-  // Get page dimensions
+  if (!items.length) {
+    return;
+  }
+
   const pageInfo = pdf.internal.pageSize;
   const pageWidth = pageInfo.getWidth();
   const pageHeight = pageInfo.getHeight();
 
-  // Save current graphics state
-  pdf.saveGraphicsState();
+  const hasGraphicsStateSupport = typeof pdf.saveGraphicsState === 'function' && typeof pdf.restoreGraphicsState === 'function';
 
-  try {
-    // Convert color to RGB
-    const rgb = hexToRgb(color);
-    
-    // Set text properties
-    pdf.setTextColor(rgb.r, rgb.g, rgb.b);
-    pdf.setFontSize(fontSize);
-    pdf.setFont('helvetica', 'bold');
-    
-    // Set opacity
-    pdf.setGState(pdf.GState({ opacity: opacity }));
-    
-    // Get text dimensions
-    const textWidth = pdf.getTextWidth(text);
-    const textHeight = fontSize * 0.75; // Approximate text height
-
-    // Calculate position
-    const position_coords = calculateWatermarkPosition(
-      { width: pageWidth, height: pageHeight },
-      { position },
-      { textWidth, textHeight }
-    );
-
-    // Apply rotation and position
-    if (rotation !== 0) {
-      // For rotated text, we need to translate to the position first
-      pdf.text(
-        text,
-        position_coords.x,
-        position_coords.y,
-        {
-          angle: rotation,
-          align: 'center',
-          baseline: 'middle'
-        }
-      );
-    } else {
-      // For non-rotated text
-      pdf.text(
-        text,
-        position_coords.x,
-        position_coords.y,
-        {
-          align: 'center',
-          baseline: 'middle'
-        }
-      );
+  items.forEach((item) => {
+    if (!item?.text) {
+      return;
     }
 
-  } catch (error) {
-    console.error('Error applying watermark:', error);
-  } finally {
-    // Restore graphics state
-    pdf.restoreGraphicsState();
-  }
+    if (!shouldRenderOnPage(item, pageNumber)) {
+      return;
+    }
+
+    if (hasGraphicsStateSupport) {
+      pdf.saveGraphicsState();
+    }
+
+    try {
+      const {
+        text,
+        opacity,
+        rotation = 0,
+        color,
+        fontSize,
+        font,
+        align = 'center',
+        baseline = 'middle',
+        lineHeightMultiplier = DEFAULT_WATERMARK_ITEM.lineHeightMultiplier
+      } = item;
+
+      const rgb = hexToRgb(color);
+
+      if (typeof pdf.setTextColor === 'function') {
+        pdf.setTextColor(rgb.r, rgb.g, rgb.b);
+      }
+
+      if (typeof pdf.setFontSize === 'function') {
+        pdf.setFontSize(fontSize);
+      }
+
+      const fontFamily = font?.family || DEFAULT_WATERMARK_FONT.family;
+      const fontStyle = font?.style || DEFAULT_WATERMARK_FONT.style;
+
+      if (typeof pdf.setFont === 'function') {
+        pdf.setFont(fontFamily, fontStyle);
+      }
+
+      if (typeof pdf.setGState === 'function') {
+        const gStateOptions = { opacity };
+        if (typeof pdf.GState === 'function') {
+          pdf.setGState(pdf.GState(gStateOptions));
+        } else {
+          pdf.setGState(gStateOptions);
+        }
+      }
+
+      const textWidth = pdf.getTextWidth ? pdf.getTextWidth(text) : 0;
+      const textHeight = fontSize * lineHeightMultiplier;
+
+      const positionCoords = calculateWatermarkPosition(
+        { width: pageWidth, height: pageHeight },
+        item,
+        { textWidth, textHeight }
+      );
+
+      const textOptions = {
+        align,
+        baseline
+      };
+
+      if (rotation) {
+        textOptions.angle = rotation;
+      }
+
+      pdf.text(
+        text,
+        positionCoords.x,
+        positionCoords.y,
+        textOptions
+      );
+
+    } catch (error) {
+      console.error('Error applying watermark item:', error);
+    } finally {
+      if (hasGraphicsStateSupport) {
+        pdf.restoreGraphicsState();
+      }
+    }
+  });
 };
 
 /**
@@ -179,17 +357,24 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
  * @param {Object} watermarkOptions - Watermark configuration
  */
 export const applyWatermarkToAllPages = (pdf, watermarkOptions) => {
-  if (!watermarkOptions || !watermarkOptions.text) {
+  if (!pdf) {
     return;
   }
 
-  const totalPages = pdf.internal.pages.length - 1; // jsPDF pages array includes an empty first element
+  const normalized = normalizeWatermarkOptions(watermarkOptions);
+  const { items = [] } = normalized;
+
+  if (!items.length) {
+    return;
+  }
+
+  const totalPages = typeof pdf.internal.getNumberOfPages === 'function'
+    ? pdf.internal.getNumberOfPages()
+    : (pdf.internal.pages.length - 1);
   
   for (let i = 1; i <= totalPages; i++) {
-    // Go to each page
     pdf.setPage(i);
-    // Apply watermark
-    applyWatermarkToPage(pdf, watermarkOptions, i);
+    applyWatermarkToPage(pdf, normalized, i);
   }
 };
 
@@ -199,14 +384,15 @@ export const applyWatermarkToAllPages = (pdf, watermarkOptions) => {
  * @returns {Function} Callback function for jsPDF
  */
 export const createWatermarkCallback = (watermarkOptions) => {
+  const normalized = normalizeWatermarkOptions(watermarkOptions);
+
   return function(pdf) {
-    if (watermarkOptions && watermarkOptions.text) {
+    if (normalized.items.length) {
       console.log('Applying watermarks to PDF pages...');
-      applyWatermarkToAllPages(pdf, watermarkOptions);
+      applyWatermarkToAllPages(pdf, normalized);
       console.log('Watermarks applied successfully');
     }
     
-    // Save the PDF
     if (pdf.save) {
       pdf.save();
     }
@@ -222,16 +408,46 @@ export const createWatermarkCallback = (watermarkOptions) => {
 export const enhanceWatermarkOptions = (watermarkOptions, pageInfo) => {
   if (!watermarkOptions) return null;
 
+  const normalized = normalizeWatermarkOptions(watermarkOptions);
+  const { items } = normalized;
+
+  if (!items.length) {
+    return null;
+  }
+
+  if (!pageInfo || typeof pageInfo.width !== 'number' || typeof pageInfo.height !== 'number') {
+    return normalized;
+  }
+
   const { width, height } = pageInfo;
   const diagonal = Math.sqrt(width * width + height * height);
-  
-  // Calculate appropriate font size based on page size and text length
-  const textLength = watermarkOptions.text ? watermarkOptions.text.length : 10;
-  const baseFontSize = Math.min(width, height) / 8; // Base size relative to smaller dimension
-  const adjustedFontSize = Math.max(20, Math.min(baseFontSize, diagonal / textLength * 2));
+  const baseFontSize = Math.min(width, height) / 8;
+
+  const enhancedItems = items.map((item) => {
+    const { _autoFontSize, text, ...rest } = item;
+
+    if (!_autoFontSize) {
+      return {
+        ...rest,
+        text
+      };
+    }
+
+    const cleanedText = (text || '').trim();
+    const textLength = cleanedText.replace(/\s+/g, '').length || cleanedText.length || 10;
+    const adjustedFontSize = Math.max(20, Math.min(baseFontSize, (diagonal / textLength) * 2));
+
+    return {
+      ...rest,
+      text,
+      fontSize: adjustedFontSize
+    };
+  });
 
   return {
-    ...watermarkOptions,
-    fontSize: watermarkOptions.fontSize || adjustedFontSize
+    ...normalized,
+    items: enhancedItems,
+    text: enhancedItems[0]?.text || normalized.text,
+    __isNormalized: true
   };
 };
