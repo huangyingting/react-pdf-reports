@@ -31,14 +31,6 @@ function App() {
   const [qualityLevel, setQualityLevel] = useState('standard'); // 'poor', 'standard', 'high'
   const [fontFamily, setFontFamily] = useState('Times New Roman');
   const [showPreview, setShowPreview] = useState(false);
-  
-  // Watermark settings
-  const [watermarkEnabled, setWatermarkEnabled] = useState(false);
-  const [watermarkText, setWatermarkText] = useState('CONFIDENTIAL');
-  const [watermarkOpacity, setWatermarkOpacity] = useState(0.3);
-  const [watermarkPosition, setWatermarkPosition] = useState('diagonal');
-  const [watermarkRotation, setWatermarkRotation] = useState(-45);
-  const [watermarkColor, setWatermarkColor] = useState('#999999');
 
   // Available font families for the report
   const fontFamilies = [
@@ -88,25 +80,13 @@ function App() {
     try {
       const elementId = reportType === 'cms1500' ? 'cms1500-report' : 'medical-records-report';
       
-      // Prepare watermark options
-      const watermarkOptions = watermarkEnabled ? {
-        text: watermarkText,
-        opacity: watermarkOpacity,
-        position: watermarkPosition,
-        rotation: watermarkRotation,
-        color: watermarkColor
-      } : null;
-      
       if (exportFormat === 'canvas') {
         await exportToPDFAsImage(elementId, `${filename}-canvas`, {
-          qualityLevel: qualityLevel,
-          watermark: watermarkOptions
+          qualityLevel: qualityLevel
         });
         alert(`${filename}-canvas.pdf has been downloaded successfully!`);
       } else {
-        await exportToPDF(elementId, filename, {
-          watermark: watermarkOptions
-        });
+        await exportToPDF(elementId, filename);
         alert(`${filename}.pdf has been downloaded successfully!`);
       }
     } catch (error) {
@@ -211,18 +191,6 @@ function App() {
             fontFamily={fontFamily}
             setFontFamily={setFontFamily}
             fontFamilies={fontFamilies}
-            watermarkEnabled={watermarkEnabled}
-            setWatermarkEnabled={setWatermarkEnabled}
-            watermarkText={watermarkText}
-            setWatermarkText={setWatermarkText}
-            watermarkOpacity={watermarkOpacity}
-            setWatermarkOpacity={setWatermarkOpacity}
-            watermarkPosition={watermarkPosition}
-            setWatermarkPosition={setWatermarkPosition}
-            watermarkRotation={watermarkRotation}
-            setWatermarkRotation={setWatermarkRotation}
-            watermarkColor={watermarkColor}
-            setWatermarkColor={setWatermarkColor}
             onPreview={handlePreview}
             onExport={handleExportPDF}
             onBack={handlePreviousStep}

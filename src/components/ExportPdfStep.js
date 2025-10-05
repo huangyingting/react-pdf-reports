@@ -11,18 +11,6 @@ const ExportPdfStep = ({
   fontFamily,
   setFontFamily,
   fontFamilies,
-  watermarkEnabled,
-  setWatermarkEnabled,
-  watermarkText,
-  setWatermarkText,
-  watermarkOpacity,
-  setWatermarkOpacity,
-  watermarkPosition,
-  setWatermarkPosition,
-  watermarkRotation,
-  setWatermarkRotation,
-  watermarkColor,
-  setWatermarkColor,
   onPreview,
   onExport,
   onBack,
@@ -102,21 +90,6 @@ const ExportPdfStep = ({
               </select>
               <p className="setting-note">
                 Choose font family for all document text
-              </p>
-            </div>
-
-            <div className="setting-group">
-              <label>Add Watermark</label>
-              <label className="watermark-toggle">
-                <input
-                  type="checkbox"
-                  checked={watermarkEnabled}
-                  onChange={(e) => setWatermarkEnabled(e.target.checked)}
-                />
-                <span>Enable watermark on documents</span>
-              </label>
-              <p className="setting-note">
-                Applies preset watermark configuration to all generated documents
               </p>
             </div>
           </div>
