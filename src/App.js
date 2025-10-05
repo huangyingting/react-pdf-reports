@@ -7,6 +7,8 @@ import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
 import DocumentCard from './components/DocumentCard';
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
+import CMS1500Form from './reports/cms1500/CMS1500Form';
+import { generateCMS1500Data } from './utils/cms1500Data';
 
 // Import utilities
 import { 
@@ -20,6 +22,8 @@ function App() {
   // Workflow state management
   const [currentStep, setCurrentStep] = useState(1);
   const [medicalData, setMedicalData] = useState(null);
+  const [cms1500Data, setCms1500Data] = useState(null);
+  const [activeReportType, setActiveReportType] = useState('medical');
   
   // Export settings
   const [isLoading, setIsLoading] = useState(false);
@@ -49,13 +53,13 @@ function App() {
   // Step navigation handlers
   const handleDataGenerated = (data) => {
     setMedicalData(data);
+    setCms1500Data(generateCMS1500Data(data));
   };
 
-  const handleDataUpdated = (data) => {
-    setMedicalData(data);
-  };
-
-  const handleNextStep = () => {
+  const handleDataUpdated = (newData) => {
+    setMedicalData(newData);
+    setCms1500Data(generateCMS1500Data(newData));
+  };  const handleNextStep = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
@@ -82,7 +86,7 @@ function App() {
 
     setIsLoading(true);
     try {
-      const elementId = 'medical-records-report';
+      const elementId = reportType === 'cms1500' ? 'cms1500-report' : 'medical-records-report';
       
       // Prepare watermark options
       const watermarkOptions = watermarkEnabled ? {
@@ -113,11 +117,12 @@ function App() {
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = (reportType = 'medical') => {
     if (!medicalData) {
       alert('Please generate medical data first.');
       return;
     }
+    setActiveReportType(reportType);
     setShowPreview(true);
   };
 
@@ -156,6 +161,18 @@ function App() {
 
     const selectedFont = fontFamilies.find(font => font.value === fontFamily);
     const fontFamilyStyle = selectedFont ? selectedFont.css : "'Arial', sans-serif";
+    
+    if (activeReportType === 'cms1500') {
+      if (!cms1500Data) {
+        return <div>CMS-1500 data not available.</div>;
+      }
+      return (
+        <CMS1500Form 
+          data={cms1500Data} 
+          fontFamily={fontFamilyStyle}
+        />
+      );
+    }
     
     return (
       <MedicalRecordsReport 
@@ -245,7 +262,7 @@ function App() {
         <div className="preview-modal">
           <div className="preview-content">
             <div className="preview-header">
-              <h3>Preview - Medical Records Report</h3>
+              <h3>Preview - {activeReportType === 'cms1500' ? 'CMS-1500 Form' : 'Medical Records Report'}</h3>
               <button 
                 className="close-preview"
                 onClick={() => setShowPreview(false)}
@@ -260,9 +277,24 @@ function App() {
         </div>
       )}
 
-      {/* Hidden report for PDF export */}
+      {/* Hidden reports for PDF export */}
       <div className="report-display">
-        {renderActiveReport()}
+        <div id="medical-records-report">
+          {medicalData && (
+            <MedicalRecordsReport 
+              data={medicalData} 
+              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+            />
+          )}
+        </div>
+        <div id="cms1500-report">
+          {cms1500Data && (
+            <CMS1500Form 
+              data={cms1500Data} 
+              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

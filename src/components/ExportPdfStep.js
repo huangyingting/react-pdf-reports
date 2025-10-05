@@ -141,8 +141,16 @@ const ExportPdfStep = ({
             <DocumentCard
               title="Complete Medical Records Report"
               description="Comprehensive medical records including patient demographics, medical history, medications, lab results, and visit notes"
-              onPreview={onPreview}
+              onPreview={() => onPreview('medical')}
               onGenerate={() => onExport('medical', 'medical-records-report')}
+              isLoading={isLoading}
+            />
+
+            <DocumentCard
+              title="CMS-1500 Health Insurance Claim Form"
+              description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
+              onPreview={() => onPreview('cms1500')}
+              onGenerate={() => onExport('cms1500', 'cms-1500-claim-form')}
               isLoading={isLoading}
             />
           </div>
