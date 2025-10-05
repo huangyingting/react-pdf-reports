@@ -4,7 +4,7 @@ import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
 import LabResultsPage from './LabResultsPage';
 import VisitNotesPage from './VisitNotesPage';
-import '../../styles/MedicalRecords.css';
+import './MedicalRecordsReport.css';
 
 const MedicalRecordsReport = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   return (

@@ -64,12 +64,6 @@ const EditDataStep = ({ medicalData, onDataUpdated, onNext, onBack }) => {
     <div className="edit-data-step">
       <div className="step-content">
         <div className="step-header">
-          <div className="step-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="m18.5 2.5 a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-            </svg>
-          </div>
           <div>
             <h2>Review & Edit Data</h2>
             <p>Review and modify patient information before generating documents</p>
@@ -84,7 +78,6 @@ const EditDataStep = ({ medicalData, onDataUpdated, onNext, onBack }) => {
                 className={`section-tab ${activeSection === section.id ? 'active' : ''}`}
                 onClick={() => setActiveSection(section.id)}
               >
-                <span className="section-icon">{section.icon}</span>
                 <span className="section-label">{section.label}</span>
               </button>
             ))}
