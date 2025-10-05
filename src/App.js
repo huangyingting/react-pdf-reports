@@ -2,34 +2,36 @@ import React, { useState } from 'react';
 import './App.css';
 
 // Import report components
-import SalesReport from './components/SalesReport';
-import InventoryReport from './components/InventoryReport';
-import FinancialReport from './components/FinancialReport';
 import MedicalRecordsReport from './components/MedicalRecordsReport';
 
 // Import utilities
 import { 
   exportToPDF, 
   exportMultipleReportsToPDF, 
-  previewPDF 
+  previewPDF,
+  exportToPDFAsImage,
+  exportMultipleElementsToPDFAsImages,
+  previewPDFAsImage
 } from './utils/pdfExport';
-import { 
-  sampleSalesData, 
-  sampleInventoryData, 
-  sampleFinancialData 
-} from './utils/sampleData';
 import { sampleMedicalRecordsData } from './utils/medicalRecordsData';
 
 function App() {
-  const [activeReport, setActiveReport] = useState('sales');
+  const [activeReport, setActiveReport] = useState('medical');
   const [isLoading, setIsLoading] = useState(false);
+  const [exportFormat, setExportFormat] = useState('pdf'); // 'pdf' or 'image'
 
   const handleExportPDF = async (reportType, filename) => {
     setIsLoading(true);
     try {
       const elementId = reportType === 'medical' ? 'medical-records-report' : `${reportType}-report`;
-      await exportToPDF(elementId, filename);
-      alert(`${filename}.pdf has been downloaded successfully!`);
+      
+      if (exportFormat === 'image') {
+        await exportToPDFAsImage(elementId, `${filename}-image`);
+        alert(`${filename}-image.pdf has been downloaded successfully!`);
+      } else {
+        await exportToPDF(elementId, filename);
+        alert(`${filename}.pdf has been downloaded successfully!`);
+      }
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to export PDF. Please try again.');
@@ -42,7 +44,12 @@ function App() {
     setIsLoading(true);
     try {
       const elementId = reportType === 'medical' ? 'medical-records-report' : `${reportType}-report`;
-      await previewPDF(elementId);
+      
+      if (exportFormat === 'image') {
+        await previewPDFAsImage(elementId);
+      } else {
+        await previewPDF(elementId);
+      }
     } catch (error) {
       console.error('Preview failed:', error);
       alert('Failed to preview PDF. Please try again.');
@@ -54,98 +61,86 @@ function App() {
   const handleExportAllReports = async () => {
     setIsLoading(true);
     try {
-      const elementIds = ['sales-report', 'inventory-report', 'financial-report', 'medical-records-report'];
-      await exportMultipleReportsToPDF(elementIds, 'all-reports-combined');
-      alert('Combined report PDF has been downloaded successfully!');
+      const elementIds = ['medical-records-report'];
+      await exportMultipleReportsToPDF(elementIds, 'medical-records-combined');
+      alert('Medical records PDF has been downloaded successfully!');
     } catch (error) {
-      console.error('Combined export failed:', error);
-      alert('Failed to export combined PDF. Please try again.');
+      console.error('Export failed:', error);
+      alert('Failed to export PDF. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleExportAllReportsAsImages = async () => {
+    setIsLoading(true);
+    try {
+      const elementIds = ['medical-records-report'];
+      await exportMultipleElementsToPDFAsImages(elementIds, 'medical-records-images');
+      alert('Medical records image-based PDF has been downloaded successfully!');
+    } catch (error) {
+      console.error('Image export failed:', error);
+      alert('Failed to export PDF as images. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const renderActiveReport = () => {
-    switch (activeReport) {
-      case 'sales':
-        return <SalesReport data={sampleSalesData} />;
-      case 'inventory':
-        return <InventoryReport data={sampleInventoryData} />;
-      case 'financial':
-        return <FinancialReport data={sampleFinancialData} />;
-      case 'medical':
-        return <MedicalRecordsReport data={sampleMedicalRecordsData} />;
-      default:
-        return <SalesReport data={sampleSalesData} />;
-    }
+    return <MedicalRecordsReport data={sampleMedicalRecordsData} />;
   };
 
   return (
     <div className="App">
       <header className="app-header">
-        <h1>React PDF Report Generator</h1>
-        <p>Generate professional PDF reports using jsPDF's .html() method</p>
+        <h1>Medical Records PDF Generator</h1>
+        <p>Generate professional medical record PDFs using jsPDF's .html() method</p>
       </header>
 
       <nav className="report-nav">
         <div className="nav-buttons">
           <button 
-            className={activeReport === 'sales' ? 'active' : ''} 
-            onClick={() => setActiveReport('sales')}
+            className="active"
+            disabled
           >
-            Sales Report
-          </button>
-          <button 
-            className={activeReport === 'inventory' ? 'active' : ''} 
-            onClick={() => setActiveReport('inventory')}
-          >
-            Inventory Report
-          </button>
-          <button 
-            className={activeReport === 'financial' ? 'active' : ''} 
-            onClick={() => setActiveReport('financial')}
-          >
-            Financial Report
-          </button>
-          <button 
-            className={activeReport === 'medical' ? 'active' : ''} 
-            onClick={() => setActiveReport('medical')}
-          >
-            Medical Records
+            Medical Records Report
           </button>
         </div>
       </nav>
 
       <div className="controls-panel">
         <div className="control-group">
-          <h3>Current Report Actions</h3>
+          <h3>Export Settings</h3>
+          <div className="export-format-selector">
+            <label htmlFor="export-format">Export Format:</label>
+            <select 
+              id="export-format"
+              value={exportFormat} 
+              onChange={(e) => setExportFormat(e.target.value)}
+              className="format-dropdown"
+            >
+              <option value="pdf">PDF (Text-based)</option>
+              <option value="image">PDF (Image-based)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div className="control-group">
+          <h3>Report Actions</h3>
           <div className="button-group">
             <button 
               onClick={() => handlePreviewPDF(activeReport)}
               disabled={isLoading}
               className="btn btn-secondary"
             >
-              {isLoading ? 'Processing...' : 'Preview PDF'}
+              {isLoading ? 'Processing...' : `Preview ${exportFormat === 'image' ? '(Image)' : '(PDF)'}`}
             </button>
             <button 
-              onClick={() => handleExportPDF(activeReport, `${activeReport}-report`)}
+              onClick={() => handleExportPDF(activeReport, `medical-records-report`)}
               disabled={isLoading}
               className="btn btn-primary"
             >
-              {isLoading ? 'Generating...' : 'Download PDF'}
-            </button>
-          </div>
-        </div>
-
-        <div className="control-group">
-          <h3>Bulk Operations</h3>
-          <div className="button-group">
-            <button 
-              onClick={handleExportAllReports}
-              disabled={isLoading}
-              className="btn btn-success"
-            >
-              {isLoading ? 'Generating...' : 'Download All Reports (Combined)'}
+              {isLoading ? 'Generating...' : `Download ${exportFormat === 'image' ? '(Image)' : '(PDF)'}`}
             </button>
           </div>
         </div>
@@ -157,13 +152,7 @@ function App() {
         </div>
       </main>
 
-      {/* Hidden reports for combined PDF export */}
-      <div style={{ display: 'none' }}>
-        {activeReport !== 'sales' && <SalesReport data={sampleSalesData} />}
-        {activeReport !== 'inventory' && <InventoryReport data={sampleInventoryData} />}
-        {activeReport !== 'financial' && <FinancialReport data={sampleFinancialData} />}
-        {activeReport !== 'medical' && <MedicalRecordsReport data={sampleMedicalRecordsData} />}
-      </div>
+
 
       <footer className="app-footer">
         <p>

@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 /**
  * Unified PDF Export Configuration
@@ -308,4 +309,307 @@ export const updatePDFConfig = (newConfig) => {
  */
 export const getPDFConfig = () => {
   return { ...PDF_CONFIG };
+};
+
+/**
+ * Export HTML element to PDF as image using improved method
+ * This method captures the HTML element as an image and embeds it in a PDF
+ * @param {string} elementId - The ID of the HTML element to export
+ * @param {string} filename - The name of the PDF file (without extension)
+ * @param {Object} customOptions - Custom options to override defaults
+ */
+export const exportToPDFAsImage = async (elementId, filename = 'report-image', customOptions = {}) => {
+  try {
+    // Get the HTML element
+    const element = document.getElementById(elementId);
+    
+    if (!element) {
+      throw new Error(`Element with ID "${elementId}" not found`);
+    }
+
+    console.log('Starting PDF as image export for element:', elementId);
+    
+    // Get unified PDF options
+    const options = getPDFOptions({ filename: `${filename}.pdf`, ...customOptions });
+    
+    // Find all page elements (everything that's not a page break)
+    const allChildren = Array.from(element.children);
+    const pages = [];
+    let currentPage = [];
+    
+    for (const child of allChildren) {
+      if (child.classList.contains('page-break')) {
+        if (currentPage.length > 0) {
+          pages.push(currentPage);
+          currentPage = [];
+        }
+      } else {
+        currentPage.push(child);
+      }
+    }
+    
+    // Add the last page if it has content
+    if (currentPage.length > 0) {
+      pages.push(currentPage);
+    }
+    
+    if (pages.length === 0) {
+      throw new Error('No page content found');
+    }
+    
+    console.log(`Found ${pages.length} pages to process`);
+    
+    // Get dimensions from the first page element to set up PDF
+    const firstPageElement = pages[0][0];
+    const elementWidth = firstPageElement.offsetWidth;
+    const elementHeight = firstPageElement.offsetHeight;
+    
+    // Convert pixels to mm (assuming 96 DPI)
+    const pageWidthMM = (elementWidth * 25.4) / 96;
+    const pageHeightMM = (elementHeight * 25.4) / 96;
+    
+    console.log(`Detected page dimensions: ${pageWidthMM}mm x ${pageHeightMM}mm`);
+    
+    // Create PDF with dimensions based on actual content
+    const pdf = new jsPDF({
+      orientation: pageWidthMM > pageHeightMM ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: [pageWidthMM, pageHeightMM],
+      compress: true
+    });
+
+    // Process each page
+    for (let i = 0; i < pages.length; i++) {
+      console.log(`Processing page ${i + 1} of ${pages.length}`);
+      
+      // Create a temporary container for this page
+      const pageContainer = document.createElement('div');
+      pageContainer.style.position = 'absolute';
+      pageContainer.style.left = '-9999px';
+      pageContainer.style.top = '-9999px';
+      pageContainer.style.width = elementWidth + 'px';
+      pageContainer.style.height = elementHeight + 'px';
+      pageContainer.style.backgroundColor = 'white';
+      pageContainer.style.overflow = 'hidden';
+      
+      // Copy only essential styles, NO spacing styles
+      const computedStyle = window.getComputedStyle(firstPageElement);
+      pageContainer.style.fontFamily = computedStyle.fontFamily;
+      pageContainer.style.fontSize = computedStyle.fontSize;
+      pageContainer.style.lineHeight = computedStyle.lineHeight;
+      pageContainer.style.color = computedStyle.color;
+      
+      // Explicitly reset all spacing to zero
+      pageContainer.style.margin = '0';
+      pageContainer.style.padding = '0';
+      pageContainer.style.border = 'none';
+      pageContainer.style.boxSizing = 'border-box';
+      
+      // Add page content to container
+      pages[i].forEach(pageElement => {
+        pageContainer.appendChild(pageElement.cloneNode(true));
+      });
+      
+      document.body.appendChild(pageContainer);
+      
+      try {
+        // Add new page for all pages after the first
+        if (i > 0) {
+          pdf.addPage([pageWidthMM, pageHeightMM]);
+        }
+
+        // Capture this page with html2canvas
+        const canvas = await html2canvas(pageContainer, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          width: elementWidth,
+          height: elementHeight,
+          windowWidth: elementWidth,
+          windowHeight: elementHeight,
+          x: 0,
+          y: 0,
+          scrollX: 0,
+          scrollY: 0
+        });
+
+        // Convert to image
+        const imgData = canvas.toDataURL('image/png', 1.0);
+
+        // Add the image to PDF - it should fit exactly since we used the same dimensions
+        pdf.addImage(imgData, 'PNG', 0, 0, pageWidthMM, pageHeightMM);
+        
+        console.log(`Added page ${i + 1} to PDF (${pageWidthMM}mm x ${pageHeightMM}mm)`);
+        
+      } finally {
+        // Clean up page container
+        document.body.removeChild(pageContainer);
+      }
+    }
+
+    // Save the PDF
+    pdf.save(options.filename);
+    console.log(`PDF with image "${options.filename}" generated successfully!`);
+    return true;
+    
+  } catch (error) {
+    console.error('Error generating PDF as image:', error);
+    console.error('Error details:', {
+      elementId,
+      filename,
+      customOptions,
+      elementExists: !!document.getElementById(elementId)
+    });
+    throw error;
+  }
+};
+
+
+
+/**
+ * Export multiple elements to PDF as images
+ * Each element is captured as an image and added to separate pages
+ * @param {Array} elementIds - Array of element IDs to include in the PDF
+ * @param {string} filename - The name of the PDF file
+ * @param {Object} customOptions - Custom options to override defaults
+ */
+export const exportMultipleElementsToPDFAsImages = async (elementIds, filename = 'combined-report-images', customOptions = {}) => {
+  try {
+    // Get unified PDF options
+    const options = getPDFOptions({ filename: `${filename}.pdf`, ...customOptions });
+    
+    // Html2canvas specific options
+    const canvasOptions = {
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      scale: 2,
+      logging: false,
+      letterRendering: true,
+      ...options.html2canvas,
+      ...(customOptions.canvasOptions || {})
+    };
+    
+    // Create jsPDF instance
+    const pdf = createPDFInstance(options);
+    
+    let isFirstPage = true;
+
+    // Process each element
+    for (const elementId of elementIds) {
+      const element = document.getElementById(elementId);
+      
+      if (!element) {
+        console.warn(`Element with ID "${elementId}" not found, skipping...`);
+        continue;
+      }
+
+      console.log(`Capturing element ${elementId} as image...`);
+      
+      // Capture the element as canvas
+      const canvas = await html2canvas(element, canvasOptions);
+      
+      // Add new page for subsequent reports
+      if (!isFirstPage) {
+        pdf.addPage();
+      }
+      
+      // Get PDF page dimensions
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calculate image dimensions to fit the page
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+      
+      const scaledWidth = imgWidth * ratio;
+      const scaledHeight = imgHeight * ratio;
+      
+      // Center the image on the page
+      const x = (pageWidth - scaledWidth) / 2;
+      const y = (pageHeight - scaledHeight) / 2;
+      
+      // Convert canvas to image data
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      
+      // Add image to PDF
+      pdf.addImage(imgData, 'JPEG', x, y, scaledWidth, scaledHeight);
+
+      isFirstPage = false;
+    }
+
+    // Save the combined PDF
+    pdf.save(options.filename);
+    console.log(`Combined PDF with images "${options.filename}" generated successfully!`);
+    return true;
+    
+  } catch (error) {
+    console.error('Error generating combined PDF with images:', error);
+    throw error;
+  }
+};
+
+/**
+ * Preview PDF as image before downloading
+ * @param {string} elementId - The ID of the HTML element to preview
+ * @param {Object} customOptions - Custom options to override defaults
+ */
+export const previewPDFAsImage = async (elementId, customOptions = {}) => {
+  try {
+    const element = document.getElementById(elementId);
+    
+    if (!element) {
+      throw new Error(`Element with ID "${elementId}" not found`);
+    }
+
+    console.log('Creating PDF image preview for element:', elementId);
+    
+    // Get unified PDF options
+    const options = getPDFOptions(customOptions);
+    
+    // Html2canvas specific options
+    const canvasOptions = {
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      scale: 2,
+      logging: false,
+      letterRendering: true,
+      ...options.html2canvas,
+      ...(customOptions.canvasOptions || {})
+    };
+    
+    // Capture the element as canvas
+    const canvas = await html2canvas(element, canvasOptions);
+    
+    // Create jsPDF instance
+    const pdf = createPDFInstance(options);
+    
+    // Get PDF page dimensions and calculate image placement
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+    const scaledWidth = imgWidth * ratio;
+    const scaledHeight = imgHeight * ratio;
+    const x = (pageWidth - scaledWidth) / 2;
+    const y = (pageHeight - scaledHeight) / 2;
+    
+    // Convert canvas to image data and add to PDF
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    pdf.addImage(imgData, 'JPEG', x, y, scaledWidth, scaledHeight);
+    
+    // Open PDF in new tab for preview
+    const pdfBlob = pdf.output('blob');
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    window.open(pdfUrl, '_blank');
+
+    return true;
+  } catch (error) {
+    console.error('Error previewing PDF as image:', error);
+    throw error;
+  }
 };
