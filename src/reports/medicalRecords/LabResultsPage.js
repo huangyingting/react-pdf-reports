@@ -5,7 +5,7 @@ const LabResultsPage = ({ data }) => {
   const currentDate = new Date().toLocaleDateString();
   
   const renderVitalSigns = () => {
-    const vitals = labResults?.vitalSigns || [];
+    const vitals = data.vitalSigns || [];
     if (vitals.length === 0) return null;
 
     return (
@@ -42,7 +42,7 @@ const LabResultsPage = ({ data }) => {
   };
 
   const renderRecentLabs = () => {
-    const tests = labResults?.labTests || [];
+    const tests = labResults || [];
     if (tests.length === 0) return null;
 
     return (
@@ -52,7 +52,7 @@ const LabResultsPage = ({ data }) => {
         {tests.slice(0, 2).map((test, testIndex) => (
           <div key={testIndex} style={{marginBottom: '4mm'}}>
             <h4 style={{color: '#2c5aa0', fontSize: '11px', marginBottom: '2mm'}}>
-              {test.testName} - {test.date}
+              {test.testName} - {test.testDate}
             </h4>
             
             <table className="compact-table">
@@ -68,11 +68,11 @@ const LabResultsPage = ({ data }) => {
               <tbody>
                 {test.results.slice(0, 6).map((result, resultIndex) => (
                   <tr key={resultIndex}>
-                    <td style={{fontWeight: 'bold'}}>{result.component}</td>
+                    <td style={{fontWeight: 'bold'}}>{result.parameter}</td>
                     <td style={{textAlign: 'center', fontWeight: result.status !== 'Normal' ? 'bold' : 'normal'}}>
                       {result.value}
                     </td>
-                    <td style={{textAlign: 'center'}}>{result.units}</td>
+                    <td style={{textAlign: 'center'}}>{result.unit}</td>
                     <td style={{textAlign: 'center'}}>{result.referenceRange}</td>
                     <td style={{textAlign: 'center'}}>
                       <span className={`status-badge status-${result.status?.toLowerCase().replace(' ', '-')}`}>
@@ -90,7 +90,7 @@ const LabResultsPage = ({ data }) => {
   };
 
   const renderCriticalAlerts = () => {
-    const tests = labResults?.labTests || [];
+    const tests = labResults || [];
     const criticalResults = [];
     
     tests.forEach(test => {
@@ -98,9 +98,9 @@ const LabResultsPage = ({ data }) => {
         if (result.status === 'High' || result.status === 'Low' || result.status === 'Critical') {
           criticalResults.push({
             test: test.testName,
-            component: result.component,
+            component: result.parameter,
             value: result.value,
-            units: result.units,
+            units: result.unit,
             status: result.status,
             referenceRange: result.referenceRange
           });
@@ -128,7 +128,7 @@ const LabResultsPage = ({ data }) => {
   };
 
   const renderLabSummary = () => {
-    const tests = labResults?.labTests || [];
+    const tests = labResults || [];
     if (tests.length === 0) return null;
 
     return (
@@ -138,7 +138,7 @@ const LabResultsPage = ({ data }) => {
           <div className="reference-item">
             <strong>Tests Ordered</strong>
             <div>{tests.length} test panels completed</div>
-            <div className="note">Most recent: {tests[0]?.date || 'N/A'}</div>
+            <div className="note">Most recent: {tests[0]?.testDate || 'N/A'}</div>
           </div>
           <div className="reference-item">
             <strong>Abnormal Results</strong>
@@ -197,9 +197,9 @@ const LabResultsPage = ({ data }) => {
         {renderCriticalAlerts()}
         {renderLabSummary()}
         
-        {!labResults?.vitalSigns?.length && !labResults?.labTests?.length && (
-          <div className="no-data">
-            No laboratory results or vital signs available
+        {(!data.vitalSigns?.length && !labResults?.length) && (
+          <div className="no-data-message">
+            <p>No laboratory or vital sign data available for this patient.</p>
           </div>
         )}
       </div>
@@ -209,7 +209,7 @@ const LabResultsPage = ({ data }) => {
           <p><strong>CONFIDENTIAL MEDICAL RECORD:</strong> This document contains privileged and confidential information intended only for the addressee. If you have received this in error, please notify the sender immediately.</p>
         </div>
         <div className="page-info">
-          <span>Patient ID: {patient?.patientId || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
+          <span>Patient ID: {patient?.id || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
           <span>Page 4 of 5 | Lab Results</span>
         </div>
       </div>

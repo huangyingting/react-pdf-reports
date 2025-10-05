@@ -205,10 +205,18 @@ export const sampleMedicalRecordsData = {
   visitNotes: [
     {
       date: "2024-09-15",
-      physician: "Dr. Sarah Williams",
+      provider: "Dr. Sarah Williams",
       type: "Annual Physical Examination",
       chiefComplaint: "Annual check-up, blood pressure monitoring",
       historyOfPresentIllness: "Patient reports feeling well overall. Compliance with medications good. Some occasional fatigue but attributes to work stress. No chest pain, shortness of breath, or palpitations.",
+      vitals: {
+        bloodPressure: "128/82",
+        heartRate: 78,
+        temperature: 98.4,
+        weight: 185,
+        height: '70"',
+        oxygenSaturation: 98
+      },
       physicalExam: {
         general: "Well-appearing male in no acute distress",
         vitals: "See vital signs section",
@@ -236,10 +244,18 @@ export const sampleMedicalRecordsData = {
     },
     {
       date: "2024-06-10",
-      physician: "Dr. Sarah Williams",
+      provider: "Dr. Sarah Williams",
       type: "Follow-up Visit",
       chiefComplaint: "Blood pressure check, medication review",
       historyOfPresentIllness: "Patient returns for routine follow-up. Reports good adherence to medications. Occasional dizziness in morning, possibly related to medications.",
+      vitals: {
+        bloodPressure: "135/88",
+        heartRate: 78,
+        temperature: 98.4,
+        weight: 183,
+        height: '70"',
+        oxygenSaturation: 97
+      },
       physicalExam: {
         general: "Well-appearing, no acute distress",
         vitals: "BP 135/88, HR 78, temp 98.4°F",

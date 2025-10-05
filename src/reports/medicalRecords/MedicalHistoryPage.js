@@ -31,13 +31,13 @@ const MedicalHistoryPage = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {medicalHistory.allergies.map((allergy, index) => (
+              {(medicalHistory.allergies || []).map((allergy, index) => (
                 <tr key={index}>
                   <td><strong>{allergy.allergen}</strong></td>
                   <td>{allergy.reaction}</td>
                   <td>
-                    <span className={`severity-badge severity-${allergy.severity.toLowerCase()}`}>
-                      {allergy.severity}
+                    <span className={`severity-badge severity-${(allergy.severity || 'none').toLowerCase()}`}>
+                      {allergy.severity || 'Unknown'}
                     </span>
                   </td>
                   <td>{allergy.dateIdentified}</td>
@@ -60,13 +60,13 @@ const MedicalHistoryPage = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {medicalHistory.chronicConditions.map((condition, index) => (
+              {(medicalHistory.chronicConditions || []).map((condition, index) => (
                 <tr key={index}>
                   <td><strong>{condition.condition}</strong></td>
                   <td>{condition.diagnosedDate}</td>
                   <td>
-                    <span className={`status-badge status-${condition.status.toLowerCase()}`}>
-                      {condition.status}
+                    <span className={`status-badge status-${(condition.status || 'unknown').toLowerCase()}`}>
+                      {condition.status || 'Unknown'}
                     </span>
                   </td>
                   <td>{condition.notes}</td>
@@ -90,7 +90,7 @@ const MedicalHistoryPage = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {medicalHistory.surgicalHistory.map((surgery, index) => (
+              {(medicalHistory.surgicalHistory || []).map((surgery, index) => (
                 <tr key={index}>
                   <td><strong>{surgery.procedure}</strong></td>
                   <td>{surgery.date}</td>
@@ -116,10 +116,10 @@ const MedicalHistoryPage = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {medicalHistory.familyHistory.map((family, index) => (
+              {(medicalHistory.familyHistory || []).map((family, index) => (
                 <tr key={index}>
                   <td><strong>{family.relation}</strong></td>
-                  <td>{family.conditions.join(', ')}</td>
+                  <td>{(family.conditions || []).join(', ')}</td>
                   <td>{family.ageAtDeath}</td>
                   <td>{family.causeOfDeath}</td>
                 </tr>

@@ -15,7 +15,7 @@ const VisitNotesPage = ({ data }) => {
         {visits.slice(0, 2).map((visit, index) => (
           <div key={index} className="visit-container">
             <h4 className="visit-header">
-              {visit.type} - {visit.date} - Dr. {visit.physician}
+              {visit.type} - {visit.date} - {visit.provider}
             </h4>
             
             <table className="info-table">
@@ -31,8 +31,8 @@ const VisitNotesPage = ({ data }) => {
                 <tr>
                   <td className="label">Vital Signs</td>
                   <td className="value">
-                    BP: {visit.vitalSigns?.bloodPressure || 'N/A'}, HR: {visit.vitalSigns?.heartRate || 'N/A'}, 
-                    Temp: {visit.vitalSigns?.temperature || 'N/A'}
+                    BP: {visit.vitals?.bloodPressure || 'N/A'}, HR: {visit.vitals?.heartRate || 'N/A'}, 
+                    Temp: {visit.vitals?.temperature || 'N/A'}
                   </td>
                 </tr>
               </tbody>
@@ -43,7 +43,7 @@ const VisitNotesPage = ({ data }) => {
                 <div className="assessment-section">
                   <h4>Assessment</h4>
                   <div className="assessment-list">
-                    {visit.assessment?.slice(0, 3).map((item, idx) => (
+                    {(Array.isArray(visit.assessment) ? visit.assessment : [visit.assessment]).filter(Boolean).slice(0, 3).map((item, idx) => (
                       <div key={idx} className="assessment-item">• {item}</div>
                     ))}
                   </div>
@@ -51,7 +51,7 @@ const VisitNotesPage = ({ data }) => {
                 <div className="plan-section">
                   <h4>Plan</h4>
                   <div className="plan-list">
-                    {visit.plan?.slice(0, 3).map((item, idx) => (
+                    {(Array.isArray(visit.plan) ? visit.plan : [visit.plan]).filter(Boolean).slice(0, 3).map((item, idx) => (
                       <div key={idx} className="plan-item">• {item}</div>
                     ))}
                   </div>

@@ -79,7 +79,6 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
 }
 
 .section-icon {
@@ -88,7 +87,7 @@
 
 .section-header h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.0rem;
   font-weight: 600;
   color: #111827;
 }
@@ -314,6 +313,22 @@
   }
 }
 
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.header-title-row h1 {
+  margin: 0;
+  flex: 1;
+}
+
+.header-badge {
+  flex-shrink: 0;
+}
+
 /* Watermark Controls */
 .watermark-section {
   border-top: 1px solid #e5e7eb;
@@ -445,4 +460,35 @@
   .setting-color {
     width: 100%;
   }
+}
+
+/* Step Navigation */
+.step-navigation {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* No Data Message */
+.no-data-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.no-data-message h2 {
+  margin: 0 0 1rem 0;
+  color: #111827;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.no-data-message p {
+  margin: 0 0 2rem 0;
+  color: #6b7280;
+  font-size: 1rem;
 }

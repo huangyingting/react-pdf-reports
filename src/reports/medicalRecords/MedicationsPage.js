@@ -33,7 +33,7 @@ const MedicationsPage = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {medications.current.map((medication, index) => (
+              {(medications?.current || []).map((medication, index) => (
                 <tr key={index}>
                   <td><strong>{medication.name}</strong></td>
                   <td>{medication.strength}</td>
@@ -51,7 +51,7 @@ const MedicationsPage = ({ data }) => {
             <h4>Special Instructions</h4>
             <table className="instructions-table">
               <tbody>
-                {medications.current.map((medication, index) => (
+                {(medications?.current || []).map((medication, index) => (
                   <tr key={index}>
                     <td><strong>{medication.name}:</strong></td>
                     <td>{medication.instructions}</td>
@@ -76,7 +76,7 @@ const MedicationsPage = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {medications.discontinued.map((medication, index) => (
+              {(medications?.discontinued || []).map((medication, index) => (
                 <tr key={index}>
                   <td><strong>{medication.name}</strong></td>
                   <td>{medication.strength}</td>
