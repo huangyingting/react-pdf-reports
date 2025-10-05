@@ -71,7 +71,7 @@
   padding: 2rem;
   margin: 1rem 2rem;
   border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 9px 32px rgba(0, 0, 0, 0.1);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
@@ -99,7 +99,7 @@
 .format-dropdown {
   padding: 0.75rem 1rem;
   border: 2px solid #e1e8ed;
-  border-radius: 8px;
+  border-radius: 9px;
   background: white;
   color: #2c3e50;
   font-size: 0.9rem;
@@ -112,7 +112,7 @@
 .quality-dropdown {
   padding: 0.75rem 1rem;
   border: 2px solid #e1e8ed;
-  border-radius: 8px;
+  border-radius: 9px;
   background: white;
   color: #2c3e50;
   font-size: 0.9rem;
@@ -175,7 +175,7 @@
 .btn {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 9px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
@@ -196,7 +196,7 @@
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 9px 25px rgba(102, 126, 234, 0.4);
 }
 
 .btn-secondary {
@@ -206,7 +206,7 @@
 
 .btn-secondary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+  box-shadow: 0 9px 25px rgba(240, 147, 251, 0.4);
 }
 
 .btn-success {
@@ -216,7 +216,7 @@
 
 .btn-success:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+  box-shadow: 0 9px 25px rgba(79, 172, 254, 0.4);
 }
 
 /* Report Container */
@@ -317,7 +317,7 @@
 }
 
 .status {
-  padding: 4px 8px;
+  padding: 4px 9px;
   border-radius: 12px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -337,7 +337,7 @@
 .alert-section {
   background: #fff3cd;
   border: 1px solid #ffeaa7;
-  border-radius: 8px;
+  border-radius: 9px;
   padding: 1rem;
   margin-top: 2rem;
 }
@@ -372,7 +372,7 @@
 .summary-item {
   background: #f8f9fa;
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: 9px;
   text-align: center;
   border: 1px solid #e9ecef;
 }
@@ -456,7 +456,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 769px) {
   .controls-panel {
     grid-template-columns: 1fr;
     margin: 1rem;
@@ -502,530 +502,5 @@
     margin: 0;
     box-shadow: none;
     border-radius: 0;
-  }
-}
-
-/* Medical Records Report Styles - A4 Optimized with Compact Layouts */
-.medical-records-report {
-  background: white;
-  color: #333;
-  font-family: 'Arial', sans-serif;
-  line-height: 1.2;
-  font-size: 11px;
-}
-
-/* A4 Page Structure - 210mm x 297mm with content estimation */
-.medical-page {
-  width: 210mm;
-  height: 297mm;
-  padding: 12mm;
-  margin: 0 auto 10px auto;
-  background: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  page-break-after: always;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.medical-page:last-child {
-  margin-bottom: 0;
-}
-
-/* Page Break for PDF */
-.page-break {
-  page-break-before: always;
-  height: 0;
-  overflow: hidden;
-}
-
-/* Compact Page Header - ~18mm height */
-.medical-page-header {
-  border-bottom: 2px solid #2c5aa0;
-  padding-bottom: 4mm;
-  margin-bottom: 6mm;
-  flex-shrink: 0;
-  height: 18mm;
-}
-
-.hospital-info {
-  text-align: center;
-  margin-bottom: 3mm;
-}
-
-.hospital-info h2 {
-  margin: 0 0 1mm 0;
-  color: #2c5aa0;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.hospital-info p {
-  margin: 0;
-  font-size: 9px;
-  color: #666;
-}
-
-.page-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.page-title h1 {
-  margin: 0;
-  color: #2c5aa0;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.generated-date {
-  margin: 0;
-  font-size: 9px;
-  color: #666;
-}
-
-/* Flexible Page Content - ~252mm available height */
-.medical-page-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 252mm;
-}
-
-.compact-section {
-  margin-bottom: 4mm;
-  flex-shrink: 0;
-}
-
-.compact-section:last-child {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.medical-page-content h3 {
-  margin: 0 0 2mm 0;
-  color: #2c5aa0;
-  font-size: 12px;
-  font-weight: bold;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 1mm;
-}
-
-.medical-page-content h4 {
-  margin: 0 0 1.5mm 0;
-  color: #333;
-  font-size: 10px;
-  font-weight: bold;
-}
-
-/* Compact Information Tables */
-.info-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 3mm;
-  font-size: 10px;
-}
-
-.info-table td {
-  padding: 1.5mm 2mm;
-  border: 1px solid #ddd;
-  vertical-align: top;
-}
-
-.info-table .label {
-  background: #f8f9fa;
-  font-weight: bold;
-  color: #555;
-  width: 20%;
-}
-
-.info-table .value {
-  color: #333;
-}
-
-/* Compact Tables */
-.compact-table, .medications-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 3mm;
-  font-size: 9px;
-}
-
-.compact-table th,
-.compact-table td,
-.medications-table th,
-.medications-table td {
-  padding: 1mm 1.5mm;
-  border: 1px solid #ddd;
-  text-align: left;
-  vertical-align: top;
-}
-
-.compact-table th,
-.medications-table th {
-  background: #f5f5f5;
-  font-weight: bold;
-  font-size: 9px;
-}
-
-/* Severity and Status Badges */
-.severity-badge, .status-badge {
-  padding: 0.5mm 1.5mm;
-  border-radius: 1mm;
-  font-size: 8px;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.severity-high {
-  background: #ffebee;
-  color: #c62828;
-}
-
-.severity-moderate {
-  background: #fff3e0;
-  color: #ef6c00;
-}
-
-.status-active {
-  background: #e8f5e8;
-  color: #2e7d32;
-}
-
-/* Alert Boxes */
-.alert-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 2mm;
-}
-
-.alert-box {
-  padding: 2mm;
-  border-radius: 2mm;
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.alert-box.critical {
-  background: #ffebee;
-  border-left: 3mm solid #c62828;
-}
-
-.alert-box.warning {
-  background: #fff3e0;
-  border-left: 3mm solid #ef6c00;
-}
-
-.alert-box.info {
-  background: #e3f2fd;
-  border-left: 3mm solid #1565c0;
-}
-
-/* Quick Reference Grid */
-.reference-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3mm;
-  margin-top: 2mm;
-}
-
-.reference-item {
-  background: #f9f9f9;
-  padding: 2mm;
-  border-radius: 2mm;
-  border: 1px solid #ddd;
-  font-size: 9px;
-}
-
-.reference-item strong {
-  color: #2c5aa0;
-  font-size: 10px;
-}
-
-.reference-item .note {
-  font-style: italic;
-  color: #666;
-  font-size: 8px;
-}
-
-/* Risk Assessment Grid */
-.risk-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 3mm;
-}
-
-.risk-category {
-  background: #f9f9f9;
-  padding: 2mm;
-  border-radius: 2mm;
-  border: 1px solid #ddd;
-}
-
-.risk-category h4 {
-  margin: 0 0 1mm 0;
-  color: #2c5aa0;
-  font-size: 10px;
-}
-
-.risk-category ul {
-  margin: 0;
-  padding-left: 3mm;
-  font-size: 9px;
-}
-
-.risk-category li {
-  margin-bottom: 0.5mm;
-  line-height: 1.2;
-}
-
-/* Medication Instructions Tables */
-.instructions-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 2mm;
-  font-size: 9px;
-}
-
-.instructions-table td {
-  padding: 1mm 2mm;
-  border-bottom: 1px solid #eee;
-  vertical-align: top;
-}
-
-.instructions-table td:first-child {
-  width: 25%;
-  font-weight: bold;
-  color: #2c5aa0;
-}
-
-/* Safety Grid Layout */
-.safety-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 3mm;
-}
-
-.safety-column {
-  background: #f9f9f9;
-  padding: 2mm;
-  border-radius: 2mm;
-  border: 1px solid #ddd;
-}
-
-.safety-column h4 {
-  margin: 0 0 2mm 0;
-  color: #2c5aa0;
-  font-size: 10px;
-}
-
-.alert-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5mm;
-  margin-bottom: 1.5mm;
-  padding: 1.5mm;
-  border-radius: 1mm;
-}
-
-.alert-item.critical {
-  background: #ffebee;
-  border-left: 2mm solid #c62828;
-}
-
-.alert-item.warning {
-  background: #fff3e0;
-  border-left: 2mm solid #ef6c00;
-}
-
-.drug-name {
-  font-weight: bold;
-  font-size: 9px;
-  color: #333;
-}
-
-.reaction {
-  font-size: 8px;
-  color: #666;
-}
-
-.interaction-list {
-  margin: 0;
-  padding-left: 3mm;
-  font-size: 9px;
-}
-
-.interaction-list li {
-  margin-bottom: 1mm;
-  line-height: 1.2;
-}
-
-.monitoring-table, .refill-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 8px;
-}
-
-.monitoring-table td, .refill-table td {
-  padding: 1mm;
-  border-bottom: 1px solid #eee;
-}
-
-.monitoring-table td:first-child, .refill-table td:first-child {
-  font-weight: bold;
-  color: #555;
-}
-
-/* Compliance Grid */
-.compliance-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 3mm;
-}
-
-.compliance-item {
-  background: #f9f9f9;
-  padding: 2mm;
-  border-radius: 2mm;
-  border: 1px solid #ddd;
-}
-
-.compliance-item h4 {
-  margin: 0 0 1.5mm 0;
-  color: #2c5aa0;
-  font-size: 10px;
-}
-
-.compliance-item p {
-  margin: 0;
-  font-size: 9px;
-  line-height: 1.2;
-}
-
-/* Compact Page Footer - ~17mm height */
-.medical-page-footer {
-  border-top: 1px solid #ddd;
-  padding-top: 2mm;
-  margin-top: auto;
-  font-size: 8px;
-  flex-shrink: 0;
-  height: 17mm;
-}
-
-.confidentiality-notice {
-  background: #f8f9fa;
-  padding: 1.5mm;
-  border-radius: 1mm;
-  margin-bottom: 1.5mm;
-}
-
-.confidentiality-notice p {
-  margin: 0;
-  color: #495057;
-  font-size: 7px;
-  line-height: 1.2;
-}
-
-.page-info {
-  display: flex;
-  justify-content: space-between;
-  color: #666;
-  font-size: 8px;
-}
-
-.no-data {
-  font-style: italic;
-  color: #999;
-  text-align: center;
-  padding: 3mm;
-  background: #f9f9f9;
-  border-radius: 2mm;
-  font-size: 10px;
-}
-
-/* A4 Print Styles */
-@media print {
-  .medical-page {
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
-    padding: 12mm;
-    box-shadow: none;
-    page-break-after: always;
-  }
-  
-  .medical-page:last-child {
-    page-break-after: avoid;
-  }
-  
-  .page-break {
-    page-break-before: always;
-    height: 0;
-  }
-  
-  .medical-page-header,
-  .medical-page-content,
-  .medical-page-footer {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  
-  .alert-item,
-  .alert-box,
-  .reference-item,
-  .risk-category,
-  .safety-column,
-  .compliance-item {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-  
-  body {
-    font-size: 11px;
-  }
-}
-
-/* A4 Responsive Design for smaller screens */
-@media (max-width: 768px) {
-  .medical-page {
-    width: 100%;
-    height: auto;
-    min-height: 100vh;
-    padding: 3mm;
-    margin: 0 0 2mm 0;
-  }
-  
-  .reference-grid,
-  .risk-grid,
-  .safety-grid,
-  .compliance-grid {
-    grid-template-columns: 1fr;
-    gap: 2mm;
-  }
-  
-  .page-title {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1mm;
-  }
-  
-  .page-info {
-    flex-direction: column;
-    gap: 1mm;
-  }
-  
-  .medical-page-content h3 {
-    font-size: 14px;
-  }
-  
-  .page-title h1 {
-    font-size: 18px;
-  }
-  
-  .info-table .label {
-    width: 30%;
   }
 }

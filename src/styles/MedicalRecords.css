@@ -1,0 +1,628 @@
+/* Medical Records Report Styles - A4 Optimized with Compact Layouts */
+.medical-records-report {
+    background: white;
+    color: #333;
+    line-height: 1.2;
+    font-size: 13px;
+}
+
+/* Ensure font family inheritance throughout the medical report */
+.medical-records-report *,
+.medical-records-report .medical-page,
+.medical-records-report .medical-page-header,
+.medical-records-report .medical-page-content,
+.medical-records-report .medical-page-footer,
+.medical-records-report table,
+.medical-records-report th,
+.medical-records-report td,
+.medical-records-report h1,
+.medical-records-report h2,
+.medical-records-report h3,
+.medical-records-report h4,
+.medical-records-report p,
+.medical-records-report div,
+.medical-records-report span {
+    font-family: inherit;
+}
+
+/* A4 Page Structure - 210mm x 297mm with content estimation */
+.medical-page {
+    width: 210mm;
+    height: 297mm;
+    padding: 12mm;
+    margin: 0 auto 10px auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.medical-page:last-child {
+    margin-bottom: 0;
+}
+
+/* Page Break for PDF */
+.page-break {
+    page-break-before: always;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Compact Page Header - ~18mm height */
+.medical-page-header {
+    border-bottom: 2px solid #2c5aa0;
+    padding-bottom: 4mm;
+    margin-bottom: 6mm;
+    flex-shrink: 0;
+    height: 18mm;
+}
+
+.hospital-info {
+    text-align: center;
+    margin-bottom: 3mm;
+}
+
+.hospital-info h2 {
+    margin: 0 0 1mm 0;
+    color: #2c5aa0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.hospital-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+.page-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title h1 {
+    margin: 0;
+    color: #2c5aa0;
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.generated-date {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Flexible Page Content - ~252mm available height */
+.medical-page-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 252mm;
+}
+
+.compact-section {
+    margin-bottom: 4mm;
+    flex-shrink: 0;
+}
+
+.compact-section:last-child {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.medical-page-content h3 {
+    margin: 0 0 2mm 0;
+    color: #2c5aa0;
+    font-size: 16px;
+    font-weight: bold;
+    padding-bottom: 1mm;
+}
+
+.medical-page-content h4 {
+    margin: 0 0 1.5mm 0;
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Compact Information Tables */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 3mm;
+    font-size: 12px;
+}
+
+.info-table td {
+    padding: 1.5mm 2mm;
+    border: 1px solid #ddd;
+    vertical-align: top;
+}
+
+.info-table .label {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #555;
+    width: 20%;
+}
+
+.info-table .value {
+    color: #333;
+}
+
+/* Compact Tables */
+.compact-table,
+.medications-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 3mm;
+    font-size: 12px;
+}
+
+.compact-table th,
+.compact-table td,
+.medications-table th,
+.medications-table td {
+    padding: 1mm 1.5mm;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: top;
+}
+
+.compact-table th,
+.medications-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* Severity and Status Badges */
+.severity-badge,
+.status-badge {
+    padding: 0.5mm 1.5mm;
+    border-radius: 1mm;
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.severity-high {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.severity-moderate {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-active {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+/* Alert Boxes */
+.alert-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 2mm;
+}
+
+.alert-box {
+    padding: 2mm;
+    border-radius: 2mm;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.alert-box.critical {
+    background: #ffebee;
+    border-left: 3mm solid #c62828;
+}
+
+.alert-box.warning {
+    background: #fff3e0;
+    border-left: 3mm solid #ef6c00;
+}
+
+.alert-box.info {
+    background: #e3f2fd;
+    border-left: 3mm solid #1565c0;
+}
+
+/* Quick Reference Grid */
+.reference-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3mm;
+    margin-top: 2mm;
+}
+
+.reference-item {
+    background: #f9f9f9;
+    padding: 2mm;
+    border-radius: 2mm;
+    border: 1px solid #ddd;
+    font-size: 12px;
+}
+
+.reference-item strong {
+    color: #2c5aa0;
+    font-size: 12px;
+}
+
+.reference-item .note {
+    font-style: italic;
+    color: #666;
+    font-size: 11px;
+}
+
+/* Risk Assessment Grid */
+.risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+}
+
+.risk-category {
+    background: #f9f9f9;
+    padding: 2mm;
+    border-radius: 2mm;
+    border: 1px solid #ddd;
+}
+
+.risk-category h4 {
+    margin: 0 0 1mm 0;
+    color: #2c5aa0;
+    font-size: 12px;
+}
+
+.risk-category ul {
+    margin: 0;
+    padding-left: 3mm;
+    font-size: 12px;
+}
+
+.risk-category li {
+    margin-bottom: 0.5mm;
+    line-height: 1.2;
+}
+
+/* Medication Instructions Tables */
+.instructions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2mm;
+    font-size: 12px;
+}
+
+.instructions-table td {
+    padding: 1mm 2mm;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.instructions-table td:first-child {
+    width: 25%;
+    font-weight: bold;
+    color: #2c5aa0;
+}
+
+/* Safety Grid Layout */
+.safety-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+}
+
+.safety-column {
+    background: #f9f9f9;
+    padding: 2mm;
+    border-radius: 2mm;
+    border: 1px solid #ddd;
+}
+
+.safety-column h4 {
+    margin: 0 0 2mm 0;
+    color: #2c5aa0;
+    font-size: 12px;
+}
+
+.alert-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5mm;
+    margin-bottom: 1.5mm;
+    padding: 1.5mm;
+    border-radius: 1mm;
+}
+
+.alert-item.critical {
+    background: #ffebee;
+    border-left: 2mm solid #c62828;
+}
+
+.alert-item.warning {
+    background: #fff3e0;
+    border-left: 2mm solid #ef6c00;
+}
+
+.drug-name {
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+}
+
+.reaction {
+    font-size: 11px;
+    color: #666;
+}
+
+.interaction-list {
+    margin: 0;
+    padding-left: 3mm;
+    font-size: 12px;
+}
+
+.interaction-list li {
+    margin-bottom: 1mm;
+    line-height: 1.2;
+}
+
+.monitoring-table,
+.refill-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.monitoring-table td,
+.refill-table td {
+    padding: 1mm;
+    border-bottom: 1px solid #eee;
+}
+
+.monitoring-table td:first-child,
+.refill-table td:first-child {
+    font-weight: bold;
+    color: #555;
+}
+
+/* Compliance Grid */
+.compliance-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+}
+
+.compliance-item {
+    background: #f9f9f9;
+    padding: 2mm;
+    border-radius: 2mm;
+    border: 1px solid #ddd;
+}
+
+.compliance-item h4 {
+    margin: 0 0 1.5mm 0;
+    color: #2c5aa0;
+    font-size: 12px;
+}
+
+.compliance-item p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+/* VisitNotesPage Specific Styles */
+
+/* Visit Container */
+.visit-container {
+  margin-bottom: 4mm;
+  border: 1px solid #ddd;
+  border-radius: 2mm;
+  padding: 3mm;
+}
+
+/* Visit Header */
+.visit-header {
+  color: #2c5aa0;
+  font-size: 13px; /* Increased from 11px */
+  margin-bottom: 2mm;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1mm;
+}
+
+/* Assessment and Plan Grid */
+.assessment-plan-grid {
+  margin-top: 2mm;
+}
+
+.assessment-plan-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+}
+
+.assessment-section h4,
+.plan-section h4 {
+  font-size: 14px; /* Increased from 10px */
+  margin-bottom: 1mm;
+}
+
+.assessment-list,
+.plan-list {
+  font-size: 13px; /* Increased from 9px */
+}
+
+.assessment-item,
+.plan-item {
+  margin-bottom: 0.5mm;
+}
+
+/* Treatment Summary Section */
+.treatment-monitoring {
+  margin-top: 3mm;
+}
+
+/* Diagnosis and Medication Lists */
+.diagnosis-list,
+.medication-list {
+  font-size: 13px; /* Increased from 9px */
+  margin-top: 1mm;
+}
+
+.diagnosis-item,
+.medication-item {
+  margin-bottom: 0.3mm;
+}
+
+/* Provider Notes Lists */
+.provider-notes-list {
+  font-size: 13px; /* Increased from 9px */
+}
+
+.provider-notes-list li {
+  margin-bottom: 0.3mm;
+}
+
+/* Visit Summary Section */
+.visit-summary-section {
+  margin-top: 3mm;
+}
+
+/* Clinical Trends */
+.clinical-trends {
+  margin-top: 3mm;
+}
+
+/* Compact Page Footer - ~17mm height */
+.medical-page-footer {
+    border-top: 1px solid #ddd;
+    padding-top: 2mm;
+    margin-top: auto;
+    font-size: 11px;
+    flex-shrink: 0;
+    height: 17mm;
+}
+
+.confidentiality-notice {
+    background: #f8f9fa;
+    padding: 1.5mm;
+    border-radius: 1mm;
+    margin-bottom: 1.5mm;
+}
+
+.confidentiality-notice p {
+    margin: 0;
+    color: #495057;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.page-info {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 11px;
+}
+
+.no-data {
+    font-style: italic;
+    color: #999;
+    text-align: center;
+    padding: 3mm;
+    background: #f9f9f9;
+    border-radius: 2mm;
+    font-size: 12px;
+}
+
+/* A4 Print Styles */
+@media print {
+    .medical-page {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 12mm;
+        box-shadow: none;
+        page-break-after: always;
+    }
+
+    .medical-page:last-child {
+        page-break-after: avoid;
+    }
+
+    .page-break {
+        page-break-before: always;
+        height: 0;
+    }
+
+    .medical-page-header,
+    .medical-page-content,
+    .medical-page-footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .alert-item,
+    .alert-box,
+    .reference-item,
+    .risk-category,
+    .safety-column,
+    .compliance-item {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body {
+        font-size: 13px;
+    }
+}
+
+/* A4 Responsive Design for smaller screens */
+@media (max-width: 769px) {
+    .medical-page {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+        padding: 3mm;
+        margin: 0 0 2mm 0;
+    }
+
+    .reference-grid,
+    .risk-grid,
+    .safety-grid,
+    .compliance-grid {
+        grid-template-columns: 1fr;
+        gap: 2mm;
+    }
+
+    .page-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1mm;
+    }
+
+    .page-info {
+        flex-direction: column;
+        gap: 1mm;
+    }
+
+    .medical-page-content h3 {
+        font-size: 16px;
+    }
+
+    .page-title h1 {
+        font-size: 21px;
+    }
+
+    .info-table .label {
+        width: 30%;
+    }
+}

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 
 // Import report components
-import MedicalRecordsReport from './components/MedicalRecordsReport';
+import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 
 // Import utilities
 import { 
@@ -18,6 +18,19 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [exportFormat, setExportFormat] = useState('pdf'); // 'pdf' or 'image'
   const [imageQuality, setImageQuality] = useState('standard'); // 'poor', 'standard', 'high'
+  const [fontFamily, setFontFamily] = useState('Arial'); // Font family selection
+
+  // Available font families for the report
+  const fontFamilies = [
+    { value: 'Arial', label: 'Arial', css: "'Arial', sans-serif" },
+    { value: 'Times New Roman', label: 'Times New Roman', css: "'Times New Roman', serif" },
+    { value: 'Helvetica', label: 'Helvetica', css: "'Helvetica', 'Arial', sans-serif" },
+    { value: 'Georgia', label: 'Georgia', css: "'Georgia', serif" },
+    { value: 'Verdana', label: 'Verdana', css: "'Verdana', sans-serif" },
+    { value: 'Calibri', label: 'Calibri', css: "'Calibri', sans-serif" },
+    { value: 'Tahoma', label: 'Tahoma', css: "'Tahoma', sans-serif" },
+    { value: 'Trebuchet MS', label: 'Trebuchet MS', css: "'Trebuchet MS', sans-serif" }
+  ];
 
   const handleExportPDF = async (reportType, filename) => {
     setIsLoading(true);
@@ -70,7 +83,15 @@ function App() {
   };
 
   const renderActiveReport = () => {
-    return <MedicalRecordsReport data={sampleMedicalRecordsData} />;
+    const selectedFont = fontFamilies.find(font => font.value === fontFamily);
+    const fontFamilyStyle = selectedFont ? selectedFont.css : "'Arial', sans-serif";
+    
+    return (
+      <MedicalRecordsReport 
+        data={sampleMedicalRecordsData} 
+        fontFamily={fontFamilyStyle}
+      />
+    );
   };
 
   return (
@@ -95,6 +116,7 @@ function App() {
         <div className="control-group">
           <h3>Export Settings</h3>
           <div className="export-format-selector">
+            <label htmlFor="export-format">Export Format:</label>
             <select 
               id="export-format"
               value={exportFormat} 
@@ -103,6 +125,22 @@ function App() {
             >
               <option value="pdf">PDF (Text-based)</option>
               <option value="image">PDF (Image-based)</option>
+            </select>
+          </div>
+
+          <div className="export-format-selector">
+            <label htmlFor="font-family">Font Family:</label>
+            <select 
+              id="font-family"
+              value={fontFamily} 
+              onChange={(e) => setFontFamily(e.target.value)}
+              className="format-dropdown"
+            >
+              {fontFamilies.map((font) => (
+                <option key={font.value} value={font.value}>
+                  {font.label}
+                </option>
+              ))}
             </select>
           </div>
           

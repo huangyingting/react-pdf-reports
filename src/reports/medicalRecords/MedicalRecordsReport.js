@@ -4,10 +4,15 @@ import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
 import LabResultsPage from './LabResultsPage';
 import VisitNotesPage from './VisitNotesPage';
+import '../../styles/MedicalRecords.css';
 
-const MedicalRecordsReport = ({ data }) => {
+const MedicalRecordsReport = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   return (
-    <div className="medical-records-report" id="medical-records-report">
+    <div 
+      className="medical-records-report" 
+      id="medical-records-report"
+      style={{ fontFamily: fontFamily }}
+    >
       {/* Page 1: Patient Demographics */}
       <PatientDemographicsPage data={data} />
       
