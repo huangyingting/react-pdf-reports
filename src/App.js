@@ -8,10 +8,8 @@ import MedicalRecordsReport from './components/MedicalRecordsReport';
 import { 
   exportToPDF, 
   exportMultipleReportsToPDF, 
-  previewPDF,
   exportToPDFAsImage,
-  exportMultipleElementsToPDFAsImages,
-  previewPDFAsImage
+  exportMultipleElementsToPDFAsImages
 } from './utils/pdfExport';
 import { sampleMedicalRecordsData } from './utils/medicalRecordsData';
 
@@ -19,6 +17,7 @@ function App() {
   const [activeReport, setActiveReport] = useState('medical');
   const [isLoading, setIsLoading] = useState(false);
   const [exportFormat, setExportFormat] = useState('pdf'); // 'pdf' or 'image'
+  const [imageQuality, setImageQuality] = useState('standard'); // 'poor', 'standard', 'high'
 
   const handleExportPDF = async (reportType, filename) => {
     setIsLoading(true);
@@ -26,7 +25,9 @@ function App() {
       const elementId = reportType === 'medical' ? 'medical-records-report' : `${reportType}-report`;
       
       if (exportFormat === 'image') {
-        await exportToPDFAsImage(elementId, `${filename}-image`);
+        await exportToPDFAsImage(elementId, `${filename}-image`, {
+          qualityLevel: imageQuality
+        });
         alert(`${filename}-image.pdf has been downloaded successfully!`);
       } else {
         await exportToPDF(elementId, filename);
@@ -35,24 +36,6 @@ function App() {
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to export PDF. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePreviewPDF = async (reportType) => {
-    setIsLoading(true);
-    try {
-      const elementId = reportType === 'medical' ? 'medical-records-report' : `${reportType}-report`;
-      
-      if (exportFormat === 'image') {
-        await previewPDFAsImage(elementId);
-      } else {
-        await previewPDF(elementId);
-      }
-    } catch (error) {
-      console.error('Preview failed:', error);
-      alert('Failed to preview PDF. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +95,6 @@ function App() {
         <div className="control-group">
           <h3>Export Settings</h3>
           <div className="export-format-selector">
-            <label htmlFor="export-format">Export Format:</label>
             <select 
               id="export-format"
               value={exportFormat} 
@@ -123,18 +105,27 @@ function App() {
               <option value="image">PDF (Image-based)</option>
             </select>
           </div>
+          
+          {exportFormat === 'image' && (
+            <div className="export-quality-selector">
+              <label htmlFor="image-quality">Image Quality:</label>
+              <select 
+                id="image-quality"
+                value={imageQuality} 
+                onChange={(e) => setImageQuality(e.target.value)}
+                className="quality-dropdown"
+              >
+                <option value="poor">Poor Quality (Fast, Small File)</option>
+                <option value="standard">Standard Quality (Recommended)</option>
+                <option value="high">High Quality (Slow, Large File)</option>
+              </select>
+            </div>
+          )}
         </div>
         
         <div className="control-group">
           <h3>Report Actions</h3>
           <div className="button-group">
-            <button 
-              onClick={() => handlePreviewPDF(activeReport)}
-              disabled={isLoading}
-              className="btn btn-secondary"
-            >
-              {isLoading ? 'Processing...' : `Preview ${exportFormat === 'image' ? '(Image)' : '(PDF)'}`}
-            </button>
             <button 
               onClick={() => handleExportPDF(activeReport, `medical-records-report`)}
               disabled={isLoading}

@@ -24,7 +24,27 @@ const PDF_CONFIG = {
   // Image quality settings
   image: {
     type: 'jpeg',
-    quality: 0.98
+    quality: 0.85,
+    scale: 2 // Default standard quality
+  },
+  
+  // Image quality presets
+  imageQuality: {
+    poor: {
+      scale: 1,
+      quality: 0.75,
+      description: 'Poor Quality'
+    },
+    standard: {
+      scale: 2,
+      quality: 0.85,
+      description: 'Standard Quality'
+    },
+    high: {
+      scale: 4,
+      quality: 0.95,
+      description: 'High Quality'
+    }
   },
   
   // HTML2Canvas rendering settings
@@ -36,8 +56,8 @@ const PDF_CONFIG = {
   
   // Rendering settings
   rendering: {
-    windowWidth: 800, // Optimized for medical records
-    width: 200 // A4 width (210mm) minus margins (10mm total)
+    windowWidth: 794, // Optimized for medical records
+    width: 210 // A4 width (210mm) minus margins (10mm total)
   }
 };
 
@@ -225,40 +245,6 @@ export const exportMultipleReportsToPDF = async (elementIds, filename = 'combine
 };
 
 /**
- * Preview PDF before downloading using unified configuration
- * @param {string} elementId - The ID of the HTML element to preview
- * @param {Object} customOptions - Custom options to override defaults
- */
-export const previewPDF = async (elementId, customOptions = {}) => {
-  try {
-    const element = document.getElementById(elementId);
-    
-    if (!element) {
-      throw new Error(`Element with ID "${elementId}" not found`);
-    }
-
-    // Get unified PDF options
-    const options = getPDFOptions(customOptions);
-    
-    // Create jsPDF instance
-    const pdf = createPDFInstance(options);
-
-    await pdf.html(element, getHTMLRenderOptions(element, options, function (pdf) {
-      logElementDimensions(element, 'PDF Preview');
-      // Open PDF in new tab for preview
-      const pdfBlob = pdf.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      window.open(pdfUrl, '_blank');
-    }));
-
-    return true;
-  } catch (error) {
-    console.error('Error previewing PDF:', error);
-    throw error;
-  }
-};
-
-/**
  * Get PDF as base64 string using unified configuration
  * @param {string} elementId - The ID of the HTML element to convert
  * @param {Object} customOptions - Custom options to override defaults
@@ -328,6 +314,12 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
     }
 
     console.log('Starting PDF as image export for element:', elementId);
+    
+    // Determine quality settings
+    const qualityLevel = customOptions.qualityLevel || 'standard';
+    const qualitySettings = PDF_CONFIG.imageQuality[qualityLevel] || PDF_CONFIG.imageQuality.standard;
+    
+    console.log(`Using ${qualitySettings.description} (scale: ${qualitySettings.scale}, quality: ${qualitySettings.quality})`);
     
     // Get unified PDF options
     const options = getPDFOptions({ filename: `${filename}.pdf`, ...customOptions });
@@ -418,9 +410,9 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
           pdf.addPage([pageWidthMM, pageHeightMM]);
         }
 
-        // Capture this page with html2canvas
+        // Capture this page with html2canvas using quality settings
         const canvas = await html2canvas(pageContainer, {
-          scale: 2,
+          scale: qualitySettings.scale,
           useCORS: true,
           logging: false,
           backgroundColor: '#ffffff',
@@ -434,11 +426,11 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
           scrollY: 0
         });
 
-        // Convert to image
-        const imgData = canvas.toDataURL('image/png', 1.0);
+        // Convert to image using quality settings
+        const imgData = canvas.toDataURL(`image/${PDF_CONFIG.image.type}`, qualitySettings.quality);
 
         // Add the image to PDF - it should fit exactly since we used the same dimensions
-        pdf.addImage(imgData, 'PNG', 0, 0, pageWidthMM, pageHeightMM);
+        pdf.addImage(imgData, PDF_CONFIG.image.type.toUpperCase(), 0, 0, pageWidthMM, pageHeightMM);
         
         console.log(`Added page ${i + 1} to PDF (${pageWidthMM}mm x ${pageHeightMM}mm)`);
         
@@ -547,69 +539,6 @@ export const exportMultipleElementsToPDFAsImages = async (elementIds, filename =
     
   } catch (error) {
     console.error('Error generating combined PDF with images:', error);
-    throw error;
-  }
-};
-
-/**
- * Preview PDF as image before downloading
- * @param {string} elementId - The ID of the HTML element to preview
- * @param {Object} customOptions - Custom options to override defaults
- */
-export const previewPDFAsImage = async (elementId, customOptions = {}) => {
-  try {
-    const element = document.getElementById(elementId);
-    
-    if (!element) {
-      throw new Error(`Element with ID "${elementId}" not found`);
-    }
-
-    console.log('Creating PDF image preview for element:', elementId);
-    
-    // Get unified PDF options
-    const options = getPDFOptions(customOptions);
-    
-    // Html2canvas specific options
-    const canvasOptions = {
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: '#ffffff',
-      scale: 2,
-      logging: false,
-      letterRendering: true,
-      ...options.html2canvas,
-      ...(customOptions.canvasOptions || {})
-    };
-    
-    // Capture the element as canvas
-    const canvas = await html2canvas(element, canvasOptions);
-    
-    // Create jsPDF instance
-    const pdf = createPDFInstance(options);
-    
-    // Get PDF page dimensions and calculate image placement
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-    const scaledWidth = imgWidth * ratio;
-    const scaledHeight = imgHeight * ratio;
-    const x = (pageWidth - scaledWidth) / 2;
-    const y = (pageHeight - scaledHeight) / 2;
-    
-    // Convert canvas to image data and add to PDF
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    pdf.addImage(imgData, 'JPEG', x, y, scaledWidth, scaledHeight);
-    
-    // Open PDF in new tab for preview
-    const pdfBlob = pdf.output('blob');
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    window.open(pdfUrl, '_blank');
-
-    return true;
-  } catch (error) {
-    console.error('Error previewing PDF as image:', error);
     throw error;
   }
 };
