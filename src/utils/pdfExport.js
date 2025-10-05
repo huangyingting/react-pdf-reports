@@ -31,8 +31,8 @@ const PDF_CONFIG = {
   // Image quality presets
   imageQuality: {
     poor: {
-      scale: 1,
-      quality: 0.75,
+      scale: 1.5 ,
+      quality: 0.5,
       description: 'Poor Quality'
     },
     standard: {
