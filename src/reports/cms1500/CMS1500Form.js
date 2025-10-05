@@ -5,7 +5,7 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   const { patient, insurance, provider, claim } = data;
 
   return (
-    <div 
+    <div
       className="cms1500-report"
       id="cms1500-report"
       style={{ fontFamily: fontFamily }}
@@ -327,7 +327,6 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
           </div>
         </div>
       </div>
-
       {/* Page Break */}
       <div className="page-break"></div>
 
@@ -529,13 +528,11 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
             <p>NUCC Instruction Manual available at: www.nucc.org</p>
             <p>PLEASE PRINT OR TYPE</p>
           </div>
-          <div className="form-info">
+          {/* <div className="form-info">
             <p>APPROVED OMB-0938-1197 FORM 1500 (02-12)</p>
-          </div>
+          </div> */}
         </div>
       </div>
-
-      
     </div>
   );
 };

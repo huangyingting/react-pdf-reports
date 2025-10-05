@@ -50,6 +50,12 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
     console.log('Starting PDF export for element:', elementId);
     console.log('Element found:', element.tagName, element.className);
 
+    const explicitPageSelectors = ['.cms1500-page', '.medical-records-page', '.report-page', '[data-pdf-page]'];
+    const explicitPages = explicitPageSelectors.reduce((count, selector) => count + element.querySelectorAll(selector).length, 0);
+    const pageBreaks = element.querySelectorAll('.page-break').length;
+    const expectedPages = Math.max(explicitPages, pageBreaks > 0 ? pageBreaks + 1 : 0, 1);
+    console.log(`Expected PDF pages based on DOM markers: ${expectedPages}`);
+
     // Create jsPDF instance
     const pdf = new jsPDF({
       format: 'a4',
@@ -62,6 +68,38 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
       // The callback is called when the rendering is complete
       callback: function (pdf) {
         logElementDimensions(element, 'PDF Export');
+        
+        // Remove the last page if it's blank (a common jsPDF issue)
+        const totalPages = pdf.internal.getNumberOfPages();
+        console.log(`Total pages before cleanup: ${totalPages}`);
+        
+        // Check if the last page is blank by checking if it has any content
+        if (totalPages > 1) {
+          pdf.setPage(totalPages);
+          const pageInfo = pdf.internal.getCurrentPageInfo();
+          const pageContent = pdf.internal.pages[totalPages];
+          console.log(`Last page info:`, pageInfo);
+          console.log(`Last page content length: ${pageContent ? pageContent.length : 0}`);
+          console.log(`Last page content:`, pageContent);
+          
+          // If the last page has minimal content (just page initialization), remove it
+          // jsPDF pages with only initialization commands are typically very short
+          if (pageContent && pageContent.length < 50) {
+            console.log(`Removing blank page ${totalPages}`);
+            pdf.deletePage(totalPages);
+          }
+        }
+
+        // Remove any extra pages beyond what the DOM defines (common jsPDF quirk)
+        let adjustedTotal = pdf.internal.getNumberOfPages();
+        if (adjustedTotal > expectedPages) {
+          console.log(`Pruning ${adjustedTotal - expectedPages} unexpected trailing page(s)`);
+          for (let pageNumber = adjustedTotal; pageNumber > expectedPages; pageNumber--) {
+            pdf.deletePage(pageNumber);
+          }
+        }
+        
+        console.log(`Total pages after cleanup: ${pdf.internal.getNumberOfPages()}`);
         pdf.save(`${filename}.pdf`);
         console.log("PDF saved successfully!");
       },

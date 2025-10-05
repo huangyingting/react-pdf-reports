@@ -24,7 +24,6 @@
   margin: 0 auto 15px auto;
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  page-break-after: always;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -37,6 +36,13 @@
 
 .cms1500-page:last-child {
   margin-bottom: 0;
+  page-break-after: auto !important;
+  break-after: auto !important;
+}
+
+.cms1500-page:not(:last-child) {
+  page-break-after: always;
+  break-after: page;
 }
 
 /* Page Break for PDF */
@@ -701,12 +707,16 @@
     margin: 0;
     padding: 15mm 12mm;
     box-shadow: none;
-    page-break-after: always;
     border: none;
   }
 
+  .cms1500-page:not(:last-child) {
+    page-break-after: always;
+    break-after: page;
+  }
+
   .cms1500-page:last-child {
-    page-break-after: avoid;
+    page-break-after: auto;
   }
 
   .page-break {
