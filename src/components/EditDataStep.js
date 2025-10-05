@@ -457,13 +457,19 @@ const MedicalHistorySection = ({ data, allergies, medications, onChange }) => (
       />
     </div>
 
-    <h4>Active Conditions</h4>
+    <h4>Active Conditions ({(data.chronicConditions || []).length})</h4>
     <div className="conditions-list">
       {(data.chronicConditions || []).map((condition, index) => (
         <div key={index} className="condition-item">
-          <div className="form-grid">
+          <div className="condition-header">
+            <span className="condition-number">#{index + 1}</span>
+            <span className={`condition-status-badge status-${condition.status.toLowerCase().replace(/\s+/g, '-')}`}>
+              {condition.status}
+            </span>
+          </div>
+          <div className="condition-body">
             <div className="form-group">
-              <label>Condition</label>
+              <label>Condition Name</label>
               <input
                 type="text"
                 value={condition.condition}
@@ -473,6 +479,7 @@ const MedicalHistorySection = ({ data, allergies, medications, onChange }) => (
                   onChange('chronicConditions', updated);
                 }}
                 className="form-input"
+                placeholder="e.g., Type 2 Diabetes"
               />
             </div>
             
@@ -487,11 +494,11 @@ const MedicalHistorySection = ({ data, allergies, medications, onChange }) => (
                 }}
                 className="form-select"
               >
-                <option value="Well controlled">Well controlled</option>
-                <option value="Stable">Stable</option>
-                <option value="Improving">Improving</option>
-                <option value="Monitoring">Monitoring</option>
-                <option value="Worsening">Worsening</option>
+                <option value="Well controlled">✓ Well controlled</option>
+                <option value="Stable">◉ Stable</option>
+                <option value="Improving">↑ Improving</option>
+                <option value="Monitoring">⊙ Monitoring</option>
+                <option value="Worsening">↓ Worsening</option>
               </select>
             </div>
           </div>

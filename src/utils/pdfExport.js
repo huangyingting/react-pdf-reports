@@ -71,27 +71,6 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
       callback: function (pdf) {
         logElementDimensions(element, 'PDF Export');
         
-        // Remove the last page if it's blank (a common jsPDF issue)
-        const totalPages = pdf.internal.getNumberOfPages();
-        console.log(`Total pages before cleanup: ${totalPages}`);
-        
-        // Check if the last page is blank by checking if it has any content
-        if (totalPages > 1) {
-          pdf.setPage(totalPages);
-          const pageInfo = pdf.internal.getCurrentPageInfo();
-          const pageContent = pdf.internal.pages[totalPages];
-          console.log(`Last page info:`, pageInfo);
-          console.log(`Last page content length: ${pageContent ? pageContent.length : 0}`);
-          console.log(`Last page content:`, pageContent);
-          
-          // If the last page has minimal content (just page initialization), remove it
-          // jsPDF pages with only initialization commands are typically very short
-          if (pageContent && pageContent.length < 50) {
-            console.log(`Removing blank page ${totalPages}`);
-            pdf.deletePage(totalPages);
-          }
-        }
-
         // Remove any extra pages beyond what the DOM defines (common jsPDF quirk)
         let adjustedTotal = pdf.internal.getNumberOfPages();
         if (adjustedTotal > expectedPages) {
