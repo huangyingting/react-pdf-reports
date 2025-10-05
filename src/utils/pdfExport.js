@@ -1,5 +1,11 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { 
+  applyWatermarkToAllPages, 
+  applyWatermarkToPage,
+  enhanceWatermarkOptions,
+  createWatermarkCallback 
+} from './watermark';
 
 /**
  * Unified PDF Export Configuration
@@ -172,10 +178,23 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
     // Create jsPDF instance
     const pdf = createPDFInstance(options);
 
+    // Enhanced watermark options
+    const watermarkOptions = customOptions.watermark ? 
+      enhanceWatermarkOptions(customOptions.watermark, pdf.internal.pageSize) : null;
+
     // Use jsPDF's html() method to convert HTML to PDF
     await pdf.html(element, getHTMLRenderOptions(element, options, function (pdf) {
       logElementDimensions(element, 'PDF Export');
-      console.log('PDF generation completed, saving file...');
+      console.log('PDF generation completed...');
+      
+      // Apply watermarks if enabled
+      if (watermarkOptions && watermarkOptions.text) {
+        console.log('Applying watermarks to all pages...');
+        applyWatermarkToAllPages(pdf, watermarkOptions);
+        console.log('Watermarks applied successfully');
+      }
+      
+      console.log('Saving PDF file...');
       // Save the PDF
       pdf.save(options.filename);
     }));
@@ -370,6 +389,10 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
       compress: true
     });
 
+    // Enhanced watermark options
+    const watermarkOptions = customOptions.watermark ? 
+      enhanceWatermarkOptions(customOptions.watermark, { width: pageWidthMM, height: pageHeightMM }) : null;
+
     // Process each page
     for (let i = 0; i < pages.length; i++) {
       console.log(`Processing page ${i + 1} of ${pages.length}`);
@@ -431,6 +454,12 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
 
         // Add the image to PDF - it should fit exactly since we used the same dimensions
         pdf.addImage(imgData, PDF_CONFIG.image.type.toUpperCase(), 0, 0, pageWidthMM, pageHeightMM);
+        
+        // Apply watermark to this specific page if enabled
+        if (watermarkOptions && watermarkOptions.text) {
+          // Apply watermark just to this page
+          applyWatermarkToPage(pdf, watermarkOptions, i + 1);
+        }
         
         console.log(`Added page ${i + 1} to PDF (${pageWidthMM}mm x ${pageHeightMM}mm)`);
         
