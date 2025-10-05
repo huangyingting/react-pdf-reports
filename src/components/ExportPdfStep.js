@@ -93,11 +93,6 @@ const ExportPdfStep = ({
               </p>
             </div>
           </div>
-
-          <div className="action-buttons">
-            <button className="btn-select-all">Select All</button>
-            <button className="btn-deselect-all">Deselect All</button>
-          </div>
         </div>
 
         <div className="document-grid">
@@ -118,6 +113,17 @@ const ExportPdfStep = ({
               onGenerate={() => onExport('medical', 'medical-records-report')}
               isLoading={isLoading}
             />
+          </div>
+
+          <div className="document-category">
+            <div className="category-header">
+              <div className="category-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3>Insurance Forms</h3>
+            </div>
 
             <DocumentCard
               title="CMS-1500 Health Insurance Claim Form"
