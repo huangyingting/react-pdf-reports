@@ -4,7 +4,7 @@
   color: #000;
   line-height: 1.2;
   font-size: 9px;
-  padding: 10mm;
+  padding: 0;
 }
 
 /* Ensure font family inheritance */
@@ -46,94 +46,99 @@
   overflow: hidden;
 }
 
-/* Form Header - Professional Layout */
+/* Form Header - Compact Professional Layout */
 .cms1500-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   border: 2px solid #000;
-  padding: 4mm;
-  margin: 0 0 0 0;
+  padding: 2mm 3mm;
+  margin: 0;
   background: #fafafa;
 }
 
 .header-left {
-  flex: 1.2;
+  flex: 1;
 }
 
 .pica-checkbox {
   display: flex;
   flex-direction: column;
-  gap: 1.5mm;
+  gap: 0.8mm;
 }
 
 .checkbox-group {
   display: flex;
   align-items: center;
-  gap: 2.5mm;
+  gap: 1.5mm;
 }
 
 .checkbox-group input[type="checkbox"] {
-  width: 3.5mm;
-  height: 3.5mm;
+  width: 3mm;
+  height: 3mm;
   margin: 0;
   cursor: pointer;
 }
 
 .checkbox-group label {
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 600;
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
+  line-height: 1;
 }
 
 .header-right {
-  flex: 2;
+  flex: 1.8;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 0 2mm;
 }
 
 .header-right h1 {
-  margin: 0 0 2mm 0;
-  font-size: 16px;
+  margin: 0 0 1mm 0;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: #000;
+  line-height: 1.1;
 }
 
 .approved-text {
   margin: 0;
-  font-size: 7px;
+  font-size: 6.5px;
   color: #333;
   font-weight: 500;
+  line-height: 1.2;
 }
 
 .header-pica {
-  flex: 0.8;
+  flex: 0.6;
   text-align: right;
   display: flex;
   flex-direction: column;
-  gap: 1mm;
+  gap: 0.5mm;
 }
 
 .header-pica label {
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 600;
   display: block;
-  margin-bottom: 1mm;
+  margin-bottom: 0.5mm;
   text-transform: uppercase;
 }
 
 .pica-box {
   border: 1.5px solid #333;
-  padding: 2.5mm;
-  min-height: 10mm;
+  padding: 1.5mm;
+  min-height: 8mm;
   background: white;
   border-radius: 1px;
+  font-size: 9px;
 }
 
 /* Form Sections - Enhanced Borders */
@@ -151,11 +156,11 @@
   border-top: 2px solid #000;
 }
 
-/* Form Rows and Fields - Professional Spacing */
+/* Form Rows and Fields - Compact Professional Spacing */
 .form-row {
   display: flex;
   border-bottom: 1px solid #000;
-  min-height: 12mm;
+  min-height: 10mm;
   background: white;
   margin: 0;
 }
@@ -167,7 +172,7 @@
 .form-field {
   flex: 1;
   border-right: 1px solid #000;
-  padding: 1.5mm;
+  padding: 1mm;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -179,23 +184,23 @@
 }
 
 .form-field label {
-  font-size: 6.5px;
+  font-size: 6px;
   font-weight: 700;
   text-transform: uppercase;
-  margin-bottom: 1mm;
+  margin-bottom: 0.5mm;
   display: block;
   color: #000;
-  letter-spacing: 0.3px;
-  line-height: 1.1;
+  letter-spacing: 0.2px;
+  line-height: 1;
 }
 
 .field-value {
-  font-size: 9.5px;
-  min-height: 5mm;
-  padding: 0.5mm 0;
+  font-size: 9px;
+  min-height: 4mm;
+  padding: 0.3mm 0;
   word-break: break-word;
   color: #000;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 /* Specific Field Widths */
@@ -232,24 +237,24 @@
   flex: 1;
 }
 
-/* Sex Group - Enhanced Checkbox Style */
+/* Sex Group - Compact Checkbox Style */
 .sex-group {
   display: flex;
   align-items: center;
-  gap: 2mm;
-  margin-top: 1.5mm;
+  gap: 1.2mm;
+  margin-top: 1mm;
 }
 
 .sex-group label {
-  font-size: 8px;
+  font-size: 7px;
   margin: 0;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .sex-group input[type="checkbox"] {
-  width: 3.5mm;
-  height: 3.5mm;
+  width: 3mm;
+  height: 3mm;
   margin: 0;
   cursor: pointer;
 }
@@ -288,18 +293,18 @@
 .checkbox-row {
   display: flex;
   align-items: center;
-  gap: 2.5mm;
+  gap: 1.5mm;
 }
 
 .checkbox-row input[type="checkbox"] {
-  width: 3.5mm;
-  height: 3.5mm;
+  width: 3mm;
+  height: 3mm;
   margin: 0;
   cursor: pointer;
 }
 
 .checkbox-row label {
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -613,12 +618,12 @@
   flex: 1;
 }
 
-/* Footer - Professional Print Style */
+/* Footer - Compact Professional Print Style */
 .cms1500-footer {
   margin-top: auto;
   border: 2px solid #000;
   border-top: 2px solid #000;
-  padding: 3mm 4mm;
+  padding: 2mm 3mm;
   display: flex;
   justify-content: space-between;
   align-items: center;

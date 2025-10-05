@@ -315,32 +315,7 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
           </div>
         </div>
 
-        {/* Section 3: Diagnosis Codes */}
-        <div className="cms1500-section diagnosis-section">
-          <div className="form-field field-21">
-            <label>21. DIAGNOSIS OR NATURE OF ILLNESS OR INJURY (Relate A-L to service line below)</label>
-            <div className="diagnosis-grid">
-              {claim?.diagnosisCodes?.map((code, index) => (
-                <div key={index} className="diagnosis-item">
-                  <label>{String.fromCharCode(65 + index)}.</label>
-                  <div className="diagnosis-code">{code}</div>
-                </div>
-              )) || []}
-            </div>
-          </div>
-          <div className="form-field field-22">
-            <label>22. RESUBMISSION CODE</label>
-            <div className="field-value">{claim?.resubmissionCode || ''}</div>
-            <div className="original-ref">
-              <label>ORIGINAL REF. NO.</label>
-              <div className="field-value">{claim?.originalRefNo || ''}</div>
-            </div>
-          </div>
-          <div className="form-field field-23">
-            <label>23. PRIOR AUTHORIZATION NUMBER</label>
-            <div className="field-value">{claim?.priorAuthNumber || ''}</div>
-          </div>
-        </div>
+
         {/* Footer */}
         <div className="cms1500-footer">
           <div className="footer-text">
@@ -370,6 +345,32 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
           </div>
         </div>
 
+        {/* Section 3: Diagnosis Codes */}
+        <div className="cms1500-section diagnosis-section">
+          <div className="form-field field-21">
+            <label>21. DIAGNOSIS OR NATURE OF ILLNESS OR INJURY (Relate A-L to service line below)</label>
+            <div className="diagnosis-grid">
+              {claim?.diagnosisCodes?.map((code, index) => (
+                <div key={index} className="diagnosis-item">
+                  <label>{String.fromCharCode(65 + index)}.</label>
+                  <div className="diagnosis-code">{code}</div>
+                </div>
+              )) || []}
+            </div>
+          </div>
+          <div className="form-field field-22">
+            <label>22. RESUBMISSION CODE</label>
+            <div className="field-value">{claim?.resubmissionCode || ''}</div>
+            <div className="original-ref">
+              <label>ORIGINAL REF. NO.</label>
+              <div className="field-value">{claim?.originalRefNo || ''}</div>
+            </div>
+          </div>
+          <div className="form-field field-23">
+            <label>23. PRIOR AUTHORIZATION NUMBER</label>
+            <div className="field-value">{claim?.priorAuthNumber || ''}</div>
+          </div>
+        </div>
         {/* Section 4: Service Lines */}
         <div className="cms1500-section service-section">
           <div className="service-line-header">
