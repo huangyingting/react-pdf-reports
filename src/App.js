@@ -5,7 +5,6 @@ import './App.css';
 import GenerateDataStep from './components/GenerateDataStep';
 import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
-import DocumentCard from './components/DocumentCard';
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
 import { generateCMS1500Data } from './utils/cms1500Data';
@@ -13,9 +12,7 @@ import { generateCMS1500Data } from './utils/cms1500Data';
 // Import utilities
 import { 
   exportToPDF, 
-  exportMultipleReportsToPDF, 
   exportToPDFAsImage,
-  exportMultipleElementsToPDFAsImages
 } from './utils/pdfExport';
 
 function App() {
@@ -63,13 +60,6 @@ function App() {
     }
   };
 
-  const handleStepNavigation = (step) => {
-    // Only allow navigation to completed steps or the next step
-    if (step === 1 || (step === 2 && medicalData) || (step === 3 && medicalData)) {
-      setCurrentStep(step);
-    }
-  };
-
   const handleExportPDF = async (reportType, filename) => {
     if (!medicalData) {
       alert('Please generate medical data first.');
@@ -104,34 +94,6 @@ function App() {
     }
     setActiveReportType(reportType);
     setShowPreview(true);
-  };
-
-  const handleExportAllReports = async () => {
-    setIsLoading(true);
-    try {
-      const elementIds = ['medical-records-report'];
-      await exportMultipleReportsToPDF(elementIds, 'medical-records-combined');
-      alert('Medical records PDF has been downloaded successfully!');
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Failed to export PDF. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleExportAllReportsAsImages = async () => {
-    setIsLoading(true);
-    try {
-      const elementIds = ['medical-records-report'];
-      await exportMultipleElementsToPDFAsImages(elementIds, 'medical-records-images');
-      alert('Medical records image-based PDF has been downloaded successfully!');
-    } catch (error) {
-      console.error('Image export failed:', error);
-      alert('Failed to export PDF as images. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const renderActiveReport = () => {
@@ -247,22 +209,18 @@ function App() {
 
       {/* Hidden reports for PDF export */}
       <div className="report-display">
-        <div id="medical-records-report">
           {medicalData && (
             <MedicalRecordsReport 
               data={medicalData} 
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}
-        </div>
-        <div id="cms1500-report">
           {cms1500Data && (
             <CMS1500Form 
               data={cms1500Data} 
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}
-        </div>
       </div>
     </div>
   );

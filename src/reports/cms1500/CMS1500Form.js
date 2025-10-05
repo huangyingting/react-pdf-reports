@@ -6,7 +6,7 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
 
   return (
     <div 
-      className="cms1500-report" 
+      className="cms1500-report"
       id="cms1500-report"
       style={{ fontFamily: fontFamily }}
     >

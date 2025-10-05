@@ -9,8 +9,8 @@ import './MedicalRecordsReport.css';
 const MedicalRecordsReport = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   return (
     <div 
-      className="medical-records-report" 
-      id="medical-records-report"
+      className="medical-records-report"
+      id="medical-records-report" 
       style={{ fontFamily: fontFamily }}
     >
       {/* Page 1: Patient Demographics */}
