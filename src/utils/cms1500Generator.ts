@@ -6,17 +6,9 @@
 import { faker } from '@faker-js/faker';
 import {
   MedicalRecord,
-  PatientDemographics,
-  Address,
-  ServiceLine,
-  ClaimInfo,
-  Provider,
-  InsuranceInfo,
   CMS1500Data
 } from './types';
 
-// Re-export types for convenience
-export type { ServiceLine as CMS1500ServiceLine, ClaimInfo as CMS1500Claim, Address, PatientDemographics as CMS1500Patient, Provider as CMS1500Provider, InsuranceInfo as CMS1500Insurance, CMS1500Data };
 
 export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data => {
   // Generate fallback values using Faker.js
@@ -695,50 +687,4 @@ export const generateMultipleCMS1500Forms = (patientData: MedicalRecord, count: 
     forms.push(generateCMS1500Data(patientData));
   }
   return forms;
-};
-
-/**
- * Common place of service codes
- */
-export const PLACE_OF_SERVICE_CODES: Record<string, string> = {
-  '11': 'Office',
-  '12': 'Home',
-  '21': 'Inpatient Hospital',
-  '22': 'Outpatient Hospital',
-  '23': 'Emergency Room - Hospital',
-  '24': 'Ambulatory Surgical Center',
-  '31': 'Skilled Nursing Facility',
-  '32': 'Nursing Facility',
-  '41': 'Ambulance - Land',
-  '42': 'Ambulance - Air or Water',
-  '81': 'Independent Laboratory',
-};
-
-/**
- * Common CPT codes for reference
- */
-export const COMMON_CPT_CODES: Record<string, string> = {
-  // Office Visits
-  '99201': 'Office visit, new patient, level 1',
-  '99202': 'Office visit, new patient, level 2',
-  '99203': 'Office visit, new patient, level 3',
-  '99204': 'Office visit, new patient, level 4',
-  '99205': 'Office visit, new patient, level 5',
-  '99211': 'Office visit, established patient, level 1',
-  '99212': 'Office visit, established patient, level 2',
-  '99213': 'Office visit, established patient, level 3',
-  '99214': 'Office visit, established patient, level 4',
-  '99215': 'Office visit, established patient, level 5',
-  
-  // Lab Tests
-  '80053': 'Comprehensive metabolic panel',
-  '85025': 'Complete blood count with differential',
-  '83036': 'Hemoglobin A1C',
-  '80061': 'Lipid panel',
-  '84443': 'Thyroid stimulating hormone',
-  
-  // Procedures
-  '93000': 'Electrocardiogram, routine ECG',
-  '71045': 'Chest x-ray, single view',
-  '36415': 'Venipuncture',
 };

@@ -7,8 +7,10 @@ import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
-import { generateCMS1500Data, CMS1500Data } from './utils/cms1500Generator';
-import { MedicalRecord } from './utils/types';
+import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDocument';
+import { generateCMS1500Data } from './utils/cms1500Generator';
+import { generateInsurancePolicyData } from './utils/insurancePolicyGenerator';
+import { MedicalRecord, CMS1500Data, InsurancePolicyData } from './utils/types';
 
 // Import utilities
 import { 
@@ -24,13 +26,14 @@ interface FontFamily {
 
 type QualityLevel = 'poor' | 'standard' | 'high';
 type ExportFormat = 'pdf' | 'canvas';
-type ReportType = 'medical' | 'cms1500';
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy';
 
 function App() {
   // Workflow state management
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
   const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
+  const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
   const [activeReportType, setActiveReportType] = useState<ReportType>('medical');
   
   // Export settings
@@ -55,11 +58,13 @@ function App() {
   const handleDataGenerated = (data: MedicalRecord) => {
     setMedicalData(data);
     setCms1500Data(generateCMS1500Data(data));
+    setInsurancePolicyData(generateInsurancePolicyData(data));
   };
 
   const handleDataUpdated = (newData: MedicalRecord) => {
     setMedicalData(newData);
     setCms1500Data(generateCMS1500Data(newData));
+    setInsurancePolicyData(generateInsurancePolicyData(newData));
   };
 
   const handleNextStep = () => {
@@ -82,7 +87,9 @@ function App() {
 
     setIsLoading(true);
     try {
-      const elementId = reportType === 'cms1500' ? 'cms1500-report' : 'medical-records-report';
+      const elementId = reportType === 'cms1500' ? 'cms1500-report' 
+        : reportType === 'insurancePolicy' ? 'insurance-policy-report'
+        : 'medical-records-report';
       
       if (exportFormat === 'canvas') {
         await exportToPDFAsImage(elementId, `${filename}-canvas`, {
@@ -128,6 +135,15 @@ function App() {
           fontFamily={fontFamilyStyle}
         />
       );
+    }
+    
+    if (activeReportType === 'insurancePolicy') {
+      return insurancePolicyData ? (
+        <InsurancePolicyDocument 
+          data={insurancePolicyData}
+          fontFamily={fontFamilyStyle}
+        />
+      ) : null;
     }
     
     return (
@@ -208,7 +224,7 @@ function App() {
         <div className="preview-modal">
           <div className="preview-content">
             <div className="preview-header">
-              <h3>Preview - {activeReportType === 'cms1500' ? 'CMS-1500 Form' : 'Medical Records Report'}</h3>
+              <h3>Preview - {activeReportType === 'cms1500' ? 'CMS-1500 Form' : activeReportType === 'insurancePolicy' ? 'Insurance Policy Document' : 'Medical Records Report'}</h3>
               <button 
                 className="close-preview"
                 onClick={() => setShowPreview(false)}
@@ -234,6 +250,12 @@ function App() {
           {cms1500Data && (
             <CMS1500Form 
               data={cms1500Data} 
+              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+            />
+          )}
+          {insurancePolicyData && (
+            <InsurancePolicyDocument 
+              data={insurancePolicyData}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}

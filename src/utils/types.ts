@@ -404,6 +404,11 @@ export interface CMS1500Data {
   claim: ClaimInfo;
 }
 
+export interface InsurancePolicyData {
+  patient: PatientDemographics;
+  insurance: InsuranceInfo;
+}
+
 // Generation Options and Presets
 export interface GenerationOptions {
   complexity?: 'low' | 'medium' | 'high';

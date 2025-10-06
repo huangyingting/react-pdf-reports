@@ -5,7 +5,7 @@ import { MedicalRecord } from '../utils/types';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
-type ReportType = 'medical' | 'cms1500';
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy';
 
 interface FontFamily {
   value: string;
@@ -175,6 +175,14 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
               description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
               onPreview={() => onPreview('cms1500')}
               onGenerate={() => onExport('cms1500', 'cms-1500-claim-form')}
+              isLoading={isLoading}
+            />
+
+            <DocumentCard
+              title="Insurance Policy Certificate"
+              description="Professional insurance policy certificate document with coverage details, subscriber information, and benefits summary"
+              onPreview={() => onPreview('insurancePolicy')}
+              onGenerate={() => onExport('insurancePolicy', 'insurance-policy-certificate')}
               isLoading={isLoading}
             />
           </div>

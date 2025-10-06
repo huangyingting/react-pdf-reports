@@ -1,12 +1,11 @@
 import React from 'react';
 import './CMS1500Form.css';
-import { CMS1500Data } from '../../utils/cms1500Generator';
+import { CMS1500Data } from '../../utils/types';
 
 interface CMS1500FormProps {
   data: CMS1500Data;
   fontFamily?: string;
 }
-
 const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   const { patient, insurance, provider, claim } = data;
 

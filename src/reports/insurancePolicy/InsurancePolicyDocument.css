@@ -1,0 +1,419 @@
+/* Insurance Policy Document - Compact A4 Design (No Icons/Images) */
+
+/* Main Container */
+.insurance-policy-report {
+  background: #f5f5f5;
+  color: #000;
+  line-height: 1.3;
+  font-size: 11px;
+  padding: 0;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+.insurance-policy-report *,
+.insurance-policy-report table,
+.insurance-policy-report label,
+.insurance-policy-report div,
+.insurance-policy-report p {
+  font-family: inherit;
+}
+
+/* A4 Page Structure - 210mm × 297mm */
+.insurance-policy-page {
+  width: 210mm;
+  height: 297mm;
+  padding: 12mm 15mm;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+}
+
+.insurance-policy-page * {
+  box-sizing: border-box;
+}
+
+.insurance-policy-page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+  margin-bottom: 0;
+}
+
+@media screen {
+  .insurance-policy-page {
+    margin-bottom: 20px;
+  }
+  
+  .insurance-policy-page:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media print {
+  .insurance-policy-report {
+    background: white;
+    max-width: none;
+  }
+  
+  .insurance-policy-page {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 12mm 15mm;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+  
+  .insurance-policy-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  
+  .compact-section,
+  .policy-info-box,
+  .benefit-table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}
+
+/* Letterhead */
+.policy-letterhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4mm;
+  padding-bottom: 2.5mm;
+  border-bottom: 2px solid #222;
+}
+
+.policy-letterhead.compact {
+  margin-bottom: 3mm;
+  padding-bottom: 2mm;
+  border-bottom: 1.5px solid #222;
+}
+
+.company-header {
+  flex: 1;
+}
+
+.company-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: 1.2px;
+}
+
+.company-name.small {
+  font-size: 14px;
+  letter-spacing: 0.8px;
+}
+
+.company-address {
+  font-size: 9.5px;
+  color: #444;
+  margin: 1mm 0 0 0;
+  line-height: 1.2;
+}
+
+.policy-ref {
+  font-size: 9.5px;
+  color: #666;
+  margin-left: 2mm;
+  font-weight: 600;
+}
+
+.company-contact {
+  text-align: right;
+  font-size: 9.5px;
+  color: #333;
+  line-height: 1.3;
+}
+
+.company-contact p {
+  margin: 0.2mm 0;
+}
+
+.page-number {
+  font-size: 10px;
+  color: #666;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Document Title */
+.policy-title-section {
+  text-align: center;
+  margin-bottom: 4mm;
+}
+
+.policy-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 2px solid #222;
+  padding-bottom: 2mm;
+}
+
+.page-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 3mm 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  border-bottom: 1.5px solid #222;
+  padding-bottom: 1.5mm;
+}
+
+/* Policy Info Box */
+.policy-info-box {
+  background: #f8f8f8;
+  border: 1.5px solid #333;
+  padding: 2.5mm 3mm;
+  margin-bottom: 3mm;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8mm 0;
+  border-bottom: 0.5px solid #ccc;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #333;
+  flex: 0 0 40%;
+  font-size: 10.5px;
+}
+
+.info-value {
+  color: #000;
+  flex: 1;
+  text-align: right;
+  font-size: 10.5px;
+}
+
+.info-value.strong {
+  font-weight: 700;
+  font-size: 11.5px;
+}
+
+/* Compact Sections */
+.compact-section {
+  margin-bottom: 3mm;
+  border: 1px solid #ddd;
+  padding: 2mm 2.5mm;
+  background: white;
+}
+
+.compact-section.highlight-section {
+  background: #f9f9f9;
+  border: 1.5px solid #666;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 1.5mm 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Tables */
+.info-table,
+.benefit-table,
+.contact-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.info-table td {
+  padding: 0.8mm 1mm;
+  vertical-align: top;
+}
+
+.label-col {
+  font-weight: 600;
+  color: #333;
+  width: 20%;
+}
+
+.value-col {
+  color: #000;
+  width: 30%;
+}
+
+/* Benefit Table */
+.benefit-table {
+  border: 1px solid #999;
+}
+
+.benefit-table th {
+  background: #333;
+  color: white;
+  padding: 1.5mm 2mm;
+  text-align: left;
+  font-weight: 700;
+  font-size: 10.5px;
+  border: 1px solid #666;
+}
+
+.benefit-table td {
+  padding: 1mm 2mm;
+  border: 1px solid #ccc;
+  vertical-align: top;
+}
+
+.benefit-table tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* Contact Table */
+.contact-table td {
+  padding: 1mm 1.5mm;
+  border-bottom: 0.5px solid #ddd;
+}
+
+.contact-table td:nth-child(odd) {
+  font-weight: 600;
+  color: #333;
+  width: 25%;
+}
+
+.contact-table td:nth-child(even) {
+  color: #000;
+  width: 25%;
+}
+
+/* Compact Lists */
+.compact-list {
+  margin: 0;
+  padding-left: 4mm;
+  list-style-type: square;
+}
+
+.compact-list li {
+  margin-bottom: 0.8mm;
+  line-height: 1.3;
+}
+
+.compact-text {
+  margin: 0;
+  line-height: 1.4;
+  text-align: justify;
+}
+
+/* Two Column Layout */
+.two-column {
+  display: flex;
+  gap: 3mm;
+}
+
+.two-column .column {
+  flex: 1;
+  padding: 2mm;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.two-column .section-title {
+  font-size: 11px;
+  margin-bottom: 1.5mm;
+}
+
+.two-column .compact-list {
+  padding-left: 3mm;
+}
+
+.two-column .compact-list li {
+  font-size: 10px;
+  margin-bottom: 0.5mm;
+}
+
+/* Footer */
+.policy-footer {
+  margin-top: auto;
+  padding-top: 3mm;
+  border-top: 1px solid #ccc;
+}
+
+.footer-notice {
+  font-size: 9.5px;
+  color: #444;
+  margin: 0 0 2mm 0;
+  line-height: 1.4;
+  text-align: justify;
+}
+
+.footer-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: #666;
+  font-weight: 600;
+}
+
+/* Legal Notice */
+.legal-notice {
+  margin-top: 3mm;
+  padding: 2mm 2.5mm;
+  background: #f9f9f9;
+  border: 1px solid #ccc;
+}
+
+.legal-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 1.5mm 0;
+  text-transform: uppercase;
+}
+
+.legal-text {
+  font-size: 9.5px;
+  color: #333;
+  margin: 0 0 1mm 0;
+  line-height: 1.4;
+  text-align: justify;
+}
+
+.legal-text:last-child {
+  margin-bottom: 0;
+}
+
+/* Document Footer */
+.document-footer {
+  margin-top: auto;
+  padding-top: 2mm;
+  border-top: 1px solid #999;
+  font-size: 9px;
+  color: #666;
+  text-align: center;
+}
