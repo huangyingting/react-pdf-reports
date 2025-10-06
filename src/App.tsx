@@ -52,7 +52,19 @@ function App() {
     { value: 'Helvetica', label: 'Helvetica', css: "'Helvetica', 'Arial', sans-serif" },
     { value: 'Georgia', label: 'Georgia', css: "'Georgia', serif" },
     { value: 'Verdana', label: 'Verdana', css: "'Verdana', sans-serif" },
-    { value: 'Calibri', label: 'Calibri', css: "'Calibri', sans-serif" }
+    { value: 'Calibri', label: 'Calibri', css: "'Calibri', sans-serif" },
+    { value: 'Courier New', label: 'Courier New', css: "'Courier New', monospace" },
+    { value: 'Trebuchet MS', label: 'Trebuchet MS', css: "'Trebuchet MS', sans-serif" },
+    { value: 'Palatino', label: 'Palatino', css: "'Palatino Linotype', 'Book Antiqua', Palatino, serif" },
+    { value: 'Garamond', label: 'Garamond', css: "'Garamond', serif" },
+    { value: 'Bookman', label: 'Bookman', css: "'Bookman Old Style', serif" },
+    { value: 'Comic Sans MS', label: 'Comic Sans MS', css: "'Comic Sans MS', cursive" },
+    { value: 'Candara', label: 'Candara', css: "'Candara', sans-serif" },
+    { value: 'Tahoma', label: 'Tahoma', css: "'Tahoma', sans-serif" },
+    { value: 'Cambria', label: 'Cambria', css: "'Cambria', serif" },
+    { value: 'Consolas', label: 'Consolas', css: "'Consolas', monospace" },
+    { value: 'Lucida Sans', label: 'Lucida Sans', css: "'Lucida Sans Unicode', 'Lucida Grande', sans-serif" },
+    { value: 'Century Gothic', label: 'Century Gothic', css: "'Century Gothic', sans-serif" }
   ];
 
   // Step navigation handlers
