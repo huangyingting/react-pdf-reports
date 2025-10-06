@@ -409,6 +409,72 @@ export interface InsurancePolicyData {
   insurance: InsuranceInfo;
 }
 
+export interface VisitReportData {
+  patient: PatientDemographics;
+  provider: Provider;
+  visit: VisitNote;
+  vitalSigns: VitalSigns;
+}
+
+export interface MedicationHistoryData {
+  patient: PatientDemographics;
+  provider: Provider;
+  medications: Medications;
+  allergies: Allergy[];
+}
+
+// Laboratory Report Types
+export type LabTestType = 
+  | 'CBC'           // Complete Blood Count
+  | 'BMP'           // Basic Metabolic Panel
+  | 'CMP'           // Comprehensive Metabolic Panel
+  | 'Urinalysis'    // Urinalysis
+  | 'Lipid'         // Lipid Profile
+  | 'LFT'           // Liver Function Tests
+  | 'Thyroid'       // Thyroid Function Tests
+  | 'HbA1c'         // Hemoglobin A1c
+  | 'Coagulation'   // Coagulation Panel
+  | 'Microbiology'  // Microbiology Cultures
+  | 'Pathology'     // Pathology Reports
+  | 'Hormone'       // Hormone Panels
+  | 'Infectious';   // Infectious Disease Panels
+
+export interface LabTestResult {
+  parameter: string;
+  value: string;
+  unit: string;
+  referenceRange: string;
+  flag: 'Normal' | 'High' | 'Low' | 'Critical' | 'Abnormal' | '';
+  notes?: string;
+}
+
+export interface LaboratoryReportData {
+  patient: PatientDemographics;
+  provider: Provider;
+  testType: LabTestType;
+  testName: string;
+  specimenType: string;
+  specimenCollectionDate: string;
+  specimenCollectionTime: string;
+  specimenReceivedDate: string;
+  reportDate: string;
+  reportTime: string;
+  orderingPhysician: string;
+  performingLab: {
+    name: string;
+    address: Address;
+    phone: string;
+    cliaNumber: string;
+    director: string;
+  };
+  results: LabTestResult[];
+  interpretation?: string;
+  comments?: string;
+  criticalValues?: string[];
+  technologist?: string;
+  pathologist?: string;
+}
+
 // Generation Options and Presets
 export interface GenerationOptions {
   complexity?: 'low' | 'medium' | 'high';

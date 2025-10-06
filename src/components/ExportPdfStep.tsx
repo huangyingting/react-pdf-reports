@@ -1,11 +1,11 @@
 import React from 'react';
 import DocumentCard from './DocumentCard';
 import './ExportPdfStep.css';
-import { MedicalRecord } from '../utils/types';
+import { MedicalRecord, LabTestType } from '../utils/types';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
-type ReportType = 'medical' | 'cms1500' | 'insurancePolicy';
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | LabTestType;
 
 interface FontFamily {
   value: string;
@@ -145,25 +145,6 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             <div className="category-header">
               <div className="category-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
-              </div>
-              <h3>Medical Reports</h3>
-            </div>
-
-            <DocumentCard
-              title="Complete Medical Records Report"
-              description="Comprehensive medical records including patient demographics, medical history, medications, lab results, and visit notes"
-              onPreview={() => onPreview('medical')}
-              onGenerate={() => onExport('medical', 'medical-records-report')}
-              isLoading={isLoading}
-            />
-          </div>
-
-          <div className="document-category">
-            <div className="category-header">
-              <div className="category-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
@@ -185,6 +166,174 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onPreview={() => onPreview('insurancePolicy')}
                 onGenerate={() => onExport('insurancePolicy', 'insurance-policy-certificate')}
                 isLoading={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="document-category">
+            <div className="category-header">
+              <div className="category-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3>Clinical Reports</h3>
+            </div>
+
+            <div className="document-cards-row">
+              <DocumentCard
+                title="Complete Medical Records Report"
+                description="Comprehensive medical records including patient demographics, medical history, medications, lab results, and visit notes"
+                onPreview={() => onPreview('medical')}
+                onGenerate={() => onExport('medical', 'medical-records-report')}
+                isLoading={isLoading}
+              />
+
+              <DocumentCard
+                title="Visit Report"
+                description="Clinical visit summary with vital signs, chief complaint, assessment, and treatment plan - optimized for printed clinical records"
+                onPreview={() => onPreview('visitReport')}
+                onGenerate={() => onExport('visitReport', 'visit-report')}
+                isLoading={isLoading}
+              />
+
+              <DocumentCard
+                title="Medication History"
+                description="Comprehensive medication history report with current medications, discontinued medications, and allergy information"
+                onPreview={() => onPreview('medicationHistory')}
+                onGenerate={() => onExport('medicationHistory', 'medication-history')}
+                isLoading={isLoading}
+              />
+            </div>
+          </div>
+
+          <div className="document-category">
+            <div className="category-header">
+              <div className="category-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 2v1m6-1v1M4 8h16M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
+                  <path d="M9 11h.01M9 14h.01M12 11h.01M12 14h.01M15 11h.01M15 14h.01" />
+                </svg>
+              </div>
+              <h3>Laboratory Reports</h3>
+            </div>
+
+            <div className="laboratory-cards-grid">
+              <DocumentCard
+                title="CBC"
+                description="Complete blood cell analysis with differential count"
+                onPreview={() => onPreview('CBC')}
+                onGenerate={() => onExport('CBC', 'cbc-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="BMP"
+                description="Basic metabolic panel with glucose and electrolytes"
+                onPreview={() => onPreview('BMP')}
+                onGenerate={() => onExport('BMP', 'bmp-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="CMP"
+                description="Comprehensive metabolic panel with liver function"
+                onPreview={() => onPreview('CMP')}
+                onGenerate={() => onExport('CMP', 'cmp-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Urinalysis"
+                description="Complete urine analysis with microscopic exam"
+                onPreview={() => onPreview('Urinalysis')}
+                onGenerate={() => onExport('Urinalysis', 'urinalysis-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Lipid Profile"
+                description="Cardiovascular risk assessment panel"
+                onPreview={() => onPreview('Lipid')}
+                onGenerate={() => onExport('Lipid', 'lipid-profile-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Liver Function"
+                description="Comprehensive liver health assessment"
+                onPreview={() => onPreview('LFT')}
+                onGenerate={() => onExport('LFT', 'lft-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Thyroid Panel"
+                description="Complete thyroid function assessment"
+                onPreview={() => onPreview('Thyroid')}
+                onGenerate={() => onExport('Thyroid', 'thyroid-function-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="HbA1c"
+                description="Diabetes monitoring and glucose control"
+                onPreview={() => onPreview('HbA1c')}
+                onGenerate={() => onExport('HbA1c', 'hba1c-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Coagulation"
+                description="Blood clotting function panel"
+                onPreview={() => onPreview('Coagulation')}
+                onGenerate={() => onExport('Coagulation', 'coagulation-panel-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Microbiology"
+                description="Culture and sensitivity testing"
+                onPreview={() => onPreview('Microbiology')}
+                onGenerate={() => onExport('Microbiology', 'microbiology-culture-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Pathology"
+                description="Tissue specimen analysis report"
+                onPreview={() => onPreview('Pathology')}
+                onGenerate={() => onExport('Pathology', 'pathology-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Hormone Panel"
+                description="Endocrine function testing"
+                onPreview={() => onPreview('Hormone')}
+                onGenerate={() => onExport('Hormone', 'hormone-panel-report')}
+                isLoading={isLoading}
+                compact
+              />
+
+              <DocumentCard
+                title="Infectious Disease"
+                description="Serological testing panel"
+                onPreview={() => onPreview('Infectious')}
+                onGenerate={() => onExport('Infectious', 'infectious-disease-panel-report')}
+                isLoading={isLoading}
+                compact
               />
             </div>
           </div>

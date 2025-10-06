@@ -191,23 +191,25 @@
 .generation-actions {
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
-  padding-top: 2rem;
+  padding-top: 1.5rem;
   border-top: 1px solid #e5e7eb;
+  margin-top: 1.5rem;
 }
 
 .btn {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 6px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid transparent;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.375rem;
   text-decoration: none;
+  white-space: nowrap;
+  max-width: fit-content;
 }
 
 .btn:disabled {
@@ -238,7 +240,7 @@
 }
 
 .btn-large {
-  padding: 1rem 2rem;
+  padding: 1rem 2.5rem;
   font-size: 1rem;
 }
 

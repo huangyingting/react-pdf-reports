@@ -1,0 +1,477 @@
+/* Medication History Document - Compact A4 Design */
+
+/* Main Container */
+.medication-history-document {
+  background: #f5f5f5;
+  color: #000;
+  line-height: 1.3;
+  font-size: 11px;
+  padding: 0;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+.medication-history-document *,
+.medication-history-document table,
+.medication-history-document label,
+.medication-history-document div,
+.medication-history-document p {
+  font-family: inherit;
+}
+
+/* A4 Page Structure - 210mm × 297mm */
+.medication-history-page {
+  width: 210mm;
+  height: 297mm;
+  padding: 12mm 15mm;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+}
+
+.medication-history-page * {
+  box-sizing: border-box;
+}
+
+.medication-history-page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+  margin-bottom: 0;
+}
+
+@media screen {
+  .medication-history-page {
+    margin-bottom: 20px;
+  }
+  
+  .medication-history-page:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media print {
+  .medication-history-document {
+    background: white;
+    max-width: none;
+  }
+  
+  .medication-history-page {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 12mm 15mm;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+  
+  .medication-history-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  
+  .medication-section,
+  .allergy-alert-section,
+  .medication-table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}
+
+/* Letterhead */
+.medication-letterhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4mm;
+  padding-bottom: 2.5mm;
+  border-bottom: 2px solid #222;
+}
+
+.facility-header {
+  flex: 1;
+}
+
+.facility-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: 1.2px;
+}
+
+.facility-address {
+  font-size: 9.5px;
+  color: #444;
+  margin: 1mm 0 0 0;
+  line-height: 1.2;
+}
+
+.facility-contact {
+  text-align: right;
+  font-size: 9.5px;
+  color: #333;
+  line-height: 1.3;
+}
+
+.facility-contact p {
+  margin: 0.2mm 0;
+}
+
+/* Title Section */
+.medication-title-section {
+  text-align: center;
+  margin-bottom: 4mm;
+}
+
+.medication-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+  letter-spacing: 1.5px;
+}
+
+.medication-subtitle {
+  font-size: 9px;
+  color: #666;
+  margin: 1mm 0 0 0;
+  font-style: italic;
+}
+
+/* Patient Information Box */
+.medication-info-box {
+  background: #f9f9f9;
+  border: 1.5px solid #ccc;
+  padding: 3mm;
+  margin-bottom: 4mm;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2mm 3mm;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5mm;
+}
+
+.info-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.info-value {
+  font-size: 10px;
+  color: #000;
+}
+
+.info-value.strong {
+  font-weight: 700;
+}
+
+/* Allergy Alert Section */
+.allergy-alert-section {
+  background: #fff3cd;
+  border: 2px solid #f0ad4e;
+  padding: 3mm;
+  margin-bottom: 4mm;
+}
+
+.alert-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8a6d3b;
+  margin: 0 0 2mm 0;
+  letter-spacing: 0.8px;
+  text-align: center;
+}
+
+.allergy-content {
+  margin-top: 2mm;
+}
+
+.allergy-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.allergy-table thead {
+  background: #f0ad4e;
+  color: white;
+}
+
+.allergy-table th {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1.5mm 2mm;
+  text-align: left;
+  border: 1px solid #d4952a;
+}
+
+.allergy-table td {
+  font-size: 10px;
+  padding: 2mm;
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.severe-allergy {
+  background: #f8d7da !important;
+}
+
+.allergen-name {
+  font-weight: 700;
+  color: #000;
+}
+
+.severity {
+  font-weight: 700;
+  text-align: center;
+}
+
+.severity-severe {
+  color: #d9534f;
+}
+
+.severity-moderate {
+  color: #f0ad4e;
+}
+
+.severity-mild {
+  color: #5bc0de;
+}
+
+.no-allergies {
+  font-size: 11px;
+  color: #5cb85c;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+  padding: 2mm;
+}
+
+/* Medication Sections */
+.medication-section {
+  margin-bottom: 4mm;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 2mm 0;
+  padding: 1.5mm 2mm;
+  border-bottom: 1.5px solid #333;
+  letter-spacing: 0.8px;
+  background: #f0f0f0;
+}
+
+/* Medication Tables */
+.medication-table,
+.discontinued-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2mm;
+}
+
+.medication-table thead,
+.discontinued-table thead {
+  background: #337ab7;
+  color: white;
+}
+
+.medication-table th,
+.discontinued-table th {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1.5mm 1.5mm;
+  text-align: left;
+  border: 1px solid #2e6da4;
+}
+
+.medication-table td,
+.discontinued-table td {
+  font-size: 9.5px;
+  padding: 2mm 1.5mm;
+  border: 1px solid #ddd;
+  background: white;
+  vertical-align: top;
+}
+
+.med-name-col {
+  width: 15%;
+}
+
+.med-strength-col {
+  width: 10%;
+}
+
+.med-dosage-col {
+  width: 30%;
+}
+
+.med-purpose-col {
+  width: 18%;
+}
+
+.med-date-col {
+  width: 12%;
+}
+
+.med-prescriber-col {
+  width: 15%;
+}
+
+.med-reason-col {
+  width: 33%;
+}
+
+.med-name {
+  font-weight: 700;
+  color: #000;
+}
+
+.med-strength {
+  font-weight: 600;
+  color: #337ab7;
+}
+
+.med-instructions {
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.discontinued-table thead {
+  background: #999;
+}
+
+.discontinued-table th {
+  border-color: #777;
+}
+
+.discontinued-row {
+  background: #f5f5f5 !important;
+}
+
+.discontinued-row .med-name {
+  text-decoration: line-through;
+  color: #666;
+}
+
+.no-medications {
+  font-size: 10px;
+  color: #999;
+  text-align: center;
+  padding: 3mm;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Notes Section */
+.notes-section {
+  margin-bottom: 4mm;
+}
+
+.notes-content {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 3mm;
+}
+
+.notes-list {
+  margin: 0;
+  padding-left: 5mm;
+  list-style-type: disc;
+}
+
+.notes-list li {
+  font-size: 9.5px;
+  color: #333;
+  margin-bottom: 1.5mm;
+  line-height: 1.4;
+}
+
+.notes-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Verification Section */
+.verification-section {
+  margin-top: auto;
+  padding-top: 3mm;
+  margin-bottom: 3mm;
+}
+
+.verification-box {
+  background: #e8f4f8;
+  border: 1px solid #5bc0de;
+  padding: 2.5mm 3mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.verification-text {
+  font-size: 9.5px;
+  color: #31708f;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.verification-text strong {
+  font-weight: 700;
+}
+
+/* Footer */
+.medication-footer {
+  margin-top: auto;
+  padding-top: 2mm;
+  border-top: 1px solid #ccc;
+}
+
+.footer-notice {
+  font-size: 8.5px;
+  color: #666;
+  margin: 0 0 1.5mm 0;
+  line-height: 1.3;
+  font-style: italic;
+  text-align: center;
+}
+
+.footer-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5px;
+  color: #666;
+}
+
+.footer-info span {
+  flex: 1;
+  text-align: center;
+}
+
+.footer-info span:first-child {
+  text-align: left;
+}
+
+.footer-info span:last-child {
+  text-align: right;
+}

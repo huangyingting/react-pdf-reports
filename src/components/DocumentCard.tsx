@@ -7,6 +7,7 @@ interface DocumentCardProps {
   onPreview: () => void;
   onGenerate: () => void;
   isLoading?: boolean;
+  compact?: boolean;
 }
 
 const DocumentCard: React.FC<DocumentCardProps> = ({ 
@@ -14,10 +15,11 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   description, 
   onPreview, 
   onGenerate, 
-  isLoading = false 
+  isLoading = false,
+  compact = false
 }) => {
   return (
-    <div className="document-card">
+    <div className={`document-card${compact ? ' compact' : ''}`}>
       <div className="document-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
           <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -40,7 +42,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           Preview
         </button>
         <button 
-          className="btn btn-primary"
+          className="btn btn-outline"
           onClick={onGenerate}
           disabled={isLoading}
         >

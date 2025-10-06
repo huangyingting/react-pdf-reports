@@ -1,0 +1,551 @@
+/* Laboratory Report Document - Compact A4 Design */
+
+/* Main Container */
+.laboratory-report-document {
+  background: #f5f5f5;
+  color: #000;
+  line-height: 1.3;
+  font-size: 10px;
+  padding: 0;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+.laboratory-report-document *,
+.laboratory-report-document table,
+.laboratory-report-document label,
+.laboratory-report-document div,
+.laboratory-report-document p {
+  font-family: inherit;
+}
+
+/* A4 Page Structure - 210mm × 297mm */
+.laboratory-report-page {
+  width: 210mm;
+  height: 297mm;
+  padding: 10mm 12mm;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+  page-break-after: always;
+  break-after: page;
+}
+
+.laboratory-report-page * {
+  box-sizing: border-box;
+}
+
+.laboratory-report-page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+  margin-bottom: 0;
+}
+
+@media screen {
+  .laboratory-report-page {
+    margin-bottom: 20px;
+  }
+  
+  .laboratory-report-page:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media print {
+  .laboratory-report-document {
+    background: white;
+    max-width: none;
+  }
+  
+  .laboratory-report-page {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 10mm 12mm;
+    box-shadow: none;
+    page-break-after: always;
+    break-after: page;
+  }
+  
+  .laboratory-report-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+  
+  .results-section,
+  .lab-info-grid,
+  .results-table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Letterhead */
+.lab-letterhead {
+  margin-bottom: 3mm;
+  padding-bottom: 2mm;
+  border-bottom: 2.5px solid #1a5490;
+}
+
+.lab-header {
+  text-align: center;
+}
+
+.lab-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a5490;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: 1.5px;
+}
+
+.lab-address {
+  font-size: 9px;
+  color: #444;
+  margin: 1.5mm 0 0.5mm 0;
+  line-height: 1.2;
+}
+
+.lab-contact {
+  font-size: 8.5px;
+  color: #666;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Title Section */
+.lab-title-section {
+  text-align: center;
+  margin-bottom: 3mm;
+}
+
+.lab-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.critical-alert {
+  background: #dc3545;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2mm;
+  margin-top: 2mm;
+  text-align: center;
+  letter-spacing: 1px;
+  border-radius: 2px;
+}
+
+/* Information Grid */
+.lab-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm;
+  margin-bottom: 3mm;
+}
+
+.info-box {
+  background: #f8f9fa;
+  border: 1.5px solid #dee2e6;
+  padding: 2.5mm;
+}
+
+.info-box-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #1a5490;
+  margin: 0 0 2mm 0;
+  padding-bottom: 1mm;
+  border-bottom: 1px solid #1a5490;
+  letter-spacing: 0.8px;
+}
+
+.info-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5mm 2mm;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5mm;
+}
+
+.info-label {
+  font-size: 7.5px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.info-value {
+  font-size: 9.5px;
+  color: #000;
+  font-weight: 500;
+}
+
+.info-value.strong {
+  font-weight: 700;
+}
+
+/* Critical Values Section */
+.critical-values-section {
+  background: #fff3cd;
+  border: 2px solid #dc3545;
+  padding: 2.5mm;
+  margin-bottom: 3mm;
+}
+
+.critical-values-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc3545;
+  margin: 0 0 2mm 0;
+  letter-spacing: 0.8px;
+}
+
+.critical-values-content {
+  margin-top: 1.5mm;
+}
+
+.critical-note {
+  font-size: 9.5px;
+  color: #856404;
+  margin: 0 0 2mm 0;
+  font-weight: 600;
+}
+
+.critical-list {
+  margin: 0;
+  padding-left: 5mm;
+  list-style-type: disc;
+}
+
+.critical-item {
+  font-size: 10px;
+  color: #dc3545;
+  font-weight: 700;
+  margin-bottom: 1mm;
+}
+
+/* Results Section */
+.results-section {
+  margin-bottom: 3mm;
+}
+
+.section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 2mm 0;
+  padding: 1.5mm 2mm;
+  background: #e9ecef;
+  border-left: 3px solid #1a5490;
+  letter-spacing: 0.8px;
+}
+
+/* Results Table */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
+}
+
+.results-table thead {
+  background: #1a5490;
+  color: white;
+}
+
+.results-table th {
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 1.5mm 2mm;
+  text-align: left;
+  border: 1px solid #0d3a6f;
+}
+
+.results-table td {
+  padding: 1.5mm 2mm;
+  border: 1px solid #dee2e6;
+  background: white;
+  vertical-align: middle;
+}
+
+.col-parameter {
+  width: 40%;
+}
+
+.col-result {
+  width: 15%;
+}
+
+.col-flag {
+  width: 10%;
+  text-align: center;
+}
+
+.col-unit {
+  width: 10%;
+}
+
+.col-reference {
+  width: 25%;
+}
+
+.cell-parameter {
+  font-weight: 600;
+  color: #000;
+}
+
+.cell-result {
+  font-weight: 700;
+  font-size: 10px;
+  color: #000;
+}
+
+.cell-flag {
+  text-align: center;
+}
+
+.cell-unit {
+  font-size: 8.5px;
+  color: #495057;
+}
+
+.cell-reference {
+  font-size: 8.5px;
+  color: #6c757d;
+}
+
+/* Row highlighting */
+.row-critical {
+  background: #f8d7da !important;
+}
+
+.row-critical td {
+  background: #f8d7da !important;
+  border-color: #dc3545 !important;
+}
+
+.row-abnormal {
+  background: #fff3cd !important;
+}
+
+.row-abnormal td {
+  background: #fff3cd !important;
+}
+
+/* Flag Badges */
+.flag-badge {
+  display: inline-block;
+  padding: 1mm 2mm;
+  font-size: 7.5px;
+  font-weight: 700;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.flag-high {
+  background: #ffc107;
+  color: #000;
+}
+
+.flag-low {
+  background: #17a2b8;
+  color: white;
+}
+
+.flag-critical {
+  background: #dc3545;
+  color: white;
+}
+
+.flag-abnormal {
+  background: #fd7e14;
+  color: white;
+}
+
+/* Interpretation Section */
+.interpretation-section {
+  margin-bottom: 3mm;
+}
+
+.interpretation-content {
+  background: #e7f3ff;
+  border-left: 3px solid #0066cc;
+  padding: 2.5mm;
+}
+
+.interpretation-text {
+  font-size: 9.5px;
+  color: #004085;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Comments Section */
+.comments-section {
+  margin-bottom: 3mm;
+}
+
+.comments-content {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 2.5mm;
+}
+
+.comments-text {
+  font-size: 9px;
+  color: #495057;
+  margin: 0;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Legend Section */
+.legend-section {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 2mm 2.5mm;
+  margin-bottom: 3mm;
+}
+
+.legend-title {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #495057;
+  margin: 0 0 1.5mm 0;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3mm;
+}
+
+.legend-item {
+  font-size: 8px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+/* Certification Section */
+.certification-section {
+  margin-top: auto;
+  padding-top: 2mm;
+  margin-bottom: 2mm;
+  border-top: 1px solid #dee2e6;
+}
+
+.certification-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm 3mm;
+}
+
+.cert-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.cert-label {
+  font-size: 7.5px;
+  font-weight: 600;
+  color: #6c757d;
+  margin: 0 0 0.5mm 0;
+  text-transform: uppercase;
+}
+
+.cert-value {
+  font-size: 9px;
+  color: #000;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Disclaimer Section */
+.disclaimer-section {
+  background: #f8f9fa;
+  padding: 2mm;
+  margin-bottom: 2mm;
+  border: 1px solid #dee2e6;
+}
+
+.disclaimer-title {
+  font-size: 8px;
+  font-weight: 700;
+  color: #495057;
+  margin: 0 0 1mm 0;
+}
+
+.disclaimer-list {
+  margin: 0;
+  padding-left: 4mm;
+  list-style-type: disc;
+}
+
+.disclaimer-list li {
+  font-size: 7.5px;
+  color: #6c757d;
+  margin-bottom: 0.8mm;
+  line-height: 1.3;
+}
+
+.disclaimer-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Footer */
+.lab-footer {
+  margin-top: auto;
+  padding-top: 1.5mm;
+  border-top: 1px solid #dee2e6;
+}
+
+.footer-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7.5px;
+  color: #6c757d;
+  margin-bottom: 1mm;
+}
+
+.footer-info span {
+  flex: 1;
+  text-align: center;
+}
+
+.footer-info span:first-child {
+  text-align: left;
+}
+
+.footer-info span:last-child {
+  text-align: right;
+}
+
+.footer-notice {
+  font-size: 7px;
+  color: #868e96;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+}
