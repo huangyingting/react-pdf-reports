@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, ProviderInfo, MedicalHistory, Medications } from '../utils/dataGenerator';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications } from '../utils/dataGenerator';
 
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;
@@ -26,7 +26,7 @@ interface InsuranceSectionProps {
 }
 
 interface ProviderSectionProps {
-  data: ProviderInfo;
+  data: Provider;
   onChange: (field: string, value: any) => void;
 }
 
@@ -300,8 +300,8 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
         <label>Insurance Company</label>
         <input
           type="text"
-          value={data.primaryInsurance.company}
-          onChange={(e) => onChange('primaryInsurance.company', e.target.value)}
+          value={data.primaryInsurance.provider}
+          onChange={(e) => onChange('primaryInsurance.provider', e.target.value)}
           className="form-input"
         />
       </div>
@@ -327,11 +327,11 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
       </div>
       
       <div className="form-group">
-        <label>Member Number</label>
+        <label>Member ID</label>
         <input
           type="text"
-          value={data.primaryInsurance.memberNumber}
-          onChange={(e) => onChange('primaryInsurance.memberNumber', e.target.value)}
+          value={data.primaryInsurance.memberId}
+          onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
           className="form-input"
         />
       </div>
@@ -365,8 +365,8 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
             <label>Insurance Company</label>
             <input
               type="text"
-              value={data.secondaryInsurance.company}
-              onChange={(e) => onChange('secondaryInsurance.company', e.target.value)}
+              value={data.secondaryInsurance.provider}
+              onChange={(e) => onChange('secondaryInsurance.provider', e.target.value)}
               className="form-input"
             />
           </div>
@@ -396,8 +396,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>Provider Name</label>
         <input
           type="text"
-          value={data.primaryCare.name}
-          onChange={(e) => onChange('primaryCare.name', e.target.value)}
+          value={data.name}
+          onChange={(e) => onChange('name', e.target.value)}
           className="form-input"
         />
       </div>
@@ -406,8 +406,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>NPI Number</label>
         <input
           type="text"
-          value={data.primaryCare.npi}
-          onChange={(e) => onChange('primaryCare.npi', e.target.value)}
+          value={data.npi}
+          onChange={(e) => onChange('npi', e.target.value)}
           className="form-input"
         />
       </div>
@@ -416,8 +416,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>Specialty</label>
         <input
           type="text"
-          value={data.primaryCare.specialty}
-          onChange={(e) => onChange('primaryCare.specialty', e.target.value)}
+          value={data.specialty}
+          onChange={(e) => onChange('specialty', e.target.value)}
           className="form-input"
         />
       </div>
@@ -426,8 +426,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>Phone</label>
         <input
           type="text"
-          value={data.primaryCare.phone}
-          onChange={(e) => onChange('primaryCare.phone', e.target.value)}
+          value={data.phone}
+          onChange={(e) => onChange('phone', e.target.value)}
           className="form-input"
         />
       </div>
@@ -439,8 +439,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>Facility Name</label>
         <input
           type="text"
-          value={data.facility.name}
-          onChange={(e) => onChange('facility.name', e.target.value)}
+          value={data.facilityName || ''}
+          onChange={(e) => onChange('facilityName', e.target.value)}
           className="form-input"
         />
       </div>
@@ -449,8 +449,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>Phone</label>
         <input
           type="text"
-          value={data.facility.phone}
-          onChange={(e) => onChange('facility.phone', e.target.value)}
+          value={data.facilityPhone || ''}
+          onChange={(e) => onChange('facilityPhone', e.target.value)}
           className="form-input"
         />
       </div>
@@ -459,8 +459,8 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         <label>Fax</label>
         <input
           type="text"
-          value={data.facility.fax}
-          onChange={(e) => onChange('facility.fax', e.target.value)}
+          value={data.facilityFax || ''}
+          onChange={(e) => onChange('facilityFax', e.target.value)}
           className="form-input"
         />
       </div>

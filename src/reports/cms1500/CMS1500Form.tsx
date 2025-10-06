@@ -205,7 +205,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               </div>
               <div className="subfield">
                 <label>c. INSURANCE PLAN NAME OR PROGRAM NAME</label>
-                <div className="field-value">{insurance?.primaryInsurance?.company || ''}</div>
+                <div className="field-value">{insurance?.primaryInsurance?.provider || ''}</div>
               </div>
               <div className="subfield checkbox-row">
                 <label>d. IS THERE ANOTHER HEALTH BENEFIT PLAN?</label>
@@ -500,7 +500,13 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             <div className="form-field field-32">
               <label>32. SERVICE FACILITY LOCATION INFORMATION</label>
               <div className="field-value">{provider?.facilityName || ''}</div>
-              <div className="field-value">{provider?.facilityAddress || ''}</div>
+              <div className="field-value">
+                {provider?.facilityAddress 
+                  ? typeof provider.facilityAddress === 'string' 
+                    ? provider.facilityAddress 
+                    : `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}`
+                  : ''}
+              </div>
               <div className="npi-field">
                 <label>a. NPI</label>
                 <div className="field-value">{provider?.facilityNPI || ''}</div>

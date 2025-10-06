@@ -27,49 +27,48 @@ export const sampleMedicalRecordsData: MedicalRecord = {
       provider: "Blue Cross Blue Shield",
       policyNumber: "BC123456789",
       groupNumber: "GRP001",
-      effectiveDate: "2024-01-01"
+      effectiveDate: "2024-01-01",
+      memberId: "BC123456789",
+      copay: "$30",
+      deductible: "$1000"
     },
     medicalRecordNumber: "MR-2024-001"
   },
 
   insurance: {
     primaryInsurance: {
-      company: "Blue Cross Blue Shield",
+      provider: "Blue Cross Blue Shield",
       policyNumber: "BC123456789",
       groupNumber: "GRP001",
-      memberNumber: "MEM123456",
+      memberId: "MEM123456",
       effectiveDate: "2024-01-01",
       copay: "$30",
-      deductible: "$1000",
-      provider: "Blue Cross Blue Shield"
+      deductible: "$1000"
     },
     secondaryInsurance: null
   },
 
   provider: {
-    primaryCare: {
-      name: "Dr. Sarah Williams",
-      npi: "1234567890",
-      specialty: "Family Medicine",
-      phone: "(555) 555-0100",
-      address: {
-        street: "123 Healthcare Blvd",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62701"
-      }
+    name: "Dr. Sarah Williams",
+    npi: "1234567890",
+    specialty: "Family Medicine",
+    phone: "(555) 555-0100",
+    address: {
+      street: "123 Healthcare Blvd",
+      city: "Springfield",
+      state: "IL",
+      zipCode: "62701"
     },
-    facility: {
-      name: "Springfield Medical Center",
-      address: {
-        street: "123 Healthcare Blvd",
-        city: "Springfield",
-        state: "IL",
-        zipCode: "62701"
-      },
-      phone: "(555) 555-0100",
-      fax: "(555) 555-0101"
-    }
+    facilityName: "Springfield Medical Center",
+    facilityAddress: {
+      street: "123 Healthcare Blvd",
+      city: "Springfield",
+      state: "IL",
+      zipCode: "62701"
+    },
+    facilityPhone: "(555) 555-0100",
+    facilityFax: "(555) 555-0101",
+    facilityNPI: "1234567890"
   },
 
   medicalHistory: {
