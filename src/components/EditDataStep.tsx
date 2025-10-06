@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LabTest, VitalSigns, VisitNote } from '../utils/types';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LabTest, VitalSigns, VisitNote, MEDICAL_SPECIALTIES } from '../utils/types';
+import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;
@@ -238,17 +239,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
           className="form-input"
         />
       </div>
-      
-      <div className="form-group">
-        <label>Last Name</label>
-        <input
-          type="text"
-          value={data.lastName}
-          onChange={(e) => onChange('lastName', e.target.value)}
-          className="form-input"
-        />
-      </div>
-      
+
       <div className="form-group">
         <label>Middle Initial</label>
         <input
@@ -259,7 +250,17 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
           maxLength={1}
         />
       </div>
-      
+
+      <div className="form-group">
+        <label>Last Name</label>
+        <input
+          type="text"
+          value={data.lastName}
+          onChange={(e) => onChange('lastName', e.target.value)}
+          className="form-input"
+        />
+      </div>
+            
       <div className="form-group">
         <label>Date of Birth</label>
         <input
@@ -270,20 +271,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
           placeholder="MM/DD/YYYY"
         />
       </div>
-      
-      <div className="form-group">
-        <label>Gender</label>
-        <select
-          value={data.gender}
-          onChange={(e) => onChange('gender', e.target.value)}
-          className="form-select"
-        >
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      
+            
       <div className="form-group">
         <label>Medical Record Number</label>
         <input
@@ -316,6 +304,19 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         />
       </div>
       
+      <div className="form-group">
+        <label>Gender</label>
+        <select
+          value={data.gender}
+          onChange={(e) => onChange('gender', e.target.value)}
+          className="form-select"
+        >
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
       <div className="form-group">
         <label>Phone Number</label>
         <input
@@ -350,7 +351,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
 
     <h4>Address Information</h4>
     <div className="form-grid">
-      <div className="form-group form-group-full">
+      <div className="form-group">
         <label>Street Address</label>
         <input
           type="text"
@@ -395,141 +396,223 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
 );
 
 // Insurance Section Component
-const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) => (
-  <div className="form-section">
-    <h3>Primary Insurance</h3>
-    
-    <div className="form-grid">
-      <div className="form-group">
-        <label>Insurance Company</label>
-        <input
-          type="text"
-          value={data.primaryInsurance.provider}
-          onChange={(e) => onChange('primaryInsurance.provider', e.target.value)}
-          className="form-input"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Policy Number</label>
-        <input
-          type="text"
-          value={data.primaryInsurance.policyNumber}
-          onChange={(e) => onChange('primaryInsurance.policyNumber', e.target.value)}
-          className="form-input"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Group Number</label>
-        <input
-          type="text"
-          value={data.primaryInsurance.groupNumber}
-          onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
-          className="form-input"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Member ID</label>
-        <input
-          type="text"
-          value={data.primaryInsurance.memberId}
-          onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
-          className="form-input"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Copay</label>
-        <input
-          type="text"
-          value={data.primaryInsurance.copay || ''}
-          onChange={(e) => onChange('primaryInsurance.copay', e.target.value)}
-          className="form-input"
-          placeholder="$20"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Deductible</label>
-        <input
-          type="text"
-          value={data.primaryInsurance.deductible || ''}
-          onChange={(e) => onChange('primaryInsurance.deductible', e.target.value)}
-          className="form-input"
-          placeholder="$1000"
-        />
-      </div>
-    </div>
+const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) => {
+  const handleAddSecondaryInsurance = () => {
+    // Generate secondary insurance with populated data, excluding the primary insurance provider
+    const result = generateSecondaryInsuranceAndInsured(data.primaryInsurance.provider);
+    onChange('secondaryInsurance', result.secondaryInsurance);
+    // Optionally, also update secondaryInsured if needed
+    if (result.secondaryInsured) {
+      onChange('secondaryInsured', result.secondaryInsured);
+    }
+  };
 
-    <h4>Subscriber Information</h4>
-    <div className="form-grid">
-      <div className="form-group">
-        <label>Subscriber Name</label>
-        <input
-          type="text"
-          value={data.subscriberName || ''}
-          onChange={(e) => onChange('subscriberName', e.target.value)}
-          className="form-input"
-          placeholder="If different from patient"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Subscriber DOB</label>
-        <input
-          type="text"
-          value={data.subscriberDOB || ''}
-          onChange={(e) => onChange('subscriberDOB', e.target.value)}
-          className="form-input"
-          placeholder="MM/DD/YYYY"
-        />
-      </div>
-      
-      <div className="form-group">
-        <label>Subscriber Gender</label>
-        <select
-          value={data.subscriberGender || ''}
-          onChange={(e) => onChange('subscriberGender', e.target.value)}
-          className="form-select"
-        >
-          <option value="">Select...</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-    </div>
+  const handleRemoveSecondaryInsurance = () => {
+    onChange('secondaryInsurance', null);
+  };
 
-    {data.secondaryInsurance && (
-      <>
-        <h4>Secondary Insurance</h4>
-        <div className="form-grid">
-          <div className="form-group">
-            <label>Insurance Company</label>
-            <input
-              type="text"
-              value={data.secondaryInsurance.provider}
-              onChange={(e) => onChange('secondaryInsurance.provider', e.target.value)}
-              className="form-input"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label>Policy Number</label>
-            <input
-              type="text"
-              value={data.secondaryInsurance.policyNumber}
-              onChange={(e) => onChange('secondaryInsurance.policyNumber', e.target.value)}
-              className="form-input"
-            />
-          </div>
+  return (
+    <div className="form-section">
+
+      <h4>Subscriber Information</h4>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Subscriber Name</label>
+          <input
+            type="text"
+            value={data.subscriberName || ''}
+            onChange={(e) => onChange('subscriberName', e.target.value)}
+            className="form-input"
+            placeholder="If different from patient"
+          />
         </div>
-      </>
-    )}
-  </div>
-);
+        
+        <div className="form-group">
+          <label>Subscriber DOB</label>
+          <input
+            type="text"
+            value={data.subscriberDOB || ''}
+            onChange={(e) => onChange('subscriberDOB', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Subscriber Gender</label>
+          <select
+            value={data.subscriberGender || ''}
+            onChange={(e) => onChange('subscriberGender', e.target.value)}
+            className="form-select"
+          >
+            <option value="">Select...</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <h4>Primary Insurance</h4>
+      
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Insurance Company</label>
+          <input
+            type="text"
+            value={data.primaryInsurance.provider}
+            onChange={(e) => onChange('primaryInsurance.provider', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Policy Number</label>
+          <input
+            type="text"
+            value={data.primaryInsurance.policyNumber}
+            onChange={(e) => onChange('primaryInsurance.policyNumber', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Group Number</label>
+          <input
+            type="text"
+            value={data.primaryInsurance.groupNumber}
+            onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Member ID</label>
+          <input
+            type="text"
+            value={data.primaryInsurance.memberId}
+            onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Copay</label>
+          <input
+            type="text"
+            value={data.primaryInsurance.copay || ''}
+            onChange={(e) => onChange('primaryInsurance.copay', e.target.value)}
+            className="form-input"
+            placeholder="$20"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Deductible</label>
+          <input
+            type="text"
+            value={data.primaryInsurance.deductible || ''}
+            onChange={(e) => onChange('primaryInsurance.deductible', e.target.value)}
+            className="form-input"
+            placeholder="$1000"
+          />
+        </div>
+      </div>
+
+
+
+      <div style={{ marginTop: '20px' }}>
+        <button 
+          type="button"
+          className={data.secondaryInsurance ? "btn btn-outline" : "btn btn-secondary"}
+          onClick={data.secondaryInsurance ? handleRemoveSecondaryInsurance : handleAddSecondaryInsurance}
+        >
+          {data.secondaryInsurance ? '− Remove Secondary Insurance' : '+ Add Secondary Insurance'}
+        </button>
+      </div>
+
+      {data.secondaryInsurance && (
+        <>
+          <h4>Secondary Insurance</h4>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Insurance Company</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.provider}
+                onChange={(e) => onChange('secondaryInsurance.provider', e.target.value)}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Policy Number</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.policyNumber}
+                onChange={(e) => onChange('secondaryInsurance.policyNumber', e.target.value)}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Group Number</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.groupNumber || ''}
+                onChange={(e) => onChange('secondaryInsurance.groupNumber', e.target.value)}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Member ID</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.memberId || ''}
+                onChange={(e) => onChange('secondaryInsurance.memberId', e.target.value)}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Effective Date</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.effectiveDate || ''}
+                onChange={(e) => onChange('secondaryInsurance.effectiveDate', e.target.value)}
+                className="form-input"
+                placeholder="YYYY-MM-DD"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Copay</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.copay || ''}
+                onChange={(e) => onChange('secondaryInsurance.copay', e.target.value)}
+                className="form-input"
+                placeholder="$20"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Deductible</label>
+              <input
+                type="text"
+                value={data.secondaryInsurance.deductible || ''}
+                onChange={(e) => onChange('secondaryInsurance.deductible', e.target.value)}
+                className="form-input"
+                placeholder="$1000"
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 // Provider Section Component
 const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
@@ -559,12 +642,17 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
       
       <div className="form-group">
         <label>Specialty</label>
-        <input
-          type="text"
+        <select
           value={data.specialty}
           onChange={(e) => onChange('specialty', e.target.value)}
-          className="form-input"
-        />
+          className="form-select"
+        >
+          {MEDICAL_SPECIALTIES.map(specialty => (
+            <option key={specialty} value={specialty}>
+              {specialty}
+            </option>
+          ))}
+        </select>
       </div>
       
       <div className="form-group">

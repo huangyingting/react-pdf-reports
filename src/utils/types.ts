@@ -3,6 +3,139 @@
  * This file contains all interface definitions used across the application
  */
 
+// Constants
+export const MEDICAL_SPECIALTIES = [
+  'Family Medicine',
+  'Internal Medicine',
+  'General Practice',
+  'Pediatrics',
+  'Geriatrics',
+  'Cardiology',
+  'Dermatology',
+  'Endocrinology',
+  'Gastroenterology',
+  'Hematology',
+  'Nephrology',
+  'Neurology',
+  'Obstetrics and Gynecology',
+  'Oncology',
+  'Ophthalmology',
+  'Orthopedics',
+  'Otolaryngology (ENT)',
+  'Psychiatry',
+  'Pulmonology',
+  'Rheumatology',
+  'Urology',
+  'Emergency Medicine',
+  'Anesthesiology',
+  'Radiology',
+  'Pathology'
+] as const;
+
+export type MedicalSpecialty = typeof MEDICAL_SPECIALTIES[number];
+
+export const FACILITY_NAMES = [
+  'City Medical Center',
+  'Regional Health Clinic',
+  'Community Health Associates',
+  'Primary Care Partners',
+  'Family Health Center',
+  'Medical Arts Building',
+  'Healthcare Plaza',
+  'Medical Group Associates',
+  'University Hospital',
+  'Memorial Medical Center',
+  'St. Mary\'s Hospital',
+  'General Hospital',
+  'County Medical Center',
+  'Mercy Hospital',
+  'Providence Health Center',
+  'Valley View Medical Group',
+  'Lakeside Clinic',
+  'Mountain View Healthcare',
+  'Riverside Medical Associates',
+  'Central Health Clinic',
+  'Metro Medical Center',
+  'Suburban Health Services',
+  'Northwest Medical Group',
+  'Eastside Family Medicine',
+  'Southside Health Partners'
+] as const;
+
+export type FacilityName = typeof FACILITY_NAMES[number];
+
+export const INSURANCE_COMPANIES = [
+  'Blue Cross Blue Shield',
+  'Aetna',
+  'Cigna',
+  'UnitedHealthcare',
+  'Humana',
+  'Kaiser Permanente',
+  'Medicare',
+  'Medicaid',
+  'Anthem',
+  'Independence Blue Cross',
+  'HealthPartners',
+  'Molina Healthcare',
+  'WellCare',
+  'Centene',
+  'Oscar Health',
+  'Bright Health',
+  'Tricare',
+  'Geisinger Health Plan',
+  'HealthFirst',
+  'EmblemHealth'
+] as const;
+
+export type InsuranceCompany = typeof INSURANCE_COMPANIES[number];
+
+export const INSURANCE_PLAN_TYPES = [
+  'HMO',
+  'PPO',
+  'EPO',
+  'POS',
+  'HDHP',
+  'Indemnity'
+] as const;
+
+export type InsurancePlanType = typeof INSURANCE_PLAN_TYPES[number];
+
+export const COPAY_AMOUNTS = [
+  '$0',
+  '$10',
+  '$15',
+  '$20',
+  '$25',
+  '$30',
+  '$35',
+  '$40',
+  '$45',
+  '$50',
+  '$75',
+  '$100'
+] as const;
+
+export type CopayAmount = typeof COPAY_AMOUNTS[number];
+
+export const DEDUCTIBLE_AMOUNTS = [
+  '$0',
+  '$250',
+  '$500',
+  '$750',
+  '$1000',
+  '$1500',
+  '$2000',
+  '$2500',
+  '$3000',
+  '$4000',
+  '$5000',
+  '$6000',
+  '$7500',
+  '$10000'
+] as const;
+
+export type DeductibleAmount = typeof DEDUCTIBLE_AMOUNTS[number];
+
 // Basic Types
 export interface Address {
   street: string;

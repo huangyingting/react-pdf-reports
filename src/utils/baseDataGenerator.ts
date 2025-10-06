@@ -10,14 +10,14 @@ import {
   InsuranceInfo,
   Provider,
   Address,
-  Insurance
+  Insurance,
+  MEDICAL_SPECIALTIES,
+  FACILITY_NAMES,
+  INSURANCE_COMPANIES,
+  INSURANCE_PLAN_TYPES,
+  COPAY_AMOUNTS,
+  DEDUCTIBLE_AMOUNTS
 } from './types';
-
-const INSURANCE_COMPANIES: string[] = [
-  'Blue Cross Blue Shield', 'Aetna', 'Cigna', 'UnitedHealthcare',
-  'Humana', 'Kaiser Permanente', 'Medicare', 'Medicaid',
-  'Anthem', 'Independence Blue Cross', 'HealthPartners', 'Molina Healthcare'
-];
 
 /**
  * Generate patient demographics
@@ -82,6 +82,49 @@ export const generatePatientDemographics = (): PatientDemographics => {
 };
 
 /**
+ * Generate secondary insurance and insured information
+ * Can be used by UI to create new secondary insurance
+ */
+export const generateSecondaryInsuranceAndInsured = (
+  excludeProvider?: string
+): {
+  secondaryInsurance: Insurance;
+  secondaryInsured: { name: string; policyNumber: string; planName: string };
+} => {
+  // Ensure secondary insurance is from a different provider if specified
+  const availableProviders = excludeProvider 
+    ? INSURANCE_COMPANIES.filter(p => p !== excludeProvider)
+    : INSURANCE_COMPANIES;
+  
+  const secondaryProvider = faker.helpers.arrayElement(availableProviders);
+  const secondaryPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
+  const secondaryGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
+  const secondaryEffectiveDate = faker.date.past({ years: 2 });
+  
+  const secondaryInsurance: Insurance = {
+    provider: secondaryProvider,
+    policyNumber: secondaryPolicyNumber,
+    groupNumber: secondaryGroupNumber,
+    memberId: secondaryPolicyNumber,
+    effectiveDate: secondaryEffectiveDate.toLocaleDateString('en-US'),
+    copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
+    deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
+  };
+  
+  // Generate secondary insured information
+  const secondaryInsured = {
+    name: `${faker.person.lastName()}, ${faker.person.firstName()}`,
+    policyNumber: secondaryPolicyNumber,
+    planName: `${secondaryProvider} ${faker.helpers.arrayElement(INSURANCE_PLAN_TYPES)} Plan`
+  };
+
+  return {
+    secondaryInsurance,
+    secondaryInsured
+  };
+};
+
+/**
  * Generate insurance information with all fields
  */
 export const generateInsuranceInfo = (
@@ -116,29 +159,9 @@ export const generateInsuranceInfo = (
   let secondaryInsured: { name: string; policyNumber: string; planName: string } | undefined;
   
   if (includeSecondary && faker.datatype.boolean(0.3)) {
-    // Ensure secondary insurance is from a different provider
-    const remainingProviders = INSURANCE_COMPANIES.filter(p => p !== primaryProvider);
-    const secondaryProvider = faker.helpers.arrayElement(remainingProviders);
-    const secondaryPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-    const secondaryGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-    const secondaryEffectiveDate = faker.date.past({ years: 2 });
-    
-    secondaryInsurance = {
-      provider: secondaryProvider,
-      policyNumber: secondaryPolicyNumber,
-      groupNumber: secondaryGroupNumber,
-      memberId: secondaryPolicyNumber,
-      effectiveDate: secondaryEffectiveDate.toLocaleDateString('en-US'),
-      copay: faker.helpers.arrayElement(['$10', '$15', '$20', '$25']),
-      deductible: faker.helpers.arrayElement(['$250', '$500', '$1000', '$2000'])
-    };
-    
-    // Generate secondary insured information
-    secondaryInsured = {
-      name: `${faker.person.lastName()}, ${faker.person.firstName()}`,
-      policyNumber: secondaryPolicyNumber,
-      planName: `${secondaryProvider} ${faker.helpers.arrayElement(['HMO', 'PPO', 'EPO', 'POS'])} Plan`
-    };
+    const result = generateSecondaryInsuranceAndInsured(primaryProvider);
+    secondaryInsurance = result.secondaryInsurance;
+    secondaryInsured = result.secondaryInsured;
   }
   
   return {
@@ -148,8 +171,8 @@ export const generateInsuranceInfo = (
       groupNumber: primaryGroupNumber,
       memberId: primaryPolicyNumber,
       effectiveDate: primaryEffectiveDate.toLocaleDateString('en-US'),
-      copay: faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
-      deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000'])
+      copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
+      deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
     },
     secondaryInsurance,
     subscriberName,
@@ -171,17 +194,10 @@ export const generateProviderInfo = (): Provider => {
   const lastName = faker.person.lastName();
   const providerNPI = faker.string.numeric(10);
   const facilityNPI = faker.string.numeric(10);
-  const specialty = faker.helpers.arrayElement([
-    'Family Medicine', 'Internal Medicine', 'General Practice', 
-    'Pediatrics', 'Geriatrics'
-  ]);
+  const specialty = faker.helpers.arrayElement(MEDICAL_SPECIALTIES);
   
   // Generate consistent facility information
-  const facilityName = faker.helpers.arrayElement([
-    'City Medical Center', 'Regional Health Clinic', 'Community Health Associates',
-    'Primary Care Partners', 'Family Health Center', 'Medical Arts Building',
-    'Healthcare Plaza', 'Medical Group Associates'
-  ]);
+  const facilityName = faker.helpers.arrayElement(FACILITY_NAMES);
   
   const facilityAddress = {
     street: faker.location.streetAddress(),
