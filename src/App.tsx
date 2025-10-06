@@ -5,6 +5,7 @@ import './App.css';
 import GenerateDataStep from './components/GenerateDataStep';
 import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
+import ProgressIndicator from './components/ProgressIndicator';
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
 import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDocument';
@@ -217,6 +218,7 @@ function App() {
       </header>
 
       <main className="main-content">
+        <ProgressIndicator currentStep={currentStep} />
         {renderCurrentStep()}
       </main>
 

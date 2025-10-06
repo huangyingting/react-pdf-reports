@@ -59,6 +59,7 @@
 /* Main Content */
 .main-content {
   padding: 0;
+  width: 100%;
 }
 
 .content-container {

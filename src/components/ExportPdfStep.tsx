@@ -170,21 +170,23 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
               <h3>Insurance Forms</h3>
             </div>
 
-            <DocumentCard
-              title="CMS-1500 Health Insurance Claim Form"
-              description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
-              onPreview={() => onPreview('cms1500')}
-              onGenerate={() => onExport('cms1500', 'cms-1500-claim-form')}
-              isLoading={isLoading}
-            />
+            <div className="document-cards-row">
+              <DocumentCard
+                title="CMS-1500 Health Insurance Claim Form"
+                description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
+                onPreview={() => onPreview('cms1500')}
+                onGenerate={() => onExport('cms1500', 'cms-1500-claim-form')}
+                isLoading={isLoading}
+              />
 
-            <DocumentCard
-              title="Insurance Policy Certificate"
-              description="Professional insurance policy certificate document with coverage details, subscriber information, and benefits summary"
-              onPreview={() => onPreview('insurancePolicy')}
-              onGenerate={() => onExport('insurancePolicy', 'insurance-policy-certificate')}
-              isLoading={isLoading}
-            />
+              <DocumentCard
+                title="Insurance Policy Certificate"
+                description="Professional insurance policy certificate document with coverage details, subscriber information, and benefits summary"
+                onPreview={() => onPreview('insurancePolicy')}
+                onGenerate={() => onExport('insurancePolicy', 'insurance-policy-certificate')}
+                isLoading={isLoading}
+              />
+            </div>
           </div>
         </div>
 

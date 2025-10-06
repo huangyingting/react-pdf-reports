@@ -1,14 +1,14 @@
+/* Main Container - full width */
 .edit-data-step {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
+  width: 100%;
+  padding: 0;
 }
 
 .step-content {
   background: white;
-  border-radius: 8px;
-  padding: 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  padding: 2rem;
+  box-shadow: none;
 }
 
 .step-header {
