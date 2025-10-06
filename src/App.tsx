@@ -7,8 +7,8 @@ import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
-import { generateCMS1500Data, CMS1500Data } from './utils/cms1500Data';
-import { MedicalRecord } from './utils/dataGenerator';
+import { generateCMS1500Data, CMS1500Data } from './utils/cms1500Generator';
+import { MedicalRecord } from './utils/types';
 
 // Import utilities
 import { 

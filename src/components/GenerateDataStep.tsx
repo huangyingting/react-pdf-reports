@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { generateCompleteMedicalRecord, DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/dataGenerator';
+import { DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/types';
+import {generateCompleteMedicalRecord} from '../utils/medicalRecordsGenerator';
+
 import './GenerateDataStep.css';
 
 interface GenerateDataStepProps {

@@ -11,18 +11,12 @@ import {
   ServiceLine,
   ClaimInfo,
   Provider,
-  InsuranceInfo
-} from './dataGenerator';
+  InsuranceInfo,
+  CMS1500Data
+} from './types';
 
-// Re-export types from dataGenerator for convenience
-export type { ServiceLine as CMS1500ServiceLine, ClaimInfo as CMS1500Claim, Address, PatientDemographics as CMS1500Patient, Provider as CMS1500Provider, InsuranceInfo as CMS1500Insurance };
-
-export interface CMS1500Data {
-  patient: PatientDemographics;
-  insurance: InsuranceInfo;
-  provider: Provider;
-  claim: ClaimInfo;
-}
+// Re-export types for convenience
+export type { ServiceLine as CMS1500ServiceLine, ClaimInfo as CMS1500Claim, Address, PatientDemographics as CMS1500Patient, Provider as CMS1500Provider, InsuranceInfo as CMS1500Insurance, CMS1500Data };
 
 export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data => {
   // Generate fallback values using Faker.js

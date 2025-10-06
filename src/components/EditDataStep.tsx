@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications } from '../utils/dataGenerator';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications } from '../utils/types';
 
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;

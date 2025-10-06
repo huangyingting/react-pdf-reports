@@ -1,5 +1,5 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/dataGenerator';
+import { MedicalRecord } from '../../utils/types';
 
 interface MedicalHistoryPageProps {
   data: MedicalRecord;

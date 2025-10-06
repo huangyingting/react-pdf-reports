@@ -1,5 +1,5 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/dataGenerator';
+import { MedicalRecord } from '../../utils/types';
 import PatientDemographicsPage from './PatientDemographicsPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';

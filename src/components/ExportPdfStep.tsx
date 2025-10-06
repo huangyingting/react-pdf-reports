@@ -1,7 +1,7 @@
 import React from 'react';
 import DocumentCard from './DocumentCard';
 import './ExportPdfStep.css';
-import { MedicalRecord } from '../utils/dataGenerator';
+import { MedicalRecord } from '../utils/types';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
