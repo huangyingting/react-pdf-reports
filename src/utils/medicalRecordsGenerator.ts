@@ -224,14 +224,25 @@ export const generateMedications = (
   });
   
   // Add general medications if needed to reach target count
-  while (currentMedications.length < currentMedCount) {
-    const generalMeds = [
-      {name: 'Vitamin D3', strength: '1000IU', purpose: 'Bone health', dosage: 'Daily'},
-      {name: 'Multivitamin', strength: 'As directed', purpose: 'General health', dosage: 'Daily'},
-      {name: 'Aspirin', strength: '81mg', purpose: 'Heart health', dosage: 'Daily'},
-      {name: 'Acetaminophen', strength: '500mg', purpose: 'Pain relief', dosage: 'As needed'}
-    ];
-    
+  const generalMeds = [
+    {name: 'Vitamin D3', strength: '1000IU', purpose: 'Bone health', dosage: 'Daily'},
+    {name: 'Multivitamin', strength: 'As directed', purpose: 'General health', dosage: 'Daily'},
+    {name: 'Aspirin', strength: '81mg', purpose: 'Heart health', dosage: 'Daily'},
+    {name: 'Acetaminophen', strength: '500mg', purpose: 'Pain relief', dosage: 'As needed'},
+    {name: 'Calcium', strength: '600mg', purpose: 'Bone health', dosage: 'Twice daily'},
+    {name: 'Fish Oil', strength: '1000mg', purpose: 'Heart health', dosage: 'Daily'},
+    {name: 'Probiotic', strength: 'As directed', purpose: 'Digestive health', dosage: 'Daily'},
+    {name: 'Vitamin B12', strength: '1000mcg', purpose: 'Energy and nerve health', dosage: 'Daily'},
+    {name: 'Magnesium', strength: '400mg', purpose: 'Muscle and nerve function', dosage: 'Daily'},
+    {name: 'Zinc', strength: '50mg', purpose: 'Immune support', dosage: 'Daily'}
+  ];
+  
+  // Safety counter to prevent infinite loops
+  let attempts = 0;
+  const maxAttempts = generalMeds.length * 2;
+  
+  while (currentMedications.length < currentMedCount && attempts < maxAttempts) {
+    attempts++;
     const med = faker.helpers.arrayElement(generalMeds);
     if (!usedMedications.has(med.name)) {
       usedMedications.add(med.name);
