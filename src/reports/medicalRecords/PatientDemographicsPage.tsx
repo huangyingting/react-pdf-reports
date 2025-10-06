@@ -1,11 +1,16 @@
 import React from 'react';
+import { MedicalRecord } from '../../utils/dataGenerator';
 
-const PatientDemographicsPage = ({ data }) => {
+interface PatientDemographicsPageProps {
+  data: MedicalRecord;
+}
+
+const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data }) => {
   const { patient } = data;
   const currentDate = new Date().toLocaleDateString();
   
   return (
-    <page className="medical-page demographics-page">
+    <div className="medical-page demographics-page">
       <header className="medical-page-header">
         <div className="hospital-info">
           <h2>Springfield Medical Center</h2>
@@ -52,7 +57,7 @@ const PatientDemographicsPage = ({ data }) => {
             <tbody>
               <tr>
                 <td className="label">Address:</td>
-                <td className="value" colSpan="3">
+                <td className="value" colSpan={3}>
                   {patient.address.street}, {patient.address.city}, {patient.address.state} {patient.address.zipCode}, {patient.address.country}
                 </td>
               </tr>
@@ -64,7 +69,7 @@ const PatientDemographicsPage = ({ data }) => {
               </tr>
               <tr>
                 <td className="label">Emergency Contact:</td>
-                <td className="value" colSpan="3">{patient.contact.emergencyContact}</td>
+                <td className="value" colSpan={3}>{patient.contact.emergencyContact}</td>
               </tr>
             </tbody>
           </table>
@@ -149,7 +154,7 @@ const PatientDemographicsPage = ({ data }) => {
           <span>MRN: {patient.id}</span>
         </div>
       </footer>
-    </page>
+    </div>
   );
 };
 

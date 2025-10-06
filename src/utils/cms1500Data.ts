@@ -3,13 +3,122 @@
  * This creates realistic claim data for testing and demonstration
  */
 
-export const generateCMS1500Data = (patientData) => {
+import { MedicalRecord } from './dataGenerator';
+
+export interface CMS1500Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
+
+export interface CMS1500Patient {
+  name: string;
+  lastName: string;
+  firstName: string;
+  middleInitial: string;
+  dateOfBirth: string;
+  gender: string;
+  address: CMS1500Address;
+  contact: {
+    phone: string;
+  };
+  accountNumber: string;
+}
+
+export interface CMS1500Insurance {
+  type: string;
+  picaCode: string;
+  primaryInsurance: {
+    company: string;
+    memberId: string;
+    groupNumber: string;
+  };
+  subscriberName: string;
+  subscriberDOB: string;
+  subscriberGender: string;
+  address: CMS1500Address;
+  phone: string;
+  secondaryInsured: {
+    name: string;
+    policyNumber: string;
+    planName: string;
+  };
+}
+
+export interface CMS1500Provider {
+  signature: string;
+  taxId: string;
+  taxIdType: 'SSN' | 'EIN';
+  facilityName: string;
+  facilityAddress: string;
+  facilityNPI: string;
+  billingName: string;
+  billingAddress: string;
+  billingPhone: string;
+  billingNPI: string;
+  referringProvider: {
+    name: string;
+    npi: string;
+  };
+}
+
+export interface CMS1500ServiceLine {
+  dateFrom: string;
+  dateTo: string;
+  placeOfService: string;
+  emg: string;
+  procedureCode: string;
+  modifier: string;
+  diagnosisPointer: string;
+  charges: string;
+  units: string;
+  epsdt: string;
+  idQual: string;
+  renderingProviderNPI: string;
+}
+
+export interface CMS1500Claim {
+  patientRelationship: 'self' | 'spouse' | 'child' | 'other';
+  signatureDate: string;
+  providerSignatureDate: string;
+  dateOfIllness: string;
+  illnessQualifier: string;
+  otherDate: string;
+  otherDateQualifier: string;
+  unableToWorkFrom: string;
+  unableToWorkTo: string;
+  hospitalizationFrom: string;
+  hospitalizationTo: string;
+  additionalInfo: string;
+  outsideLab: boolean;
+  outsideLabCharges: string;
+  diagnosisCodes: string[];
+  resubmissionCode: string;
+  originalRefNo: string;
+  priorAuthNumber: string;
+  serviceLines: CMS1500ServiceLine[];
+  hasOtherHealthPlan: boolean;
+  otherClaimId: string;
+  acceptAssignment: boolean;
+  totalCharges: string;
+  amountPaid: string;
+}
+
+export interface CMS1500Data {
+  patient: CMS1500Patient;
+  insurance: CMS1500Insurance;
+  provider: CMS1500Provider;
+  claim: CMS1500Claim;
+}
+
+export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data => {
   return {
     patient: {
       name: patientData?.patient?.name || 'SMITH, JOHN A',
       lastName: patientData?.patient?.lastName || 'SMITH',
       firstName: patientData?.patient?.firstName || 'JOHN',
-      middleInitial: patientData?.patient?.middleInitial || 'A',
+      middleInitial: 'A',
       dateOfBirth: patientData?.patient?.dateOfBirth || '01/15/1965',
       gender: patientData?.patient?.gender || 'M',
       address: {
@@ -25,11 +134,11 @@ export const generateCMS1500Data = (patientData) => {
     },
 
     insurance: {
-      type: 'group', // medicare, medicaid, tricare, champva, group, feca, other
+      type: 'group',
       picaCode: '',
       primaryInsurance: {
         company: patientData?.insurance?.primaryInsurance?.company || 'BLUE CROSS BLUE SHIELD',
-        memberId: patientData?.insurance?.primaryInsurance?.memberId || 'XYZ123456789',
+        memberId: patientData?.insurance?.primaryInsurance?.memberNumber || 'XYZ123456789',
         groupNumber: patientData?.insurance?.primaryInsurance?.groupNumber || 'GRP-001234',
       },
       subscriberName: patientData?.patient?.name || 'SMITH, JOHN A',
@@ -52,7 +161,7 @@ export const generateCMS1500Data = (patientData) => {
     provider: {
       signature: 'Dr. Sarah Williams, MD',
       taxId: '12-3456789',
-      taxIdType: 'EIN', // SSN or EIN
+      taxIdType: 'EIN',
       facilityName: 'SPRINGFIELD MEDICAL CENTER',
       facilityAddress: '123 HEALTHCARE BLVD, SPRINGFIELD, IL 62701',
       facilityNPI: '1234567890',
@@ -67,11 +176,11 @@ export const generateCMS1500Data = (patientData) => {
     },
 
     claim: {
-      patientRelationship: 'self', // self, spouse, child, other
+      patientRelationship: 'self',
       signatureDate: '10/05/2024',
       providerSignatureDate: '10/05/2024',
       dateOfIllness: '09/15/2024',
-      illnessQualifier: '431', // 431=Onset of Current Illness
+      illnessQualifier: '431',
       otherDate: '',
       otherDateQualifier: '',
       unableToWorkFrom: '',
@@ -99,9 +208,9 @@ export const generateCMS1500Data = (patientData) => {
         {
           dateFrom: '09/15/2024',
           dateTo: '09/15/2024',
-          placeOfService: '11', // 11=Office
+          placeOfService: '11',
           emg: '',
-          procedureCode: '99214', // Office visit, established patient
+          procedureCode: '99214',
           modifier: '',
           diagnosisPointer: 'A,B,C',
           charges: '225.00',
@@ -115,7 +224,7 @@ export const generateCMS1500Data = (patientData) => {
           dateTo: '09/15/2024',
           placeOfService: '11',
           emg: '',
-          procedureCode: '80053', // Comprehensive metabolic panel
+          procedureCode: '80053',
           modifier: '',
           diagnosisPointer: 'B,C',
           charges: '85.00',
@@ -129,7 +238,7 @@ export const generateCMS1500Data = (patientData) => {
           dateTo: '09/15/2024',
           placeOfService: '11',
           emg: '',
-          procedureCode: '93000', // Electrocardiogram, routine ECG
+          procedureCode: '93000',
           modifier: '',
           diagnosisPointer: 'A',
           charges: '45.00',
@@ -147,18 +256,15 @@ export const generateCMS1500Data = (patientData) => {
       // Financial
       totalCharges: '355.00',
       amountPaid: '0.00',
-
     },
   };
 };
 
 /**
  * Generate multiple CMS-1500 forms if needed
- * @param {Object} patientData - Patient medical data
- * @param {number} count - Number of forms to generate
  */
-export const generateMultipleCMS1500Forms = (patientData, count = 1) => {
-  const forms = [];
+export const generateMultipleCMS1500Forms = (patientData: MedicalRecord, count: number = 1): CMS1500Data[] => {
+  const forms: CMS1500Data[] = [];
   for (let i = 0; i < count; i++) {
     forms.push(generateCMS1500Data(patientData));
   }
@@ -168,7 +274,7 @@ export const generateMultipleCMS1500Forms = (patientData, count = 1) => {
 /**
  * Common place of service codes
  */
-export const PLACE_OF_SERVICE_CODES = {
+export const PLACE_OF_SERVICE_CODES: Record<string, string> = {
   '11': 'Office',
   '12': 'Home',
   '21': 'Inpatient Hospital',
@@ -185,7 +291,7 @@ export const PLACE_OF_SERVICE_CODES = {
 /**
  * Common CPT codes for reference
  */
-export const COMMON_CPT_CODES = {
+export const COMMON_CPT_CODES: Record<string, string> = {
   // Office Visits
   '99201': 'Office visit, new patient, level 1',
   '99202': 'Office visit, new patient, level 2',

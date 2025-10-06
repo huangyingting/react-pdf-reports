@@ -1,7 +1,10 @@
 // Sample medical records data for testing multi-page PDF export
-export const sampleMedicalRecordsData = {
+import { MedicalRecord } from './dataGenerator';
+
+export const sampleMedicalRecordsData: MedicalRecord = {
   patient: {
     id: "MR-2024-001",
+    name: "Smith, John",
     firstName: "John",
     lastName: "Smith",
     dateOfBirth: "1985-03-15",
@@ -25,6 +28,47 @@ export const sampleMedicalRecordsData = {
       policyNumber: "BC123456789",
       groupNumber: "GRP001",
       effectiveDate: "2024-01-01"
+    },
+    medicalRecordNumber: "MR-2024-001"
+  },
+
+  insurance: {
+    primaryInsurance: {
+      company: "Blue Cross Blue Shield",
+      policyNumber: "BC123456789",
+      groupNumber: "GRP001",
+      memberNumber: "MEM123456",
+      effectiveDate: "2024-01-01",
+      copay: "$30",
+      deductible: "$1000",
+      provider: "Blue Cross Blue Shield"
+    },
+    secondaryInsurance: null
+  },
+
+  provider: {
+    primaryCare: {
+      name: "Dr. Sarah Williams",
+      npi: "1234567890",
+      specialty: "Family Medicine",
+      phone: "(555) 555-0100",
+      address: {
+        street: "123 Healthcare Blvd",
+        city: "Springfield",
+        state: "IL",
+        zipCode: "62701"
+      }
+    },
+    facility: {
+      name: "Springfield Medical Center",
+      address: {
+        street: "123 Healthcare Blvd",
+        city: "Springfield",
+        state: "IL",
+        zipCode: "62701"
+      },
+      phone: "(555) 555-0100",
+      fax: "(555) 555-0101"
     }
   },
 
@@ -85,12 +129,6 @@ export const sampleMedicalRecordsData = {
         conditions: ["Diabetes Type 2", "Osteoporosis"],
         ageAtDeath: "Still living",
         causeOfDeath: "N/A"
-      },
-      {
-        relation: "Maternal Grandmother",
-        conditions: ["Breast Cancer"],
-        ageAtDeath: "68",
-        causeOfDeath: "Cancer"
       }
     ]
   },
@@ -208,24 +246,6 @@ export const sampleMedicalRecordsData = {
       provider: "Dr. Sarah Williams",
       type: "Annual Physical Examination",
       chiefComplaint: "Annual check-up, blood pressure monitoring",
-      historyOfPresentIllness: "Patient reports feeling well overall. Compliance with medications good. Some occasional fatigue but attributes to work stress. No chest pain, shortness of breath, or palpitations.",
-      vitals: {
-        bloodPressure: "128/82",
-        heartRate: 78,
-        temperature: 98.4,
-        weight: 185,
-        height: '70"',
-        oxygenSaturation: 98
-      },
-      physicalExam: {
-        general: "Well-appearing male in no acute distress",
-        vitals: "See vital signs section",
-        cardiovascular: "Regular rate and rhythm, no murmurs, gallops, or rubs",
-        pulmonary: "Clear to auscultation bilaterally",
-        abdomen: "Soft, non-tender, non-distended, normal bowel sounds",
-        extremities: "No clubbing, cyanosis, or edema",
-        neurological: "Alert and oriented x3, cranial nerves intact"
-      },
       assessment: [
         "Hypertension - well controlled",
         "Type 2 Diabetes Mellitus - fair control, elevated fasting glucose",
@@ -240,27 +260,21 @@ export const sampleMedicalRecordsData = {
         "Home blood pressure monitoring",
         "HbA1c in 3 months"
       ],
-      followUp: "3 months"
+      duration: "30 min",
+      vitals: {
+        bloodPressure: "128/82",
+        heartRate: 78,
+        temperature: 98.4,
+        weight: 185,
+        height: '70"',
+        oxygenSaturation: 98
+      }
     },
     {
       date: "2024-06-10",
       provider: "Dr. Sarah Williams",
       type: "Follow-up Visit",
       chiefComplaint: "Blood pressure check, medication review",
-      historyOfPresentIllness: "Patient returns for routine follow-up. Reports good adherence to medications. Occasional dizziness in morning, possibly related to medications.",
-      vitals: {
-        bloodPressure: "135/88",
-        heartRate: 78,
-        temperature: 98.4,
-        weight: 183,
-        height: '70"',
-        oxygenSaturation: 97
-      },
-      physicalExam: {
-        general: "Well-appearing, no acute distress",
-        vitals: "BP 135/88, HR 78, temp 98.4°F",
-        cardiovascular: "RRR, no murmurs"
-      },
       assessment: [
         "Hypertension - suboptimal control",
         "Type 2 Diabetes Mellitus - stable"
@@ -271,7 +285,23 @@ export const sampleMedicalRecordsData = {
         "Blood pressure log for 2 weeks",
         "Return in 6 weeks"
       ],
-      followUp: "6 weeks"
+      duration: "20 min",
+      vitals: {
+        bloodPressure: "135/88",
+        heartRate: 78,
+        temperature: 98.4,
+        weight: 183,
+        height: '70"',
+        oxygenSaturation: 97
+      }
     }
-  ]
+  ],
+
+  generatedAt: new Date().toISOString(),
+  metadata: {
+    complexity: "medium",
+    numberOfVisits: 2,
+    numberOfLabTests: 3,
+    dataVersion: "1.0"
+  }
 };

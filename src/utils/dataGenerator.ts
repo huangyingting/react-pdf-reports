@@ -5,28 +5,243 @@ import { faker } from '@faker-js/faker';
  * Generates realistic medical data for educational and testing purposes
  */
 
+// Type definitions
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country?: string;
+}
+
+export interface Contact {
+  phone: string;
+  email: string;
+  emergencyContact: string;
+}
+
+export interface Insurance {
+  provider: string;
+  policyNumber: string;
+  groupNumber: string;
+  effectiveDate: string;
+  memberNumber?: string;
+  copay?: string;
+  deductible?: string;
+}
+
+export interface PatientDemographics {
+  id: string;
+  name: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  age: number;
+  gender: string;
+  address: Address;
+  contact: Contact;
+  insurance: Insurance;
+  medicalRecordNumber: string;
+  ssn: string;
+}
+
+export interface PrimaryInsurance extends Insurance {
+  company: string;
+  copay: string;
+  deductible: string;
+}
+
+export interface SecondaryInsurance {
+  company: string;
+  policyNumber: string;
+  memberNumber: string;
+}
+
+export interface InsuranceInfo {
+  primaryInsurance: PrimaryInsurance;
+  secondaryInsurance: SecondaryInsurance | null;
+}
+
+export interface Provider {
+  name: string;
+  npi: string;
+  specialty: string;
+  phone: string;
+  address: Address;
+}
+
+export interface Facility {
+  name: string;
+  address: Address;
+  phone: string;
+  fax: string;
+}
+
+export interface ProviderInfo {
+  primaryCare: Provider;
+  facility: Facility;
+}
+
+export interface Allergy {
+  allergen: string;
+  reaction: string;
+  severity: string;
+  dateIdentified: string;
+}
+
+export interface ChronicCondition {
+  condition: string;
+  diagnosedDate: string;
+  status: string;
+  notes: string;
+}
+
+export interface SurgicalHistory {
+  procedure: string;
+  date: string;
+  hospital: string;
+  surgeon: string;
+  complications: string;
+}
+
+export interface FamilyHistory {
+  relation: string;
+  conditions: string[];
+  ageAtDeath: string;
+  causeOfDeath: string;
+}
+
+export interface MedicalHistory {
+  allergies: Allergy[];
+  chronicConditions: ChronicCondition[];
+  surgicalHistory: SurgicalHistory[];
+  familyHistory: FamilyHistory[];
+}
+
+export interface CurrentMedication {
+  name: string;
+  strength: string;
+  dosage: string;
+  purpose: string;
+  prescribedBy: string;
+  startDate: string;
+  instructions: string;
+}
+
+export interface DiscontinuedMedication {
+  name: string;
+  strength: string;
+  reason: string;
+  discontinuedDate: string;
+  prescribedBy: string;
+}
+
+export interface Medications {
+  current: CurrentMedication[];
+  discontinued: DiscontinuedMedication[];
+}
+
+export interface VitalSigns {
+  date: string;
+  time: string;
+  bloodPressure: string;
+  heartRate: string;
+  temperature: string;
+  weight: string;
+  height: string;
+  bmi: string;
+  oxygenSaturation: string;
+  respiratoryRate: string;
+}
+
+export interface LabResult {
+  parameter: string;
+  value: string;
+  unit: string;
+  referenceRange: string;
+  status: string;
+}
+
+export interface LabTest {
+  testDate: string;
+  testName: string;
+  results: LabResult[];
+  orderingPhysician: string;
+}
+
+export interface VisitVitals {
+  bloodPressure: string;
+  heartRate: number;
+  temperature: number;
+  weight: number;
+  height: string;
+  oxygenSaturation: number;
+}
+
+export interface VisitNote {
+  date: string;
+  type: string;
+  chiefComplaint: string;
+  assessment: string[];
+  plan: string[];
+  provider: string;
+  duration: string;
+  vitals: VisitVitals;
+}
+
+export interface GenerationOptions {
+  complexity?: 'low' | 'medium' | 'high';
+  numberOfVisits?: number;
+  numberOfLabTests?: number;
+  includeSecondaryInsurance?: boolean;
+}
+
+export interface MedicalRecord {
+  patient: PatientDemographics;
+  insurance: InsuranceInfo;
+  provider: ProviderInfo;
+  medicalHistory: MedicalHistory;
+  medications: Medications;
+  labResults: LabTest[];
+  vitalSigns: VitalSigns[];
+  visitNotes: VisitNote[];
+  generatedAt: string;
+  metadata: {
+    complexity: string;
+    numberOfVisits: number;
+    numberOfLabTests: number;
+    dataVersion: string;
+  };
+}
+
+export interface DataPreset {
+  name: string;
+  description: string;
+  options: Required<GenerationOptions>;
+}
+
 // Medical-specific data arrays
-const MEDICAL_CONDITIONS = [
+const MEDICAL_CONDITIONS: string[] = [
   'Hypertension', 'Diabetes Type 2', 'Hyperlipidemia', 'Asthma', 'COPD',
   'Arthritis', 'Depression', 'Anxiety', 'Migraine', 'GERD',
   'Thyroid Disease', 'Osteoporosis', 'Allergic Rhinitis', 'Sleep Apnea',
   'Atrial Fibrillation', 'Chronic Kidney Disease', 'Heart Disease'
 ];
 
-const MEDICATIONS = [
+const MEDICATIONS: string[] = [
   'Lisinopril 10mg', 'Metformin 500mg', 'Atorvastatin 20mg', 'Albuterol inhaler',
   'Levothyroxine 50mcg', 'Omeprazole 20mg', 'Sertraline 50mg', 'Ibuprofen 400mg',
   'Acetaminophen 500mg', 'Vitamin D3 1000IU', 'Multivitamin', 'Aspirin 81mg',
   'Prednisone 10mg', 'Losartan 50mg', 'Amlodipine 5mg', 'Gabapentin 300mg'
 ];
 
-const VISIT_TYPES = [
+const VISIT_TYPES: string[] = [
   'Annual Physical Exam', 'Follow-up Visit', 'Sick Visit', 'Preventive Care',
   'Chronic Disease Management', 'Medication Review', 'Consultation',
   'Emergency Visit', 'Urgent Care', 'Specialist Referral'
 ];
 
-const INSURANCE_COMPANIES = [
+const INSURANCE_COMPANIES: string[] = [
   'Blue Cross Blue Shield', 'Aetna', 'Cigna', 'UnitedHealthcare',
   'Humana', 'Kaiser Permanente', 'Medicare', 'Medicaid',
   'Anthem', 'Independence Blue Cross', 'HealthPartners', 'Molina Healthcare'
@@ -35,7 +250,7 @@ const INSURANCE_COMPANIES = [
 /**
  * Generate patient demographics
  */
-export const generatePatientDemographics = () => {
+export const generatePatientDemographics = (): PatientDemographics => {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const dateOfBirth = faker.date.birthdate({ min: 18, max: 85, mode: 'age' });
@@ -56,9 +271,9 @@ export const generatePatientDemographics = () => {
       country: 'USA'
     },
     contact: {
-      phone: faker.phone.number('(###) ###-####'),
+      phone: faker.phone.number(),
       email: faker.internet.email({ firstName, lastName }),
-      emergencyContact: `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number('(###) ###-####')}`
+      emergencyContact: `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
     },
     insurance: {
       provider: faker.helpers.arrayElement(INSURANCE_COMPANIES),
@@ -74,7 +289,7 @@ export const generatePatientDemographics = () => {
 /**
  * Generate insurance information
  */
-export const generateInsuranceInfo = () => {
+export const generateInsuranceInfo = (): InsuranceInfo => {
   return {
     primaryInsurance: {
       company: faker.helpers.arrayElement(INSURANCE_COMPANIES),
@@ -83,7 +298,8 @@ export const generateInsuranceInfo = () => {
       memberNumber: faker.string.alphanumeric({ length: 10, casing: 'upper' }),
       effectiveDate: faker.date.past({ years: 2 }).toLocaleDateString('en-US'),
       copay: faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
-      deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000'])
+      deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000']),
+      provider: faker.helpers.arrayElement(INSURANCE_COMPANIES)
     },
     secondaryInsurance: faker.datatype.boolean(0.3) ? {
       company: faker.helpers.arrayElement(INSURANCE_COMPANIES),
@@ -96,13 +312,13 @@ export const generateInsuranceInfo = () => {
 /**
  * Generate provider information
  */
-export const generateProviderInfo = () => {
+export const generateProviderInfo = (): ProviderInfo => {
   return {
     primaryCare: {
       name: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
       npi: faker.string.numeric(10),
       specialty: 'Family Medicine',
-      phone: faker.phone.number('(###) ###-####'),
+      phone: faker.phone.number(),
       address: {
         street: faker.location.streetAddress(),
         city: faker.location.city(),
@@ -121,8 +337,8 @@ export const generateProviderInfo = () => {
         state: faker.location.state({ abbreviated: true }),
         zipCode: faker.location.zipCode()
       },
-      phone: faker.phone.number('(###) ###-####'),
-      fax: faker.phone.number('(###) ###-####')
+      phone: faker.phone.number(),
+      fax: faker.phone.number()
     }
   };
 };
@@ -130,14 +346,14 @@ export const generateProviderInfo = () => {
 /**
  * Generate medical history
  */
-export const generateMedicalHistory = (complexity = 'medium') => {
+export const generateMedicalHistory = (complexity: 'low' | 'medium' | 'high' = 'medium'): MedicalHistory => {
   const conditionCount = complexity === 'low' ? 2 : complexity === 'high' ? 6 : 4;
   const conditions = faker.helpers.arrayElements(MEDICAL_CONDITIONS, conditionCount);
   
   // Generate allergies as objects with required properties
   const allergyNames = ['Penicillin', 'Sulfa drugs', 'Latex', 'Shellfish', 'Nuts', 'Pollen'];
   const allergyCount = faker.datatype.boolean(0.6) ? faker.number.int({ min: 1, max: 3 }) : 0;
-  const allergies = allergyCount > 0 ? 
+  const allergies: Allergy[] = allergyCount > 0 ? 
     faker.helpers.arrayElements(allergyNames, allergyCount).map(allergen => ({
       allergen,
       reaction: faker.helpers.arrayElement([
@@ -159,7 +375,7 @@ export const generateMedicalHistory = (complexity = 'medium') => {
 
   // Generate surgical history as objects
   const surgicalCount = faker.datatype.boolean(0.4) ? faker.number.int({ min: 1, max: 3 }) : 0;
-  const surgicalHistory = surgicalCount > 0 ?
+  const surgicalHistory: SurgicalHistory[] = surgicalCount > 0 ?
     Array.from({ length: surgicalCount }, () => ({
       procedure: faker.helpers.arrayElement([
         'Appendectomy', 'Cholecystectomy', 'Hernia repair', 'Knee arthroscopy',
@@ -181,7 +397,7 @@ export const generateMedicalHistory = (complexity = 'medium') => {
     }];
 
   // Generate family history as objects
-  const familyHistory = [
+  const familyHistory: FamilyHistory[] = [
     {
       relation: 'Mother',
       conditions: faker.helpers.arrayElements(['Diabetes', 'Hypertension', 'Cancer', 'Heart disease'], 
@@ -220,14 +436,14 @@ export const generateMedicalHistory = (complexity = 'medium') => {
 /**
  * Generate medications list
  */
-export const generateMedications = (complexity = 'medium') => {
+export const generateMedications = (complexity: 'low' | 'medium' | 'high' = 'medium'): Medications => {
   const currentMedCount = complexity === 'low' ? 3 : complexity === 'high' ? 8 : 5;
   const discontinuedMedCount = complexity === 'low' ? 1 : complexity === 'high' ? 4 : 2;
   
   const currentMeds = faker.helpers.arrayElements(MEDICATIONS, currentMedCount);
   const discontinuedMeds = faker.helpers.arrayElements(MEDICATIONS, discontinuedMedCount);
   
-  const current = currentMeds.map(medication => ({
+  const current: CurrentMedication[] = currentMeds.map(medication => ({
     name: medication.split(' ')[0], // Extract medication name
     strength: medication.includes('mg') ? medication.split(' ')[1] : 'As directed',
     dosage: faker.helpers.arrayElement(['Daily', 'Twice daily', 'Three times daily', 'As needed', 'Weekly']),
@@ -245,7 +461,7 @@ export const generateMedications = (complexity = 'medium') => {
     ])
   }));
 
-  const discontinued = discontinuedMeds.map(medication => ({
+  const discontinued: DiscontinuedMedication[] = discontinuedMeds.map(medication => ({
     name: medication.split(' ')[0],
     strength: medication.includes('mg') ? medication.split(' ')[1] : 'As directed',
     reason: faker.helpers.arrayElement([
@@ -266,7 +482,7 @@ export const generateMedications = (complexity = 'medium') => {
 /**
  * Generate vital signs history
  */
-export const generateVitalSigns = (numberOfReadings = 2) => {
+export const generateVitalSigns = (numberOfReadings: number = 2): VitalSigns[] => {
   return Array.from({ length: numberOfReadings }, (_, index) => {
     const date = faker.date.recent({ days: 30 * (index + 1) });
     const weight = faker.number.int({ min: 120, max: 220 });
@@ -293,8 +509,18 @@ export const generateVitalSigns = (numberOfReadings = 2) => {
 /**
  * Generate lab results
  */
-export const generateLabResults = (numberOfTests = 3) => {
-  const testTypes = [
+export const generateLabResults = (numberOfTests: number = 3): LabTest[] => {
+  interface LabTestType {
+    name: string;
+    parameters: {
+      parameter: string;
+      unit: string;
+      referenceRange: string;
+      normalRange: [number, number];
+    }[];
+  }
+
+  const testTypes: LabTestType[] = [
     {
       name: 'Complete Blood Count (CBC)',
       parameters: [
@@ -331,10 +557,10 @@ export const generateLabResults = (numberOfTests = 3) => {
   
   return selectedTests.map(testType => {
     const testDate = faker.date.recent({ days: 90 });
-    const results = testType.parameters.map(param => {
+    const results: LabResult[] = testType.parameters.map(param => {
       const isNormal = faker.datatype.boolean(0.8); // 80% chance of normal values
-      let value;
-      let status;
+      let value: number;
+      let status: string;
       
       if (isNormal) {
         value = faker.number.float({
@@ -382,12 +608,9 @@ export const generateLabResults = (numberOfTests = 3) => {
 };
 
 /**
- * Get reference ranges for lab tests
- */
-/**
  * Generate visit notes
  */
-export const generateVisitNotes = (numberOfVisits = 3) => {
+export const generateVisitNotes = (numberOfVisits: number = 3): VisitNote[] => {
   return Array.from({ length: numberOfVisits }, (_, index) => {
     const visitDate = faker.date.recent({ days: 30 * (index + 1) });
     const visitType = faker.helpers.arrayElement(VISIT_TYPES);
@@ -415,7 +638,7 @@ export const generateVisitNotes = (numberOfVisits = 3) => {
 /**
  * Generate chief complaint
  */
-const generateChiefComplaint = () => {
+const generateChiefComplaint = (): string => {
   const complaints = [
     'Annual physical examination',
     'Follow-up for hypertension',
@@ -437,7 +660,7 @@ const generateChiefComplaint = () => {
 /**
  * Generate assessment
  */
-const generateAssessment = () => {
+const generateAssessment = (): string[] => {
   const assessments = [
     'Patient appears well. Vital signs stable.',
     'Chronic conditions well controlled.',
@@ -464,7 +687,7 @@ const generateAssessment = () => {
 /**
  * Generate treatment plan
  */
-const generateTreatmentPlan = () => {
+const generateTreatmentPlan = (): string[] => {
   const plans = [
     'Continue current medications, return in 6 months.',
     'Increase blood pressure medication, recheck in 4 weeks.',
@@ -491,7 +714,7 @@ const generateTreatmentPlan = () => {
 /**
  * Generate complete medical records data
  */
-export const generateCompleteMedicalRecord = (options = {}) => {
+export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): MedicalRecord => {
   const {
     complexity = 'medium',
     numberOfVisits = 3,
@@ -530,7 +753,7 @@ export const generateCompleteMedicalRecord = (options = {}) => {
 /**
  * Data generation presets
  */
-export const DATA_GENERATION_PRESETS = {
+export const DATA_GENERATION_PRESETS: Record<string, DataPreset> = {
   simple: {
     name: 'Simple Patient',
     description: 'Basic patient with minimal medical history',

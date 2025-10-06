@@ -1,4 +1,5 @@
 import React from 'react';
+import { MedicalRecord } from '../../utils/dataGenerator';
 import PatientDemographicsPage from './PatientDemographicsPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
@@ -6,7 +7,12 @@ import LabResultsPage from './LabResultsPage';
 import VisitNotesPage from './VisitNotesPage';
 import './MedicalRecordsReport.css';
 
-const MedicalRecordsReport = ({ data, fontFamily = "'Arial', sans-serif" }) => {
+interface MedicalRecordsReportProps {
+  data: MedicalRecord;
+  fontFamily?: string;
+}
+
+const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   return (
     <div 
       className="medical-records-report"

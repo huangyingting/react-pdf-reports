@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { generateCompleteMedicalRecord, DATA_GENERATION_PRESETS } from '../utils/dataGenerator';
+import { generateCompleteMedicalRecord, DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/dataGenerator';
 import './GenerateDataStep.css';
 
-const GenerateDataStep = ({ onDataGenerated, onNext }) => {
-  const [selectedPreset, setSelectedPreset] = useState('standard');
-  const [customOptions, setCustomOptions] = useState({
+interface GenerateDataStepProps {
+  onDataGenerated: (data: MedicalRecord) => void;
+  onNext: () => void;
+}
+
+const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, onNext }) => {
+  const [selectedPreset, setSelectedPreset] = useState<string>('standard');
+  const [customOptions, setCustomOptions] = useState<Required<GenerationOptions>>({
     complexity: 'medium',
     numberOfVisits: 3,
     numberOfLabTests: 5,
     includeSecondaryInsurance: true
   });
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  const handlePresetChange = (presetKey) => {
+  const handlePresetChange = (presetKey: string) => {
     setSelectedPreset(presetKey);
     const preset = DATA_GENERATION_PRESETS[presetKey];
     setCustomOptions(preset.options);
@@ -89,7 +94,7 @@ const GenerateDataStep = ({ onDataGenerated, onNext }) => {
                 <label>Medical Complexity</label>
                 <select 
                   value={customOptions.complexity}
-                  onChange={(e) => setCustomOptions({...customOptions, complexity: e.target.value})}
+                  onChange={(e) => setCustomOptions({...customOptions, complexity: e.target.value as 'low' | 'medium' | 'high'})}
                   className="option-select"
                 >
                   <option value="low">Low - Basic conditions (2-3 conditions)</option>

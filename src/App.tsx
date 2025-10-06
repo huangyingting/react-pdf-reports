@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 
 // Import components
@@ -7,7 +7,8 @@ import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
-import { generateCMS1500Data } from './utils/cms1500Data';
+import { generateCMS1500Data, CMS1500Data } from './utils/cms1500Data';
+import { MedicalRecord } from './utils/dataGenerator';
 
 // Import utilities
 import { 
@@ -15,23 +16,33 @@ import {
   exportToPDFAsImage,
 } from './utils/pdfExport';
 
+interface FontFamily {
+  value: string;
+  label: string;
+  css: string;
+}
+
+type QualityLevel = 'poor' | 'standard' | 'high';
+type ExportFormat = 'pdf' | 'canvas';
+type ReportType = 'medical' | 'cms1500';
+
 function App() {
   // Workflow state management
-  const [currentStep, setCurrentStep] = useState(1);
-  const [medicalData, setMedicalData] = useState(null);
-  const [cms1500Data, setCms1500Data] = useState(null);
-  const [activeReportType, setActiveReportType] = useState('medical');
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
+  const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
+  const [activeReportType, setActiveReportType] = useState<ReportType>('medical');
   
   // Export settings
-  const [isLoading, setIsLoading] = useState(false);
-  const [exportFormat, setExportFormat] = useState('pdf'); // 'pdf' or 'canvas'
-  const [qualityLevel, setQualityLevel] = useState('standard'); // 'poor', 'standard', 'high'
-  const [fontFamily, setFontFamily] = useState('Times New Roman');
-  const [showPreview, setShowPreview] = useState(false);
-  const [enableWatermark, setEnableWatermark] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
+  const [qualityLevel, setQualityLevel] = useState<QualityLevel>('standard');
+  const [fontFamily, setFontFamily] = useState<string>('Times New Roman');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [enableWatermark, setEnableWatermark] = useState<boolean>(false);
 
   // Available font families for the report
-  const fontFamilies = [
+  const fontFamilies: FontFamily[] = [
     { value: 'Times New Roman', label: 'Times New Roman', css: "'Times New Roman', serif" },
     { value: 'Arial', label: 'Arial', css: "'Arial', sans-serif" },
     { value: 'Helvetica', label: 'Helvetica', css: "'Helvetica', 'Arial', sans-serif" },
@@ -41,15 +52,17 @@ function App() {
   ];
 
   // Step navigation handlers
-  const handleDataGenerated = (data) => {
+  const handleDataGenerated = (data: MedicalRecord) => {
     setMedicalData(data);
     setCms1500Data(generateCMS1500Data(data));
   };
 
-  const handleDataUpdated = (newData) => {
+  const handleDataUpdated = (newData: MedicalRecord) => {
     setMedicalData(newData);
     setCms1500Data(generateCMS1500Data(newData));
-  };  const handleNextStep = () => {
+  };
+
+  const handleNextStep = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     }
@@ -61,7 +74,7 @@ function App() {
     }
   };
 
-  const handleExportPDF = async (reportType, filename) => {
+  const handleExportPDF = async (reportType: ReportType, filename: string) => {
     if (!medicalData) {
       alert('Please generate medical data first.');
       return;
@@ -88,7 +101,7 @@ function App() {
     }
   };
 
-  const handlePreview = (reportType = 'medical') => {
+  const handlePreview = (reportType: ReportType = 'medical') => {
     if (!medicalData) {
       alert('Please generate medical data first.');
       return;

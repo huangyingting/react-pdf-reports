@@ -1,7 +1,15 @@
 import React from 'react';
 import './DocumentCard.css';
 
-const DocumentCard = ({ 
+interface DocumentCardProps {
+  title: string;
+  description: string;
+  onPreview: () => void;
+  onGenerate: () => void;
+  isLoading?: boolean;
+}
+
+const DocumentCard: React.FC<DocumentCardProps> = ({ 
   title, 
   description, 
   onPreview, 

@@ -1,10 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, ProviderInfo, MedicalHistory, Medications } from '../utils/dataGenerator';
 
-const EditDataStep = ({ medicalData, onDataUpdated, onNext, onBack }) => {
-  const [editedData, setEditedData] = useState(null);
-  const [activeSection, setActiveSection] = useState('patient');
-  const [hasChanges, setHasChanges] = useState(false);
+interface EditDataStepProps {
+  medicalData: MedicalRecord | null;
+  onDataUpdated: (data: MedicalRecord) => void;
+  onNext: () => void;
+  onBack: () => void;
+}
+
+interface Section {
+  id: string;
+  label: string;
+  icon: string;
+}
+
+interface PatientInfoSectionProps {
+  data: PatientDemographics;
+  onChange: (field: string, value: any) => void;
+}
+
+interface InsuranceSectionProps {
+  data: InsuranceInfo;
+  onChange: (field: string, value: any) => void;
+}
+
+interface ProviderSectionProps {
+  data: ProviderInfo;
+  onChange: (field: string, value: any) => void;
+}
+
+interface MedicalHistorySectionProps {
+  data: MedicalHistory;
+  allergies: Allergy[];
+  medications: Medications;
+  onChange: (field: string, value: any) => void;
+}
+
+const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated, onNext, onBack }) => {
+  const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
+  const [activeSection, setActiveSection] = useState<string>('patient');
+  const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
     if (medicalData) {
@@ -12,11 +48,12 @@ const EditDataStep = ({ medicalData, onDataUpdated, onNext, onBack }) => {
     }
   }, [medicalData]);
 
-  const updateData = (section, field, value) => {
+  const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
+      if (!prev) return prev;
       const updated = { ...prev };
       const keys = field.split('.');
-      let current = updated[section];
+      let current: any = (updated as any)[section];
       
       for (let i = 0; i < keys.length - 1; i++) {
         current = current[keys[i]];
@@ -53,7 +90,7 @@ const EditDataStep = ({ medicalData, onDataUpdated, onNext, onBack }) => {
     );
   }
 
-  const sections = [
+  const sections: Section[] = [
     { id: 'patient', label: 'Patient Info', icon: '👤' },
     { id: 'insurance', label: 'Insurance', icon: '🏥' },
     { id: 'provider', label: 'Provider', icon: '👨‍⚕️' },
@@ -137,7 +174,7 @@ const EditDataStep = ({ medicalData, onDataUpdated, onNext, onBack }) => {
 };
 
 // Patient Info Section Component
-const PatientInfoSection = ({ data, onChange }) => (
+const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange }) => (
   <div className="form-section">
     <h3>Patient Demographics</h3>
     
@@ -201,7 +238,7 @@ const PatientInfoSection = ({ data, onChange }) => (
         <input
           type="text"
           value={data.contact.phone}
-          onChange={(e) => onChange('address.phone', e.target.value)}
+          onChange={(e) => onChange('contact.phone', e.target.value)}
           className="form-input"
         />
       </div>
@@ -236,7 +273,7 @@ const PatientInfoSection = ({ data, onChange }) => (
           value={data.address.state}
           onChange={(e) => onChange('address.state', e.target.value)}
           className="form-input"
-          maxLength="2"
+          maxLength={2}
         />
       </div>
       
@@ -254,7 +291,7 @@ const PatientInfoSection = ({ data, onChange }) => (
 );
 
 // Insurance Section Component
-const InsuranceSection = ({ data, onChange }) => (
+const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) => (
   <div className="form-section">
     <h3>Primary Insurance</h3>
     
@@ -350,7 +387,7 @@ const InsuranceSection = ({ data, onChange }) => (
 );
 
 // Provider Section Component
-const ProviderSection = ({ data, onChange }) => (
+const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
   <div className="form-section">
     <h3>Primary Care Provider</h3>
     
@@ -432,19 +469,17 @@ const ProviderSection = ({ data, onChange }) => (
 );
 
 // Medical History Section Component
-const MedicalHistorySection = ({ data, allergies, medications, onChange }) => (
+const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, allergies, onChange }) => (
   <div className="form-section">
     <h3>Allergies</h3>
     <div className="form-group">
       <label>Known Allergies (comma-separated)</label>
       <input
         type="text"
-        value={(allergies || []).map(allergy => 
-          typeof allergy === 'string' ? allergy : allergy.allergen
-        ).join(', ')}
+        value={(allergies || []).map(allergy => allergy.allergen).join(', ')}
         onChange={(e) => {
           const allergenNames = e.target.value.split(',').map(a => a.trim()).filter(a => a);
-          const allergyObjects = allergenNames.map(name => ({
+          const allergyObjects: Allergy[] = allergenNames.map(name => ({
             allergen: name,
             reaction: 'Unknown',
             severity: 'Moderate',
@@ -459,7 +494,7 @@ const MedicalHistorySection = ({ data, allergies, medications, onChange }) => (
 
     <h4>Active Conditions ({(data.chronicConditions || []).length})</h4>
     <div className="conditions-list">
-      {(data.chronicConditions || []).map((condition, index) => (
+      {(data.chronicConditions || []).map((condition: ChronicCondition, index: number) => (
         <div key={index} className="condition-item">
           <div className="condition-header">
             <span className="condition-number">#{index + 1}</span>

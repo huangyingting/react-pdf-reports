@@ -1,7 +1,13 @@
 import React from 'react';
 import './CMS1500Form.css';
+import { CMS1500Data } from '../../utils/cms1500Data';
 
-const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
+interface CMS1500FormProps {
+  data: CMS1500Data;
+  fontFamily?: string;
+}
+
+const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   const { patient, insurance, provider, claim } = data;
 
   return (
@@ -314,7 +320,6 @@ const CMS1500Form = ({ data, fontFamily = "'Arial', sans-serif" }) => {
             </div>
           </div>
         </div>
-
 
         {/* Footer */}
         <div className="cms1500-footer">

@@ -1,15 +1,82 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { applyWatermarkToAllPages, enhanceWatermarkOptions } from './watermark.js';
+import { applyWatermarkToAllPages, enhanceWatermarkOptions } from './watermark';
+
+/**
+ * Quality settings for PDF export
+ */
+interface QualitySettings {
+  scale: number;
+  quality: number;
+  description: string;
+}
+
+/**
+ * Image quality presets
+ */
+interface ImageQuality {
+  poor: QualitySettings;
+  standard: QualitySettings;
+  high: QualitySettings;
+}
+
+/**
+ * Quality level type
+ */
+type QualityLevel = 'poor' | 'standard' | 'high';
+
+/**
+ * Custom options for PDF export
+ */
+interface ExportOptions {
+  qualityLevel?: QualityLevel;
+  [key: string]: any;
+}
+
+/**
+ * Element dimension information
+ */
+interface ElementDimensions {
+  offsetWidth: number;
+  offsetHeight: number;
+  scrollWidth: number;
+  scrollHeight: number;
+  clientWidth: number;
+  clientHeight: number;
+}
+
+/**
+ * Element styles information
+ */
+interface ElementStyles {
+  display: string;
+  visibility: string;
+  opacity: string;
+  width: string;
+  height: string;
+}
+
+/**
+ * Element debug information
+ */
+interface ElementDebugInfo {
+  id: string;
+  className: string;
+  tagName: string;
+  dimensions: ElementDimensions;
+  styles: ElementStyles;
+  hasContent: boolean;
+  childrenCount: number;
+}
 
 /**
  * Log element dimensions for debugging
- * @param {HTMLElement} element - The HTML element
- * @param {string} context - Context description
+ * @param element - The HTML element
+ * @param context - Context description
  */
-const logElementDimensions = (element, context) => {
+const logElementDimensions = (element: HTMLElement, context: string): void => {
   const computedStyle = window.getComputedStyle(element);
-  console.log(`${context} - Element details:`, {
+  const debugInfo: ElementDebugInfo = {
     id: element.id,
     className: element.className,
     tagName: element.tagName,
@@ -30,17 +97,23 @@ const logElementDimensions = (element, context) => {
     },
     hasContent: element.innerHTML.length > 0,
     childrenCount: element.children.length
-  });
+  };
+  console.log(`${context} - Element details:`, debugInfo);
 };
 
 /**
  * Export HTML element to PDF using unified configuration
- * @param {string} elementId - The ID of the HTML element to export
- * @param {string} filename - The name of the PDF file (without extension)
- * @param {Object} customOptions - Custom options to override defaults
- * @param {boolean} enableWatermark - Whether to add watermark to all pages
+ * @param elementId - The ID of the HTML element to export
+ * @param filename - The name of the PDF file (without extension)
+ * @param customOptions - Custom options to override defaults
+ * @param enableWatermark - Whether to add watermark to all pages
  */
-export const exportToPDF = async (elementId, filename = 'report', customOptions = {}, enableWatermark = false) => {
+export const exportToPDF = async (
+  elementId: string,
+  filename: string = 'report',
+  customOptions: ExportOptions = {},
+  enableWatermark: boolean = false
+): Promise<boolean> => {
   try {
     // Get the HTML element
     const element = document.getElementById(elementId);
@@ -53,7 +126,10 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
     console.log('Element found:', element.tagName, element.className);
 
     const explicitPageSelectors = ['.cms1500-page', '.medical-records-page', '.report-page', '[data-pdf-page]'];
-    const explicitPages = explicitPageSelectors.reduce((count, selector) => count + element.querySelectorAll(selector).length, 0);
+    const explicitPages = explicitPageSelectors.reduce(
+      (count, selector) => count + element.querySelectorAll(selector).length,
+      0
+    );
     const pageBreaks = element.querySelectorAll('.page-break').length;
     const expectedPages = Math.max(explicitPages, pageBreaks > 0 ? pageBreaks + 1 : 0, 1);
     console.log(`Expected PDF pages based on DOM markers: ${expectedPages}`);
@@ -68,11 +144,11 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
     // Use jsPDF's html() method to convert HTML to PDF
     await pdf.html(element, {
       // The callback is called when the rendering is complete
-      callback: function (pdf) {
+      callback: function (pdf: jsPDF) {
         logElementDimensions(element, 'PDF Export');
         
         // Remove any extra pages beyond what the DOM defines (common jsPDF quirk)
-        let adjustedTotal = pdf.internal.getNumberOfPages();
+        let adjustedTotal = (pdf as any).internal.getNumberOfPages();
         if (adjustedTotal > expectedPages) {
           console.log(`Pruning ${adjustedTotal - expectedPages} unexpected trailing page(s)`);
           for (let pageNumber = adjustedTotal; pageNumber > expectedPages; pageNumber--) {
@@ -134,12 +210,14 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
             ]
           }, pageInfo);
           
-          console.log('Adding watermark to all pages...');
-          applyWatermarkToAllPages(pdf, watermarkOptions);
-          console.log('Watermark applied successfully');
+          if (watermarkOptions) {
+            console.log('Adding watermark to all pages...');
+            applyWatermarkToAllPages(pdf, watermarkOptions);
+            console.log('Watermark applied successfully');
+          }
         }
 
-        console.log(`Total pages after cleanup: ${pdf.internal.getNumberOfPages()}`);
+        console.log(`Total pages after cleanup: ${(pdf as any).internal.getNumberOfPages()}`);
         pdf.save(`${filename}.pdf`);
         console.log("PDF saved successfully!");
       },
@@ -163,18 +241,21 @@ export const exportToPDF = async (elementId, filename = 'report', customOptions 
   }
 };
 
-
 /**
  * Export HTML element to PDF as image using improved method
  * This method captures the HTML element as an image and embeds it in a PDF
- * @param {string} elementId - The ID of the HTML element to export
- * @param {string} filename - The name of the PDF file (without extension)
- * @param {Object} customOptions - Custom options to override defaults
- * @param {boolean} enableWatermark - Whether to add watermark to all pages
+ * @param elementId - The ID of the HTML element to export
+ * @param filename - The name of the PDF file (without extension)
+ * @param customOptions - Custom options to override defaults
+ * @param enableWatermark - Whether to add watermark to all pages
  */
-export const exportToPDFAsImage = async (elementId, filename = 'report-image', customOptions = {}, enableWatermark = false) => {
-
-  const imageQuality = {
+export const exportToPDFAsImage = async (
+  elementId: string,
+  filename: string = 'report-image',
+  customOptions: ExportOptions = {},
+  enableWatermark: boolean = false
+): Promise<boolean> => {
+  const imageQuality: ImageQuality = {
     poor: {
       scale: 1,
       quality: 0.5,
@@ -191,6 +272,7 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
       description: 'High Quality'
     }
   };
+
   try {
     // Get the HTML element
     const element = document.getElementById(elementId);
@@ -202,15 +284,15 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
     console.log('Starting PDF as image export for element:', elementId);
 
     // Determine quality settings
-    const qualityLevel = customOptions.qualityLevel || 'standard';
-    const qualitySettings = imageQuality[qualityLevel] || imageQuality.standard;
+    const qualityLevel: QualityLevel = customOptions.qualityLevel || 'standard';
+    const qualitySettings: QualitySettings = imageQuality[qualityLevel] || imageQuality.standard;
 
     console.log(`Using ${qualitySettings.description} (scale: ${qualitySettings.scale}, quality: ${qualitySettings.quality})`);
 
     // Find all page elements (everything that's not a page break)
-    const allChildren = Array.from(element.children);
-    const pages = [];
-    let currentPage = [];
+    const allChildren = Array.from(element.children) as HTMLElement[];
+    const pages: HTMLElement[][] = [];
+    let currentPage: HTMLElement[] = [];
 
     console.log(`Total child elements found: ${allChildren.length}`);
     for (const child of allChildren) {
@@ -253,8 +335,6 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
       format: [pageWidthMM, pageHeightMM],
       compress: true
     });
-
-
 
     // Process each page
     for (let i = 0; i < pages.length; i++) {
@@ -310,10 +390,10 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
           y: 0,
           scrollX: 0,
           scrollY: 0
-        });
+        } as any);
 
         // Convert to image using quality settings
-        const imgData = canvas.toDataURL(`image/jpeg`, qualitySettings.quality);
+        const imgData = canvas.toDataURL('image/jpeg', qualitySettings.quality);
 
         // Add the image to PDF - it should fit exactly since we used the same dimensions
         pdf.addImage(imgData, 'JPEG', 0, 0, pageWidthMM, pageHeightMM);
@@ -379,9 +459,11 @@ export const exportToPDFAsImage = async (elementId, filename = 'report-image', c
         ]
       }, { width: pageWidthMM, height: pageHeightMM });
       
-      console.log('Adding watermark to all pages...');
-      applyWatermarkToAllPages(pdf, watermarkOptions);
-      console.log('Watermark applied successfully');
+      if (watermarkOptions) {
+        console.log('Adding watermark to all pages...');
+        applyWatermarkToAllPages(pdf, watermarkOptions);
+        console.log('Watermark applied successfully');
+      }
     }
 
     // Save the PDF

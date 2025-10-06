@@ -1,11 +1,16 @@
 import React from 'react';
+import { MedicalRecord } from '../../utils/dataGenerator';
 
-const MedicalHistoryPage = ({ data }) => {
+interface MedicalHistoryPageProps {
+  data: MedicalRecord;
+}
+
+const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
   const { medicalHistory, patient } = data;
   const currentDate = new Date().toLocaleDateString();
   
   return (
-    <page className="medical-page history-page">
+    <div className="medical-page history-page">
       <header className="medical-page-header">
         <div className="hospital-info">
           <h2>Springfield Medical Center</h2>
@@ -171,7 +176,7 @@ const MedicalHistoryPage = ({ data }) => {
           <span>MRN: {patient.id}</span>
         </div>
       </footer>
-    </page>
+    </div>
   );
 };
 

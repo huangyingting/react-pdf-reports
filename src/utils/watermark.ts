@@ -3,12 +3,76 @@
  * Provides functions to add watermarks to PDF pages using jsPDF
  */
 
-const DEFAULT_WATERMARK_FONT = {
+import jsPDF from 'jspdf';
+
+// Type definitions
+export interface WatermarkFont {
+  family?: string;
+  style?: string;
+}
+
+export interface WatermarkItem {
+  text: string;
+  opacity?: number;
+  position?: 'center' | 'diagonal' | 'header' | 'footer' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'custom';
+  rotation?: number;
+  color?: string;
+  fontSize?: number;
+  font?: WatermarkFont;
+  align?: 'left' | 'center' | 'right';
+  baseline?: 'top' | 'middle' | 'bottom';
+  offsetX?: number;
+  offsetY?: number;
+  lineHeightMultiplier?: number;
+  pages?: number[] | ((pageNumber: number) => boolean) | { from?: number; to?: number; interval?: number };
+  x?: number;
+  y?: number;
+  _autoFontSize?: boolean;
+}
+
+export interface WatermarkOptions {
+  items?: WatermarkItem[];
+  font?: WatermarkFont;
+  text?: string;
+  color?: string;
+  opacity?: number;
+  fontSize?: number;
+  position?: string;
+  rotation?: number;
+  offsetX?: number;
+  offsetY?: number;
+  x?: number;
+  y?: number;
+  __isNormalized?: boolean;
+}
+
+export interface PageInfo {
+  width: number;
+  height: number;
+}
+
+interface TextDimensions {
+  textWidth: number;
+  textHeight: number;
+}
+
+interface Coordinates {
+  x: number;
+  y: number;
+}
+
+interface RGB {
+  r: number;
+  g: number;
+  b: number;
+}
+
+const DEFAULT_WATERMARK_FONT: WatermarkFont = {
   family: 'helvetica',
   style: 'bold'
 };
 
-const DEFAULT_WATERMARK_ITEM = {
+const DEFAULT_WATERMARK_ITEM: Partial<WatermarkItem> = {
   opacity: 0.3,
   position: 'diagonal',
   rotation: -45,
@@ -21,7 +85,7 @@ const DEFAULT_WATERMARK_ITEM = {
   lineHeightMultiplier: 0.75
 };
 
-const normalizeWatermarkOptions = (watermarkOptions = {}) => {
+const normalizeWatermarkOptions = (watermarkOptions: WatermarkOptions = {}): WatermarkOptions => {
   if (!watermarkOptions) {
     return {
       items: [],
@@ -40,30 +104,30 @@ const normalizeWatermarkOptions = (watermarkOptions = {}) => {
     ...shared
   } = watermarkOptions;
 
-  const baseFont = {
+  const baseFont: WatermarkFont = {
     ...DEFAULT_WATERMARK_FONT,
     ...(font || {})
   };
 
   const topLevelFontSizeProvided = Object.prototype.hasOwnProperty.call(watermarkOptions, 'fontSize');
 
-  const sourceItems = Array.isArray(items) && items.length > 0
+  const sourceItems: Partial<WatermarkItem>[] = Array.isArray(items) && items.length > 0
     ? items
     : (text ? [{ text }] : []);
 
-  const normalizedItems = sourceItems
-    .map((rawItem) => {
-      if (!rawItem) return null;
+  const normalizedItems: WatermarkItem[] = sourceItems
+    .map((rawItem): WatermarkItem | null => {
+      if (!rawItem || !rawItem.text) return null;
 
       const fontSizeProvided = topLevelFontSizeProvided || Object.prototype.hasOwnProperty.call(rawItem, 'fontSize');
 
-      const merged = {
+      const merged: any = {
         ...DEFAULT_WATERMARK_ITEM,
         ...shared,
         ...rawItem
       };
 
-      const resolvedFont = {
+      const resolvedFont: WatermarkFont = {
         ...baseFont,
         ...(rawItem?.font || {})
       };
@@ -71,15 +135,11 @@ const normalizeWatermarkOptions = (watermarkOptions = {}) => {
       merged.font = resolvedFont;
       merged._autoFontSize = !fontSizeProvided;
 
-      if (!merged.text) {
-        return null;
-      }
-
-      return merged;
+      return merged as WatermarkItem;
     })
-    .filter(Boolean);
+    .filter((item): item is WatermarkItem => item !== null);
 
-  const normalized = {
+  const normalized: WatermarkOptions = {
     ...watermarkOptions,
     items: normalizedItems,
     __isNormalized: true
@@ -92,7 +152,7 @@ const normalizeWatermarkOptions = (watermarkOptions = {}) => {
   return normalized;
 };
 
-const shouldRenderOnPage = (item, pageNumber) => {
+const shouldRenderOnPage = (item: WatermarkItem, pageNumber: number): boolean => {
   if (!item) {
     return false;
   }
@@ -132,31 +192,25 @@ const shouldRenderOnPage = (item, pageNumber) => {
 
 /**
  * Calculate watermark position based on page dimensions and position setting
- * @param {Object} pageInfo - Page information (width, height)
- * @param {Object} watermarkOptions - Watermark configuration
- * @param {Object} textDimensions - Text dimensions
- * @returns {Object} Position coordinates {x, y}
  */
-export const calculateWatermarkPosition = (pageInfo, watermarkOptions, textDimensions) => {
+export const calculateWatermarkPosition = (
+  pageInfo: PageInfo,
+  watermarkOptions: WatermarkItem,
+  textDimensions: TextDimensions
+): Coordinates => {
   const { width, height } = pageInfo;
   const { position = 'center', offsetX = 0, offsetY = 0 } = watermarkOptions;
   const { textWidth, textHeight } = textDimensions;
 
   const margin = 20; // Margin from edges
 
-  let coordinates = {
+  let coordinates: Coordinates = {
     x: width / 2,
     y: height / 2
   };
 
   switch (position) {
     case 'center':
-      coordinates = {
-        x: width / 2,
-        y: height / 2
-      };
-      break;
-
     case 'diagonal':
       coordinates = {
         x: width / 2,
@@ -228,10 +282,8 @@ export const calculateWatermarkPosition = (pageInfo, watermarkOptions, textDimen
 
 /**
  * Convert hex color to RGB values
- * @param {string} hex - Hex color code
- * @returns {Object} RGB values {r, g, b}
  */
-export const hexToRgb = (hex) => {
+export const hexToRgb = (hex: string): RGB => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
     r: parseInt(result[1], 16),
@@ -242,11 +294,12 @@ export const hexToRgb = (hex) => {
 
 /**
  * Apply watermark to a single PDF page
- * @param {jsPDF} pdf - jsPDF instance
- * @param {Object} watermarkOptions - Watermark configuration
- * @param {number} pageNumber - Current page number (1-based)
  */
-export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
+export const applyWatermarkToPage = (
+  pdf: jsPDF,
+  watermarkOptions: WatermarkOptions,
+  pageNumber: number = 1
+): void => {
   if (!pdf) {
     return;
   }
@@ -262,7 +315,8 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
   const pageWidth = pageInfo.getWidth();
   const pageHeight = pageInfo.getHeight();
 
-  const hasGraphicsStateSupport = typeof pdf.saveGraphicsState === 'function' && typeof pdf.restoreGraphicsState === 'function';
+  const hasGraphicsStateSupport = typeof (pdf as any).saveGraphicsState === 'function' && 
+                                   typeof (pdf as any).restoreGraphicsState === 'function';
 
   items.forEach((item) => {
     if (!item?.text) {
@@ -274,7 +328,7 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
     }
 
     if (hasGraphicsStateSupport) {
-      pdf.saveGraphicsState();
+      (pdf as any).saveGraphicsState();
     }
 
     try {
@@ -282,12 +336,12 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
         text,
         opacity,
         rotation = 0,
-        color,
-        fontSize,
+        color = '#999999',
+        fontSize = 72,
         font,
         align = 'center',
         baseline = 'middle',
-        lineHeightMultiplier = DEFAULT_WATERMARK_ITEM.lineHeightMultiplier
+        lineHeightMultiplier = DEFAULT_WATERMARK_ITEM.lineHeightMultiplier as number
       } = item;
 
       const rgb = hexToRgb(color);
@@ -300,19 +354,19 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
         pdf.setFontSize(fontSize);
       }
 
-      const fontFamily = font?.family || DEFAULT_WATERMARK_FONT.family;
-      const fontStyle = font?.style || DEFAULT_WATERMARK_FONT.style;
+      const fontFamily = font?.family || DEFAULT_WATERMARK_FONT.family!;
+      const fontStyle = font?.style || DEFAULT_WATERMARK_FONT.style!;
 
       if (typeof pdf.setFont === 'function') {
         pdf.setFont(fontFamily, fontStyle);
       }
 
-      if (typeof pdf.setGState === 'function') {
+      if (typeof (pdf as any).setGState === 'function') {
         const gStateOptions = { opacity };
-        if (typeof pdf.GState === 'function') {
-          pdf.setGState(pdf.GState(gStateOptions));
+        if (typeof (pdf as any).GState === 'function') {
+          (pdf as any).setGState((pdf as any).GState(gStateOptions));
         } else {
-          pdf.setGState(gStateOptions);
+          (pdf as any).setGState(gStateOptions);
         }
       }
 
@@ -325,7 +379,7 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
         { textWidth, textHeight }
       );
 
-      const textOptions = {
+      const textOptions: any = {
         align,
         baseline
       };
@@ -345,7 +399,7 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
       console.error('Error applying watermark item:', error);
     } finally {
       if (hasGraphicsStateSupport) {
-        pdf.restoreGraphicsState();
+        (pdf as any).restoreGraphicsState();
       }
     }
   });
@@ -353,10 +407,11 @@ export const applyWatermarkToPage = (pdf, watermarkOptions, pageNumber = 1) => {
 
 /**
  * Apply watermark to all pages in a PDF
- * @param {jsPDF} pdf - jsPDF instance
- * @param {Object} watermarkOptions - Watermark configuration
  */
-export const applyWatermarkToAllPages = (pdf, watermarkOptions) => {
+export const applyWatermarkToAllPages = (
+  pdf: jsPDF,
+  watermarkOptions: WatermarkOptions
+): void => {
   if (!pdf) {
     return;
   }
@@ -368,9 +423,9 @@ export const applyWatermarkToAllPages = (pdf, watermarkOptions) => {
     return;
   }
 
-  const totalPages = typeof pdf.internal.getNumberOfPages === 'function'
-    ? pdf.internal.getNumberOfPages()
-    : (pdf.internal.pages.length - 1);
+  const totalPages = typeof (pdf as any).internal.getNumberOfPages === 'function'
+    ? (pdf as any).internal.getNumberOfPages()
+    : ((pdf as any).internal.pages.length - 1);
   
   for (let i = 1; i <= totalPages; i++) {
     pdf.setPage(i);
@@ -380,38 +435,36 @@ export const applyWatermarkToAllPages = (pdf, watermarkOptions) => {
 
 /**
  * Create a callback function that applies watermarks after PDF generation
- * @param {Object} watermarkOptions - Watermark configuration
- * @returns {Function} Callback function for jsPDF
  */
-export const createWatermarkCallback = (watermarkOptions) => {
+export const createWatermarkCallback = (watermarkOptions: WatermarkOptions) => {
   const normalized = normalizeWatermarkOptions(watermarkOptions);
 
-  return function(pdf) {
-    if (normalized.items.length) {
+  return function(pdf: jsPDF) {
+    if (normalized.items && normalized.items.length) {
       console.log('Applying watermarks to PDF pages...');
       applyWatermarkToAllPages(pdf, normalized);
       console.log('Watermarks applied successfully');
     }
     
-    if (pdf.save) {
-      pdf.save();
+    if ((pdf as any).save) {
+      (pdf as any).save();
     }
   };
 };
 
 /**
  * Enhanced watermark options with intelligent font sizing
- * @param {Object} watermarkOptions - Base watermark options
- * @param {Object} pageInfo - Page dimensions
- * @returns {Object} Enhanced options with appropriate font size
  */
-export const enhanceWatermarkOptions = (watermarkOptions, pageInfo) => {
+export const enhanceWatermarkOptions = (
+  watermarkOptions: WatermarkOptions | null,
+  pageInfo?: PageInfo
+): WatermarkOptions | null => {
   if (!watermarkOptions) return null;
 
   const normalized = normalizeWatermarkOptions(watermarkOptions);
   const { items } = normalized;
 
-  if (!items.length) {
+  if (!items || !items.length) {
     return null;
   }
 
@@ -423,14 +476,14 @@ export const enhanceWatermarkOptions = (watermarkOptions, pageInfo) => {
   const diagonal = Math.sqrt(width * width + height * height);
   const baseFontSize = Math.min(width, height) / 8;
 
-  const enhancedItems = items.map((item) => {
+  const enhancedItems: WatermarkItem[] = items.map((item) => {
     const { _autoFontSize, text, ...rest } = item;
 
     if (!_autoFontSize) {
       return {
         ...rest,
         text
-      };
+      } as WatermarkItem;
     }
 
     const cleanedText = (text || '').trim();
@@ -441,7 +494,7 @@ export const enhanceWatermarkOptions = (watermarkOptions, pageInfo) => {
       ...rest,
       text,
       fontSize: adjustedFontSize
-    };
+    } as WatermarkItem;
   });
 
   return {

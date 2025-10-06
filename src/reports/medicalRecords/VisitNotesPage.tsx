@@ -1,6 +1,11 @@
 import React from 'react';
+import { MedicalRecord } from '../../utils/dataGenerator';
 
-const VisitNotesPage = ({ data }) => {
+interface VisitNotesPageProps {
+  data: MedicalRecord;
+}
+
+const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
   const { visitNotes, patient } = data;
   const currentDate = new Date().toLocaleDateString();
   
@@ -23,10 +28,6 @@ const VisitNotesPage = ({ data }) => {
                 <tr>
                   <td className="label">Chief Complaint</td>
                   <td className="value">{visit.chiefComplaint}</td>
-                </tr>
-                <tr>
-                  <td className="label">History</td>
-                  <td className="value">{visit.historyOfPresentIllness}</td>
                 </tr>
                 <tr>
                   <td className="label">Vital Signs</td>
@@ -155,7 +156,7 @@ const VisitNotesPage = ({ data }) => {
     
     return (
       <div className="compact-section">
-        <h3></h3>
+        <h3>Visit Summary</h3>
         <div className="reference-grid">
           <div className="reference-item">
             <strong>Visit History</strong>
@@ -222,7 +223,7 @@ const VisitNotesPage = ({ data }) => {
             <p><strong>CONFIDENTIAL MEDICAL RECORD:</strong> This document contains privileged and confidential information intended only for the addressee. If you have received this in error, please notify the sender immediately.</p>
           </div>
           <div className="page-info">
-            <span>Patient ID: {patient?.patientId || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
+            <span>Patient ID: {patient?.id || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
             <span>Page 5a of 5 | Visit Notes - Recent Visits</span>
           </div>
         </div>
@@ -254,7 +255,7 @@ const VisitNotesPage = ({ data }) => {
             <p><strong>CONFIDENTIAL MEDICAL RECORD:</strong> This document contains privileged and confidential information intended only for the addressee. If you have received this in error, please notify the sender immediately.</p>
           </div>
           <div className="page-info">
-            <span>Patient ID: {patient?.patientId || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
+            <span>Patient ID: {patient?.id || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
             <span>Page 5b of 5 | Visit Notes - Summary & Coordination</span>
           </div>
         </div>

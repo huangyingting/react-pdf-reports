@@ -1,8 +1,36 @@
 import React from 'react';
 import DocumentCard from './DocumentCard';
 import './ExportPdfStep.css';
+import { MedicalRecord } from '../utils/dataGenerator';
 
-const ExportPdfStep = ({
+type ExportFormat = 'pdf' | 'canvas';
+type QualityLevel = 'poor' | 'standard' | 'high';
+type ReportType = 'medical' | 'cms1500';
+
+interface FontFamily {
+  value: string;
+  label: string;
+  css: string;
+}
+
+interface ExportPdfStepProps {
+  medicalData: MedicalRecord | null;
+  exportFormat: ExportFormat;
+  setExportFormat: (format: ExportFormat) => void;
+  qualityLevel: QualityLevel;
+  setQualityLevel: (level: QualityLevel) => void;
+  fontFamily: string;
+  setFontFamily: (font: string) => void;
+  fontFamilies: FontFamily[];
+  enableWatermark: boolean;
+  setEnableWatermark: (enabled: boolean) => void;
+  onPreview: (reportType: ReportType) => void;
+  onExport: (reportType: ReportType, filename: string) => void;
+  onBack: () => void;
+  isLoading: boolean;
+}
+
+const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   medicalData,
   exportFormat,
   setExportFormat,
@@ -57,9 +85,9 @@ const ExportPdfStep = ({
                   const value = e.target.value;
                   if (value.startsWith('canvas-')) {
                     setExportFormat('canvas');
-                    setQualityLevel(value.replace('canvas-', ''));
+                    setQualityLevel(value.replace('canvas-', '') as QualityLevel);
                   } else {
-                    setExportFormat(value);
+                    setExportFormat(value as ExportFormat);
                   }
                 }}
                 className="setting-select"

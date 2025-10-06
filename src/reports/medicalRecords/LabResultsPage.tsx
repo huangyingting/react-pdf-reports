@@ -1,6 +1,11 @@
 import React from 'react';
+import { MedicalRecord } from '../../utils/dataGenerator';
 
-const LabResultsPage = ({ data }) => {
+interface LabResultsPageProps {
+  data: MedicalRecord;
+}
+
+const LabResultsPage: React.FC<LabResultsPageProps> = ({ data }) => {
   const { labResults, patient } = data;
   const currentDate = new Date().toLocaleDateString();
   
@@ -91,7 +96,14 @@ const LabResultsPage = ({ data }) => {
 
   const renderCriticalAlerts = () => {
     const tests = labResults || [];
-    const criticalResults = [];
+    const criticalResults: Array<{
+      test: string;
+      component: string;
+      value: string | number;
+      units: string;
+      status: string;
+      referenceRange: string;
+    }> = [];
     
     tests.forEach(test => {
       test.results?.forEach(result => {
