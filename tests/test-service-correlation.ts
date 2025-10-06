@@ -3,7 +3,7 @@
  * This tests that service lines are properly correlated with diagnosis codes
  */
 
-import { generateCMS1500Data } from './src/utils/cms1500Data';
+import { generateCMS1500Data } from '../src/utils/cms1500Data';
 
 console.log('Testing Service Line Correlation with Diagnosis Codes\n');
 console.log('============================================================\n');

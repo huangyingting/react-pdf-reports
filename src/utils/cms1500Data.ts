@@ -568,7 +568,7 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
           };
           
           // Build available services based on diagnosis codes
-          const availableServices: Array<{ code: string, charges: number, pointer: string }> = [];
+          const availableServices: Array<{ code: string, charges: number, pointer: string, primaryDiagnosis: string }> = [];
           const diagnosisPointers = ['A', 'B', 'C', 'D'];
           
           selectedDiagnoses.forEach((diagnosis, index) => {
@@ -587,7 +587,8 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
                 availableServices.push({
                   code: service.code,
                   charges: faker.number.int({ min: service.chargeRange[0], max: service.chargeRange[1] }),
-                  pointer: pointer
+                  pointer: pointer,
+                  primaryDiagnosis: diagnosis
                 });
               }
             });
@@ -600,7 +601,8 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
                 availableServices.push({
                   code: service.code,
                   charges: faker.number.int({ min: service.chargeRange[0], max: service.chargeRange[1] }),
-                  pointer: 'A'
+                  pointer: 'A',
+                  primaryDiagnosis: selectedDiagnoses[0]
                 });
               }
             });
@@ -620,6 +622,43 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
       // Set emergency flag for ER visits
       const isEmergency = placeOfService === '23' || service.code === '99285';
       
+      // Build diagnosis pointers - start with primary
+      let pointers = [service.pointer];
+      
+      // For office visits and E/M services, add additional relevant diagnoses
+      if (['99213', '99214', '99215', '99285'].includes(service.code)) {
+        // E/M visits often address multiple conditions
+        // Add up to 2 more diagnoses (randomly, weighted toward 1-2 total)
+        const additionalCount = faker.number.int({ min: 0, max: 2 });
+        const otherPointers = diagnosisPointers.filter(p => 
+          p !== service.pointer && 
+          diagnosisPointers.indexOf(p) < selectedDiagnoses.length
+        );
+        
+        if (otherPointers.length > 0 && additionalCount > 0) {
+          const additional = faker.helpers.arrayElements(
+            otherPointers, 
+            Math.min(additionalCount, otherPointers.length)
+          );
+          pointers = pointers.concat(additional).sort();
+        }
+      }
+      
+      // For general lab tests (metabolic panel, CBC), sometimes add related diagnoses
+      if (['80053', '85025'].includes(service.code)) {
+        if (faker.datatype.boolean(0.3)) { // 30% chance
+          const otherPointers = diagnosisPointers.filter(p => 
+            p !== service.pointer && 
+            diagnosisPointers.indexOf(p) < selectedDiagnoses.length
+          );
+          if (otherPointers.length > 0) {
+            const additional = faker.helpers.arrayElement(otherPointers);
+            pointers.push(additional);
+            pointers.sort();
+          }
+        }
+      }
+      
       return {
         dateFrom: result.claim.serviceDate,
         dateTo: result.claim.serviceDate,
@@ -627,7 +666,7 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
         emg: isEmergency && faker.datatype.boolean(0.3) ? 'Y' : '',
         procedureCode: service.code,
         modifier: '',
-        diagnosisPointer: service.pointer,
+        diagnosisPointer: pointers.join(','),
         charges: `${service.charges}.00`,
         units: '1',
         epsdt: '',

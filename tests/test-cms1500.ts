@@ -4,8 +4,8 @@
  * Test script for CMS-1500 data generation with Faker.js
  */
 
-import { generateCMS1500Data } from './src/utils/cms1500Data';
-import { generateCompleteMedicalRecord } from './src/utils/dataGenerator';
+import { generateCMS1500Data } from '../src/utils/cms1500Data';
+import { generateCompleteMedicalRecord } from '../src/utils/dataGenerator';
 
 console.log('Testing CMS-1500 Data Generation with Faker.js\n');
 console.log('='.repeat(60));
