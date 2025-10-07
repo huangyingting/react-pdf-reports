@@ -1,5 +1,5 @@
 {
-  "name": "react-pdf-reports",
+  "name": "docgen",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -19,7 +19,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "generate:favicon": "node scripts/generate-favicon.js"
   },
   "eslintConfig": {
     "extends": [
@@ -45,6 +46,8 @@
     "@types/node": "^24.7.0",
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.0",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.33.2",
     "typescript": "^5.9.3"
   }
 }

@@ -1,0 +1,23 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="docgen-accent" x1="16" y1="12" x2="78" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2F74FF" />
+      <stop offset="1" stop-color="#54D6FF" />
+    </linearGradient>
+    <linearGradient id="docgen-shadow" x1="24" y1="30" x2="64" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EBF3FF" />
+      <stop offset="1" stop-color="#D3E6FF" />
+    </linearGradient>
+  </defs>
+  <rect x="14" y="10" width="68" height="80" rx="14" fill="url(#docgen-accent)"/>
+  <path d="M32 24h24l16 16v32c0 6.627-5.373 12-12 12H32c-6.627 0-12-5.373-12-12V36c0-6.627 5.373-12 12-12z" fill="white"/>
+  <path d="M56 24v16h16" fill="url(#docgen-shadow)"/>
+  <path d="M36 46h24" stroke="#2F74FF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M36 58h16" stroke="#2F74FF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M62 58h6" stroke="#7ACBFF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M44 70h24" stroke="#A0DCF6" stroke-width="4" stroke-linecap="round"/>
+  <path d="M70 30l6-6" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M72 20l2-6" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M80 26l6-2" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="74" cy="24" r="5" fill="#FFBE3C"/>
+</svg>
