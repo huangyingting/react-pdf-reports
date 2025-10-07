@@ -161,7 +161,7 @@
   margin-bottom: 1.5rem;
 }
 
-/* Form styles inherited from shared.css */
+/* Form group and label styles inherited from shared.css */
 
 .form-input:disabled,
 .form-select:disabled {

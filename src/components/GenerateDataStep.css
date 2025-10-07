@@ -1,9 +1,6 @@
 /* Import shared styles */
 @import './shared.css';
 
-/* Import shared styles */
-@import './shared.css';
-
 /* Component-specific styles only */
 
 .data-generation-options {
@@ -138,46 +135,34 @@
   gap: 0.75rem;
 }
 
-.option-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
+/* Form group styles inherited from shared.css (.option-group) */
 
-.option-group label {
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.8125rem;
-}
-
+/* Use form-select styling from shared.css, matching EditDataStep */
 .option-select {
-  padding: 0.375rem 0.625rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
   background: white;
-  color: #374151;
-  font-size: 0.8125rem;
-  transition: border-color 0.2s ease;
+  color: #334155;
+  font-size: 0.9375rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  font-family: inherit;
+}
+
+.option-select:hover {
+  border-color: #94a3b8;
 }
 
 .option-select:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
+/* Checkbox styles inherited from shared.css */
 .checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
   margin-top: 0.5rem;
-}
-
-.checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: #3b82f6;
 }
 
 /* Generation Actions */

@@ -130,7 +130,8 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               </div>
 
               <div className="option-group">
-                <label className="checkbox-label">
+                <label>Secondary Insurance</label>
+                <label className="checkbox-wrapper">
                   <input
                     type="checkbox"
                     checked={customOptions.includeSecondaryInsurance}

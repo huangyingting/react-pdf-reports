@@ -424,6 +424,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 
   return (
     <div className="form-section">
+    <h3>Insurance</h3>
 
       <h4>Subscriber Information</h4>
       <div className="form-grid">
