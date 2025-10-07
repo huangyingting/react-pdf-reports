@@ -47,12 +47,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
   return (
     <div className="generate-data-step">
       <div className="step-content">
-        <div className="step-header">
-          <div>
-            <h2>Generate Sample Data</h2>
-            <p>Create realistic patient profile and medical records using AI-generated data</p>
-          </div>
-        </div>
+
 
         <div className="data-generation-options">
           <div className="section">

@@ -256,24 +256,7 @@
   flex-shrink: 0;
 }
 
-/* Step Navigation */
-.step-navigation {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 2px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-}
-
-/* No Data Message */
-.no-data-message {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+/* Step styles inherited from shared.css */
 
 .no-data-message h2 {
   margin: 0 0 1rem 0;

@@ -120,12 +120,6 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
   return (
     <div className="edit-data-step">
       <div className="step-content">
-        <div className="step-header">
-          <div>
-            <h2>Review & Edit Data</h2>
-            <p>Review and modify patient information before generating documents</p>
-          </div>
-        </div>
 
         <div className="edit-interface">
           <div className="section-nav">
