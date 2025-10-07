@@ -23,6 +23,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const [dropdownDirection, setDropdownDirection] = useState<'down' | 'up'>('down');
   const selectRef = useRef<HTMLDivElement>(null);
 
   // Get the label for the selected value
@@ -85,18 +86,41 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     setHighlightedIndex(-1);
   };
 
+  const calculateDropdownDirection = () => {
+    if (!selectRef.current) return 'down';
+
+    const rect = selectRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const dropdownMaxHeight = 300; // matches CSS max-height
+    
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    
+    // If there's not enough space below but there's more space above, show upward
+    if (spaceBelow < dropdownMaxHeight && spaceAbove > spaceBelow) {
+      return 'up';
+    }
+    
+    return 'down';
+  };
+
   const toggleDropdown = () => {
-    setIsOpen(!isOpen);
     if (!isOpen) {
+      // Calculate direction before opening
+      const direction = calculateDropdownDirection();
+      setDropdownDirection(direction);
       // Set highlighted index to current selection when opening
       const currentIndex = options.findIndex(opt => opt.value === value);
       setHighlightedIndex(currentIndex >= 0 ? currentIndex : 0);
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
     }
   };
 
   return (
     <div 
-      className={`custom-select ${className} ${isOpen ? 'is-open' : ''}`} 
+      className={`custom-select ${className} ${isOpen ? 'is-open' : ''} ${dropdownDirection === 'up' ? 'dropdown-up' : ''}`} 
       ref={selectRef}
     >
       <div 
