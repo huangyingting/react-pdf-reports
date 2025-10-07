@@ -257,7 +257,12 @@ export const generateLaboratoryReportData = (
     },
     medicalRecordNumber: patientData?.patient?.medicalRecordNumber || fallbackMRN,
     ssn: patientData?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
-    accountNumber: patientData?.patient?.accountNumber || fallbackPatientId
+    accountNumber: patientData?.patient?.accountNumber || fallbackPatientId,
+    pharmacy: patientData?.patient?.pharmacy || {
+      name: faker.company.name() + ' Pharmacy',
+      address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
+      phone: faker.phone.number()
+    }
   };
 
   // Generate provider

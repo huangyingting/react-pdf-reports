@@ -8,7 +8,6 @@ import {
   MedicalHistory,
   Medications,
   VitalSigns,
-  LabTest,
   VisitNote,
   GenerationOptions,
   MedicalRecord,
@@ -18,7 +17,6 @@ import {
   FamilyHistory,
   CurrentMedication,
   DiscontinuedMedication,
-  LabResult
 } from './types';
 import { generatePatientDemographics, generateInsuranceInfo, generateProviderInfo } from './baseDataGenerator';
 
@@ -356,213 +354,6 @@ export const generateVitalSigns = (
   });
 };
 
-/**
- * Generate lab results with values correlated to patient's chronic conditions
- */
-export const generateLabResults = (
-  numberOfTests: number = 3,
-  chronicConditions: ChronicCondition[] = []
-): LabTest[] => {
-  // Determine relevant conditions
-  const hasDiabetes = chronicConditions.some(c => c.condition.toLowerCase().includes('diabetes'));
-  const hasHyperlipidemia = chronicConditions.some(c => c.condition.toLowerCase().includes('lipid') || c.condition.toLowerCase().includes('cholesterol'));
-  const hasKidneyDisease = chronicConditions.some(c => c.condition.toLowerCase().includes('kidney'));
-  
-  interface LabTestType {
-    name: string;
-    parameters: {
-      parameter: string;
-      unit: string;
-      referenceRange: string;
-      normalRange: [number, number];
-    }[];
-  }
-
-  const testTypes: LabTestType[] = [
-    {
-      name: 'Complete Blood Count (CBC)',
-      parameters: [
-        { parameter: 'White Blood Cells', unit: 'K/uL', referenceRange: '4.0-11.0', normalRange: [4.0, 11.0] },
-        { parameter: 'Red Blood Cells', unit: 'M/uL', referenceRange: '4.2-5.4', normalRange: [4.2, 5.4] },
-        { parameter: 'Hemoglobin', unit: 'g/dL', referenceRange: '12.0-16.0', normalRange: [12.0, 16.0] },
-        { parameter: 'Hematocrit', unit: '%', referenceRange: '36.0-46.0', normalRange: [36.0, 46.0] },
-        { parameter: 'Platelets', unit: 'K/uL', referenceRange: '150-450', normalRange: [150, 450] }
-      ]
-    },
-    {
-      name: 'Comprehensive Metabolic Panel',
-      parameters: [
-        { parameter: 'Glucose', unit: 'mg/dL', referenceRange: '70-100', normalRange: [70, 100] },
-        { parameter: 'BUN', unit: 'mg/dL', referenceRange: '7-20', normalRange: [7, 20] },
-        { parameter: 'Creatinine', unit: 'mg/dL', referenceRange: '0.7-1.3', normalRange: [0.7, 1.3] },
-        { parameter: 'Sodium', unit: 'mEq/L', referenceRange: '136-145', normalRange: [136, 145] },
-        { parameter: 'Potassium', unit: 'mEq/L', referenceRange: '3.5-5.1', normalRange: [3.5, 5.1] },
-        { parameter: 'Chloride', unit: 'mEq/L', referenceRange: '98-107', normalRange: [98, 107] }
-      ]
-    },
-    {
-      name: 'Lipid Panel',
-      parameters: [
-        { parameter: 'Total Cholesterol', unit: 'mg/dL', referenceRange: '<200', normalRange: [150, 200] },
-        { parameter: 'HDL Cholesterol', unit: 'mg/dL', referenceRange: '>40', normalRange: [40, 80] },
-        { parameter: 'LDL Cholesterol', unit: 'mg/dL', referenceRange: '<100', normalRange: [60, 100] },
-        { parameter: 'Triglycerides', unit: 'mg/dL', referenceRange: '<150', normalRange: [50, 150] }
-      ]
-    }
-  ];
-
-  const selectedTests = faker.helpers.arrayElements(testTypes, Math.min(numberOfTests, testTypes.length));
-  
-  return selectedTests.map(testType => {
-    const testDate = faker.date.recent({ days: 90 });
-    const results: LabResult[] = testType.parameters.map(param => {
-      // Determine if this parameter should be abnormal based on conditions
-      let forceAbnormal = false;
-      if (hasDiabetes && param.parameter === 'Glucose') {
-        forceAbnormal = faker.datatype.boolean(0.6); // 60% chance of elevated glucose
-      } else if (hasHyperlipidemia && param.parameter.includes('Cholesterol')) {
-        forceAbnormal = faker.datatype.boolean(0.5); // 50% chance of abnormal cholesterol
-      } else if (hasKidneyDisease && (param.parameter === 'Creatinine' || param.parameter === 'BUN')) {
-        forceAbnormal = faker.datatype.boolean(0.5); // 50% chance of abnormal kidney function
-      }
-      
-      const isNormal = forceAbnormal ? false : faker.datatype.boolean(0.8); // 80% chance of normal values
-      let value: number;
-      let status: string;
-      
-      // Determine decimal places based on parameter
-      const fractionDigits = 
-        param.parameter === 'Creatinine' ? 1 :
-        param.unit.includes('%') ? 1 :
-        param.parameter.includes('Cholesterol') || param.parameter === 'Glucose' ? 0 :
-        param.unit === 'M/uL' ? 2 : 1;
-      
-      if (isNormal) {
-        value = faker.number.float({
-          min: param.normalRange[0],
-          max: param.normalRange[1],
-          fractionDigits
-        });
-        status = 'Normal';
-      } else {
-        // Generate slightly abnormal values, biased based on condition
-        let isHigh = faker.datatype.boolean();
-        
-        // For specific parameters with known conditions, bias towards expected abnormality
-        if (hasDiabetes && param.parameter === 'Glucose') {
-          isHigh = true; // Diabetes causes high glucose
-        } else if (hasHyperlipidemia && (param.parameter === 'LDL Cholesterol' || param.parameter === 'Total Cholesterol')) {
-          isHigh = true; // Hyperlipidemia causes high cholesterol
-        } else if (hasKidneyDisease && (param.parameter === 'Creatinine' || param.parameter === 'BUN')) {
-          isHigh = true; // Kidney disease causes elevated markers
-        }
-        
-        if (isHigh) {
-          value = faker.number.float({
-            min: param.normalRange[1],
-            max: param.normalRange[1] * 1.3,
-            fractionDigits
-          });
-          // More accurate status determination
-          if (value > param.normalRange[1] * 1.2) {
-            status = 'High';
-          } else if (value > param.normalRange[1] * 1.1) {
-            status = 'Borderline High';
-          } else {
-            status = 'Slightly Elevated';
-          }
-        } else {
-          value = faker.number.float({
-            min: param.normalRange[0] * 0.7,
-            max: param.normalRange[0],
-            fractionDigits
-          });
-          status = value < param.normalRange[0] * 0.85 ? 'Low' : 'Borderline Low';
-        }
-      }
-      
-      return {
-        parameter: param.parameter,
-        value: value.toFixed(fractionDigits),
-        unit: param.unit,
-        referenceRange: param.referenceRange,
-        status
-      };
-    });
-    
-    return {
-      testDate: testDate.toLocaleDateString('en-US'),
-      testName: testType.name,
-      results,
-      orderingPhysician: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`
-    };
-  });
-};
-
-/**
- * Generate visit notes correlated with patient's chronic conditions
- */
-export const generateVisitNotes = (
-  numberOfVisits: number = 3,
-  chronicConditions: ChronicCondition[] = []
-): VisitNote[] => {
-  // Determine conditions for contextual visit generation
-  const hasHypertension = chronicConditions.some(c => c.condition.toLowerCase().includes('hypertension'));
-  const hasCOPD = chronicConditions.some(c => c.condition === 'COPD');
-  const hasHeartDisease = chronicConditions.some(c => c.condition.toLowerCase().includes('heart'));
-  
-  // Generate consistent height for all visits
-  const heightInInches = faker.number.int({ min: 60, max: 76 });
-  const baseWeight = faker.number.int({ min: 120, max: 220 });
-  
-  // Generate visits in reverse chronological order (most recent first)
-  return Array.from({ length: numberOfVisits }, (_, index) => {
-    const daysAgo = 30 * (index + 1);
-    const visitDate = faker.date.recent({ days: daysAgo });
-    const visitType = faker.helpers.arrayElement(VISIT_TYPES);
-    
-    // Weight may vary slightly between visits
-    const weight = baseWeight + faker.number.int({ min: -5, max: 5 });
-    
-    // Blood pressure based on conditions
-    let systolic: number, diastolic: number;
-    if (hasHypertension) {
-      systolic = faker.number.int({ min: 125, max: 145 });
-      diastolic = faker.number.int({ min: 78, max: 92 });
-    } else {
-      systolic = faker.number.int({ min: 110, max: 130 });
-      diastolic = faker.number.int({ min: 70, max: 85 });
-    }
-    
-    // Heart rate
-    const heartRate = hasHeartDisease 
-      ? faker.number.int({ min: 65, max: 95 })
-      : faker.number.int({ min: 60, max: 90 });
-    
-    // Oxygen saturation
-    const oxygenSaturation = hasCOPD
-      ? faker.number.int({ min: 90, max: 96 })
-      : faker.number.int({ min: 95, max: 100 });
-    
-    return {
-      date: visitDate.toLocaleDateString('en-US'),
-      type: visitType,
-      chiefComplaint: generateChiefComplaint(chronicConditions),
-      assessment: generateAssessment(chronicConditions),
-      plan: generateTreatmentPlan(chronicConditions),
-      provider: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
-      duration: faker.helpers.arrayElement(['15 min', '20 min', '30 min', '45 min']),
-      vitals: {
-        bloodPressure: `${systolic}/${diastolic}`,
-        heartRate,
-        temperature: faker.number.float({ min: 97.0, max: 99.2, fractionDigits: 1 }),
-        weight,
-        height: `${heightInInches}"`,
-        oxygenSaturation
-      }
-    };
-  });
-};
 
 /**
  * Generate chief complaint based on patient's chronic conditions
@@ -605,100 +396,6 @@ const generateChiefComplaint = (chronicConditions: ChronicCondition[] = []): str
 };
 
 /**
- * Generate assessment based on patient's chronic conditions
- */
-const generateAssessment = (chronicConditions: ChronicCondition[] = []): string[] => {
-  const assessments: string[] = ['Patient appears well.', 'Vital signs stable.'];
-  
-  // Add condition-specific assessments
-  chronicConditions.forEach(condition => {
-    const status = condition.status.toLowerCase();
-    if (status === 'active' || status === 'stable') {
-      assessments.push(`${condition.condition} - ${status}, well controlled with current regimen.`);
-    } else if (status === 'improving') {
-      assessments.push(`${condition.condition} - showing improvement with treatment.`);
-    } else if (status === 'monitoring') {
-      assessments.push(`${condition.condition} - under close monitoring.`);
-    }
-  });
-  
-  // Add general assessments
-  const generalAssessments = [
-    'Patient reports good adherence to medications.',
-    'No acute distress noted.',
-    'Lab results reviewed with patient.',
-    'Patient denies new symptoms.',
-    'Weight stable since last visit.',
-    'No new concerns today.'
-  ];
-  
-  // Add 1-2 general assessments
-  const selectedGeneral = faker.helpers.arrayElements(generalAssessments, faker.number.int({ min: 1, max: 2 }));
-  assessments.push(...selectedGeneral);
-  
-  return assessments.slice(0, 5); // Limit to 5 total assessments
-};
-
-/**
- * Generate treatment plan based on patient's chronic conditions
- */
-const generateTreatmentPlan = (chronicConditions: ChronicCondition[] = []): string[] => {
-  const plans: string[] = [];
-  const conditionNames = chronicConditions.map(c => c.condition.toLowerCase());
-  
-  // Add condition-specific plans
-  if (conditionNames.some(c => c.includes('hypertension'))) {
-    plans.push(faker.helpers.arrayElement([
-      'Continue current blood pressure medications.',
-      'Monitor blood pressure at home daily.',
-      'Reduce sodium intake, maintain DASH diet.'
-    ]));
-  }
-  
-  if (conditionNames.some(c => c.includes('diabetes'))) {
-    plans.push(faker.helpers.arrayElement([
-      'Continue diabetes medications as prescribed.',
-      'Order HbA1c, follow up in 3 months.',
-      'Continue glucose monitoring, adjust insulin as needed.'
-    ]));
-  }
-  
-  if (conditionNames.some(c => c.includes('lipid') || c.includes('cholesterol'))) {
-    plans.push(faker.helpers.arrayElement([
-      'Continue statin therapy for cholesterol management.',
-      'Repeat lipid panel in 6 months.',
-      'Dietary counseling for lipid control.'
-    ]));
-  }
-  
-  if (conditionNames.some(c => c.includes('asthma') || c.includes('copd'))) {
-    plans.push(faker.helpers.arrayElement([
-      'Continue current respiratory medications.',
-      'Use rescue inhaler as needed for symptoms.',
-      'Pulmonary function testing scheduled.'
-    ]));
-  }
-  
-  // Add general plans
-  const generalPlans = [
-    'Continue current medications as prescribed.',
-    'Return for follow-up in 3-6 months.',
-    'Order routine lab work for next visit.',
-    'Patient education materials provided.',
-    'Schedule preventive health screenings.',
-    'Lifestyle modifications discussed.',
-    'Return sooner if symptoms worsen.',
-    'Medication compliance emphasized.'
-  ];
-  
-  // Add 1-2 general plans
-  const selectedGeneral = faker.helpers.arrayElements(generalPlans, faker.number.int({ min: 1, max: 2 }));
-  plans.push(...selectedGeneral);
-  
-  return plans.slice(0, 4); // Limit to 4 total plan items
-};
-
-/**
  * Generate complete medical records data with logically consistent relationships
  */
 export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): MedicalRecord => {
@@ -732,14 +429,6 @@ export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): 
   // Generate medications correlated with chronic conditions
   const medications = generateMedications(complexity, medicalHistory.chronicConditions);
   
-  // Generate lab results correlated with chronic conditions
-  const labResults = generateLabResults(numberOfLabTests, medicalHistory.chronicConditions);
-  
-  // Generate visit notes correlated with chronic conditions
-  const visitNotes = generateVisitNotes(numberOfVisits, medicalHistory.chronicConditions);
-  
-  // Generate vital signs correlated with chronic conditions
-  const vitalSigns = generateVitalSigns(2, medicalHistory.chronicConditions);
 
   return {
     patient,
@@ -747,9 +436,6 @@ export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): 
     provider,
     medicalHistory,
     medications,
-    labResults,
-    vitalSigns,
-    visitNotes,
     generatedAt: new Date().toISOString(),
     metadata: {
       complexity,

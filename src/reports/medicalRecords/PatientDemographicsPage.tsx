@@ -1,12 +1,13 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/types';
+import { MedicalRecord, LaboratoryReportData } from '../../utils/types';
 
 interface PatientDemographicsPageProps {
   data: MedicalRecord;
+  laboratoryReportData?: LaboratoryReportData;
 }
 
-const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data }) => {
-  const { patient, provider, medicalHistory, medications, visitNotes, labResults } = data;
+const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData }) => {
+  const { patient, provider, medicalHistory, medications } = data;
   const currentDate = new Date().toLocaleDateString();
   
   // Extract dynamic data
@@ -22,17 +23,12 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
     ? medications.current.slice(0, 3).map(m => m.name).join(', ') + (medications.current.length > 3 ? `, +${medications.current.length - 3} more` : '')
     : 'No current medications';
   
-  const lastVisit = visitNotes?.length > 0 ? visitNotes[visitNotes.length - 1] : null;
-  
-  // Try to find blood type from lab results
-  const bloodTypeLab = labResults?.find(lab => 
-    lab.results?.some(r => r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo'))
-  );
-  const bloodTypeResult = bloodTypeLab?.results?.find(r => 
+  // Try to find blood type from laboratory report data
+  const bloodTypeResult = laboratoryReportData?.results?.find(r => 
     r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo')
   );
   const bloodType = bloodTypeResult?.value || 'Not on file';
-  const bloodTypeDate = bloodTypeLab?.testDate;
+  const bloodTypeDate = laboratoryReportData?.reportDate;
   
   // Use pharmacy data from patient demographics
   const pharmacy = patient.pharmacy;
@@ -158,9 +154,9 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
             </div>
             <div className="reference-item">
               <strong>Last Visit:</strong><br />
-              {lastVisit?.date || 'No visits on record'}<br />
-              {lastVisit?.type || 'N/A'}<br />
-              {lastVisit?.plan?.[0] || 'N/A'}
+              No visits on record<br />
+              N/A<br />
+              N/A
             </div>
             <div className="reference-item">
               <strong>Blood Type:</strong><br />

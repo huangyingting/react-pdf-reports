@@ -67,7 +67,12 @@ export const generateVisitReportData = (patientData?: MedicalRecord): VisitRepor
     },
     medicalRecordNumber: patientData?.patient?.medicalRecordNumber || fallbackMRN,
     ssn: patientData?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
-    accountNumber: patientData?.patient?.accountNumber || patientData?.patient?.id || fallbackPatientId
+    accountNumber: patientData?.patient?.accountNumber || patientData?.patient?.id || fallbackPatientId,
+    pharmacy: patientData?.patient?.pharmacy || {
+      name: faker.company.name() + ' Pharmacy',
+      address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
+      phone: faker.phone.number()
+    }
   };
 
   // Generate provider information
@@ -150,7 +155,7 @@ export const generateVisitReportData = (patientData?: MedicalRecord): VisitRepor
   const selectedAssessment = faker.helpers.arrayElement(assessments);
   const selectedPlan = faker.helpers.arrayElement(plans);
   
-  const visit: VisitNote = patientData?.visitNotes?.[0] || {
+  const visit: VisitNote = {
     date: visitDate.toLocaleDateString('en-US'),
     type: visitType,
     chiefComplaint: faker.helpers.arrayElement(chiefComplaints),

@@ -320,20 +320,20 @@ export interface VitalSigns {
   respiratoryRate: string;
 }
 
-export interface LabResult {
-  parameter: string;
-  value: string;
-  unit: string;
-  referenceRange: string;
-  status: string;
-}
+// export interface LabResult {
+//   parameter: string;
+//   value: string;
+//   unit: string;
+//   referenceRange: string;
+//   status: string;
+// }
 
-export interface LabTest {
-  testDate: string;
-  testName: string;
-  results: LabResult[];
-  orderingPhysician: string;
-}
+// export interface LabTest {
+//   testDate: string;
+//   testName: string;
+//   results: LabResult[];
+//   orderingPhysician: string;
+// }
 
 // Visit Types
 export interface VisitVitals {
@@ -407,9 +407,6 @@ export interface MedicalRecord {
   provider: Provider;
   medicalHistory: MedicalHistory;
   medications: Medications;
-  labResults: LabTest[];
-  vitalSigns: VitalSigns[];
-  visitNotes: VisitNote[];
   generatedAt: string;
   metadata: {
     complexity: string;
