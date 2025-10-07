@@ -264,10 +264,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #e5e7eb;
   gap: 1rem;
+  padding: 1.25rem 2rem;
+  background: white;
+  border-top: 2px solid #e2e8f0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 2rem;
 }
 
 /* Button styles inherited from shared.css */
@@ -303,6 +310,7 @@
   .edit-actions {
     flex-wrap: wrap;
     gap: 0.75rem;
+    padding: 1rem 1.5rem;
   }
 
   .edit-content {
