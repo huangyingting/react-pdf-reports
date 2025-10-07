@@ -321,8 +321,9 @@ function App() {
         </div>
       </header>
 
+      <ProgressIndicator currentStep={currentStep} />
+
       <main className="main-content">
-        <ProgressIndicator currentStep={currentStep} />
         {renderCurrentStep()}
       </main>
 

@@ -48,12 +48,22 @@
 
 .header-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.app-header h1 {
-  margin: 0 0 0.25rem 0;
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-header h1,
+.app-header h2 {
+  margin: 0;
   color: #1e293b;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -195,7 +205,7 @@
   flex-wrap: wrap;
 }
 
-.header-title-row h1 {
+.header-title-row h2 {
   margin: 0;
   flex: 1;
 }

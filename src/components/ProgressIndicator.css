@@ -2,31 +2,18 @@
 @import './shared.css';
 
 .progress-indicator {
-  background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
-  border-radius: 0;
-  padding: 1rem 2rem;
-  margin-bottom: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  border-bottom: 2px solid #e2e8f0;
-  position: relative;
-}
-
-.progress-indicator::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-  opacity: 0.3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1rem;
+  margin: 0;
+  width: 100%;
 }
 
 .progress-steps {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  gap: 2rem;
 }
 
 .progress-step {
@@ -34,116 +21,84 @@
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
-  flex: 0 0 auto;
   position: relative;
+  transition: all 0.2s ease;
 }
 
 .step-circle {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  color: #64748b;
+  background: #f1f5f9;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.125rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2.5px solid #cbd5e1;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  border: 2px solid #e2e8f0;
   flex-shrink: 0;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .progress-step.active .step-circle {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  border-color: #93c5fd;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4), 0 0 0 4px rgba(59, 130, 246, 0.1);
-  transform: scale(1.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .progress-step.completed .step-circle {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  border-color: #6ee7b7;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  border-color: #10b981;
 }
 
 .step-info {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.25rem;
   text-align: left;
 }
 
 .step-label {
   font-weight: 600;
-  font-size: 1rem;
-  color: #475569;
-  transition: color 0.3s ease;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
+  font-size: 0.95rem;
+  color: #64748b;
+  transition: color 0.2s ease;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
 .progress-step.active .step-label {
-  color: #3b82f6;
+  color: #1e293b;
   font-weight: 700;
 }
 
 .progress-step.completed .step-label {
-  color: #10b981;
+  color: #475569;
 }
 
 .step-description {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   color: #94a3b8;
   line-height: 1.3;
   font-weight: 400;
   white-space: nowrap;
 }
 
-.progress-connector {
-  flex: 0 0 auto;
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(to right, #e2e8f0 0%, #cbd5e1 100%);
-  margin: 0;
-  position: relative;
-  transition: all 0.3s ease;
-  border-radius: 2px;
-}
 
-.progress-connector.completed {
-  background: linear-gradient(to right, #10b981 0%, #059669 100%);
-  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.3);
-}
-
-.progress-connector::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 0;
-  background: #10b981;
-  transition: width 0.5s ease;
-}
-
-.progress-connector.completed::after {
-  width: 100%;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .progress-indicator {
-    padding: 0.875rem 1.25rem;
+    padding: 0;
+    width: 100%;
   }
 
   .progress-steps {
     gap: 0.75rem;
+    width: 100%;
   }
 
   .step-circle {
@@ -161,23 +116,21 @@
   }
 
   .step-description {
-    font-size: 0.75rem;
-  }
-
-  .progress-connector {
-    width: 40px;
+    font-size: 0.6875rem;
   }
 }
 
 @media (max-width: 640px) {
   .progress-indicator {
-    padding: 0.75rem 1rem;
+    padding: 0;
+    width: 100%;
   }
 
   .progress-steps {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.875rem;
+    width: 100%;
   }
 
   .progress-step {
@@ -200,30 +153,6 @@
   }
 
   .step-description {
-    display: none;
-  }
-
-  .progress-connector {
-    display: none;
-  }
-
-  /* Add vertical connector for mobile */
-  .progress-step::after {
-    content: '';
-    position: absolute;
-    left: 18px;
-    top: 42px;
-    width: 2px;
-    height: calc(100% - 20px);
-    background: #e2e8f0;
-    z-index: 1;
-  }
-
-  .progress-step.completed::after {
-    background: #10b981;
-  }
-
-  .progress-step:last-child::after {
     display: none;
   }
 }

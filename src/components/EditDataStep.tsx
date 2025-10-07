@@ -251,19 +251,21 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
         </div>
 
         <div className="step-actions">
-          <button className="btn btn-outline" onClick={onBack}>
-            ← Back to Generate
-          </button>
-          
-          {hasChanges && (
-            <button className="btn btn-secondary" onClick={handleSaveChanges}>
-              Save Changes
+          <div className="action-buttons-group">
+            <button className="btn btn-outline" onClick={onBack}>
+              ← Back to Generate
             </button>
-          )}
-          
-          <button className="btn btn-primary" onClick={handleNext}>
-            Continue to Export →
-          </button>
+            
+            {hasChanges && (
+              <button className="btn btn-secondary" onClick={handleSaveChanges}>
+                Save Changes
+              </button>
+            )}
+            
+            <button className="btn btn-primary" onClick={handleNext}>
+              Continue to Export →
+            </button>
+          </div>
         </div>
       </div>
     </div>

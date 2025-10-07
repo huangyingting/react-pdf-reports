@@ -14,7 +14,7 @@
 .step-content {
   background: transparent;
   border-radius: 0;
-  padding: 2.5rem;
+  padding: 1rem;
   box-shadow: none;
 }
 
@@ -49,6 +49,12 @@
   right: 0;
   z-index: 100;
   margin-top: 2.5rem;
+}
+
+.action-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 /* No Data Message */
@@ -381,13 +387,20 @@ input[type="checkbox"] {
 @media (max-width: 768px) {
 
   .step-content {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .step-actions {
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
     padding: 1rem 1.5rem;
+  }
+
+  .action-buttons-group {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   /* Buttons */

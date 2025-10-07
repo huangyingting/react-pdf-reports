@@ -143,7 +143,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
 
                     <div className="step-actions">
             <button
-              className="btn btn-primary btn-large"
+              className="btn btn-primary"
               onClick={handleGenerateData}
               disabled={isGenerating}
             >
@@ -153,7 +153,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   <span>Generating...</span>
                 </>
               ) : (
-                <span>Generate Data & Continue →</span>
+                <span>Generate & Continue →</span>
               )}
             </button>
           </div>
