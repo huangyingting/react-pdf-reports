@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/types';
 import {generateCompleteMedicalRecord} from '../utils/medicalRecordsGenerator';
+import CustomSelect from './CustomSelect';
 
 import './GenerateDataStep.css';
 
@@ -87,44 +88,44 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
             <div className="custom-options">
               <div className="option-group">
                 <label>Medical Complexity</label>
-                <select 
+                <CustomSelect
                   value={customOptions.complexity}
-                  onChange={(e) => setCustomOptions({...customOptions, complexity: e.target.value as 'low' | 'medium' | 'high'})}
-                  className="option-select"
-                >
-                  <option value="low">Low - Basic conditions (2-3 conditions)</option>
-                  <option value="medium">Medium - Moderate complexity (4-5 conditions)</option>
-                  <option value="high">High - Complex patient (6+ conditions)</option>
-                </select>
+                  onChange={(value) => setCustomOptions({...customOptions, complexity: value as 'low' | 'medium' | 'high'})}
+                  options={[
+                    { value: 'low', label: 'Basic conditions (2-3 conditions)' },
+                    { value: 'medium', label: 'Moderate complexity (4-5 conditions)' },
+                    { value: 'high', label: 'Complex patient (6+ conditions)' }
+                  ]}
+                />
               </div>
 
               <div className="option-group">
                 <label>Number of Visits</label>
-                <select 
+                <CustomSelect
                   value={customOptions.numberOfVisits}
-                  onChange={(e) => setCustomOptions({...customOptions, numberOfVisits: parseInt(e.target.value)})}
-                  className="option-select"
-                >
-                  <option value="1">1 Visit</option>
-                  <option value="2">2 Visits</option>
-                  <option value="3">3 Visits</option>
-                  <option value="5">5 Visits</option>
-                  <option value="7">7 Visits</option>
-                </select>
+                  onChange={(value) => setCustomOptions({...customOptions, numberOfVisits: value as number})}
+                  options={[
+                    { value: 1, label: '1 Visit' },
+                    { value: 2, label: '2 Visits' },
+                    { value: 3, label: '3 Visits' },
+                    { value: 5, label: '5 Visits' },
+                    { value: 7, label: '7 Visits' }
+                  ]}
+                />
               </div>
 
               <div className="option-group">
                 <label>Lab Tests</label>
-                <select 
+                <CustomSelect
                   value={customOptions.numberOfLabTests}
-                  onChange={(e) => setCustomOptions({...customOptions, numberOfLabTests: parseInt(e.target.value)})}
-                  className="option-select"
-                >
-                  <option value="3">3 Tests</option>
-                  <option value="5">5 Tests</option>
-                  <option value="8">8 Tests</option>
-                  <option value="10">10 Tests</option>
-                </select>
+                  onChange={(value) => setCustomOptions({...customOptions, numberOfLabTests: value as number})}
+                  options={[
+                    { value: 3, label: '3 Tests' },
+                    { value: 5, label: '5 Tests' },
+                    { value: 8, label: '8 Tests' },
+                    { value: 10, label: '10 Tests' }
+                  ]}
+                />
               </div>
 
               <div className="option-group">

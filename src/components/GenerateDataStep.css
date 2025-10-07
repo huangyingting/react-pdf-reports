@@ -20,13 +20,13 @@
 }
 
 .preset-card {
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #d7ccc8;
   border-radius: 12px;
   padding: 1.25rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%);
+  box-shadow: 0 2px 8px rgba(62, 39, 35, 0.08);
   position: relative;
   overflow: hidden;
 }
@@ -38,14 +38,14 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(90deg, #6b8e23 0%, #8d6e63 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .preset-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+  border-color: #6b8e23;
+  box-shadow: 0 8px 24px rgba(107, 142, 35, 0.25);
   transform: translateY(-2px);
 }
 
@@ -54,9 +54,9 @@
 }
 
 .preset-card.selected {
-  border-color: #3b82f6;
-  background: linear-gradient(to bottom, #eff6ff 0%, #dbeafe 100%);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+  border-color: #6b8e23;
+  background: linear-gradient(to bottom, #f1f8e9 0%, #dcedc8 100%);
+  box-shadow: 0 8px 24px rgba(107, 142, 35, 0.3);
 }
 
 .preset-card.selected::before {
@@ -74,15 +74,15 @@
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #111827;
+  color: #3e2723;
 }
 
 .preset-indicator {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #3b82f6;
-  color: white;
+  background: #6b8e23;
+  color: #faf8f3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,7 +96,7 @@
 
 .preset-card p {
   margin: 0 0 1rem 0;
-  color: #6b7280;
+  color: #6d4c41;
   font-size: 0.875rem;
   line-height: 1.4;
 }
@@ -109,8 +109,8 @@
 
 .preset-details span {
   font-size: 0.75rem;
-  color: #6b7280;
-  background: #f3f4f6;
+  color: #6d4c41;
+  background: #efebe2;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
 }
@@ -123,29 +123,7 @@
 }
 
 /* Form group styles inherited from shared.css (.option-group) */
-
-/* Use form-select styling from shared.css, matching EditDataStep */
-.option-select {
-  padding: 0.625rem 0.875rem;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  background: white;
-  color: #334155;
-  font-size: 0.9375rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 500;
-  font-family: inherit;
-}
-
-.option-select:hover {
-  border-color: #94a3b8;
-}
-
-.option-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-}
+/* Select styles inherited from shared.css (.form-select) */
 
 /* Checkbox styles inherited from shared.css */
 

@@ -7,20 +7,20 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  background: #f8fafc;
-  color: #1f2937;
+  background: #f5f1e8;
+  color: #3e2723;
   line-height: 1.6;
 }
 
 /* Header Styles */
 .app-header {
-  background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+  background: linear-gradient(to bottom, #faf8f3 0%, #f5f1e8 100%);
   padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
   gap: 1rem;
-  border-bottom: 2px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-bottom: 2px solid #d7ccc8;
+  box-shadow: 0 4px 12px rgba(62, 39, 35, 0.12);
   position: relative;
 }
 
@@ -31,14 +31,14 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-  opacity: 0.5;
+  background: linear-gradient(90deg, #6b8e23 0%, #8d6e63 50%, #a1887f 100%);
+  opacity: 0.6;
 }
 
 .header-icon {
-  color: #3b82f6;
+  color: #6b8e23;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
   padding: 0.75rem;
   border-radius: 10px;
   display: flex;
@@ -62,7 +62,7 @@
 .app-header h1,
 .app-header h2 {
   margin: 0;
-  color: #1e293b;
+  color: #3e2723;
   font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.2;
@@ -73,12 +73,12 @@
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  background: #fef3c7;
-  color: #92400e;
+  background: #f9e7be;
+  color: #6d4c41;
   font-size: 0.75rem;
   font-weight: 500;
   border-radius: 9999px;
-  border: 1px solid #fcd34d;
+  border: 1px solid #d4a574;
 }
 
 /* Main Content */
@@ -107,14 +107,14 @@
 }
 
 .category-icon {
-  color: #6b7280;
+  color: #8d6e63;
 }
 
 .category-header h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: #3e2723;
 }
 
 /* Preview Modal */
@@ -133,7 +133,7 @@
 }
 
 .preview-content {
-  background: white;
+  background: #faf8f3;
   border-radius: 8px;
   max-width: 90vw;
   max-height: 80vh;
@@ -147,21 +147,21 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #d7ccc8;
 }
 
 .preview-header h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #111827;
+  color: #3e2723;
 }
 
 .close-preview {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #6b7280;
+  color: #8d6e63;
   cursor: pointer;
   padding: 0;
   width: 24px;
@@ -172,7 +172,7 @@
 }
 
 .close-preview:hover {
-  color: #374151;
+  color: #5d4037;
 }
 
 .preview-body {
@@ -221,13 +221,13 @@
 
 .no-data-message h2 {
   margin: 0 0 1rem 0;
-  color: #111827;
+  color: #3e2723;
   font-size: 1.5rem;
   font-weight: 600;
 }
 
 .no-data-message p {
   margin: 0 0 2rem 0;
-  color: #6b7280;
+  color: #6d4c41;
   font-size: 1rem;
 }

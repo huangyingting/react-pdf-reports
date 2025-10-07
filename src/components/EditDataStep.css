@@ -13,15 +13,15 @@
 }
 
 .loading-state p {
-  color: #6b7280;
+  color: #6d4c41;
   font-size: 0.875rem;
 }
 
 .spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid #e5e7eb;
-  border-top: 2px solid #3b82f6;
+  border: 2px solid #d7ccc8;
+  border-top: 2px solid #6b8e23;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -45,10 +45,10 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  background: white;
-  border: 1.5px solid #e2e8f0;
+  background: #faf8f3;
+  border: 1.5px solid #d7ccc8;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(62, 39, 35, 0.08);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -71,7 +71,7 @@
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
-  color: #64748b;
+  color: #8d6e63;
   font-weight: 600;
   white-space: nowrap;
   position: relative;
@@ -86,7 +86,7 @@
   left: 50%;
   width: 0;
   height: 3px;
-  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(90deg, #6b8e23 0%, #8d6e63 100%);
   transform: translateX(-50%);
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 3px 3px 0 0;
@@ -99,7 +99,7 @@
   left: 50%;
   width: 0;
   height: 0;
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(107, 142, 35, 0.15);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
@@ -123,9 +123,9 @@
 }
 
 .section-tab:hover {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  color: #334155;
-  border-color: #cbd5e1;
+  background: linear-gradient(135deg, #f5f1e8 0%, #efebe2 100%);
+  color: #5d4037;
+  border-color: #bcaaa4;
   transform: translateY(-2px);
 }
 
@@ -138,17 +138,17 @@
 }
 
 .section-tab.active {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, #6d4c41 0%, #5d4037 100%);
+  color: #faf8f3;
+  border-color: #6d4c41;
+  box-shadow: 0 4px 12px rgba(93, 64, 55, 0.3);
   font-weight: 600;
   animation: tabActivate 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .section-tab.active::before {
   width: 100%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(250, 248, 243, 0.3);
 }
 
 .section-tab.active svg {
@@ -196,12 +196,12 @@
 
 .edit-content {
   flex: 1;
-  background: white;
-  border: 1.5px solid #e2e8f0;
+  background: #faf8f3;
+  border: 1.5px solid #d7ccc8;
   border-radius: 12px;
   padding: 2rem;
   overflow-y: visible;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(62, 39, 35, 0.08);
   position: relative;
 }
 
@@ -234,8 +234,8 @@
 
 .form-input:disabled,
 .form-select:disabled {
-  background: #f3f4f6;
-  color: #9ca3af;
+  background: #efebe2;
+  color: #a1887f;
   cursor: not-allowed;
 }
 
@@ -247,8 +247,8 @@
 }
 
 .condition-item {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #faf8f3;
+  border: 1px solid #d7ccc8;
   border-radius: 6px;
   padding: 0;
   overflow: hidden;
@@ -256,7 +256,7 @@
 }
 
 .condition-item:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(62, 39, 35, 0.12);
 }
 
 .condition-header {
@@ -264,18 +264,18 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.625rem 0.875rem;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background: #f5f1e8;
+  border-bottom: 1px solid #d7ccc8;
 }
 
 .condition-number {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #6b7280;
-  background: white;
+  color: #6d4c41;
+  background: #faf8f3;
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d7ccc8;
 }
 
 .condition-status-badge {
@@ -303,11 +303,11 @@
 /* Smooth focus indicator for keyboard navigation */
 .section-tab:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(107, 142, 35, 0.25);
 }
 
 .section-tab:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid #6b8e23;
   outline-offset: 2px;
 }
 

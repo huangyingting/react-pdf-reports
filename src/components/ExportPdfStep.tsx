@@ -1,5 +1,6 @@
 import React from 'react';
 import DocumentCard from './DocumentCard';
+import CustomSelect from './CustomSelect';
 import './ExportPdfStep.css';
 import { MedicalRecord, LabTestType } from '../utils/types';
 
@@ -74,24 +75,24 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
           <div className="settings-grid">
             <div className="setting-group">
               <label>Export Format</label>
-              <select
+              <CustomSelect
                 value={exportFormat === 'canvas' ? `canvas-${qualityLevel}` : exportFormat}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.startsWith('canvas-')) {
+                onChange={(value) => {
+                  const val = value as string;
+                  if (val.startsWith('canvas-')) {
                     setExportFormat('canvas');
-                    setQualityLevel(value.replace('canvas-', '') as QualityLevel);
+                    setQualityLevel(val.replace('canvas-', '') as QualityLevel);
                   } else {
-                    setExportFormat(value as ExportFormat);
+                    setExportFormat(val as ExportFormat);
                   }
                 }}
-                className="setting-select"
-              >
-                <option value="pdf">Vector PDF (Selectable Text)</option>
-                <option value="canvas-poor">Canvas Poor Quality (Fast, Small File)</option>
-                <option value="canvas-standard">Canvas Standard Quality (Balanced)</option>
-                <option value="canvas-high">Canvas High Quality (Best, Large File)</option>
-              </select>
+                options={[
+                  { value: 'pdf', label: 'Vector PDF (Selectable Text)' },
+                  { value: 'canvas-poor', label: 'Canvas Poor Quality (Fast, Small File)' },
+                  { value: 'canvas-standard', label: 'Canvas Standard Quality (Balanced)' },
+                  { value: 'canvas-high', label: 'Canvas High Quality (Best, Large File)' }
+                ]}
+              />
               <p className="setting-note">
                 {exportFormat === 'pdf' && 'Vector-based PDF with selectable text and smaller file size'}
                 {exportFormat === 'canvas' && qualityLevel === 'poor' && 'Scale: 1x, Quality: 50% - Fastest generation, smallest file'}
@@ -102,17 +103,14 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
 
             <div className="setting-group">
               <label>Font Family</label>
-              <select
+              <CustomSelect
                 value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-                className="setting-select"
-              >
-                {fontFamilies.map((font) => (
-                  <option key={font.value} value={font.value}>
-                    {font.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(value) => setFontFamily(value as string)}
+                options={fontFamilies.map(font => ({
+                  value: font.value,
+                  label: font.label
+                }))}
+              />
               <p className="setting-note">
                 Choose font family for all document text
               </p>
