@@ -52,6 +52,11 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
         copay: faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
         deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000'])
       },
+      pharmacy: patientData?.patient?.pharmacy || {
+        name: `${faker.location.city()} ${faker.helpers.arrayElement(['CVS Pharmacy', 'Walgreens', 'Rite Aid'])}`,
+        address: faker.location.streetAddress(),
+        phone: faker.phone.number()
+      },
       medicalRecordNumber: patientData?.patient?.medicalRecordNumber || fallbackMRN,
       ssn: patientData?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
       accountNumber: patientData?.patient?.accountNumber || patientData?.patient?.id || fallbackPatientId,

@@ -64,6 +64,21 @@ export const FACILITY_NAMES = [
 
 export type FacilityName = typeof FACILITY_NAMES[number];
 
+export const PHARMACY_NAMES = [
+  'CVS Pharmacy',
+  'Walgreens',
+  'Rite Aid',
+  'Walmart Pharmacy',
+  'Target Pharmacy',
+  'Kroger Pharmacy',
+  'Safeway Pharmacy',
+  'Community Pharmacy',
+  'HealthMart Pharmacy',
+  'Costco Pharmacy'
+] as const;
+
+export type PharmacyName = typeof PHARMACY_NAMES[number];
+
 export const INSURANCE_COMPANIES = [
   'Blue Cross Blue Shield',
   'Aetna',
@@ -180,6 +195,7 @@ export interface PatientDemographics {
   address: Address;
   contact: Contact;
   insurance: Insurance;
+  pharmacy: Pharmacy;
   medicalRecordNumber: string;
   ssn: string;
   accountNumber?: string;

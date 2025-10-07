@@ -1,7 +1,5 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { MedicalRecord } from '../../utils/types';
-import { generatePharmacy } from '../../utils/baseDataGenerator';
-import { faker } from '@faker-js/faker';
 
 interface PatientDemographicsPageProps {
   data: MedicalRecord;
@@ -36,13 +34,8 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
   const bloodType = bloodTypeResult?.value || 'Not on file';
   const bloodTypeDate = bloodTypeLab?.testDate;
   
-  // Generate consistent pharmacy data based on patient ID
-  const pharmacy = useMemo(() => {
-    // Seed faker with patient ID for consistent results per patient
-    const seed = parseInt(patient.id.replace(/\D/g, '')) || 12345;
-    faker.seed(seed);
-    return generatePharmacy();
-  }, [patient.id]);
+  // Use pharmacy data from patient demographics
+  const pharmacy = patient.pharmacy;
   
   return (
     <div className="medical-page demographics-page">

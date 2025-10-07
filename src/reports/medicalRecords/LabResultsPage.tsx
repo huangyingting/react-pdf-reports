@@ -6,8 +6,16 @@ interface LabResultsPageProps {
 }
 
 const LabResultsPage: React.FC<LabResultsPageProps> = ({ data }) => {
-  const { labResults, patient } = data;
+  const { labResults, patient, provider } = data;
   const currentDate = new Date().toLocaleDateString();
+  
+  // Facility information with fallbacks
+  const facilityName = provider?.facilityName || 'Metropolitan General Hospital';
+  const facilityAddress = provider?.facilityAddress;
+  const facilityPhone = provider?.facilityPhone || '(555) 123-4567';
+  const facilityAddressLine = facilityAddress 
+    ? `${facilityAddress.street}, ${facilityAddress.city}, ${facilityAddress.state} ${facilityAddress.zipCode}`
+    : '123 Medical Center Drive, Healthcare City, HC 12345';
   
   const renderVitalSigns = () => {
     const vitals = data.vitalSigns || [];
@@ -194,8 +202,8 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data }) => {
     <div className="medical-page">
       <div className="medical-page-header">
         <div className="hospital-info">
-          <h2>Metropolitan General Hospital</h2>
-          <p>123 Medical Center Drive, Healthcare City, HC 12345 | Phone: (555) 123-4567</p>
+          <h2>{facilityName}</h2>
+          <p>{facilityAddressLine} | Phone: {facilityPhone}</p>
         </div>
         <div className="page-title">
           <h1>Laboratory Results</h1>

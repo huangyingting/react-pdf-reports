@@ -13,13 +13,12 @@ import {
   Insurance,
   MEDICAL_SPECIALTIES,
   FACILITY_NAMES,
+  PHARMACY_NAMES,
   INSURANCE_COMPANIES,
   INSURANCE_PLAN_TYPES,
   COPAY_AMOUNTS,
   DEDUCTIBLE_AMOUNTS
 } from './types';
-
-
 
 
 /**
@@ -50,6 +49,13 @@ export const generatePatientDemographics = (): PatientDemographics => {
   const groupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
   const effectiveDate = faker.date.past({ years: 2 });
   
+  // Generate pharmacy information
+  const cityName = faker.location.city();
+  const pharmacyName = faker.helpers.arrayElement(PHARMACY_NAMES);
+  const fullPharmacyName = pharmacyName.includes('Pharmacy') 
+    ? `${cityName} ${pharmacyName}` 
+    : `${cityName} ${pharmacyName} Pharmacy`;
+
   return {
     id: patientId,
     name: `${lastName}, ${firstName} ${middleInitial}`,
@@ -77,6 +83,11 @@ export const generatePatientDemographics = (): PatientDemographics => {
       groupNumber,
       effectiveDate: effectiveDate.toLocaleDateString('en-US'),
       memberId: policyNumber
+    },
+    pharmacy: {
+      name: fullPharmacyName,
+      address: faker.location.streetAddress(),
+      phone: faker.phone.number()
     },
     medicalRecordNumber: mrn,
     ssn: faker.helpers.replaceSymbols('###-##-####'),
@@ -243,35 +254,5 @@ export const generateProviderInfo = (): Provider => {
       name: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
       npi: faker.string.numeric(10)
     } : undefined
-  };
-};
-
-/**
- * Generate pharmacy data
- */
-export const generatePharmacy = (): { name: string; address: string; phone: string } => {
-  const pharmacyTypes = [
-    'CVS Pharmacy',
-    'Walgreens',
-    'Rite Aid',
-    'Walmart Pharmacy',
-    'Target Pharmacy',
-    'Kroger Pharmacy',
-    'Safeway Pharmacy',
-    'Community Pharmacy',
-    'HealthMart Pharmacy',
-    'Costco Pharmacy'
-  ];
-  
-  const cityName = faker.location.city();
-  const pharmacyName = faker.helpers.arrayElement(pharmacyTypes);
-  const fullName = pharmacyName.includes('Pharmacy') 
-    ? `${cityName} ${pharmacyName}` 
-    : `${cityName} ${pharmacyName} Pharmacy`;
-  
-  return {
-    name: fullName,
-    address: faker.location.streetAddress(),
-    phone: faker.phone.number()
   };
 };
