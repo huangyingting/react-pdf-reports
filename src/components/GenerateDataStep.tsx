@@ -92,9 +92,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   value={customOptions.complexity}
                   onChange={(value) => setCustomOptions({...customOptions, complexity: value as 'low' | 'medium' | 'high'})}
                   options={[
-                    { value: 'low', label: 'Basic conditions (2-3 conditions)' },
-                    { value: 'medium', label: 'Moderate complexity (4-5 conditions)' },
-                    { value: 'high', label: 'Complex patient (6+ conditions)' }
+                    { value: 'low', label: 'Basic (2-3 conditions)' },
+                    { value: 'medium', label: 'Moderate (4-5 conditions)' },
+                    { value: 'high', label: 'Complex (6+ conditions)' }
                   ]}
                 />
               </div>
@@ -120,6 +120,8 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   value={customOptions.numberOfLabTests}
                   onChange={(value) => setCustomOptions({...customOptions, numberOfLabTests: value as number})}
                   options={[
+                    { value: 1, label: '1 Test' },
+                    { value: 2, label: '2 Tests' },
                     { value: 3, label: '3 Tests' },
                     { value: 5, label: '5 Tests' },
                     { value: 8, label: '8 Tests' },
