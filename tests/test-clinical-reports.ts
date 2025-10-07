@@ -2,9 +2,9 @@
  * Test script to verify Visit Report and Medication History generation
  */
 
-import { generateCompleteMedicalRecord } from './src/utils/medicalRecordsGenerator';
-import { generateVisitReportData } from './src/utils/visitReportGenerator';
-import { generateMedicationHistoryData } from './src/utils/medicationHistoryGenerator';
+import { generateCompleteMedicalRecord } from '../src/utils/medicalRecordsGenerator';
+import { generateVisitReportData } from '../src/utils/visitReportGenerator';
+import { generateMedicationHistoryData } from '../src/utils/medicationHistoryGenerator';
 
 console.log('Testing Visit Report and Medication History data generation...\n');
 

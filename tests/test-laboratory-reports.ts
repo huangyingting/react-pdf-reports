@@ -2,8 +2,8 @@
  * Test script to verify all 13 laboratory report types generation
  */
 
-import { generateLaboratoryReportData } from './src/utils/laboratoryReportGenerator';
-import { LabTestType } from './src/utils/types';
+import { generateLaboratoryReportData } from '../src/utils/laboratoryReportGenerator';
+import { LabTestType } from '../src/utils/types';
 
 console.log('Testing Laboratory Report generation for all 13 test types...\n');
 

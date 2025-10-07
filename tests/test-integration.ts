@@ -3,11 +3,11 @@
  * Tests all 15 new report types (2 clinical + 13 laboratory)
  */
 
-import { generateCompleteMedicalRecord } from './src/utils/medicalRecordsGenerator';
-import { generateVisitReportData } from './src/utils/visitReportGenerator';
-import { generateMedicationHistoryData } from './src/utils/medicationHistoryGenerator';
-import { generateLaboratoryReportData } from './src/utils/laboratoryReportGenerator';
-import type { LabTestType } from './src/utils/types';
+import { generateCompleteMedicalRecord } from '../src/utils/medicalRecordsGenerator';
+import { generateVisitReportData } from '../src/utils/visitReportGenerator';
+import { generateMedicationHistoryData } from '../src/utils/medicationHistoryGenerator';
+import { generateLaboratoryReportData } from '../src/utils/laboratoryReportGenerator';
+import type { LabTestType } from '../src/utils/types';
 
 console.log('🧪 Starting Integration Test...\n');
 

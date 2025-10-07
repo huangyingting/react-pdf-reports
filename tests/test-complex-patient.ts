@@ -2,7 +2,7 @@
  * Test script to verify Complex Patient data generation doesn't hang
  */
 
-import { generateCompleteMedicalRecord } from './src/utils/medicalRecordsGenerator';
+import { generateCompleteMedicalRecord } from '../src/utils/medicalRecordsGenerator';
 
 console.log('Testing Complex Patient data generation...');
 console.log('This should complete in a few seconds...\n');
