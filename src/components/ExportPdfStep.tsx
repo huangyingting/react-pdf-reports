@@ -153,6 +153,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onPreview={() => onPreview('cms1500')}
                 onGenerate={() => onExport('cms1500', 'cms-1500-claim-form')}
                 isLoading={isLoading}
+                iconType="insurance"
               />
 
               <DocumentCard
@@ -161,6 +162,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onPreview={() => onPreview('insurancePolicy')}
                 onGenerate={() => onExport('insurancePolicy', 'insurance-policy-certificate')}
                 isLoading={isLoading}
+                iconType="insurance"
               />
             </div>
           </div>
@@ -182,6 +184,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onPreview={() => onPreview('medical')}
                 onGenerate={() => onExport('medical', 'medical-records-report')}
                 isLoading={isLoading}
+                iconType="medical"
               />
 
               <DocumentCard
@@ -190,6 +193,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onPreview={() => onPreview('visitReport')}
                 onGenerate={() => onExport('visitReport', 'visit-report')}
                 isLoading={isLoading}
+                iconType="visit"
               />
 
               <DocumentCard
@@ -198,6 +202,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onPreview={() => onPreview('medicationHistory')}
                 onGenerate={() => onExport('medicationHistory', 'medication-history')}
                 isLoading={isLoading}
+                iconType="medication"
               />
             </div>
           </div>
@@ -221,6 +226,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('CBC', 'cbc-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -230,6 +236,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('BMP', 'bmp-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -239,6 +246,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('CMP', 'cmp-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -248,6 +256,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Urinalysis', 'urinalysis-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -257,6 +266,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Lipid', 'lipid-profile-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -266,6 +276,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('LFT', 'lft-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -275,6 +286,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Thyroid', 'thyroid-function-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -284,6 +296,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('HbA1c', 'hba1c-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -293,6 +306,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Coagulation', 'coagulation-panel-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -302,6 +316,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Microbiology', 'microbiology-culture-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -311,6 +326,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Pathology', 'pathology-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -320,6 +336,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Hormone', 'hormone-panel-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
 
               <DocumentCard
@@ -329,6 +346,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 onGenerate={() => onExport('Infectious', 'infectious-disease-panel-report')}
                 isLoading={isLoading}
                 compact
+                iconType="lab"
               />
             </div>
           </div>
