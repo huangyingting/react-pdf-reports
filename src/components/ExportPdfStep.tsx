@@ -119,14 +119,16 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             </div>
 
             <div className="setting-group">
-              <label className="checkbox-label">
+                <label>Watermark</label>
+
+              <label className="checkbox-wrapper">
                 <input
                   type="checkbox"
                   checked={enableWatermark}
                   onChange={(e) => setEnableWatermark(e.target.checked)}
                   className="setting-checkbox"
                 />
-                <span>Add Watermark</span>
+                <span>Enabled</span>
               </label>
               <p className="setting-note">
                 {enableWatermark ? 'Adds repeating "Educational Use Only" watermarks to every page' : 'No watermark will be added'}

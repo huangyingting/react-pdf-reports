@@ -137,7 +137,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     checked={customOptions.includeSecondaryInsurance}
                     onChange={(e) => setCustomOptions({...customOptions, includeSecondaryInsurance: e.target.checked})}
                   />
-                  <span>Include Secondary Insurance</span>
+                  <span>Include</span>
                 </label>
               </div>
             </div>
