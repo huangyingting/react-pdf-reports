@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './CustomSelect.css';
 
 interface Option {
@@ -43,6 +43,12 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleSelect = useCallback((optionValue: string | number) => {
+    onChange(optionValue);
+    setIsOpen(false);
+    setHighlightedIndex(-1);
+  }, [onChange]);
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -78,13 +84,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
     return undefined;
-  }, [isOpen, highlightedIndex, options]);
-
-  const handleSelect = (optionValue: string | number) => {
-    onChange(optionValue);
-    setIsOpen(false);
-    setHighlightedIndex(-1);
-  };
+  }, [isOpen, highlightedIndex, options, handleSelect]);
 
   const calculateDropdownDirection = () => {
     if (!selectRef.current) return 'down';
