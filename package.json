@@ -2,7 +2,7 @@
   "name": "docgen",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://huangyingting.github.io/react-pdf-reports",
+  "homepage": "https://huangyingting.github.io/docgen",
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
     "@testing-library/dom": "^10.4.1",
