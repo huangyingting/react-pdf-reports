@@ -1,20 +1,61 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MedicalRecord } from '../../utils/types';
+import { generatePharmacy } from '../../utils/baseDataGenerator';
+import { faker } from '@faker-js/faker';
 
 interface PatientDemographicsPageProps {
   data: MedicalRecord;
 }
 
 const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data }) => {
-  const { patient } = data;
+  const { patient, provider, medicalHistory, medications, visitNotes, labResults } = data;
   const currentDate = new Date().toLocaleDateString();
+  
+  // Extract dynamic data
+  const allergiesText = medicalHistory?.allergies?.length > 0
+    ? medicalHistory.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
+    : 'No known allergies';
+  
+  const chronicConditionsText = medicalHistory?.chronicConditions?.length > 0
+    ? medicalHistory.chronicConditions.map(c => c.condition).join(', ')
+    : 'None documented';
+  
+  const currentMedicationsText = medications?.current?.length > 0
+    ? medications.current.slice(0, 3).map(m => m.name).join(', ') + (medications.current.length > 3 ? `, +${medications.current.length - 3} more` : '')
+    : 'No current medications';
+  
+  const lastVisit = visitNotes?.length > 0 ? visitNotes[visitNotes.length - 1] : null;
+  
+  // Try to find blood type from lab results
+  const bloodTypeLab = labResults?.find(lab => 
+    lab.results?.some(r => r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo'))
+  );
+  const bloodTypeResult = bloodTypeLab?.results?.find(r => 
+    r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo')
+  );
+  const bloodType = bloodTypeResult?.value || 'Not on file';
+  const bloodTypeDate = bloodTypeLab?.testDate;
+  
+  // Generate consistent pharmacy data based on patient ID
+  const pharmacy = useMemo(() => {
+    // Seed faker with patient ID for consistent results per patient
+    const seed = parseInt(patient.id.replace(/\D/g, '')) || 12345;
+    faker.seed(seed);
+    return generatePharmacy();
+  }, [patient.id]);
   
   return (
     <div className="medical-page demographics-page">
       <header className="medical-page-header">
         <div className="hospital-info">
-          <h2>Springfield Medical Center</h2>
-          <p>123 Healthcare Blvd, Springfield, IL 62701 | (555) 555-0100</p>
+          <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
+          <p>
+            {provider?.facilityAddress?.street && provider?.facilityAddress?.city && provider?.facilityAddress?.state && provider?.facilityAddress?.zipCode
+              ? `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}`
+              : '123 Healthcare Blvd, Springfield, IL 62701'}
+            {' | '}
+            {provider?.facilityPhone || '(555) 555-0100'}
+          </p>
         </div>
         <div className="page-title">
           <h1>Patient Demographics & Information</h1>
@@ -101,13 +142,13 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
           <h3>Medical Alerts & Allergies</h3>
           <div className="alert-summary">
             <div className="alert-box critical">
-              <strong>⚠️ DRUG ALLERGIES:</strong> Penicillin (Severe), Shellfish (Moderate)
+              <strong>⚠️ DRUG ALLERGIES:</strong> {allergiesText}
             </div>
             <div className="alert-box warning">
-              <strong>🩺 CHRONIC CONDITIONS:</strong> Hypertension, Type 2 Diabetes
+              <strong>🩺 CHRONIC CONDITIONS:</strong> {chronicConditionsText}
             </div>
             <div className="alert-box info">
-              <strong>💊 CURRENT MEDICATIONS:</strong> Lisinopril, Metformin, Atorvastatin
+              <strong>💊 CURRENT MEDICATIONS:</strong> {currentMedicationsText}
             </div>
           </div>
         </section>
@@ -118,26 +159,26 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
           <div className="reference-grid">
             <div className="reference-item">
               <strong>Primary Care Physician:</strong><br />
-              Dr. Sarah Williams<br />
-              Internal Medicine<br />
-              (555) 123-4567
+              {provider?.name || 'Not assigned'}<br />
+              {provider?.specialty || 'General Practice'}<br />
+              {provider?.phone || 'N/A'}
             </div>
             <div className="reference-item">
               <strong>Last Visit:</strong><br />
-              September 15, 2024<br />
-              Annual Physical<br />
-              Follow-up: 3 months
+              {lastVisit?.date || 'No visits on record'}<br />
+              {lastVisit?.type || 'N/A'}<br />
+              {lastVisit?.plan?.[0] || 'N/A'}
             </div>
             <div className="reference-item">
               <strong>Blood Type:</strong><br />
-              O+ (Rh Positive)<br />
-              <span className="note">Verified 2024-09-15</span>
+              {bloodType}<br />
+              <span className="note">{bloodTypeDate ? `Verified ${bloodTypeDate}` : 'Pending verification'}</span>
             </div>
             <div className="reference-item">
               <strong>Preferred Pharmacy:</strong><br />
-              Springfield Pharmacy<br />
-              456 Main St<br />
-              (555) 987-6543
+              {pharmacy.name}<br />
+              {pharmacy.address}<br />
+              {pharmacy.phone}
             </div>
           </div>
         </section>

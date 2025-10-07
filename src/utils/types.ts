@@ -161,6 +161,12 @@ export interface Insurance {
   deductible?: string;
 }
 
+export interface Pharmacy {
+  name: string;
+  address: string;
+  phone: string;
+}
+
 // Patient Types
 export interface PatientDemographics {
   id: string;
