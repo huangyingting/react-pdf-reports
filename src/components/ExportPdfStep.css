@@ -45,7 +45,6 @@
   line-height: 1.4;
 }
 
-/* Document Grid */
 
 /* Document Grid */
 .document-grid {
@@ -90,6 +89,11 @@
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.document-cards-row > * {
+  flex: 1 1 0;
+  min-width: 280px;
 }
 
 /* Laboratory Reports - 4 column grid with compact cards */

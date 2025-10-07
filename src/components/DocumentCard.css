@@ -12,7 +12,7 @@
   text-align: center;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  max-width: 300px;
+  min-width: 0;
   position: relative;
   overflow: hidden;
 }
@@ -37,7 +37,6 @@
 .document-card.compact {
   padding: 1rem;
   max-width: none;
-  min-height: 150px;
   border-radius: 10px;
 }
 
@@ -71,13 +70,12 @@
 }
 
 .document-content {
-  flex: 1;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
   text-align: center;
 }
 
 .document-card.compact .document-content {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .document-title {
