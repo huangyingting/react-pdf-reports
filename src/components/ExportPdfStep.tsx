@@ -63,11 +63,11 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   }
 
   return (
-    <div className="export-pdf-step">
+    <div className="step">
       <div className="step-content">
 
 
-        <div className="export-settings">
+        <div className="section">
           <h3>Export Settings</h3>
           <p>Configure how all reports will be generated</p>
 

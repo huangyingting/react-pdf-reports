@@ -101,7 +101,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
 
   if (!editedData) {
     return (
-      <div className="edit-data-step">
+      <div className="step">
         <div className="loading-state">
           <div className="spinner"></div>
           <p>Loading data for editing...</p>
@@ -120,8 +120,18 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
     { id: 'visits', label: 'Visit Notes', icon: 'clipboard' }
   ];
 
+  const handleSectionChange = (sectionId: string, event: React.MouseEvent<HTMLButtonElement>) => {
+    setActiveSection(sectionId);
+    // Smooth scroll the clicked tab into view
+    event.currentTarget.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center'
+    });
+  };
+
   return (
-    <div className="edit-data-step">
+    <div className="step">
       <div className="step-content">
 
         <div className="edit-interface">
@@ -130,7 +140,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
               <button
                 key={section.id}
                 className={`section-tab ${activeSection === section.id ? 'active' : ''}`}
-                onClick={() => setActiveSection(section.id)}
+                onClick={(e) => handleSectionChange(section.id, e)}
               >
                 {section.icon === 'user' && (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -179,7 +189,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
             ))}
           </div>
 
-          <div className="edit-content">
+          <div className="edit-content" key={activeSection}>
             {activeSection === 'patient' && (
               <PatientInfoSection 
                 data={editedData.patient} 
@@ -262,7 +272,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
 
 // Patient Info Section Component
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange }) => (
-  <div className="form-section">
+  <div className="section">
     <h3>Patient Demographics</h3>
     
     <div className="form-grid">
@@ -448,7 +458,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
   };
 
   return (
-    <div className="form-section">
+    <div className="section">
     <h3>Insurance</h3>
 
       <h4>Subscriber Information</h4>
@@ -653,7 +663,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 
 // Provider Section Component
 const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
-  <div className="form-section">
+  <div className="section">
     <h3>Primary Care Provider</h3>
     
     <div className="form-grid">
@@ -818,7 +828,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
 
 // Medical History Section Component
 const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, allergies, medications, onChange }) => (
-  <div className="form-section">
+  <div className="section">
     <h3>Allergies ({(allergies || []).length})</h3>
     <div className="allergies-list">
       {(allergies || []).map((allergy, index) => (
@@ -1335,7 +1345,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
 
 // Lab Results Section Component
 const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange }) => (
-  <div className="form-section">
+  <div className="section">
     <h3>Lab Tests ({(data || []).length})</h3>
     <div className="lab-tests-list">
       {(data || []).map((test, testIndex) => (
@@ -1484,7 +1494,7 @@ const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange })
 
 // Vital Signs Section Component
 const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange }) => (
-  <div className="form-section">
+  <div className="section">
     <h3>Vital Signs Records ({(data || []).length})</h3>
     <div className="vitals-list">
       {(data || []).map((vitals, index) => (
@@ -1651,7 +1661,7 @@ const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange })
 
 // Visit Notes Section Component
 const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => (
-  <div className="form-section">
+  <div className="section">
     <h3>Visit Notes ({(data || []).length})</h3>
     <div className="visits-list">
       {(data || []).map((visit, index) => (

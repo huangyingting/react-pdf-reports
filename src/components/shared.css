@@ -4,9 +4,7 @@
    ============================================ */
 
 /* ===== STEP CONTAINERS ===== */
-.generate-data-step,
-.edit-data-step,
-.export-pdf-step {
+.step {
   width: 100%;
   padding: 0;
   background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
@@ -218,7 +216,8 @@
 .setting-group label {
   font-weight: 600;
   color: #334155;
-  font-size: 0.8125rem; /* 13px - consistent across all forms */
+  font-size: 0.8125rem;
+  /* 13px - consistent across all forms */
   letter-spacing: 0.01em;
 }
 
@@ -384,6 +383,56 @@ input[type="checkbox"] {
   line-height: 1.6;
 }
 
+/* ===== SECTION CONTAINERS ===== */
+.section {
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+}
+
+.section h3 {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.01em;
+  position: relative;
+}
+
+
+
+.section h4 {
+  margin: 1.5rem 0 1rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #334155;
+  letter-spacing: -0.005em;
+}
+
+.section>p {
+  margin: 0 0 1.5rem 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 /* ===== CARDS ===== */
 .card {
   background: white;
@@ -441,6 +490,7 @@ input[type="checkbox"] {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -511,6 +561,7 @@ input[type="checkbox"] {
 
 /* ===== RESPONSIVE UTILITIES ===== */
 @media (max-width: 768px) {
+
   /* Steps */
   .generate-data-step,
   .edit-data-step,
@@ -571,6 +622,7 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 480px) {
+
   /* Steps */
   .generate-data-step,
   .edit-data-step,

@@ -45,7 +45,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
   };
 
   return (
-    <div className="generate-data-step">
+    <div className="step">
       <div className="step-content">
 
 
@@ -80,9 +80,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="section">
             <h3>Custom Settings</h3>
             <p>Fine-tune the generated data to meet your specific needs</p>
             
