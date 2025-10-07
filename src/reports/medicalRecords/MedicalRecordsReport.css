@@ -192,21 +192,6 @@
     white-space: nowrap;
 }
 
-.severity-high {
-    background: #ffebee;
-    color: #c62828;
-}
-
-.severity-moderate {
-    background: #fff3e0;
-    color: #ef6c00;
-}
-
-.status-active {
-    background: #e8f5e8;
-    color: #2e7d32;
-}
-
 /* Alert Boxes */
 .alert-summary {
     display: flex;
@@ -490,11 +475,6 @@
 
 .provider-notes-list li {
   margin-bottom: 0.3mm;
-}
-
-/* Visit Summary Section */
-.visit-summary-section {
-  margin-top: 3mm;
 }
 
 /* Clinical Trends */

@@ -3,7 +3,7 @@
  * Verifies that all CPT codes have appropriate POS mappings
  */
 
-import { generateCMS1500Data } from './src/utils/cms1500Data';
+import { generateCMS1500Data } from '../src/utils/cms1500Data';
 
 console.log('Testing Place of Service Coverage\n');
 console.log('============================================================\n');

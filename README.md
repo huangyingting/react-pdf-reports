@@ -10,6 +10,11 @@ A modern React.js application that demonstrates how to export HTML content to PD
 - **Combined Reports**: Export multiple reports into a single PDF file
 - **Responsive Design**: Works on desktop and mobile devices
 - **Professional Styling**: Clean, modern interface with print-optimized layouts
+- **GitHub Pages Deployment**: Automated deployment workflow included
+
+## Live Demo
+
+Visit the live application: [https://huangyingting.github.io/react-pdf-reports](https://huangyingting.github.io/react-pdf-reports)
 
 ## Technologies Used
 
@@ -175,6 +180,18 @@ The application logs PDF generation progress to the browser console. Check for e
 
 This project is open source and available under the MIT License.
 
+## Deployment
+
+This application includes automated deployment to GitHub Pages. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instructions.
+
+### Quick Deployment Steps
+
+1. Enable GitHub Pages in repository settings (Source: "GitHub Actions")
+2. Push changes to `master` branch
+3. GitHub Actions will automatically build and deploy
+
+The application will be available at: `https://huangyingting.github.io/react-pdf-reports`
+
 ## Contributing
 
 Feel free to submit issues, fork the repository, and create pull requests for any improvements.
@@ -182,26 +199,6 @@ Feel free to submit issues, fork the repository, and create pull requests for an
 ---
 
 **Note**: This application demonstrates the power of jsPDF's `.html()` method for converting React components to professional PDF documents. Perfect for generating reports, invoices, certificates, and other business documents directly in the browser.
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
 ### `npm run build` fails to minify
 

@@ -3,7 +3,7 @@
  * Run with: npx ts-node test-data-generation.ts
  */
 
-import { generateCompleteMedicalRecord } from './src/utils/dataGenerator';
+import { generateCompleteMedicalRecord } from '../src/utils/dataGenerator';
 
 console.log('='.repeat(80));
 console.log('TESTING IMPROVED DATA GENERATION WITH LOGICAL RELATIONSHIPS');

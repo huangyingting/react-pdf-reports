@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { generateCompleteMedicalRecord, DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/dataGenerator';
+import { DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/types';
+import {generateCompleteMedicalRecord} from '../utils/medicalRecordsGenerator';
+import CustomSelect from './CustomSelect';
+
 import './GenerateDataStep.css';
 
 interface GenerateDataStepProps {
@@ -43,14 +46,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
   };
 
   return (
-    <div className="generate-data-step">
+    <div className="step">
       <div className="step-content">
-        <div className="step-header">
-          <div>
-            <h2>Generate Sample Data</h2>
-            <p>Create realistic patient profile and medical records using AI-generated data</p>
-          </div>
-        </div>
+
 
         <div className="data-generation-options">
           <div className="section">
@@ -83,87 +81,82 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="section">
             <h3>Custom Settings</h3>
             <p>Fine-tune the generated data to meet your specific needs</p>
             
             <div className="custom-options">
               <div className="option-group">
                 <label>Medical Complexity</label>
-                <select 
+                <CustomSelect
                   value={customOptions.complexity}
-                  onChange={(e) => setCustomOptions({...customOptions, complexity: e.target.value as 'low' | 'medium' | 'high'})}
-                  className="option-select"
-                >
-                  <option value="low">Low - Basic conditions (2-3 conditions)</option>
-                  <option value="medium">Medium - Moderate complexity (4-5 conditions)</option>
-                  <option value="high">High - Complex patient (6+ conditions)</option>
-                </select>
+                  onChange={(value) => setCustomOptions({...customOptions, complexity: value as 'low' | 'medium' | 'high'})}
+                  options={[
+                    { value: 'low', label: 'Basic (2-3 conditions)' },
+                    { value: 'medium', label: 'Moderate (4-5 conditions)' },
+                    { value: 'high', label: 'Complex (6+ conditions)' }
+                  ]}
+                />
               </div>
 
               <div className="option-group">
                 <label>Number of Visits</label>
-                <select 
+                <CustomSelect
                   value={customOptions.numberOfVisits}
-                  onChange={(e) => setCustomOptions({...customOptions, numberOfVisits: parseInt(e.target.value)})}
-                  className="option-select"
-                >
-                  <option value="1">1 Visit</option>
-                  <option value="2">2 Visits</option>
-                  <option value="3">3 Visits</option>
-                  <option value="5">5 Visits</option>
-                  <option value="7">7 Visits</option>
-                </select>
+                  onChange={(value) => setCustomOptions({...customOptions, numberOfVisits: value as number})}
+                  options={[
+                    { value: 1, label: '1 Visit' },
+                    { value: 2, label: '2 Visits' },
+                    { value: 3, label: '3 Visits' },
+                    { value: 5, label: '5 Visits' },
+                    { value: 7, label: '7 Visits' }
+                  ]}
+                />
               </div>
 
               <div className="option-group">
                 <label>Lab Tests</label>
-                <select 
+                <CustomSelect
                   value={customOptions.numberOfLabTests}
-                  onChange={(e) => setCustomOptions({...customOptions, numberOfLabTests: parseInt(e.target.value)})}
-                  className="option-select"
-                >
-                  <option value="3">3 Tests</option>
-                  <option value="5">5 Tests</option>
-                  <option value="8">8 Tests</option>
-                  <option value="10">10 Tests</option>
-                </select>
+                  onChange={(value) => setCustomOptions({...customOptions, numberOfLabTests: value as number})}
+                  options={[
+                    { value: 1, label: '1 Test' },
+                    { value: 2, label: '2 Tests' },
+                    { value: 3, label: '3 Tests' },
+                    { value: 5, label: '5 Tests' },
+                    { value: 8, label: '8 Tests' },
+                    { value: 10, label: '10 Tests' }
+                  ]}
+                />
               </div>
 
               <div className="option-group">
-                <label className="checkbox-label">
+                <label>Secondary Insurance</label>
+                <label className="checkbox-wrapper">
                   <input
                     type="checkbox"
                     checked={customOptions.includeSecondaryInsurance}
                     onChange={(e) => setCustomOptions({...customOptions, includeSecondaryInsurance: e.target.checked})}
                   />
-                  <span>Include Secondary Insurance</span>
+                  <span>Include</span>
                 </label>
               </div>
             </div>
           </div>
 
-          <div className="generation-actions">
-            <button 
-              className="btn btn-primary btn-large"
+                    <div className="step-actions">
+            <button
+              className="btn btn-primary"
               onClick={handleGenerateData}
               disabled={isGenerating}
             >
               {isGenerating ? (
                 <>
-                  <span className="spinner"></span>
-                  Generating Data...
+                  <div className="spinner"></div>
+                  <span>Generating...</span>
                 </>
               ) : (
-                <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
-                    <path d="M9 9a3 3 0 1 1 6 0l-6 6a3 3 0 1 1-6-6"/>
-                  </svg>
-                  Generate Data & Continue
-                </>
+                <span>Generate & Continue →</span>
               )}
             </button>
           </div>

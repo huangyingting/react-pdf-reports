@@ -3,7 +3,7 @@
  * Tests dates, place of service, emergency flags, and diagnosis correlation
  */
 
-import { generateCMS1500Data } from './src/utils/cms1500Data';
+import { generateCMS1500Data } from '../src/utils/cms1500Data';
 
 console.log('Comprehensive Service Generation Logic Test\n');
 console.log('============================================================\n');

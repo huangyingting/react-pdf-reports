@@ -4,8 +4,8 @@
  * Test chronological date logic in CMS-1500 data generation
  */
 
-import { generateCMS1500Data } from './src/utils/cms1500Data';
-import { generateCompleteMedicalRecord } from './src/utils/dataGenerator';
+import { generateCMS1500Data } from '../src/utils/cms1500Data';
+import { generateCompleteMedicalRecord } from '../src/utils/dataGenerator';
 
 console.log('Testing CMS-1500 Chronological Date Logic\n');
 console.log('='.repeat(70));

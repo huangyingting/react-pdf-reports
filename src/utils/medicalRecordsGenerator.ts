@@ -1,511 +1,53 @@
-import { faker } from '@faker-js/faker';
-
 /**
- * Medical Records Data Generator using Faker.js
- * Generates realistic medical data for educational and testing purposes
+ * Medical Records Generator
+ * Contains all medical-specific data generation logic
  */
 
-// Type definitions
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country?: string;
-}
-
-export interface Contact {
-  phone: string;
-  email: string;
-  emergencyContact: string;
-}
-
-export interface Insurance {
-  provider: string;
-  policyNumber: string;
-  groupNumber?: string;
-  effectiveDate: string;
-  memberId?: string;  // Member ID for insurance (used in CMS-1500)
-  copay?: string;
-  deductible?: string;
-}
-
-export interface PatientDemographics {
-  id: string;
-  name: string;
-  firstName: string;
-  lastName: string;
-  middleInitial?: string;
-  dateOfBirth: string;
-  age: number;
-  gender: string;
-  address: Address;
-  contact: Contact;
-  insurance: Insurance;
-  medicalRecordNumber: string;
-  ssn: string;
-  accountNumber?: string;
-}
-
-export interface InsuranceInfo {
-  primaryInsurance: Insurance;
-  secondaryInsurance: Insurance | null;
-  subscriberName?: string;
-  subscriberDOB?: string;
-  subscriberGender?: string;
-  type?: string;
-  picaCode?: string;
-  phone?: string;
-  address?: Address;
-  secondaryInsured?: {
-    name: string;
-    policyNumber: string;
-    planName: string;
-  };
-}
-
-export interface Provider {
-  name: string;
-  npi: string;
-  specialty: string;
-  phone: string;
-  address: Address;
-  taxId?: string;
-  taxIdType?: 'SSN' | 'EIN';
-  signature?: string;
-  // Facility information
-  facilityName?: string;
-  facilityAddress?: Address;
-  facilityPhone?: string;
-  facilityFax?: string;
-  facilityNPI?: string;
-  // Billing information
-  billingName?: string;
-  billingAddress?: string;
-  billingPhone?: string;
-  billingNPI?: string;
-  referringProvider?: {
-    name: string;
-    npi: string;
-  };
-}
-
-export interface Allergy {
-  allergen: string;
-  reaction: string;
-  severity: string;
-  dateIdentified: string;
-}
-
-export interface ChronicCondition {
-  condition: string;
-  diagnosedDate: string;
-  status: string;
-  notes: string;
-}
-
-export interface SurgicalHistory {
-  procedure: string;
-  date: string;
-  hospital: string;
-  surgeon: string;
-  complications: string;
-}
-
-export interface FamilyHistory {
-  relation: string;
-  conditions: string[];
-  ageAtDeath: string;
-  causeOfDeath: string;
-}
-
-export interface MedicalHistory {
-  allergies: Allergy[];
-  chronicConditions: ChronicCondition[];
-  surgicalHistory: SurgicalHistory[];
-  familyHistory: FamilyHistory[];
-}
-
-export interface CurrentMedication {
-  name: string;
-  strength: string;
-  dosage: string;
-  purpose: string;
-  prescribedBy: string;
-  startDate: string;
-  instructions: string;
-}
-
-export interface DiscontinuedMedication {
-  name: string;
-  strength: string;
-  reason: string;
-  discontinuedDate: string;
-  prescribedBy: string;
-}
-
-export interface Medications {
-  current: CurrentMedication[];
-  discontinued: DiscontinuedMedication[];
-}
-
-export interface VitalSigns {
-  date: string;
-  time: string;
-  bloodPressure: string;
-  heartRate: string;
-  temperature: string;
-  weight: string;
-  height: string;
-  bmi: string;
-  oxygenSaturation: string;
-  respiratoryRate: string;
-}
-
-export interface LabResult {
-  parameter: string;
-  value: string;
-  unit: string;
-  referenceRange: string;
-  status: string;
-}
-
-export interface LabTest {
-  testDate: string;
-  testName: string;
-  results: LabResult[];
-  orderingPhysician: string;
-}
-
-export interface VisitVitals {
-  bloodPressure: string;
-  heartRate: number;
-  temperature: number;
-  weight: number;
-  height: string;
-  oxygenSaturation: number;
-}
-
-export interface VisitNote {
-  date: string;
-  type: string;
-  chiefComplaint: string;
-  assessment: string[];
-  plan: string[];
-  provider: string;
-  duration: string;
-  vitals: VisitVitals;
-}
-
-export interface GenerationOptions {
-  complexity?: 'low' | 'medium' | 'high';
-  numberOfVisits?: number;
-  numberOfLabTests?: number;
-  includeSecondaryInsurance?: boolean;
-}
-
-// CMS-1500 Specific Interfaces
-export interface ServiceLine {
-  dateFrom: string;
-  dateTo: string;
-  placeOfService: string;
-  emg: string;
-  procedureCode: string;
-  modifier: string;
-  diagnosisPointer: string;
-  charges: string;
-  units: string;
-  epsdt: string;
-  idQual: string;
-  renderingProviderNPI: string;
-}
-
-export interface ClaimInfo {
-  patientRelationship: 'self' | 'spouse' | 'child' | 'other';
-  signatureDate: string;
-  providerSignatureDate: string;
-  dateOfIllness: string;
-  serviceDate: string;
-  illnessQualifier: string;
-  otherDate: string;
-  otherDateQualifier: string;
-  unableToWorkFrom: string;
-  unableToWorkTo: string;
-  hospitalizationFrom: string;
-  hospitalizationTo: string;
-  additionalInfo: string;
-  outsideLab: boolean;
-  outsideLabCharges: string;
-  diagnosisCodes: string[];
-  resubmissionCode: string;
-  originalRefNo: string;
-  priorAuthNumber: string;
-  serviceLines: ServiceLine[];
-  hasOtherHealthPlan: boolean;
-  otherClaimId: string;
-  acceptAssignment: boolean;
-  totalCharges: string;
-  amountPaid: string;
-}
-
-export interface MedicalRecord {
-  patient: PatientDemographics;
-  insurance: InsuranceInfo;
-  provider: Provider;
-  medicalHistory: MedicalHistory;
-  medications: Medications;
-  labResults: LabTest[];
-  vitalSigns: VitalSigns[];
-  visitNotes: VisitNote[];
-  generatedAt: string;
-  metadata: {
-    complexity: string;
-    numberOfVisits: number;
-    numberOfLabTests: number;
-    dataVersion: string;
-  };
-}
-
-export interface DataPreset {
-  name: string;
-  description: string;
-  options: Required<GenerationOptions>;
-}
+import { faker } from '@faker-js/faker';
+import {
+  MedicalHistory,
+  Medications,
+  VitalSigns,
+  LabTest,
+  VisitNote,
+  GenerationOptions,
+  MedicalRecord,
+  ChronicCondition,
+  Allergy,
+  SurgicalHistory,
+  FamilyHistory,
+  CurrentMedication,
+  DiscontinuedMedication,
+  LabResult
+} from './types';
+import { generatePatientDemographics, generateInsuranceInfo, generateProviderInfo } from './baseDataGenerator';
 
 // Medical-specific data arrays
-const MEDICAL_CONDITIONS: string[] = [
+export const MEDICAL_CONDITIONS: string[] = [
   'Hypertension', 'Diabetes Type 2', 'Hyperlipidemia', 'Asthma', 'COPD',
   'Arthritis', 'Depression', 'Anxiety', 'Migraine', 'GERD',
   'Thyroid Disease', 'Osteoporosis', 'Allergic Rhinitis', 'Sleep Apnea',
   'Atrial Fibrillation', 'Chronic Kidney Disease', 'Heart Disease'
 ];
 
-const MEDICATIONS: string[] = [
+export const MEDICATIONS: string[] = [
   'Lisinopril 10mg', 'Metformin 500mg', 'Atorvastatin 20mg', 'Albuterol inhaler',
   'Levothyroxine 50mcg', 'Omeprazole 20mg', 'Sertraline 50mg', 'Ibuprofen 400mg',
   'Acetaminophen 500mg', 'Vitamin D3 1000IU', 'Multivitamin', 'Aspirin 81mg',
   'Prednisone 10mg', 'Losartan 50mg', 'Amlodipine 5mg', 'Gabapentin 300mg'
 ];
 
-const VISIT_TYPES: string[] = [
+export const VISIT_TYPES: string[] = [
   'Annual Physical Exam', 'Follow-up Visit', 'Sick Visit', 'Preventive Care',
   'Chronic Disease Management', 'Medication Review', 'Consultation',
   'Emergency Visit', 'Urgent Care', 'Specialist Referral'
 ];
 
-const INSURANCE_COMPANIES: string[] = [
+export const INSURANCE_COMPANIES: string[] = [
   'Blue Cross Blue Shield', 'Aetna', 'Cigna', 'UnitedHealthcare',
   'Humana', 'Kaiser Permanente', 'Medicare', 'Medicaid',
   'Anthem', 'Independence Blue Cross', 'HealthPartners', 'Molina Healthcare'
 ];
-
-/**
- * Generate patient demographics
- */
-export const generatePatientDemographics = (): PatientDemographics => {
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
-  const middleInitial = faker.string.alpha({ length: 1, casing: 'upper' });
-  const dateOfBirth = faker.date.birthdate({ min: 18, max: 85, mode: 'age' });
-  const gender = faker.person.sex();
-  
-  // Calculate accurate age
-  const today = new Date();
-  let age = today.getFullYear() - dateOfBirth.getFullYear();
-  const monthDiff = today.getMonth() - dateOfBirth.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dateOfBirth.getDate())) {
-    age--;
-  }
-  
-  // Generate consistent IDs
-  const patientId = `PAT-${faker.string.numeric(6)}`;
-  const mrn = `MRN-${faker.string.numeric(8)}`;
-  
-  // Generate insurance with proper formatting
-  const insuranceProvider = faker.helpers.arrayElement(INSURANCE_COMPANIES);
-  const policyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-  const groupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-  const effectiveDate = faker.date.past({ years: 2 });
-  
-  return {
-    id: patientId,
-    name: `${lastName}, ${firstName} ${middleInitial}`,
-    firstName,
-    lastName,
-    middleInitial,
-    dateOfBirth: dateOfBirth.toLocaleDateString('en-US'),
-    age,
-    gender: gender.charAt(0).toUpperCase() + gender.slice(1),
-    address: {
-      street: faker.location.streetAddress(),
-      city: faker.location.city(),
-      state: faker.location.state({ abbreviated: true }),
-      zipCode: faker.location.zipCode('#####'),
-      country: 'USA'
-    },
-    contact: {
-      phone: faker.phone.number(),
-      email: faker.internet.email({ firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase() }),
-      emergencyContact: `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
-    },
-    insurance: {
-      provider: insuranceProvider,
-      policyNumber,
-      groupNumber,
-      effectiveDate: effectiveDate.toLocaleDateString('en-US'),
-      memberId: policyNumber
-    },
-    medicalRecordNumber: mrn,
-    ssn: faker.helpers.replaceSymbols('###-##-####'),
-    accountNumber: patientId
-  };
-};
-
-/**
- * Generate insurance information with all fields
- */
-export const generateInsuranceInfo = (
-  includeSecondary: boolean = false,
-  subscriberInfo?: {
-    name: string;
-    dateOfBirth: string;
-    gender: string;
-    address: Address;
-    phone: string;
-  }
-): InsuranceInfo => {
-  const primaryProvider = faker.helpers.arrayElement(INSURANCE_COMPANIES);
-  const primaryPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-  const primaryGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-  const primaryEffectiveDate = faker.date.past({ years: 2 });
-  
-  // Generate subscriber information (defaults to patient if not provided)
-  const subscriberName = subscriberInfo?.name || `${faker.person.lastName()}, ${faker.person.firstName()} ${faker.string.alpha({ length: 1, casing: 'upper' })}`;
-  const subscriberDOB = subscriberInfo?.dateOfBirth || faker.date.birthdate({ min: 18, max: 85, mode: 'age' }).toLocaleDateString('en-US');
-  const subscriberGender = subscriberInfo?.gender || faker.person.sex().charAt(0).toUpperCase();
-  const subscriberAddress = subscriberInfo?.address || {
-    street: faker.location.streetAddress(),
-    city: faker.location.city(),
-    state: faker.location.state({ abbreviated: true }),
-    zipCode: faker.location.zipCode('#####'),
-    country: 'USA'
-  };
-  const subscriberPhone = subscriberInfo?.phone || faker.phone.number();
-  
-  let secondaryInsurance: Insurance | null = null;
-  let secondaryInsured: { name: string; policyNumber: string; planName: string } | undefined;
-  
-  if (includeSecondary && faker.datatype.boolean(0.3)) {
-    // Ensure secondary insurance is from a different provider
-    const remainingProviders = INSURANCE_COMPANIES.filter(p => p !== primaryProvider);
-    const secondaryProvider = faker.helpers.arrayElement(remainingProviders);
-    const secondaryPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-    const secondaryGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-    const secondaryEffectiveDate = faker.date.past({ years: 2 });
-    
-    secondaryInsurance = {
-      provider: secondaryProvider,
-      policyNumber: secondaryPolicyNumber,
-      groupNumber: secondaryGroupNumber,
-      memberId: secondaryPolicyNumber,
-      effectiveDate: secondaryEffectiveDate.toLocaleDateString('en-US'),
-      copay: faker.helpers.arrayElement(['$10', '$15', '$20', '$25']),
-      deductible: faker.helpers.arrayElement(['$250', '$500', '$1000', '$2000'])
-    };
-    
-    // Generate secondary insured information
-    secondaryInsured = {
-      name: `${faker.person.lastName()}, ${faker.person.firstName()}`,
-      policyNumber: secondaryPolicyNumber,
-      planName: `${secondaryProvider} ${faker.helpers.arrayElement(['HMO', 'PPO', 'EPO', 'POS'])} Plan`
-    };
-  }
-  
-  return {
-    primaryInsurance: {
-      provider: primaryProvider,
-      policyNumber: primaryPolicyNumber,
-      groupNumber: primaryGroupNumber,
-      memberId: primaryPolicyNumber,
-      effectiveDate: primaryEffectiveDate.toLocaleDateString('en-US'),
-      copay: faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
-      deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000'])
-    },
-    secondaryInsurance,
-    subscriberName,
-    subscriberDOB,
-    subscriberGender,
-    type: faker.helpers.arrayElement(['group', 'individual', 'medicare', 'medicaid']),
-    picaCode: faker.datatype.boolean(0.3) ? faker.string.alphanumeric({ length: 2, casing: 'upper' }) : '',
-    phone: subscriberPhone,
-    address: subscriberAddress,
-    secondaryInsured
-  };
-};
-
-/**
- * Generate provider information
- */
-export const generateProviderInfo = (): Provider => {
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
-  const providerNPI = faker.string.numeric(10);
-  const facilityNPI = faker.string.numeric(10);
-  const specialty = faker.helpers.arrayElement([
-    'Family Medicine', 'Internal Medicine', 'General Practice', 
-    'Pediatrics', 'Geriatrics'
-  ]);
-  
-  // Generate consistent facility information
-  const facilityName = faker.helpers.arrayElement([
-    'City Medical Center', 'Regional Health Clinic', 'Community Health Associates',
-    'Primary Care Partners', 'Family Health Center', 'Medical Arts Building',
-    'Healthcare Plaza', 'Medical Group Associates'
-  ]);
-  
-  const facilityAddress = {
-    street: faker.location.streetAddress(),
-    city: faker.location.city(),
-    state: faker.location.state({ abbreviated: true }),
-    zipCode: faker.location.zipCode('#####')
-  };
-  
-  const providerAddress = faker.datatype.boolean(0.7) 
-    ? facilityAddress // 70% chance provider works at the facility
-    : {
-        street: faker.location.streetAddress(),
-        city: facilityAddress.city, // Same city but different address
-        state: facilityAddress.state,
-        zipCode: faker.location.zipCode('#####')
-      };
-  
-  const facilityPhone = faker.phone.number();
-  const taxId = faker.helpers.replaceSymbols('##-#######');
-  
-  return {
-    name: `Dr. ${firstName} ${lastName}`,
-    npi: providerNPI,
-    specialty,
-    phone: faker.phone.number(),
-    address: providerAddress,
-    taxId,
-    taxIdType: 'EIN' as const,
-    signature: `Dr. ${firstName} ${lastName}`,
-    facilityName,
-    facilityAddress,
-    facilityPhone,
-    facilityFax: faker.phone.number(),
-    facilityNPI,
-    billingName: facilityName,
-    billingAddress: `${facilityAddress.street}, ${facilityAddress.city}, ${facilityAddress.state} ${facilityAddress.zipCode}`,
-    billingPhone: facilityPhone,
-    billingNPI: facilityNPI,
-    referringProvider: faker.datatype.boolean(0.3) ? {
-      name: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
-      npi: faker.string.numeric(10)
-    } : undefined
-  };
-};
 
 /**
  * Generate medical history
@@ -682,14 +224,25 @@ export const generateMedications = (
   });
   
   // Add general medications if needed to reach target count
-  while (currentMedications.length < currentMedCount) {
-    const generalMeds = [
-      {name: 'Vitamin D3', strength: '1000IU', purpose: 'Bone health', dosage: 'Daily'},
-      {name: 'Multivitamin', strength: 'As directed', purpose: 'General health', dosage: 'Daily'},
-      {name: 'Aspirin', strength: '81mg', purpose: 'Heart health', dosage: 'Daily'},
-      {name: 'Acetaminophen', strength: '500mg', purpose: 'Pain relief', dosage: 'As needed'}
-    ];
-    
+  const generalMeds = [
+    {name: 'Vitamin D3', strength: '1000IU', purpose: 'Bone health', dosage: 'Daily'},
+    {name: 'Multivitamin', strength: 'As directed', purpose: 'General health', dosage: 'Daily'},
+    {name: 'Aspirin', strength: '81mg', purpose: 'Heart health', dosage: 'Daily'},
+    {name: 'Acetaminophen', strength: '500mg', purpose: 'Pain relief', dosage: 'As needed'},
+    {name: 'Calcium', strength: '600mg', purpose: 'Bone health', dosage: 'Twice daily'},
+    {name: 'Fish Oil', strength: '1000mg', purpose: 'Heart health', dosage: 'Daily'},
+    {name: 'Probiotic', strength: 'As directed', purpose: 'Digestive health', dosage: 'Daily'},
+    {name: 'Vitamin B12', strength: '1000mcg', purpose: 'Energy and nerve health', dosage: 'Daily'},
+    {name: 'Magnesium', strength: '400mg', purpose: 'Muscle and nerve function', dosage: 'Daily'},
+    {name: 'Zinc', strength: '50mg', purpose: 'Immune support', dosage: 'Daily'}
+  ];
+  
+  // Safety counter to prevent infinite loops
+  let attempts = 0;
+  const maxAttempts = generalMeds.length * 2;
+  
+  while (currentMedications.length < currentMedCount && attempts < maxAttempts) {
+    attempts++;
     const med = faker.helpers.arrayElement(generalMeds);
     if (!usedMedications.has(med.name)) {
       usedMedications.add(med.name);
@@ -1207,38 +760,3 @@ export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): 
   };
 };
 
-/**
- * Data generation presets
- */
-export const DATA_GENERATION_PRESETS: Record<string, DataPreset> = {
-  simple: {
-    name: 'Simple Patient',
-    description: 'Basic patient with minimal medical history',
-    options: {
-      complexity: 'low',
-      numberOfVisits: 1,
-      numberOfLabTests: 1,
-      includeSecondaryInsurance: false
-    }
-  },
-  standard: {
-    name: 'Standard Patient',
-    description: 'Typical patient with moderate medical complexity',
-    options: {
-      complexity: 'medium',
-      numberOfVisits: 2,
-      numberOfLabTests: 2,
-      includeSecondaryInsurance: true
-    }
-  },
-  complex: {
-    name: 'Complex Patient',
-    description: 'Patient with multiple conditions and extensive history',
-    options: {
-      complexity: 'high',
-      numberOfVisits: 3,
-      numberOfLabTests: 3,
-      includeSecondaryInsurance: true
-    }
-  }
-};
