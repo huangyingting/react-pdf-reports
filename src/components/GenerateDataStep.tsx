@@ -144,7 +144,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
 
           <div className="generation-actions">
             <button 
-              className="btn btn-primary btn-large"
+              className="btn btn-primary"
               onClick={handleGenerateData}
               disabled={isGenerating}
             >
@@ -155,10 +155,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 </>
               ) : (
                 <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14.828 14.828a4 4 0 0 1-5.656 0"/>
-                    <path d="M9 9a3 3 0 1 1 6 0l-6 6a3 3 0 1 1-6-6"/>
-                  </svg>
+
                   Generate Data & Continue
                 </>
               )}
