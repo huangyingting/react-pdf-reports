@@ -111,13 +111,10 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
   }
 
   const sections: Section[] = [
-    { id: 'patient', label: 'Patient Info', icon: '👤' },
-    { id: 'insurance', label: 'Insurance', icon: '🏥' },
-    { id: 'provider', label: 'Provider', icon: '👨‍⚕️' },
-    { id: 'medical', label: 'Medical History', icon: '📋' },
-    { id: 'labs', label: 'Lab Results', icon: '🔬' },
-    { id: 'vitals', label: 'Vital Signs', icon: '💓' },
-    { id: 'visits', label: 'Visit Notes', icon: '📝' }
+    { id: 'patient', label: 'Patient', icon: 'user' },
+    { id: 'insurance', label: 'Insurance', icon: 'card' },
+    { id: 'provider', label: 'Provider', icon: 'stethoscope' },
+    { id: 'medical', label: 'Clinical', icon: 'activity' }
   ];
 
   return (
@@ -138,6 +135,30 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
                 className={`section-tab ${activeSection === section.id ? 'active' : ''}`}
                 onClick={() => setActiveSection(section.id)}
               >
+                {section.icon === 'user' && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                )}
+                {section.icon === 'card' && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                )}
+                {section.icon === 'stethoscope' && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+                    <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+                    <circle cx="20" cy="10" r="2"/>
+                  </svg>
+                )}
+                {section.icon === 'activity' && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                )}
                 <span className="section-label">{section.label}</span>
               </button>
             ))}
@@ -166,40 +187,36 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
             )}
             
             {activeSection === 'medical' && (
-              <MedicalHistorySection 
-                data={editedData.medicalHistory} 
-                allergies={editedData.medicalHistory.allergies}
-                medications={editedData.medications}
-                onChange={(field, value) => {
-                  // Handle medications separately since they're at root level
-                  if (field.startsWith('medications.')) {
-                    updateData('medications', field.replace('medications.', ''), value);
-                  } else {
-                    updateData('medicalHistory', field, value);
-                  }
-                }}
-              />
-            )}
-            
-            {activeSection === 'labs' && (
-              <LabResultsSection 
-                data={editedData.labResults} 
-                onChange={(field, value) => updateData('labResults', field, value)}
-              />
-            )}
-            
-            {activeSection === 'vitals' && (
-              <VitalSignsSection 
-                data={editedData.vitalSigns} 
-                onChange={(field, value) => updateData('vitalSigns', field, value)}
-              />
-            )}
-            
-            {activeSection === 'visits' && (
-              <VisitNotesSection 
-                data={editedData.visitNotes} 
-                onChange={(field, value) => updateData('visitNotes', field, value)}
-              />
+              <>
+                <MedicalHistorySection 
+                  data={editedData.medicalHistory} 
+                  allergies={editedData.medicalHistory.allergies}
+                  medications={editedData.medications}
+                  onChange={(field, value) => {
+                    // Handle medications separately since they're at root level
+                    if (field.startsWith('medications.')) {
+                      updateData('medications', field.replace('medications.', ''), value);
+                    } else {
+                      updateData('medicalHistory', field, value);
+                    }
+                  }}
+                />
+                
+                <LabResultsSection 
+                  data={editedData.labResults} 
+                  onChange={(field, value) => updateData('labResults', field, value)}
+                />
+                
+                <VitalSignsSection 
+                  data={editedData.vitalSigns} 
+                  onChange={(field, value) => updateData('vitalSigns', field, value)}
+                />
+                
+                <VisitNotesSection 
+                  data={editedData.visitNotes} 
+                  onChange={(field, value) => updateData('visitNotes', field, value)}
+                />
+              </>
             )}
           </div>
         </div>

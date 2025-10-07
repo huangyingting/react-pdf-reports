@@ -1,3 +1,6 @@
+/* Import shared styles */
+@import './shared.css';
+
 /* Main Container - full width */
 .export-pdf-step {
   width: 100%;
@@ -436,49 +439,7 @@
   gap: 1rem;
 }
 
-/* Buttons - matching EditDataStep style */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  text-decoration: none;
-  white-space: nowrap;
-  max-width: fit-content;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-  border-color: #2563eb;
-}
-
-.btn-outline {
-  background: white;
-  color: #374151;
-  border-color: #d1d5db;
-}
-
-.btn-outline:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #9ca3af;
-}
+/* Button styles inherited from shared.css */
 
 /* Responsive Design */
 @media (max-width: 1024px) {

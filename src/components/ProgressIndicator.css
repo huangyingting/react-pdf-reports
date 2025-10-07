@@ -1,3 +1,6 @@
+/* Import shared styles */
+@import './shared.css';
+
 .progress-indicator {
   background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
   border-radius: 0;
