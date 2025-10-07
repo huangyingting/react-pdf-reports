@@ -148,9 +148,6 @@
 }
 
 /* Checkbox styles inherited from shared.css */
-.checkbox-label {
-  margin-top: 0.5rem;
-}
 
 /* Step actions inherited from shared.css (.step-actions) */
 
@@ -176,78 +173,6 @@
   }
 }
 
-/* Data Preview */
-.data-preview {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.preview-header {
-  margin-bottom: 1.5rem;
-}
-
-.preview-header h3 {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.preview-header p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.preview-content {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.preview-section {
-  margin-bottom: 1.5rem;
-}
-
-.preview-section:last-child {
-  margin-bottom: 0;
-}
-
-.preview-section h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.preview-data {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-}
-
-.preview-data p {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.preview-data strong {
-  color: #374151;
-}
-
-.preview-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  align-items: center;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   /* Component-specific responsive styles */
@@ -257,15 +182,6 @@
 
   .custom-options {
     grid-template-columns: 1fr;
-  }
-
-  .preview-data {
-    grid-template-columns: 1fr;
-  }
-
-  .preview-actions {
-    flex-direction: column;
-    align-items: stretch;
   }
 
   /* Responsive step-actions inherited from shared.css */

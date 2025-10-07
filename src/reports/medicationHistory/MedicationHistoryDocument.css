@@ -233,10 +233,6 @@
   background: white;
 }
 
-.severe-allergy {
-  background: #f8d7da !important;
-}
-
 .allergen-name {
   font-weight: 700;
   color: #000;
@@ -245,18 +241,6 @@
 .severity {
   font-weight: 700;
   text-align: center;
-}
-
-.severity-severe {
-  color: #d9534f;
-}
-
-.severity-moderate {
-  color: #f0ad4e;
-}
-
-.severity-mild {
-  color: #5bc0de;
 }
 
 .no-allergies {

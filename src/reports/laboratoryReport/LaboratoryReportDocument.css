@@ -333,24 +333,6 @@
   color: #6c757d;
 }
 
-/* Row highlighting */
-.row-critical {
-  background: #f8d7da !important;
-}
-
-.row-critical td {
-  background: #f8d7da !important;
-  border-color: #dc3545 !important;
-}
-
-.row-abnormal {
-  background: #fff3cd !important;
-}
-
-.row-abnormal td {
-  background: #fff3cd !important;
-}
-
 /* Flag Badges */
 .flag-badge {
   display: inline-block;
