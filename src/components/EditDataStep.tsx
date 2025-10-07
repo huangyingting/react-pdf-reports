@@ -250,7 +250,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
           </div>
         </div>
 
-        <div className="edit-actions">
+        <div className="step-actions">
           <button className="btn btn-outline" onClick={onBack}>
             ← Back to Generate
           </button>

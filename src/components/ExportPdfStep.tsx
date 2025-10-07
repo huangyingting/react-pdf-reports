@@ -354,7 +354,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
           </div>
         </div>
 
-        <div className="step-navigation">
+        <div className="step-actions">
           <button className="btn btn-outline" onClick={onBack}>
             ← Back to Edit Data
           </button>

@@ -152,14 +152,7 @@
   margin-top: 0.5rem;
 }
 
-/* Generation Actions */
-.generation-actions {
-  display: flex;
-  justify-content: center;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-  margin-top: 1.5rem;
-}
+/* Step actions inherited from shared.css (.step-actions) */
 
 /* Button styles inherited from shared.css */
 
@@ -274,4 +267,6 @@
     flex-direction: column;
     align-items: stretch;
   }
+
+  /* Responsive step-actions inherited from shared.css */
 }

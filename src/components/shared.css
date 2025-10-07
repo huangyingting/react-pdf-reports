@@ -65,7 +65,8 @@
   line-height: 1.6;
 }
 
-.step-navigation {
+/* ===== STEP ACTIONS (unified bottom navigation/actions bar) ===== */
+.step-actions {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -586,7 +587,7 @@ input[type="checkbox"] {
     font-size: 0.875rem;
   }
 
-  .step-navigation {
+  .step-actions {
     flex-wrap: wrap;
     gap: 0.75rem;
     padding: 1rem 1.5rem;

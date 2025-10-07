@@ -333,25 +333,7 @@
   margin-bottom: 0;
 }
 
-/* Edit Actions */
-.edit-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 2rem;
-  background: white;
-  border-top: 2px solid #e2e8f0;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  margin-top: 2rem;
-}
-
-/* Button styles inherited from shared.css */
+/* Step actions inherited from shared.css (.step-actions) */
 
 /* Smooth focus indicator for keyboard navigation */
 .section-tab:focus {
@@ -421,11 +403,7 @@
     grid-template-columns: 1fr;
   }
 
-  .edit-actions {
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-  }
+  /* Responsive step-actions inherited from shared.css */
 
   .edit-content {
     padding: 1.5rem;
