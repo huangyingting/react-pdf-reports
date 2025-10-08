@@ -251,7 +251,7 @@ function App() {
         data={medicalData} 
         laboratoryReportData={Array.from(laboratoryReports.values())}
         visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
-        medicationHistoryData={medicalHistoryData || undefined}
+        medicalHistoryData={medicalHistoryData || undefined}
         fontFamily={fontFamilyStyle}
       />
     );
@@ -272,7 +272,7 @@ function App() {
             medicalData={medicalData}
             laboratoryReportsMap={laboratoryReports}
             visitReportsData={visitReportsData}
-            medicationHistoryData={medicalHistoryData}
+            medicalHistoryData={medicalHistoryData}
             onDataUpdated={handleDataUpdated}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
@@ -380,7 +380,7 @@ function App() {
               data={medicalData}
               laboratoryReportData={Array.from(laboratoryReports.values())}
               visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
-              medicationHistoryData={medicalHistoryData || undefined}
+              medicalHistoryData={medicalHistoryData || undefined}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}

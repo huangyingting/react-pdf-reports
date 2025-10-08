@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { BasicData, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
+import { BasicData, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
 import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
   medicalData: BasicData | null;
   laboratoryReportsMap?: Map<LabTestType, LaboratoryReportData>;
   visitReportsData?: VisitReportData[];
-  medicationHistoryData?: MedicalHistoryData | null;
+  medicalHistoryData?: MedicalHistoryData | null;
   onDataUpdated: (data: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => void;
   onNext: () => void;
   onBack: () => void;
@@ -35,10 +35,10 @@ interface ProviderSectionProps {
 }
 
 interface MedicalHistorySectionProps {
-  data: MedicalHistory;
-  allergies: Allergy[];
-  medications: Medications;
+  data: MedicalHistoryData;
   onChange: (field: string, value: any) => void;
+  expandedSections: Set<string>;
+  onToggleSection: (section: string) => void;
 }
 
 interface LabResultsSectionProps {
@@ -56,7 +56,7 @@ interface VisitNotesSectionProps {
   onChange: (updatedData: VisitReportData) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, medicationHistoryData, onDataUpdated, onNext, onBack }) => {
+const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, medicalHistoryData, onDataUpdated, onNext, onBack }) => {
   const [editedData, setEditedData] = useState<BasicData | null>(null);
   const [editedLabReportsMap, setEditedLabReportsMap] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
   const [editedVisitReportsData, setEditedVisitReportsData] = useState<VisitReportData[]>([]);
@@ -64,6 +64,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
   const [activeSection, setActiveSection] = useState<string>('patient');
   const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set());
   const [expandedVisitReports, setExpandedVisitReports] = useState<Set<number>>(new Set());
+  const [expandedMedicalSections, setExpandedMedicalSections] = useState<Set<string>>(new Set(['allergies', 'conditions', 'currentMeds', 'discontinuedMeds', 'surgicalHistory', 'familyHistory']));
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
@@ -80,10 +81,10 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
     if (visitReportsData && visitReportsData.length > 0) {
       setEditedVisitReportsData(JSON.parse(JSON.stringify(visitReportsData)));
     }
-    if (medicationHistoryData) {
-      setEditedMedicalHistoryData(JSON.parse(JSON.stringify(medicationHistoryData))); // Deep clone
+    if (medicalHistoryData) {
+      setEditedMedicalHistoryData(JSON.parse(JSON.stringify(medicalHistoryData))); // Deep clone
     }
-  }, [medicalData, laboratoryReportsMap, visitReportsData, medicationHistoryData]);
+  }, [medicalData, laboratoryReportsMap, visitReportsData, medicalHistoryData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -234,14 +235,17 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
             
             {activeSection === 'medical' && editedMedicalHistoryData && (
               <MedicalHistorySection 
-                data={{
-                  chronicConditions: editedMedicalHistoryData.chronicConditions,
-                  surgicalHistory: editedMedicalHistoryData.surgicalHistory,
-                  familyHistory: editedMedicalHistoryData.familyHistory,
-                  allergies: editedMedicalHistoryData.allergies
-                }} 
-                allergies={editedMedicalHistoryData.allergies}
-                medications={editedMedicalHistoryData.medications}
+                data={editedMedicalHistoryData}
+                expandedSections={expandedMedicalSections}
+                onToggleSection={(section) => {
+                  const newExpanded = new Set(expandedMedicalSections);
+                  if (newExpanded.has(section)) {
+                    newExpanded.delete(section);
+                  } else {
+                    newExpanded.add(section);
+                  }
+                  setExpandedMedicalSections(newExpanded);
+                }}
                 onChange={(field, value) => {
                   setEditedMedicalHistoryData(prev => {
                     if (!prev) return prev;
@@ -1003,11 +1007,24 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
 );
 
 // Medical History Section Component
-const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, allergies, medications, onChange }) => (
+const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onChange, expandedSections, onToggleSection }) => (
   <div className="section">
-    <h3>Allergies ({(allergies || []).length})</h3>
-    <div className="allergies-list">
-      {(allergies || []).map((allergy, index) => (
+    <h3>Medical History</h3>
+    <div className="lab-reports-accordion">
+      {/* Allergies Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('allergies')}
+        >
+          <span className="accordion-icon">{expandedSections.has('allergies') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Allergies</span>
+          <span className="accordion-meta">{(data.allergies || []).length} items</span>
+        </div>
+        {expandedSections.has('allergies') && (
+          <div className="accordion-content">
+            <div className="allergies-list">
+      {(data.allergies || []).map((allergy, index) => (
         <div key={index} className="allergy-item">
           <div className="form-grid">
             <div className="form-group">
@@ -1016,7 +1033,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={allergy.allergen}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].allergen = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -1031,7 +1048,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={allergy.reaction}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].reaction = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -1045,7 +1062,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
               <select
                 value={allergy.severity}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].severity = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -1063,7 +1080,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={allergy.dateIdentified}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].dateIdentified = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -1074,9 +1091,23 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Active Conditions ({(data.chronicConditions || []).length})</h4>
+      {/* Active Conditions Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('conditions')}
+        >
+          <span className="accordion-icon">{expandedSections.has('conditions') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Active Conditions</span>
+          <span className="accordion-meta">{(data.chronicConditions || []).length} items</span>
+        </div>
+        {expandedSections.has('conditions') && (
+          <div className="accordion-content">
     <div className="conditions-list">
       {(data.chronicConditions || []).map((condition: ChronicCondition, index: number) => (
         <div key={index} className="condition-item">
@@ -1152,11 +1183,25 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Current Medications ({(medications.current || []).length})</h4>
+      {/* Current Medications Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('currentMeds')}
+        >
+          <span className="accordion-icon">{expandedSections.has('currentMeds') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Current Medications</span>
+          <span className="accordion-meta">{(data.medications.current || []).length} items</span>
+        </div>
+        {expandedSections.has('currentMeds') && (
+          <div className="accordion-content">
     <div className="medications-list">
-      {(medications.current || []).map((med, index) => (
+      {(data.medications.current || []).map((med, index) => (
         <div key={index} className="medication-item">
           <div className="medication-header">
             <span className="medication-number">💊 #{index + 1}</span>
@@ -1168,7 +1213,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.name}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].name = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1183,7 +1228,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.strength}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].strength = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1198,7 +1243,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.dosage}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].dosage = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1213,7 +1258,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.purpose}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].purpose = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1228,7 +1273,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.prescribedBy}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].prescribedBy = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1243,7 +1288,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.startDate}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].startDate = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1258,7 +1303,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.instructions}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].instructions = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1269,11 +1314,25 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Discontinued Medications ({(medications.discontinued || []).length})</h4>
+      {/* Discontinued Medications Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('discontinuedMeds')}
+        >
+          <span className="accordion-icon">{expandedSections.has('discontinuedMeds') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Discontinued Medications</span>
+          <span className="accordion-meta">{(data.medications.discontinued || []).length} items</span>
+        </div>
+        {expandedSections.has('discontinuedMeds') && (
+          <div className="accordion-content">
     <div className="medications-list">
-      {(medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
+      {(data.medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
         <div key={index} className="medication-item discontinued">
           <div className="medication-header">
             <span className="medication-number">🚫 #{index + 1}</span>
@@ -1285,7 +1344,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.name}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].name = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1300,7 +1359,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.strength}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].strength = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1315,7 +1374,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.reason}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].reason = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1330,7 +1389,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.discontinuedDate}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].discontinuedDate = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1345,7 +1404,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.prescribedBy}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].prescribedBy = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1356,9 +1415,23 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Surgical History ({(data.surgicalHistory || []).length})</h4>
+      {/* Surgical History Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('surgicalHistory')}
+        >
+          <span className="accordion-icon">{expandedSections.has('surgicalHistory') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Surgical History</span>
+          <span className="accordion-meta">{(data.surgicalHistory || []).length} items</span>
+        </div>
+        {expandedSections.has('surgicalHistory') && (
+          <div className="accordion-content">
     <div className="surgical-list">
       {(data.surgicalHistory || []).map((surgery: SurgicalHistory, index: number) => (
         <div key={index} className="surgery-item">
@@ -1443,9 +1516,23 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Family History ({(data.familyHistory || []).length})</h4>
+      {/* Family History Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('familyHistory')}
+        >
+          <span className="accordion-icon">{expandedSections.has('familyHistory') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Family History</span>
+          <span className="accordion-meta">{(data.familyHistory || []).length} items</span>
+        </div>
+        {expandedSections.has('familyHistory') && (
+          <div className="accordion-content">
     <div className="family-history-list">
       {(data.familyHistory || []).map((family: FamilyHistory, index: number) => (
         <div key={index} className="family-item">
@@ -1515,6 +1602,10 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 );

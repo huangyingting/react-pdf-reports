@@ -3,12 +3,12 @@ import { BasicData, MedicalHistoryData } from '../../utils/types';
 
 interface MedicationsPageProps {
   data: BasicData;
-  medicationHistoryData?: MedicalHistoryData;
+  medicalHistoryData?: MedicalHistoryData;
 }
 
-const MedicationsPage: React.FC<MedicationsPageProps> = ({ data, medicationHistoryData }) => {
+const MedicationsPage: React.FC<MedicationsPageProps> = ({ data, medicalHistoryData }) => {
   const { patient } = data;
-  const medications = medicationHistoryData?.medications;
+  const medications = medicalHistoryData?.medications;
   const currentDate = new Date().toLocaleDateString();
   
   return (

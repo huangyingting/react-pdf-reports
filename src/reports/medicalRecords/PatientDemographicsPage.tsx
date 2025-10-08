@@ -4,24 +4,24 @@ import { BasicData, LaboratoryReportData, MedicalHistoryData } from '../../utils
 interface PatientDemographicsPageProps {
   data: BasicData;
   laboratoryReportData?: LaboratoryReportData;
-  medicationHistoryData?: MedicalHistoryData;
+  medicalHistoryData?: MedicalHistoryData;
 }
 
-const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData, medicationHistoryData }) => {
+const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData, medicalHistoryData }) => {
   const { patient, provider } = data;
   const currentDate = new Date().toLocaleDateString();
   
-  // Extract dynamic data from medicationHistoryData
-  const allergiesText = medicationHistoryData?.allergies && medicationHistoryData.allergies.length > 0
-    ? medicationHistoryData.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
+  // Extract dynamic data from medicalHistoryData
+  const allergiesText = medicalHistoryData?.allergies && medicalHistoryData.allergies.length > 0
+    ? medicalHistoryData.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
     : 'No known allergies';
   
-  const chronicConditionsText = medicationHistoryData?.chronicConditions && medicationHistoryData.chronicConditions.length > 0
-    ? medicationHistoryData.chronicConditions.map(c => c.condition).join(', ')
+  const chronicConditionsText = medicalHistoryData?.chronicConditions && medicalHistoryData.chronicConditions.length > 0
+    ? medicalHistoryData.chronicConditions.map(c => c.condition).join(', ')
     : 'None documented';
   
-  const currentMedicationsText = medicationHistoryData?.medications?.current && medicationHistoryData.medications.current.length > 0
-    ? medicationHistoryData.medications.current.slice(0, 3).map(m => m.name).join(', ') + (medicationHistoryData.medications.current.length > 3 ? `, +${medicationHistoryData.medications.current.length - 3} more` : '')
+  const currentMedicationsText = medicalHistoryData?.medications?.current && medicalHistoryData.medications.current.length > 0
+    ? medicalHistoryData.medications.current.slice(0, 3).map(m => m.name).join(', ') + (medicalHistoryData.medications.current.length > 3 ? `, +${medicalHistoryData.medications.current.length - 3} more` : '')
     : 'No current medications';
   
   // Try to find blood type from laboratory report data

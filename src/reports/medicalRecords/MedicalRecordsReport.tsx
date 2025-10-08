@@ -11,11 +11,11 @@ interface MedicalRecordsReportProps {
   data: BasicData;
   laboratoryReportData?: LaboratoryReportData[];
   visitReportData?: VisitReportData;
-  medicationHistoryData?: MedicalHistoryData;
+  medicalHistoryData?: MedicalHistoryData;
   fontFamily?: string;
 }
 
-const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, laboratoryReportData, visitReportData, medicationHistoryData, fontFamily = "'Arial', sans-serif" }) => {
+const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, laboratoryReportData, visitReportData, medicalHistoryData, fontFamily = "'Arial', sans-serif" }) => {
   return (
     <div 
       className="medical-records-report"
@@ -23,19 +23,19 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, labor
       style={{ fontFamily: fontFamily }}
     >
       {/* Page 1: Patient Demographics */}
-      <PatientDemographicsPage data={data} medicationHistoryData={medicationHistoryData} />
+      <PatientDemographicsPage data={data} medicalHistoryData={medicalHistoryData} />
       
       {/* Page Break */}
       <div className="page-break"></div>
       
       {/* Page 2: Medical History */}
-      {medicationHistoryData && <MedicalHistoryPage data={medicationHistoryData} />}
+      {medicalHistoryData && <MedicalHistoryPage data={medicalHistoryData} />}
       
       {/* Page Break */}
       <div className="page-break"></div>
       
       {/* Page 3: Medications */}
-      <MedicationsPage data={data} medicationHistoryData={medicationHistoryData} />
+      <MedicationsPage data={data} medicalHistoryData={medicalHistoryData} />
       
       {/* Page Break */}
       <div className="page-break"></div>
@@ -54,7 +54,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, labor
       <VisitNotesPage 
         data={data}
         visitReportData={visitReportData}
-        medicationHistoryData={medicationHistoryData}
+        medicalHistoryData={medicalHistoryData}
       />
     </div>
   );
