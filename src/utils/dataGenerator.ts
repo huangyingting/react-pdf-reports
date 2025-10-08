@@ -1746,7 +1746,7 @@ function calculateBMI(weight: number, height: string): string {
 export const generateInsurancePolicy = (patient: Patient, insuranceInfo: InsuranceInfo): InsurancePolicy => {
   return {
     patient: patient,
-    insurance: insuranceInfo.primaryInsurance
+    insuranceInfo: insuranceInfo
   };
 }
 

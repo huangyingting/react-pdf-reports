@@ -172,7 +172,7 @@ function App() {
     if (activeReportType === 'insurancePolicy') {
       const insurancePolicy: InsurancePolicy = {
         patient: generatedData.patient,
-        insurance: generatedData.insuranceInfo.primaryInsurance
+        insuranceInfo: generatedData.insuranceInfo
       };
       return (
         <InsurancePolicyDocument 
@@ -185,7 +185,9 @@ function App() {
     if (activeReportType === 'visitReport') {
       return generatedData.visitReports.length > 0 ? (
         <VisitReportDocument 
-          data={generatedData.visitReports[0]}
+          patient={generatedData.patient}
+          provider={generatedData.provider}
+          visitReport={generatedData.visitReports[0]}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
@@ -206,7 +208,8 @@ function App() {
       const labData = generatedData.labReports.find(report => report.testType === activeReportType);
       return labData ? (
         <LaboratoryReportDocument 
-          data={labData}
+          patient={generatedData.patient}
+          labReport={labData}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
@@ -214,9 +217,11 @@ function App() {
     
     return (
       <MedicalRecordsReport 
-        data={generatedData.patient} 
-        laboratoryReportData={generatedData.labReports}
-        visitReportData={generatedData.visitReports.length > 0 ? generatedData.visitReports[0] : undefined}
+        patient={generatedData.patient}
+        provider={generatedData.provider}
+        insuranceInfo={generatedData.insuranceInfo}
+        labReports={generatedData.labReports}
+        visitReports={generatedData.visitReports}
         medicalHistory={generatedData.medicalHistory}
         fontFamily={fontFamilyStyle}
       />
@@ -341,9 +346,11 @@ function App() {
           {generatedData && (
             <>
               <MedicalRecordsReport 
-                data={generatedData.patient}
-                laboratoryReportData={generatedData.labReports}
-                visitReportData={generatedData.visitReports.length > 0 ? generatedData.visitReports[0] : undefined}
+                patient={generatedData.patient}
+                provider={generatedData.provider}
+                insuranceInfo={generatedData.insuranceInfo}
+                labReports={generatedData.labReports}
+                visitReports={generatedData.visitReports}
                 medicalHistory={generatedData.medicalHistory}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
@@ -354,14 +361,16 @@ function App() {
               <InsurancePolicyDocument 
                 data={{
                   patient: generatedData.patient,
-                  insurance: generatedData.insuranceInfo.primaryInsurance
+                  insuranceInfo: generatedData.insuranceInfo
                 }}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               {generatedData.visitReports.map((visitData: VisitReport, index: number) => (
                 <VisitReportDocument 
                   key={index}
-                  data={visitData}
+                  patient={generatedData.patient}
+                  provider={generatedData.provider}
+                  visitReport={visitData}
                   fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
                 />
               ))}
@@ -373,7 +382,8 @@ function App() {
               {generatedData.labReports.map((labReport: LabReport) => (
                 <LaboratoryReportDocument 
                   key={labReport.testType}
-                  data={labReport}
+                  patient={generatedData.patient}
+                  labReport={labReport}
                   fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
                 />
               ))}
