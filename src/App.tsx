@@ -41,7 +41,7 @@ function App() {
   const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
   const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
   const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
-  const [visitReportData, setVisitReportData] = useState<VisitReportData | null>(null);
+  const [visitReportsData, setVisitReportsData] = useState<VisitReportData[]>([]);
   const [medicationHistoryData, setMedicationHistoryData] = useState<MedicationHistoryData | null>(null);
   const [laboratoryReports, setLaboratoryReports] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
   const [activeReportType, setActiveReportType] = useState<ReportType>('medical');
@@ -81,7 +81,11 @@ function App() {
     setMedicalData(data);
     setCms1500Data(generateCMS1500Data(data));
     setInsurancePolicyData(generateInsurancePolicyData(data));
-    setVisitReportData(generateVisitReportData(data));
+    
+    // Generate visit reports based on numberOfVisits from metadata
+    const numberOfVisits = data.metadata?.numberOfVisits || 1;
+    setVisitReportsData(generateVisitReportData(data, numberOfVisits));
+    
     setMedicationHistoryData(generateMedicationHistoryData(data));
     
     // Generate all laboratory reports
@@ -93,16 +97,17 @@ function App() {
     setLaboratoryReports(labReportsMap);
   };
 
-  const handleDataUpdated = (newData: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitData?: VisitReportData) => {
+  const handleDataUpdated = (newData: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => {
     setMedicalData(newData);
     setCms1500Data(generateCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));
     
-    // Update visit report data if provided, otherwise regenerate
-    if (visitData) {
-      setVisitReportData(visitData);
+    // Update visit reports data if provided, otherwise regenerate
+    if (visitDataArray && visitDataArray.length > 0) {
+      setVisitReportsData(visitDataArray);
     } else {
-      setVisitReportData(generateVisitReportData(newData));
+      const numberOfVisits = newData.metadata?.numberOfVisits || 1;
+      setVisitReportsData(generateVisitReportData(newData, numberOfVisits));
     }
     
     setMedicationHistoryData(generateMedicationHistoryData(newData));
@@ -208,9 +213,9 @@ function App() {
     }
     
     if (activeReportType === 'visitReport') {
-      return visitReportData ? (
+      return visitReportsData.length > 0 ? (
         <VisitReportDocument 
-          data={visitReportData}
+          data={visitReportsData[0]}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
@@ -241,7 +246,7 @@ function App() {
       <MedicalRecordsReport 
         data={medicalData} 
         laboratoryReportData={Array.from(laboratoryReports.values())}
-        visitReportData={visitReportData || undefined}
+        visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
         medicationHistoryData={medicationHistoryData || undefined}
         fontFamily={fontFamilyStyle}
       />
@@ -262,7 +267,7 @@ function App() {
           <EditDataStep
             medicalData={medicalData}
             laboratoryReportsMap={laboratoryReports}
-            visitReportData={visitReportData || undefined}
+            visitReportsData={visitReportsData}
             onDataUpdated={handleDataUpdated}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
@@ -369,7 +374,7 @@ function App() {
             <MedicalRecordsReport 
               data={medicalData}
               laboratoryReportData={Array.from(laboratoryReports.values())}
-              visitReportData={visitReportData || undefined}
+              visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
               medicationHistoryData={medicationHistoryData || undefined}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
@@ -386,12 +391,13 @@ function App() {
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}
-          {visitReportData && (
+          {visitReportsData.length > 0 && visitReportsData.map((visitData, index) => (
             <VisitReportDocument 
-              data={visitReportData}
+              key={index}
+              data={visitData}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
-          )}
+          ))}
           {medicationHistoryData && (
             <MedicationHistoryDocument 
               data={medicationHistoryData}

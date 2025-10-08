@@ -13,7 +13,17 @@ import {
   DEDUCTIBLE_AMOUNTS
 } from './types';
 
-export const generateVisitReportData = (patientData?: MedicalRecord): VisitReportData => {
+export const generateVisitReportData = (patientData?: MedicalRecord, numberOfVisits: number = 1): VisitReportData[] => {
+  const visitReports: VisitReportData[] = [];
+  
+  for (let i = 0; i < numberOfVisits; i++) {
+    visitReports.push(generateSingleVisitReport(patientData, i));
+  }
+  
+  return visitReports;
+};
+
+const generateSingleVisitReport = (patientData?: MedicalRecord, visitIndex: number = 0): VisitReportData => {
   // Generate fallback values using Faker.js
   const fallbackFirstName = faker.person.firstName();
   const fallbackLastName = faker.person.lastName();
@@ -151,7 +161,9 @@ export const generateVisitReportData = (patientData?: MedicalRecord): VisitRepor
     ['Increase Lisinopril to 20mg daily', 'Continue Metformin', 'Weight management plan', 'Follow-up in 2 months with labs']
   ];
   
-  const visitDate = faker.date.recent({ days: 30 });
+  // Generate visit date based on index - spread visits over the past year
+  const daysAgo = 30 + (visitIndex * 60); // Space visits ~60 days apart, starting from 30 days ago
+  const visitDate = faker.date.recent({ days: Math.min(daysAgo, 365) });
   const selectedAssessment = faker.helpers.arrayElement(assessments);
   const selectedPlan = faker.helpers.arrayElement(plans);
   

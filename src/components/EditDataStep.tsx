@@ -6,8 +6,8 @@ import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;
   laboratoryReportsMap?: Map<LabTestType, LaboratoryReportData>;
-  visitReportData?: VisitReportData;
-  onDataUpdated: (data: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitData?: VisitReportData) => void;
+  visitReportsData?: VisitReportData[];
+  onDataUpdated: (data: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -55,12 +55,13 @@ interface VisitNotesSectionProps {
   onChange: (updatedData: VisitReportData) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportData, onDataUpdated, onNext, onBack }) => {
+const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, onDataUpdated, onNext, onBack }) => {
   const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
   const [editedLabReportsMap, setEditedLabReportsMap] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
-  const [editedVisitData, setEditedVisitData] = useState<VisitReportData | undefined>(undefined);
+  const [editedVisitReportsData, setEditedVisitReportsData] = useState<VisitReportData[]>([]);
   const [activeSection, setActiveSection] = useState<string>('patient');
-  const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set(['CBC']));
+  const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set());
+  const [expandedVisitReports, setExpandedVisitReports] = useState<Set<number>>(new Set());
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
@@ -74,10 +75,10 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
       });
       setEditedLabReportsMap(clonedMap);
     }
-    if (visitReportData) {
-      setEditedVisitData(JSON.parse(JSON.stringify(visitReportData)));
+    if (visitReportsData && visitReportsData.length > 0) {
+      setEditedVisitReportsData(JSON.parse(JSON.stringify(visitReportsData)));
     }
-  }, [medicalData, laboratoryReportsMap, visitReportData]);
+  }, [medicalData, laboratoryReportsMap, visitReportsData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -109,7 +110,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
 
   const handleSaveChanges = () => {
     if (editedData) {
-      onDataUpdated(editedData, editedLabReportsMap, editedVisitData);
+      onDataUpdated(editedData, editedLabReportsMap, editedVisitReportsData);
       setHasChanges(false);
     }
   };
@@ -296,17 +297,51 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               </>
             )}
             
-            {/* Vital Signs section: Data now managed via VisitReportData */}
+            {/* Vital Signs section: Data now managed via VisitReportData array */}
             {activeSection === 'vitals' && (
               <>
-                {editedVisitData ? (
-                  <VitalSignsSection
-                    data={editedVisitData}
-                    onChange={(updated) => {
-                      setEditedVisitData(updated);
-                      setHasChanges(true);
-                    }}
-                  />
+                {editedVisitReportsData.length > 0 ? (
+                  <div className="section">
+                    <h3>Vital Signs ({editedVisitReportsData.length} visits)</h3>
+                    <div className="lab-reports-accordion">
+                      {editedVisitReportsData.map((visitData, index) => {
+                        const isExpanded = expandedVisitReports.has(index);
+                        return (
+                          <div key={index} className="accordion-item">
+                            <div 
+                              className="accordion-header"
+                              onClick={() => {
+                                const newExpanded = new Set(expandedVisitReports);
+                                if (isExpanded) {
+                                  newExpanded.delete(index);
+                                } else {
+                                  newExpanded.add(index);
+                                }
+                                setExpandedVisitReports(newExpanded);
+                              }}
+                            >
+                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-title">Visit {index + 1} - {visitData.visit.date}</span>
+                              <span className="accordion-meta">{visitData.visit.type}</span>
+                            </div>
+                            {isExpanded && (
+                              <div className="accordion-content">
+                                <VitalSignsSection
+                                  data={visitData}
+                                  onChange={(updated) => {
+                                    const newArray = [...editedVisitReportsData];
+                                    newArray[index] = updated;
+                                    setEditedVisitReportsData(newArray);
+                                    setHasChanges(true);
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <div className="section">
                     <h3>Vital Signs</h3>
@@ -316,17 +351,51 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               </>
             )}
             
-            {/* Visit Notes section: Data now managed via VisitReportData */}
+            {/* Visit Notes section: Data now managed via VisitReportData array */}
             {activeSection === 'visits' && (
               <>
-                {editedVisitData ? (
-                  <VisitNotesSection
-                    data={editedVisitData}
-                    onChange={(updated) => {
-                      setEditedVisitData(updated);
-                      setHasChanges(true);
-                    }}
-                  />
+                {editedVisitReportsData.length > 0 ? (
+                  <div className="section">
+                    <h3>Visit Notes ({editedVisitReportsData.length} visits)</h3>
+                    <div className="lab-reports-accordion">
+                      {editedVisitReportsData.map((visitData, index) => {
+                        const isExpanded = expandedVisitReports.has(index);
+                        return (
+                          <div key={index} className="accordion-item">
+                            <div 
+                              className="accordion-header"
+                              onClick={() => {
+                                const newExpanded = new Set(expandedVisitReports);
+                                if (isExpanded) {
+                                  newExpanded.delete(index);
+                                } else {
+                                  newExpanded.add(index);
+                                }
+                                setExpandedVisitReports(newExpanded);
+                              }}
+                            >
+                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-title">Visit {index + 1} - {visitData.visit.date}</span>
+                              <span className="accordion-meta">{visitData.visit.type}</span>
+                            </div>
+                            {isExpanded && (
+                              <div className="accordion-content">
+                                <VisitNotesSection
+                                  data={visitData}
+                                  onChange={(updated) => {
+                                    const newArray = [...editedVisitReportsData];
+                                    newArray[index] = updated;
+                                    setEditedVisitReportsData(newArray);
+                                    setHasChanges(true);
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <div className="section">
                     <h3>Visit Notes</h3>
