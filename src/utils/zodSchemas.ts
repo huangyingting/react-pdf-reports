@@ -54,7 +54,7 @@ export const PatientDemographicsSchema = z.object({
   lastName: z.string().describe('Last name'),
   middleInitial: z.string().optional().describe('Middle initial'),
   dateOfBirth: z.string().describe('Date of birth in MM/DD/YYYY format'),
-  age: z.number().int().positive().describe('Age in years'),
+  age: z.number().int().min(1).describe('Age in years'),
   gender: z.string().describe('Gender'),
   address: AddressSchema,
   contact: ContactSchema,
@@ -369,8 +369,8 @@ export const LaboratoryReportDataSchema = z.object({
 
 export const GenerationOptionsSchema = z.object({
   complexity: z.enum(['low', 'medium', 'high']).optional().describe('Medical complexity level'),
-  numberOfVisits: z.number().int().positive().optional().describe('Number of visits to generate'),
-  numberOfLabTests: z.number().int().positive().optional().describe('Number of lab tests to generate'),
+  numberOfVisits: z.number().int().min(1).optional().describe('Number of visits to generate'),
+  numberOfLabTests: z.number().int().min(1).optional().describe('Number of lab tests to generate'),
   includeSecondaryInsurance: z.boolean().optional().describe('Whether to include secondary insurance')
 });
 
@@ -379,8 +379,8 @@ export const DataPresetSchema = z.object({
   description: z.string().describe('Preset description'),
   options: z.object({
     complexity: z.enum(['low', 'medium', 'high']),
-    numberOfVisits: z.number().int().positive(),
-    numberOfLabTests: z.number().int().positive(),
+    numberOfVisits: z.number().int().min(1),
+    numberOfLabTests: z.number().int().min(1),
     includeSecondaryInsurance: z.boolean()
   }).describe('Preset options')
 });

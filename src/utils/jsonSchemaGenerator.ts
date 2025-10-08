@@ -11,7 +11,6 @@
  * - Less code duplication
  */
 
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import { z } from 'zod';
 import {
   PatientDemographicsSchema,
@@ -38,22 +37,18 @@ export function zodToOpenAISchema(
     description?: string;
   }
 ) {
-  const jsonSchema = zodToJsonSchema(zodSchema, {
-    name,
-    target: 'openApi3',
-    // Remove $schema property as Azure OpenAI doesn't need it
-    $refStrategy: 'none'
+  // Use Zod v4's built-in z.toJSONSchema() static method
+  // target: 'openapi-3.0' removes the $schema property automatically
+  const jsonSchema = z.toJSONSchema(zodSchema, {
+    target: 'openapi-3.0'
   });
-
-  // Remove the $schema property
-  const { $schema, ...schemaWithoutDollarSchema } = jsonSchema as any;
 
   return {
     type: 'json_schema',
     json_schema: {
       name,
       strict: options?.strict !== false, // Default to strict mode
-      schema: schemaWithoutDollarSchema,
+      schema: jsonSchema,
       ...(options?.description && { description: options.description })
     }
   };
@@ -88,7 +83,7 @@ export const ResponseFormats = {
   BasicData: zodToOpenAISchema(
     BasicDataSchema,
     'BasicDataResponse',
-    { description: 'Complete medical record' }
+    { description: 'Basic data', strict: false }
   ),
 
   /**
@@ -97,7 +92,7 @@ export const ResponseFormats = {
   CMS1500Data: zodToOpenAISchema(
     CMS1500DataSchema,
     'CMS1500DataResponse',
-    { description: 'CMS-1500 claim form data' }
+    { description: 'CMS-1500 claim form data', strict: false }
   ),
 
   /**
@@ -106,7 +101,7 @@ export const ResponseFormats = {
   InsurancePolicyData: zodToOpenAISchema(
     InsurancePolicyDataSchema,
     'InsurancePolicyDataResponse',
-    { description: 'Insurance policy document' }
+    { description: 'Insurance policy document', strict: false }
   ),
 
   /**
@@ -115,7 +110,7 @@ export const ResponseFormats = {
   VisitReportData: zodToOpenAISchema(
     VisitReportDataSchema,
     'VisitReportDataResponse',
-    { description: 'Medical visit report' }
+    { description: 'Medical visit report', strict: false }
   ),
 
   /**
@@ -124,7 +119,7 @@ export const ResponseFormats = {
   PatientDemographics: zodToOpenAISchema(
     PatientDemographicsSchema,
     'PatientDemographicsResponse',
-    { description: 'Patient demographics' }
+    { description: 'Patient demographics', strict: false }
   ),
 
   /**
@@ -133,7 +128,7 @@ export const ResponseFormats = {
   MedicalHistoryData: zodToOpenAISchema(
     MedicalHistoryDataSchema,
     'MedicalHistoryDataResponse',
-    { description: 'Complete medical history' }
+    { description: 'Complete medical history', strict: false }
   ),
 
   /**
@@ -142,7 +137,7 @@ export const ResponseFormats = {
   LaboratoryReportData: zodToOpenAISchema(
     LaboratoryReportDataSchema,
     'LaboratoryReportDataResponse',
-    { description: 'Laboratory test report' }
+    { description: 'Laboratory test report', strict: false }
   )
 };
 
