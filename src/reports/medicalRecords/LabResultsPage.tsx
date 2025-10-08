@@ -3,7 +3,7 @@ import { MedicalRecord, LaboratoryReportData, VisitReportData } from '../../util
 
 interface LabResultsPageProps {
   data: MedicalRecord;
-  laboratoryReportData?: LaboratoryReportData;
+  laboratoryReportData?: LaboratoryReportData[];
   visitReportData?: VisitReportData;
 }
 
@@ -55,64 +55,71 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
   };
 
   const renderRecentLabs = () => {
-    if (!laboratoryReportData) return null;
+    if (!laboratoryReportData || laboratoryReportData.length === 0) return null;
 
     return (
       <div className="compact-section">
         <h3>Recent Laboratory Results</h3>
         
-        <div style={{marginBottom: '4mm'}}>
-          <h4 style={{color: '#2c5aa0', fontSize: '11px', marginBottom: '2mm'}}>
-            {laboratoryReportData.testName} - {laboratoryReportData.reportDate}
-          </h4>
-          
-          <table className="compact-table">
-            <thead>
-              <tr>
-                <th>Component</th>
-                <th>Result</th>
-                <th>Units</th>
-                <th>Reference Range</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {laboratoryReportData.results.slice(0, 10).map((result, resultIndex) => (
-                <tr key={resultIndex}>
-                  <td style={{fontWeight: 'bold'}}>{result.parameter}</td>
-                  <td style={{textAlign: 'center', fontWeight: result.flag !== 'Normal' ? 'bold' : 'normal'}}>
-                    {result.value}
-                  </td>
-                  <td style={{textAlign: 'center'}}>{result.unit}</td>
-                  <td style={{textAlign: 'center'}}>{result.referenceRange}</td>
-                  <td style={{textAlign: 'center'}}>
-                    <span className={`status-badge status-${result.flag?.toLowerCase().replace(' ', '-')}`}>
-                      {result.flag}
-                    </span>
-                  </td>
+        {laboratoryReportData.slice(0, 3).map((labReport, labIndex) => (
+          <div key={labIndex} style={{marginBottom: '4mm'}}>
+            <h4 style={{color: '#2c5aa0', fontSize: '11px', marginBottom: '2mm'}}>
+              {labReport.testName} - {labReport.reportDate}
+            </h4>
+            
+            <table className="compact-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Result</th>
+                  <th>Units</th>
+                  <th>Reference Range</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {labReport.results.slice(0, 10).map((result, resultIndex) => (
+                  <tr key={resultIndex}>
+                    <td style={{fontWeight: 'bold'}}>{result.parameter}</td>
+                    <td style={{textAlign: 'center', fontWeight: result.flag !== 'Normal' ? 'bold' : 'normal'}}>
+                      {result.value}
+                    </td>
+                    <td style={{textAlign: 'center'}}>{result.unit}</td>
+                    <td style={{textAlign: 'center'}}>{result.referenceRange}</td>
+                    <td style={{textAlign: 'center'}}>
+                      <span className={`status-badge status-${result.flag?.toLowerCase().replace(' ', '-')}`}>
+                        {result.flag}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
       </div>
     );
   };
 
   const renderCriticalAlerts = () => {
-    if (!laboratoryReportData) return null;
+    if (!laboratoryReportData || laboratoryReportData.length === 0) return null;
     
-    const criticalResults = laboratoryReportData.results.filter(result => 
-      result.flag === 'High' || result.flag === 'Low' || result.flag === 'Critical' || result.flag === 'Abnormal'
+    // Collect critical results from all lab reports
+    const allCriticalResults = laboratoryReportData.flatMap(labReport =>
+      labReport.results
+        .filter(result => 
+          result.flag === 'High' || result.flag === 'Low' || result.flag === 'Critical' || result.flag === 'Abnormal'
+        )
+        .map(result => ({ ...result, testName: labReport.testName }))
     );
 
-    if (criticalResults.length === 0) return null;
+    if (allCriticalResults.length === 0) return null;
 
     return (
       <div className="compact-section">
         <h3>Critical Values & Alerts</h3>
         <div className="alert-summary">
-          {criticalResults.slice(0, 4).map((result, index) => (
+          {allCriticalResults.slice(0, 4).map((result, index) => (
             <div key={index} className={`alert-box ${result.flag === 'Critical' ? 'critical' : result.flag === 'High' ? 'warning' : 'info'}`}>
               <strong>{result.parameter}</strong> - {result.value} {result.unit} 
               <span style={{fontSize: '9px', color: '#666'}}>
@@ -126,50 +133,57 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
   };
 
   const renderLabSummary = () => {
-    if (!laboratoryReportData) return null;
+    if (!laboratoryReportData || laboratoryReportData.length === 0) return null;
 
-    const abnormalCount = laboratoryReportData.results.filter(r => r.flag !== 'Normal' && r.flag !== '').length;
+    // Calculate total abnormal results across all lab reports
+    const totalAbnormalCount = laboratoryReportData.reduce((sum, labReport) => {
+      return sum + labReport.results.filter(r => r.flag !== 'Normal' && r.flag !== '').length;
+    }, 0);
 
     return (
       <div className="compact-section">
         <h3>Laboratory Summary</h3>
         <div className="reference-grid">
           <div className="reference-item">
-            <strong>Test Ordered</strong>
-            <div>{laboratoryReportData.testName}</div>
-            <div className="note">Report Date: {laboratoryReportData.reportDate}</div>
+            <strong>Tests Ordered</strong>
+            <div>{laboratoryReportData.length} test{laboratoryReportData.length !== 1 ? 's' : ''}</div>
+            <div className="note">Recent reports available</div>
           </div>
           <div className="reference-item">
             <strong>Abnormal Results</strong>
             <div>
-              {abnormalCount} finding{abnormalCount !== 1 ? 's' : ''}
+              {totalAbnormalCount} finding{totalAbnormalCount !== 1 ? 's' : ''}
             </div>
-            <div className="note">{abnormalCount > 0 ? 'Require follow-up review' : 'All values normal'}</div>
+            <div className="note">{totalAbnormalCount > 0 ? 'Require follow-up review' : 'All values normal'}</div>
           </div>
         </div>
         
         <div style={{marginTop: '3mm'}}>
           <h4>Test Information</h4>
-          <table className="info-table">
-            <tbody>
-              <tr>
-                <td className="label">Test Type</td>
-                <td className="value">{laboratoryReportData.testType}</td>
-              </tr>
-              <tr>
-                <td className="label">Specimen Type</td>
-                <td className="value">{laboratoryReportData.specimenType}</td>
-              </tr>
-              <tr>
-                <td className="label">Collection Date</td>
-                <td className="value">{laboratoryReportData.specimenCollectionDate} at {laboratoryReportData.specimenCollectionTime}</td>
-              </tr>
-              <tr>
-                <td className="label">Ordering Physician</td>
-                <td className="value">{laboratoryReportData.orderingPhysician}</td>
-              </tr>
-            </tbody>
-          </table>
+          {laboratoryReportData.slice(0, 2).map((labReport, index) => (
+            <div key={index} style={{marginBottom: index < 1 ? '3mm' : '0'}}>
+              <table className="info-table">
+                <tbody>
+                  <tr>
+                    <td className="label">Test Type</td>
+                    <td className="value">{labReport.testType}</td>
+                  </tr>
+                  <tr>
+                    <td className="label">Specimen Type</td>
+                    <td className="value">{labReport.specimenType}</td>
+                  </tr>
+                  <tr>
+                    <td className="label">Collection Date</td>
+                    <td className="value">{labReport.specimenCollectionDate} at {labReport.specimenCollectionTime}</td>
+                  </tr>
+                  <tr>
+                    <td className="label">Ordering Physician</td>
+                    <td className="value">{labReport.orderingPhysician}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       </div>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, VitalSigns, VisitNote, MEDICAL_SPECIALTIES } from '../utils/types';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MEDICAL_SPECIALTIES } from '../utils/types';
 import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
@@ -40,21 +40,19 @@ interface MedicalHistorySectionProps {
   onChange: (field: string, value: any) => void;
 }
 
-// These interfaces are kept for legacy sections but no longer actively used
-// Data is now managed via LaboratoryReportData and VisitReportData
 interface LabResultsSectionProps {
-  data: any[];
-  onChange: (field: string, value: any) => void;
+  data: LaboratoryReportData;
+  onChange: (updatedData: LaboratoryReportData) => void;
 }
 
 interface VitalSignsSectionProps {
-  data: VitalSigns[];
-  onChange: (field: string, value: any) => void;
+  data: VisitReportData;
+  onChange: (updatedData: VisitReportData) => void;
 }
 
 interface VisitNotesSectionProps {
-  data: VisitNote[];
-  onChange: (field: string, value: any) => void;
+  data: VisitReportData;
+  onChange: (updatedData: VisitReportData) => void;
 }
 
 const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportData, visitReportData, onDataUpdated, onNext, onBack }) => {
@@ -240,45 +238,63 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
             )}
             
             {/* Lab Results section: Data now managed via LaboratoryReportData */}
-            {activeSection === 'labs' && editedLabData && (
-              <div className="section">
-                <h3>Laboratory Report (Read-Only)</h3>
-                <p>Laboratory report data is managed separately. View in the final PDF report.</p>
-                <div className="info-display">
-                  <p><strong>Test Name:</strong> {editedLabData.testName}</p>
-                  <p><strong>Test Type:</strong> {editedLabData.testType}</p>
-                  <p><strong>Report Date:</strong> {editedLabData.reportDate}</p>
-                  <p><strong>Results Count:</strong> {editedLabData.results.length}</p>
-                </div>
-              </div>
+            {activeSection === 'labs' && (
+              <>
+                {editedLabData ? (
+                  <LabResultsSection
+                    data={editedLabData}
+                    onChange={(updated) => {
+                      setEditedLabData(updated);
+                      setHasChanges(true);
+                    }}
+                  />
+                ) : (
+                  <div className="section">
+                    <h3>Laboratory Report</h3>
+                    <p className="info-message">⚠️ No laboratory report data available. Please generate data first.</p>
+                  </div>
+                )}
+              </>
             )}
             
             {/* Vital Signs section: Data now managed via VisitReportData */}
-            {activeSection === 'vitals' && editedVisitData?.vitalSigns && (
-              <div className="section">
-                <h3>Vital Signs (Read-Only)</h3>
-                <p>Vital signs data is managed separately. View in the final PDF report.</p>
-                <div className="info-display">
-                  <p><strong>Blood Pressure:</strong> {editedVisitData.vitalSigns.bloodPressure}</p>
-                  <p><strong>Heart Rate:</strong> {editedVisitData.vitalSigns.heartRate} bpm</p>
-                  <p><strong>Temperature:</strong> {editedVisitData.vitalSigns.temperature} °F</p>
-                  <p><strong>Weight:</strong> {editedVisitData.vitalSigns.weight} lbs</p>
-                </div>
-              </div>
+            {activeSection === 'vitals' && (
+              <>
+                {editedVisitData ? (
+                  <VitalSignsSection
+                    data={editedVisitData}
+                    onChange={(updated) => {
+                      setEditedVisitData(updated);
+                      setHasChanges(true);
+                    }}
+                  />
+                ) : (
+                  <div className="section">
+                    <h3>Vital Signs</h3>
+                    <p className="info-message">⚠️ No visit report data available. Please generate data first.</p>
+                  </div>
+                )}
+              </>
             )}
             
             {/* Visit Notes section: Data now managed via VisitReportData */}
-            {activeSection === 'visits' && editedVisitData?.visit && (
-              <div className="section">
-                <h3>Visit Notes (Read-Only)</h3>
-                <p>Visit notes data is managed separately. View in the final PDF report.</p>
-                <div className="info-display">
-                  <p><strong>Date:</strong> {editedVisitData.visit.date}</p>
-                  <p><strong>Type:</strong> {editedVisitData.visit.type}</p>
-                  <p><strong>Provider:</strong> {editedVisitData.visit.provider}</p>
-                  <p><strong>Chief Complaint:</strong> {editedVisitData.visit.chiefComplaint}</p>
-                </div>
-              </div>
+            {activeSection === 'visits' && (
+              <>
+                {editedVisitData ? (
+                  <VisitNotesSection
+                    data={editedVisitData}
+                    onChange={(updated) => {
+                      setEditedVisitData(updated);
+                      setHasChanges(true);
+                    }}
+                  />
+                ) : (
+                  <div className="section">
+                    <h3>Visit Notes</h3>
+                    <p className="info-message">⚠️ No visit report data available. Please generate data first.</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -1378,536 +1394,432 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
   </div>
 );
 
-// Lab Results Section Component
-const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Lab Tests ({(data || []).length})</h3>
-    <div className="lab-tests-list">
-      {(data || []).map((test, testIndex) => (
-        <div key={testIndex} className="lab-test-item">
-          <div className="lab-test-header">
-            <span className="test-number">🔬 Test #{testIndex + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Test Date</label>
-              <input
-                type="text"
-                value={test.testDate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[testIndex].testDate = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Test Name</label>
-              <input
-                type="text"
-                value={test.testName}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[testIndex].testName = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="e.g., Complete Blood Count"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Ordering Physician</label>
-              <input
-                type="text"
-                value={test.orderingPhysician}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[testIndex].orderingPhysician = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="Provider name"
-              />
-            </div>
-          </div>
-          
-          <h5>Test Results ({(test.results || []).length})</h5>
-          <div className="lab-results-grid">
-            {(test.results || []).map((result: any, resultIndex: number) => (
-              <div key={resultIndex} className="lab-result-row">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Parameter</label>
-                    <input
-                      type="text"
-                      value={result.parameter}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].parameter = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., WBC"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Value</label>
-                    <input
-                      type="text"
-                      value={result.value}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].value = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., 7.5"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Unit</label>
-                    <input
-                      type="text"
-                      value={result.unit}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].unit = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., K/uL"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Reference Range</label>
-                    <input
-                      type="text"
-                      value={result.referenceRange}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].referenceRange = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., 4.5-11.0"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Status</label>
-                    <select
-                      value={result.status}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].status = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-select"
-                    >
-                      <option value="Normal">Normal</option>
-                      <option value="High">High</option>
-                      <option value="Low">Low</option>
-                      <option value="Critical">Critical</option>
-                    </select>
-                  </div>
-                </div>
+// Lab Results Section Component - Updated to use LaboratoryReportData
+const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange }) => {
+  if (!data) return null;
+
+  const handleFieldChange = (field: string, value: any) => {
+    const updated = { ...data, [field]: value };
+    onChange(updated);
+  };
+
+  const handleResultChange = (resultIndex: number, field: string, value: any) => {
+    const updated = { ...data };
+    updated.results = [...data.results];
+    updated.results[resultIndex] = { ...updated.results[resultIndex], [field]: value };
+    onChange(updated);
+  };
+
+  return (
+    <div className="section">
+      <h3>Laboratory Report - {data.testName}</h3>
+      
+      <h4>Test Information</h4>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Test Name</label>
+          <input
+            type="text"
+            value={data.testName}
+            onChange={(e) => handleFieldChange('testName', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Specimen Type</label>
+          <input
+            type="text"
+            value={data.specimenType}
+            onChange={(e) => handleFieldChange('specimenType', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Collection Date</label>
+          <input
+            type="text"
+            value={data.specimenCollectionDate}
+            onChange={(e) => handleFieldChange('specimenCollectionDate', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Report Date</label>
+          <input
+            type="text"
+            value={data.reportDate}
+            onChange={(e) => handleFieldChange('reportDate', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Ordering Physician</label>
+          <input
+            type="text"
+            value={data.orderingPhysician}
+            onChange={(e) => handleFieldChange('orderingPhysician', e.target.value)}
+            className="form-input"
+          />
+        </div>
+      </div>
+      
+      <h4>Test Results ({data.results.length})</h4>
+      <div className="lab-results-list">
+        {data.results.map((result, index) => (
+          <div key={index} className="lab-result-item">
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Parameter</label>
+                <input
+                  type="text"
+                  value={result.parameter}
+                  onChange={(e) => handleResultChange(index, 'parameter', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., WBC"
+                />
               </div>
-            ))}
+              
+              <div className="form-group">
+                <label>Value</label>
+                <input
+                  type="text"
+                  value={result.value}
+                  onChange={(e) => handleResultChange(index, 'value', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., 7.5"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Unit</label>
+                <input
+                  type="text"
+                  value={result.unit}
+                  onChange={(e) => handleResultChange(index, 'unit', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., K/uL"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Reference Range</label>
+                <input
+                  type="text"
+                  value={result.referenceRange}
+                  onChange={(e) => handleResultChange(index, 'referenceRange', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., 4.5-11.0"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Flag</label>
+                <select
+                  value={result.flag}
+                  onChange={(e) => handleResultChange(index, 'flag', e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">None</option>
+                  <option value="Normal">Normal</option>
+                  <option value="High">High</option>
+                  <option value="Low">Low</option>
+                  <option value="Critical">Critical</option>
+                  <option value="Abnormal">Abnormal</option>
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-// Vital Signs Section Component
-const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Vital Signs Records ({(data || []).length})</h3>
-    <div className="vitals-list">
-      {(data || []).map((vitals, index) => (
-        <div key={index} className="vitals-item">
-          <div className="vitals-header">
-            <span className="vitals-number">💓 Record #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Date</label>
-              <input
-                type="text"
-                value={vitals.date}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].date = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Time</label>
-              <input
-                type="text"
-                value={vitals.time}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].time = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="HH:MM AM/PM"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Blood Pressure</label>
-              <input
-                type="text"
-                value={vitals.bloodPressure}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].bloodPressure = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="120/80"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Heart Rate</label>
-              <input
-                type="text"
-                value={vitals.heartRate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].heartRate = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="72 bpm"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Temperature</label>
-              <input
-                type="text"
-                value={vitals.temperature}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].temperature = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98.6°F"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Weight</label>
-              <input
-                type="text"
-                value={vitals.weight}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].weight = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="150 lbs"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Height</label>
-              <input
-                type="text"
-                value={vitals.height}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].height = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="5'8&quot;"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>BMI</label>
-              <input
-                type="text"
-                value={vitals.bmi}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].bmi = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="22.8"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Oxygen Saturation</label>
-              <input
-                type="text"
-                value={vitals.oxygenSaturation}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].oxygenSaturation = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98%"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Respiratory Rate</label>
-              <input
-                type="text"
-                value={vitals.respiratoryRate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].respiratoryRate = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="16 breaths/min"
-              />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
+// Vital Signs Section Component - Updated to use VisitReportData
+const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange }) => {
+  if (!data || !data.vitalSigns) return null;
 
-// Visit Notes Section Component
-const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Visit Notes ({(data || []).length})</h3>
-    <div className="visits-list">
-      {(data || []).map((visit, index) => (
-        <div key={index} className="visit-item">
-          <div className="visit-header">
-            <span className="visit-number">📝 Visit #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Visit Date</label>
-              <input
-                type="text"
-                value={visit.date}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].date = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Visit Type</label>
-              <input
-                type="text"
-                value={visit.type}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].type = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="e.g., Follow-up, Annual Physical"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Duration</label>
-              <input
-                type="text"
-                value={visit.duration}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].duration = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="e.g., 30 minutes"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Provider</label>
-              <input
-                type="text"
-                value={visit.provider}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].provider = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="Provider name"
-              />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Chief Complaint</label>
-              <textarea
-                value={visit.chiefComplaint}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].chiefComplaint = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                rows={2}
-                placeholder="Patient's main concern..."
-              />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Assessment (comma-separated)</label>
-              <textarea
-                value={visit.assessment.join(', ')}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].assessment = e.target.value.split(',').map(a => a.trim()).filter(a => a);
-                  onChange('', updated);
-                }}
-                className="form-input"
-                rows={2}
-                placeholder="Diagnoses and findings..."
-              />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Plan (comma-separated)</label>
-              <textarea
-                value={visit.plan.join(', ')}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].plan = e.target.value.split(',').map(p => p.trim()).filter(p => p);
-                  onChange('', updated);
-                }}
-                className="form-input"
-                rows={2}
-                placeholder="Treatment plan and next steps..."
-              />
-            </div>
-          </div>
-          
-          <h5>Vitals</h5>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Blood Pressure</label>
-              <input
-                type="text"
-                value={visit.vitals.bloodPressure}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.bloodPressure = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="120/80"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Heart Rate</label>
-              <input
-                type="number"
-                value={visit.vitals.heartRate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.heartRate = parseInt(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="72"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Temperature (°F)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={visit.vitals.temperature}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.temperature = parseFloat(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98.6"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Weight (lbs)</label>
-              <input
-                type="number"
-                value={visit.vitals.weight}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.weight = parseInt(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="150"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Height</label>
-              <input
-                type="text"
-                value={visit.vitals.height}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.height = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="5'8&quot;"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Oxygen Saturation (%)</label>
-              <input
-                type="number"
-                value={visit.vitals.oxygenSaturation}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.oxygenSaturation = parseInt(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98"
-              />
-            </div>
-          </div>
+  const handleVitalChange = (field: string, value: any) => {
+    const updated = { ...data };
+    updated.vitalSigns = { ...data.vitalSigns, [field]: value };
+    onChange(updated);
+  };
+
+  const vitals = data.vitalSigns;
+
+  return (
+    <div className="section">
+      <h3>Vital Signs</h3>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Blood Pressure</label>
+          <input
+            type="text"
+            value={vitals.bloodPressure}
+            onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
+            className="form-input"
+            placeholder="120/80"
+          />
         </div>
-      ))}
+        
+        <div className="form-group">
+          <label>Heart Rate (bpm)</label>
+          <input
+            type="text"
+            value={vitals.heartRate}
+            onChange={(e) => handleVitalChange('heartRate', e.target.value)}
+            className="form-input"
+            placeholder="72"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Temperature (°F)</label>
+          <input
+            type="text"
+            value={vitals.temperature}
+            onChange={(e) => handleVitalChange('temperature', e.target.value)}
+            className="form-input"
+            placeholder="98.6"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Weight (lbs)</label>
+          <input
+            type="text"
+            value={vitals.weight}
+            onChange={(e) => handleVitalChange('weight', e.target.value)}
+            className="form-input"
+            placeholder="150"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Height</label>
+          <input
+            type="text"
+            value={vitals.height}
+            onChange={(e) => handleVitalChange('height', e.target.value)}
+            className="form-input"
+            placeholder="5'8&quot;"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>BMI</label>
+          <input
+            type="text"
+            value={vitals.bmi}
+            onChange={(e) => handleVitalChange('bmi', e.target.value)}
+            className="form-input"
+            placeholder="22.8"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Oxygen Saturation (%)</label>
+          <input
+            type="text"
+            value={vitals.oxygenSaturation}
+            onChange={(e) => handleVitalChange('oxygenSaturation', e.target.value)}
+            className="form-input"
+            placeholder="98"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Respiratory Rate (breaths/min)</label>
+          <input
+            type="text"
+            value={vitals.respiratoryRate}
+            onChange={(e) => handleVitalChange('respiratoryRate', e.target.value)}
+            className="form-input"
+            placeholder="16"
+          />
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+// Visit Notes Section Component - Updated to use VisitReportData
+const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => {
+  if (!data || !data.visit) return null;
+
+  const handleVisitChange = (field: string, value: any) => {
+    const updated = { ...data };
+    updated.visit = { ...data.visit, [field]: value };
+    onChange(updated);
+  };
+
+  const handleVitalChange = (field: string, value: any) => {
+    const updated = { ...data };
+    updated.vitalSigns = { ...data.vitalSigns, [field]: value };
+    onChange(updated);
+  };
+
+  const visit = data.visit;
+
+  return (
+    <div className="section">
+      <h3>Visit Notes</h3>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Visit Date</label>
+          <input
+            type="text"
+            value={visit.date}
+                onChange={(e) => handleVisitChange('date', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Visit Type</label>
+          <input
+            type="text"
+            value={visit.type}
+            onChange={(e) => handleVisitChange('type', e.target.value)}
+            className="form-input"
+            placeholder="e.g., Follow-up, Annual Physical"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Duration</label>
+          <input
+            type="text"
+            value={visit.duration}
+            onChange={(e) => handleVisitChange('duration', e.target.value)}
+            className="form-input"
+            placeholder="e.g., 30 minutes"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Provider</label>
+          <input
+            type="text"
+            value={visit.provider}
+            onChange={(e) => handleVisitChange('provider', e.target.value)}
+            className="form-input"
+            placeholder="Provider name"
+          />
+        </div>
+        
+        <div className="form-group form-group-full">
+          <label>Chief Complaint</label>
+          <textarea
+            value={visit.chiefComplaint}
+            onChange={(e) => handleVisitChange('chiefComplaint', e.target.value)}
+            className="form-input"
+            rows={2}
+            placeholder="Patient's main concern..."
+          />
+        </div>
+        
+        <div className="form-group form-group-full">
+          <label>Assessment (comma-separated)</label>
+          <textarea
+            value={visit.assessment.join(', ')}
+            onChange={(e) => handleVisitChange('assessment', e.target.value.split(',').map(a => a.trim()).filter(a => a))}
+            className="form-input"
+            rows={2}
+            placeholder="Diagnoses and findings..."
+          />
+        </div>
+        
+        <div className="form-group form-group-full">
+          <label>Plan (comma-separated)</label>
+          <textarea
+            value={visit.plan.join(', ')}
+            onChange={(e) => handleVisitChange('plan', e.target.value.split(',').map(p => p.trim()).filter(p => p))}
+            className="form-input"
+            rows={2}
+            placeholder="Treatment plan and next steps..."
+          />
+        </div>
+      </div>
+      
+      <h5>Vitals</h5>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Blood Pressure</label>
+          <input
+            type="text"
+            value={data.vitalSigns.bloodPressure}
+            onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
+            className="form-input"
+            placeholder="120/80"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Heart Rate</label>
+          <input
+            type="number"
+            value={data.vitalSigns.heartRate}
+            onChange={(e) => handleVitalChange('heartRate', parseInt(e.target.value) || 0)}
+            className="form-input"
+            placeholder="72"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Temperature (°F)</label>
+          <input
+            type="number"
+            step="0.1"
+            value={data.vitalSigns.temperature}
+            onChange={(e) => handleVitalChange('temperature', parseFloat(e.target.value) || 0)}
+            className="form-input"
+            placeholder="98.6"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Weight (lbs)</label>
+          <input
+            type="number"
+            value={data.vitalSigns.weight}
+            onChange={(e) => handleVitalChange('weight', parseInt(e.target.value) || 0)}
+            className="form-input"
+            placeholder="150"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Height</label>
+          <input
+            type="text"
+            value={data.vitalSigns.height}
+            onChange={(e) => handleVitalChange('height', e.target.value)}
+            className="form-input"
+            placeholder="5'8&quot;"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Oxygen Saturation (%)</label>
+          <input
+            type="number"
+            value={data.vitalSigns.oxygenSaturation}
+            onChange={(e) => handleVitalChange('oxygenSaturation', parseInt(e.target.value) || 0)}
+            className="form-input"
+            placeholder="98"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default EditDataStep;

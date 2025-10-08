@@ -93,18 +93,30 @@ function App() {
     setLaboratoryReports(labReportsMap);
   };
 
-  const handleDataUpdated = (newData: MedicalRecord) => {
+  const handleDataUpdated = (newData: MedicalRecord, labData?: LaboratoryReportData, visitData?: VisitReportData) => {
     setMedicalData(newData);
     setCms1500Data(generateCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));
-    setVisitReportData(generateVisitReportData(newData));
+    
+    // Update visit report data if provided, otherwise regenerate
+    if (visitData) {
+      setVisitReportData(visitData);
+    } else {
+      setVisitReportData(generateVisitReportData(newData));
+    }
+    
     setMedicationHistoryData(generateMedicationHistoryData(newData));
     
     // Regenerate all laboratory reports
     const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
     const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
     allLabTypes.forEach(testType => {
-      labReportsMap.set(testType, generateLaboratoryReportData(testType, newData));
+      // If edited lab data is provided for this test type, use it; otherwise generate new
+      if (labData && labData.testType === testType) {
+        labReportsMap.set(testType, labData);
+      } else {
+        labReportsMap.set(testType, generateLaboratoryReportData(testType, newData));
+      }
     });
     setLaboratoryReports(labReportsMap);
   };
@@ -228,6 +240,9 @@ function App() {
     return (
       <MedicalRecordsReport 
         data={medicalData} 
+        laboratoryReportData={Array.from(laboratoryReports.values())}
+        visitReportData={visitReportData || undefined}
+        medicationHistoryData={medicationHistoryData || undefined}
         fontFamily={fontFamilyStyle}
       />
     );
@@ -246,6 +261,8 @@ function App() {
         return (
           <EditDataStep
             medicalData={medicalData}
+            laboratoryReportData={laboratoryReports.get('CBC')}
+            visitReportData={visitReportData || undefined}
             onDataUpdated={handleDataUpdated}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
@@ -350,7 +367,10 @@ function App() {
       <div className="report-display">
           {medicalData && (
             <MedicalRecordsReport 
-              data={medicalData} 
+              data={medicalData}
+              laboratoryReportData={Array.from(laboratoryReports.values())}
+              visitReportData={visitReportData || undefined}
+              medicationHistoryData={medicationHistoryData || undefined}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}

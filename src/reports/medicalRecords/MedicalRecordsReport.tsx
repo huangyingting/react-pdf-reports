@@ -9,7 +9,7 @@ import './MedicalRecordsReport.css';
 
 interface MedicalRecordsReportProps {
   data: MedicalRecord;
-  laboratoryReportData?: LaboratoryReportData;
+  laboratoryReportData?: LaboratoryReportData[];
   visitReportData?: VisitReportData;
   medicationHistoryData?: MedicationHistoryData;
   fontFamily?: string;
