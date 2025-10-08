@@ -196,7 +196,9 @@ function App() {
     if (activeReportType === 'medicationHistory') {
       return (
         <MedicationHistoryDocument 
-          data={generatedData.medicalHistory}
+          patient={generatedData.patient}
+          provider={generatedData.provider}
+          medicalHistory={generatedData.medicalHistory}
           fontFamily={fontFamilyStyle}
         />
       );
@@ -375,7 +377,9 @@ function App() {
                 />
               ))}
               <MedicationHistoryDocument 
-                data={generatedData.medicalHistory}
+                patient={generatedData.patient}
+                provider={generatedData.provider}
+                medicalHistory={generatedData.medicalHistory}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               {/* Laboratory Reports */}

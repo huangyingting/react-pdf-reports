@@ -676,8 +676,8 @@ export const generateInsuranceInfo = (
   let secondaryInsurance: Insurance | null = null;
   let secondaryInsured: { name: string; policyNumber: string; planName: string } | null = null;
 
-  // 30% chance of having secondary insurance if requested
-  if (includeSecondary && faker.datatype.boolean(0.3)) {
+  // Generate secondary insurance if requested
+  if (includeSecondary) {
     secondaryInsurance = generateInsurance(primaryInsurance.provider);
     secondaryInsured = generateInsured(
       secondaryInsurance.policyNumber,
