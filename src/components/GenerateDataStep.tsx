@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { DATA_GENERATION_PRESETS, GenerationOptions, BasicData, MedicalHistoryData, VisitReportData, LaboratoryReportData, LabTestType } from '../utils/constants';
-import { generateBasicData } from '../utils/dataGenerator';
 import { 
-  generateBasicDataWithAI, 
-  generateMedicalHistoryDataWithAI, 
-  generateVisitReportDataWithAI, 
-  generateLaboratoryReportDataWithAI 
-} from '../utils/aiDataGenerator';
+  GenerationOptions,
+  GeneratedData,
+  LabTestType
+} from '../utils/zodSchemas';
+import { 
+  DATA_GENERATION_PRESETS, 
+  generatePatient,
+  generateProvider,
+  generateInsuranceInfo,
+  generateMedicalHistory,
+  generateVisitsReport,
+  generateLabReports,
+  generateCMS1500
+} from '../utils/dataGenerator';
 import { AzureOpenAIConfig } from '../utils/azureOpenAI';
 import { loadAzureConfig } from '../utils/azureConfigStorage';
 import CustomSelect from './CustomSelect';
@@ -16,11 +23,8 @@ import './GenerateDataStep.css';
 
 interface GenerateDataStepProps {
   onDataGenerated: (
-    data: BasicData,
-    generationOptions: Required<GenerationOptions>,
-    preGeneratedMedicalHistory?: MedicalHistoryData | null,
-    preGeneratedVisitReports?: VisitReportData[] | null,
-    preGeneratedLabReports?: Map<LabTestType, LaboratoryReportData> | null
+    data: GeneratedData,
+    generationOptions: Required<GenerationOptions>
   ) => void;
   onNext: () => void;
 }
@@ -66,68 +70,79 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
     setIsGenerating(true);
     setError('');
     try {
-      let data: BasicData;
-      let medicalHistory: MedicalHistoryData | null = null;
-      let visitReports: VisitReportData[] | null = null;
-      let labReports: Map<LabTestType, LaboratoryReportData> | null = null;
+      let generatedData: GeneratedData;
       
       if (generationMethod === 'ai' && azureConfig) {
-        // Use Azure OpenAI to generate all data
-        console.log('[GenerateDataStep] Generating data with AI...');
+        // TODO: AI-powered generation
+        // Placeholder - will be implemented with AI data generator
+        console.log('[GenerateDataStep] AI generation not yet implemented, falling back to Faker.js');
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Generate basic patient data
-        data = await generateBasicDataWithAI(
-          azureConfig,
-          customOptions.complexity as 'low' | 'medium' | 'high'
-        );
-        console.log('[GenerateDataStep] Basic data generated');
+        // Generate using Faker.js functions for now
+        const patient = generatePatient();
+        const provider = generateProvider();
+        const insuranceInfo = generateInsuranceInfo(customOptions.includeSecondaryInsurance);
+        const medicalHistory = generateMedicalHistory(customOptions.complexity);
+        const visitReports = generateVisitsReport(customOptions.numberOfVisits, provider.name);
         
-        // Generate medical history
-        try {
-          medicalHistory = await generateMedicalHistoryDataWithAI(
-            azureConfig,
-            data,
-            customOptions.complexity as 'low' | 'medium' | 'high'
-          );
-          console.log('[GenerateDataStep] Medical history generated');
-        } catch (err) {
-          console.error('[GenerateDataStep] Failed to generate medical history:', err);
-        }
+        // Generate lab reports - randomly select from available tests
+        const availableLabTests: LabTestType[] = [
+          'CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 
+          'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 
+          'Pathology', 'Hormone', 'Infectious'
+        ];
+        // Shuffle and select random lab tests
+        const shuffled = [...availableLabTests].sort(() => Math.random() - 0.5);
+        const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
+        const labReports = generateLabReports(selectedLabTests, provider.name);
         
-        // Generate visit reports
-        try {
-          visitReports = await generateVisitReportDataWithAI(
-            azureConfig,
-            data,
-            customOptions.numberOfVisits
-          );
-          console.log('[GenerateDataStep] Visit reports generated:', visitReports?.length);
-        } catch (err) {
-          console.error('[GenerateDataStep] Failed to generate visit reports:', err);
-        }
+        const cms1500 = generateCMS1500(patient, insuranceInfo, provider);
         
-        // Generate laboratory reports
-        try {
-          const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
-          const labReportsData = await generateLaboratoryReportDataWithAI(
-            azureConfig,
-            data,
-            allLabTypes
-          );
-          labReports = labReportsData as Map<LabTestType, LaboratoryReportData>;
-          console.log('[GenerateDataStep] Laboratory reports generated:', labReports?.size);
-        } catch (err) {
-          console.error('[GenerateDataStep] Failed to generate laboratory reports:', err);
-        }
+        generatedData = {
+          patient,
+          provider,
+          insuranceInfo,
+          medicalHistory,
+          visitReports,
+          labReports,
+          cms1500
+        };
       } else {
         // Use standard Faker.js generation
-        // Add a small delay to show loading state
         await new Promise(resolve => setTimeout(resolve, 500));
-        data = generateBasicData(customOptions);
+        
+        const patient = generatePatient();
+        const provider = generateProvider();
+        const insuranceInfo = generateInsuranceInfo(customOptions.includeSecondaryInsurance);
+        const medicalHistory = generateMedicalHistory(customOptions.complexity);
+        const visitReports = generateVisitsReport(customOptions.numberOfVisits, provider.name);
+        
+        // Generate lab reports - randomly select from available tests
+        const availableLabTests: LabTestType[] = [
+          'CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 
+          'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 
+          'Pathology', 'Hormone', 'Infectious'
+        ];
+        // Shuffle and select random lab tests
+        const shuffled = [...availableLabTests].sort(() => Math.random() - 0.5);
+        const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
+        const labReports = generateLabReports(selectedLabTests, provider.name);
+        
+        const cms1500 = generateCMS1500(patient, insuranceInfo, provider);
+        
+        generatedData = {
+          patient,
+          provider,
+          insuranceInfo,
+          medicalHistory,
+          visitReports,
+          labReports,
+          cms1500
+        };
       }
       
-      // Pass all generated data AND generation options to parent
-      onDataGenerated(data, customOptions, medicalHistory, visitReports, labReports);
+      // Pass generated data and generation options to parent
+      onDataGenerated(generatedData, customOptions);
       
       // Automatically move to next step
       onNext();

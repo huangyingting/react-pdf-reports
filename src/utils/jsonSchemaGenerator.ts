@@ -14,15 +14,13 @@
 import { z } from 'zod';
 import {
   PatientSchema,
-  PatientDataSchema,
-  ProviderDataSchema,
-  InsuranceDataSchema,
-  CMS1500DataSchema,
-  InsurancePolicyDataSchema,
-  VisitReportDataSchema,
-  MedicalHistoryDataSchema,
+  ProviderSchema,
+  MedicalHistorySchema,
+  CMS1500Schema,
+  VisitReportSchema,
   LabReportSchema,
-  LabReportsSchema
+  LabReportsSchema,
+  InsuranceInfoSchema
 } from './zodSchemas';
 
 /**
@@ -83,72 +81,54 @@ export const ResponseFormats = {
   /**
    * Standalone patient data generation
    */
-  PatientData: zodToOpenAISchema(
-    PatientDataSchema,
-    'PatientDataResponse',
-    { description: 'Patient demographics data', strict: true }
+  Patient: zodToOpenAISchema(
+    PatientSchema,
+    'PatientResponse',
+    { description: 'Healthcare patient data', strict: true }
   ),
 
   /**
    * Standalone provider data generation
    */
-  ProviderData: zodToOpenAISchema(
-    ProviderDataSchema,
-    'ProviderDataResponse',
-    { description: 'Provider information', strict: true }
+  Provider: zodToOpenAISchema(
+    ProviderSchema,
+    'ProviderResponse',
+    { description: 'Insurance provider information', strict: true }
   ),
 
   /**
    * Standalone insurance data generation
    */
-  InsuranceData: zodToOpenAISchema(
-    InsuranceDataSchema,
-    'InsuranceDataResponse',
+  InsuranceInfo: zodToOpenAISchema(
+    InsuranceInfoSchema,
+    'InsuranceResponse',
     { description: 'Insurance information', strict: true }
   ),
 
   /**
    * CMS-1500 claim form data with patient, insurance, provider, and claim details
    */
-  CMS1500Data: zodToOpenAISchema(
-    CMS1500DataSchema,
-    'CMS1500DataResponse',
+  CMS1500: zodToOpenAISchema(
+    CMS1500Schema,
+    'CMS1500Response',
     { description: 'CMS-1500 claim form data', strict: true }
-  ),
-
-  /**
-   * Insurance policy document with patient and insurance information
-   */
-  InsurancePolicyData: zodToOpenAISchema(
-    InsurancePolicyDataSchema,
-    'InsurancePolicyDataResponse',
-    { description: 'Insurance policy document', strict: true }
   ),
 
   /**
    * Visit report with patient, provider, visit notes, and vital signs
    */
-  VisitReportData: zodToOpenAISchema(
-    VisitReportDataSchema,
-    'VisitReportDataResponse',
+  VisitReport: zodToOpenAISchema(
+    VisitReportSchema,
+    'VisitReportResponse',
     { description: 'Medical visit report', strict: true }
-  ),
-
-  /**
-   * Patient demographics only
-   */
-  PatientDemographics: zodToOpenAISchema(
-    PatientSchema,
-    'PatientDemographicsResponse',
-    { description: 'Patient demographics', strict: true }
   ),
 
   /**
    * Medical history with medications, allergies, conditions, and family history
    */
-  MedicalHistoryData: zodToOpenAISchema(
-    MedicalHistoryDataSchema,
-    'MedicalHistoryDataResponse',
+  MedicalHistory: zodToOpenAISchema(
+    MedicalHistorySchema,
+    'MedicalHistoryResponse',
     { description: 'Complete medical history', strict: true }
   ),
 
@@ -194,7 +174,7 @@ export function validateWithSchema<T>(
   data: unknown
 ): { success: true; data: T } | { success: false; errors: z.ZodError } {
   const result = schema.safeParse(data);
-  
+
   if (result.success) {
     return { success: true, data: result.data };
   } else {
@@ -214,34 +194,3 @@ export function formatZodErrors(error: z.ZodError): string[] {
     return `${path}: ${err.message}`;
   });
 }
-
-
-/**
- * Export Zod schemas for direct use
- * This allows users to:
- * 1. Create custom schemas using Zod's API
- * 2. Validate data at runtime
- * 3. Convert to JSON Schema on demand
- */
-export {
-  PatientSchema as PatientDemographicsSchema,
-  PatientDataSchema,
-  ProviderDataSchema,
-  InsuranceDataSchema,
-  CMS1500DataSchema,
-  InsurancePolicyDataSchema,
-  VisitReportDataSchema,
-  MedicalHistoryDataSchema,
-  LabReportSchema,
-  LabReportsSchema,
-  // Also export individual component schemas for custom usage
-  AllergySchema,
-  ChronicConditionSchema,
-  SurgicalHistorySchema,
-  FamilyHistorySchema,
-  CurrentMedicationSchema,
-  DiscontinuedMedicationSchema,
-  MedicationsSchema,
-  LabTestResultSchema,
-  LabTestTypeEnum
-} from './zodSchemas';

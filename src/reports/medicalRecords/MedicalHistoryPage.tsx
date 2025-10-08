@@ -1,12 +1,14 @@
 import React from 'react';
-import { MedicalHistoryData } from '../../utils/constants';
+import { MedicalHistory, Patient, Provider } from '../../utils/zodSchemas';
 
 interface MedicalHistoryPageProps {
-  data: MedicalHistoryData;
+  patient: Patient;
+  provider: Provider;
+  medicalHistory: MedicalHistory;
 }
 
-const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
-  const { patient, provider, allergies } = data;
+const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ patient, provider, medicalHistory }) => {
+  const { allergies, medications } = medicalHistory;
   const currentDate = new Date().toLocaleDateString();
   
   return (
@@ -71,7 +73,7 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {(data.medications?.current || []).map((med, index) => (
+              {(medications?.current || []).map((med, index) => (
                 <tr key={index}>
                   <td><strong>{med.name}</strong></td>
                   <td>{med.strength} - {med.dosage}</td>
@@ -98,7 +100,7 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {(data.medications?.discontinued || []).map((med, index) => (
+              {(medications?.discontinued || []).map((med, index) => (
                 <tr key={index}>
                   <td><strong>{med.name}</strong></td>
                   <td>{med.strength}</td>
@@ -115,7 +117,7 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
         <section className="medication-instructions-section compact-section">
           <h3>Medication Instructions & Notes</h3>
           <div className="reference-grid">
-            {(data.medications?.current || []).slice(0, 3).map((med, index) => (
+            {(medications?.current || []).map((med, index) => (
               <div key={index} className="reference-item">
                 <strong>{med.name}</strong>
                 <div className="note">{med.instructions}</div>
@@ -131,8 +133,8 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
             <div className="risk-category">
               <h4>Active Medications</h4>
               <ul>
-                <li>Current: {data.medications?.current?.length || 0} medications</li>
-                <li>Recently Discontinued: {data.medications?.discontinued?.length || 0}</li>
+                <li>Current: {medications?.current?.length || 0} medications</li>
+                <li>Recently Discontinued: {medications?.discontinued?.length || 0}</li>
                 <li>Pharmacy: {patient?.pharmacy?.name || 'Not on file'}</li>
               </ul>
             </div>

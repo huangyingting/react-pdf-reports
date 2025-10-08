@@ -1,42 +1,53 @@
 import React from 'react';
-import { BasicData, LaboratoryReportData, MedicalHistoryData } from '../../utils/constants';
+import { Patient, Provider, InsuranceInfo, LabReports, MedicalHistory } from '../../utils/zodSchemas';
 
-interface PatientDemographicsPageProps {
-  data: BasicData;
-  laboratoryReportData?: LaboratoryReportData;
-  medicalHistoryData?: MedicalHistoryData;
+interface PatientPageProps {
+  patient: Patient;
+  provider: Provider;
+  insuranceInfo: InsuranceInfo;
+  labReports?: LabReports;
+  medicalHistory?: MedicalHistory;
 }
 
-const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData, medicalHistoryData }) => {
-  const { patient, provider, insurance } = data;
-  
+const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceInfo, labReports: labReports, medicalHistory: medicalHistoryData }) => {
+
   // Extract primary insurance from InsuranceInfo
-  const primaryInsurance = insurance?.primaryInsurance;
+  const primaryInsurance = insuranceInfo?.primaryInsurance;
   const currentDate = new Date().toLocaleDateString();
-  
+
   // Extract dynamic data from medicalHistoryData
   const allergiesText = medicalHistoryData?.allergies && medicalHistoryData.allergies.length > 0
     ? medicalHistoryData.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
     : 'No known allergies';
-  
+
   const chronicConditionsText = medicalHistoryData?.chronicConditions && medicalHistoryData.chronicConditions.length > 0
     ? medicalHistoryData.chronicConditions.map(c => c.condition).join(', ')
     : 'None documented';
-  
+
   const currentMedicationsText = medicalHistoryData?.medications?.current && medicalHistoryData.medications.current.length > 0
     ? medicalHistoryData.medications.current.slice(0, 3).map(m => m.name).join(', ') + (medicalHistoryData.medications.current.length > 3 ? `, +${medicalHistoryData.medications.current.length - 3} more` : '')
     : 'No current medications';
-  
-  // Try to find blood type from laboratory report data
-  const bloodTypeResult = laboratoryReportData?.results?.find(r => 
-    r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo')
-  );
+
+  // Try to find blood type from all laboratory reports
+  let bloodTypeResult = null;
+  let bloodTypeDate = null;
+  if (labReports && labReports.length > 0) {
+    for (const report of labReports) {
+      const result = report.results?.find((r: any) =>
+        r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo')
+      );
+      if (result) {
+        bloodTypeResult = result;
+        bloodTypeDate = report.reportDate;
+        break;
+      }
+    }
+  }
   const bloodType = bloodTypeResult?.value || 'Not on file';
-  const bloodTypeDate = laboratoryReportData?.reportDate;
-  
+
   // Use pharmacy data from patient demographics
   const pharmacy = patient?.pharmacy || { name: 'Not specified', address: 'Not specified', phone: 'Not specified' };
-  
+
   return (
     <div className="medical-page demographics-page">
       <header className="medical-page-header">
@@ -179,8 +190,8 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data,
 
       <footer className="medical-page-footer">
         <div className="confidentiality-notice">
-          <p><strong>CONFIDENTIAL:</strong> This document contains protected health information. 
-          Unauthorized disclosure is prohibited by law.</p>
+          <p><strong>CONFIDENTIAL:</strong> This document contains protected health information.
+            Unauthorized disclosure is prohibited by law.</p>
         </div>
         <div className="page-info">
           <span>Page 1 of 5</span>
@@ -192,4 +203,4 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data,
   );
 };
 
-export default PatientDemographicsPage;
+export default PatientPage;

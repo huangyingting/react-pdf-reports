@@ -1,21 +1,21 @@
 import React from 'react';
-import { BasicData, VisitReportData, MedicalHistoryData } from '../../utils/constants';
+import { Patient, Provider, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
 
 interface VisitNotesPageProps {
-  data: BasicData;
-  visitReportData?: VisitReportData;
-  medicalHistoryData?: MedicalHistoryData;
+  patient: Patient;
+  provider?: Provider;
+  visitReport?: VisitReport;
+  medicalHistory?: MedicalHistory;
 }
 
-const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, medicalHistoryData }) => {
-  const { patient } = data;
+const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ patient, provider, visitReport, medicalHistory }) => {
   const currentDate = new Date().toLocaleDateString();
   
   const renderRecentVisits = () => {
-    if (!visitReportData?.visit) return null;
+    if (!visitReport?.visit) return null;
 
-    const visit = visitReportData.visit;
-    const vitalSigns = visitReportData.vitalSigns;
+    const visit = visitReport.visit;
+    const vitalSigns = visitReport.vitalSigns;
 
     return (
       <div className="compact-section">
@@ -68,9 +68,9 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
   };
 
   const renderTreatmentSummary = () => {
-    const visit = visitReportData?.visit;
-    const currentMeds = medicalHistoryData?.medications?.current || [];
-    const chronicConditions = medicalHistoryData?.chronicConditions || [];
+    const visit = visitReport?.visit;
+    const currentMeds = medicalHistory?.medications?.current || [];
+    const chronicConditions = medicalHistory?.chronicConditions || [];
 
     return (
       <div className="compact-section">
@@ -131,9 +131,8 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
   };
 
   const renderProviderNotes = () => {
-    const visit = visitReportData?.visit;
-    const provider = visitReportData?.provider;
-    const allergies = medicalHistoryData?.allergies || [];
+    const visit = visitReport?.visit;
+    const allergies = medicalHistory?.allergies || [];
 
     return (
       <div className="compact-section">
@@ -142,9 +141,9 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
           <div className="risk-category">
             <h4>Treating Provider</h4>
             <ul className="provider-notes-list">
-              <li><strong>Name:</strong> {provider?.name || visit?.provider || 'Not specified'}</li>
-              <li><strong>Specialty:</strong> {provider?.specialty || 'Not specified'}</li>
-              <li><strong>Contact:</strong> {provider?.phone || 'Not specified'}</li>
+              <li><strong>Name:</strong> {visit?.provider || 'Not specified'}</li>
+              <li><strong>Specialty:</strong> {'Not specified'}</li>
+              <li><strong>Contact:</strong> {'Not specified'}</li>
             </ul>
           </div>
           <div className="risk-category">
@@ -173,8 +172,8 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
   };
 
   const renderVisitSummary = () => {
-    const visit = visitReportData?.visit;
-    const vitalSigns = visitReportData?.vitalSigns;
+    const visit = visitReport?.visit;
+    const vitalSigns = visitReport?.vitalSigns;
     const lastVisitDate = visit?.date || 'N/A';
     
     return (
@@ -234,14 +233,12 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
       <div className="medical-page">
         <div className="medical-page-header">
           <div className="hospital-info">
-            <h2>{visitReportData?.provider?.facilityName || data.provider?.facilityName || 'Healthcare Facility'}</h2>
+            <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
             <p>
-              {visitReportData?.provider?.facilityAddress?.street && visitReportData?.provider?.facilityAddress?.city ? 
-                `${visitReportData.provider.facilityAddress.street}, ${visitReportData.provider.facilityAddress.city}, ${visitReportData.provider.facilityAddress.state} ${visitReportData.provider.facilityAddress.zipCode}` :
-                data.provider?.facilityAddress?.street && data.provider?.facilityAddress?.city ?
-                `${data.provider.facilityAddress.street}, ${data.provider.facilityAddress.city}, ${data.provider.facilityAddress.state} ${data.provider.facilityAddress.zipCode}` :
+              {provider?.facilityAddress?.street && provider?.facilityAddress?.city ? 
+                `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}` :
                 '123 Medical Center Drive, Healthcare City, HC 12345'
-              } | Phone: {visitReportData?.provider?.facilityPhone || data.provider?.facilityPhone || '(555) 123-4567'}
+              } | Phone: {provider?.facilityPhone || '(555) 123-4567'}
             </p>
           </div>
           <div className="page-title">
@@ -253,7 +250,7 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
         <div className="medical-page-content">
           {renderRecentVisits()}
           
-          {!visitReportData?.visit && (
+          {!visitReport?.visit && (
             <div className="no-data">
               No visit notes available
             </div>
@@ -277,14 +274,12 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, 
       <div className="medical-page">
         <div className="medical-page-header">
           <div className="hospital-info">
-            <h2>{visitReportData?.provider?.facilityName || data.provider?.facilityName || 'Healthcare Facility'}</h2>
+            <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
             <p>
-              {visitReportData?.provider?.facilityAddress?.street && visitReportData?.provider?.facilityAddress?.city ? 
-                `${visitReportData.provider.facilityAddress.street}, ${visitReportData.provider.facilityAddress.city}, ${visitReportData.provider.facilityAddress.state} ${visitReportData.provider.facilityAddress.zipCode}` :
-                data.provider?.facilityAddress?.street && data.provider?.facilityAddress?.city ?
-                `${data.provider.facilityAddress.street}, ${data.provider.facilityAddress.city}, ${data.provider.facilityAddress.state} ${data.provider.facilityAddress.zipCode}` :
+              {provider?.facilityAddress?.street && provider?.facilityAddress?.city ? 
+                `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}` :
                 '123 Medical Center Drive, Healthcare City, HC 12345'
-              } | Phone: {visitReportData?.provider?.facilityPhone || data.provider?.facilityPhone || '(555) 123-4567'}
+              } | Phone: {provider?.facilityPhone || '(555) 123-4567'}
             </p>
           </div>
           <div className="page-title">

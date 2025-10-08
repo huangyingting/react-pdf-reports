@@ -1,14 +1,14 @@
 import React from 'react';
 import { faker } from '@faker-js/faker';
-import './LaboratoryReportDocument.css';
-import { LaboratoryReportData } from '../../utils/constants';
+import './LabReportDocument.css';
+import { LabReport } from '../../utils/zodSchemas';
 
-interface LaboratoryReportDocumentProps {
-  data: LaboratoryReportData;
+interface LabReportProps {
+  data: LabReport;
   fontFamily?: string;
 }
 
-const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
+const LabReportDocument: React.FC<LabReportProps> = ({
   data,
   fontFamily = "'Arial', sans-serif"
 }) => {
@@ -268,4 +268,4 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
   );
 };
 
-export default LaboratoryReportDocument;
+export default LabReportDocument;

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { BasicData, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/constants';
-import { generateSecondaryInsuranceAndInsured } from '../utils/dataGenerator';
+import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
+import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
 
 interface EditDataStepProps {
-  medicalData: BasicData | null;
-  laboratoryReportsMap?: Map<LabTestType, LaboratoryReportData>;
-  visitReportsData?: VisitReportData[];
-  medicalHistoryData?: MedicalHistoryData | null;
-  onDataUpdated: (data: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => void;
+  generatedData: GeneratedData | null;
+  onDataUpdated: (data: GeneratedData) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -20,7 +17,7 @@ interface Section {
 }
 
 interface PatientInfoSectionProps {
-  data: PatientDemographics;
+  data: Patient;
   onChange: (field: string, value: any) => void;
 }
 
@@ -35,32 +32,29 @@ interface ProviderSectionProps {
 }
 
 interface MedicalHistorySectionProps {
-  data: MedicalHistoryData;
+  data: MedicalHistory;
   onChange: (field: string, value: any) => void;
   expandedSections: Set<string>;
   onToggleSection: (section: string) => void;
 }
 
 interface LabResultsSectionProps {
-  data: LaboratoryReportData;
-  onChange: (updatedData: LaboratoryReportData) => void;
+  data: LabReport;
+  onChange: (updatedData: LabReport) => void;
 }
 
 interface VitalSignsSectionProps {
-  data: VisitReportData;
-  onChange: (updatedData: VisitReportData) => void;
+  data: VisitReport;
+  onChange: (updatedData: VisitReport) => void;
 }
 
 interface VisitNotesSectionProps {
-  data: VisitReportData;
-  onChange: (updatedData: VisitReportData) => void;
+  data: VisitReport;
+  onChange: (updatedData: VisitReport) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, medicalHistoryData, onDataUpdated, onNext, onBack }) => {
-  const [editedData, setEditedData] = useState<BasicData | null>(null);
-  const [editedLabReportsMap, setEditedLabReportsMap] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
-  const [editedVisitReportsData, setEditedVisitReportsData] = useState<VisitReportData[]>([]);
-  const [editedMedicalHistoryData, setEditedMedicalHistoryData] = useState<MedicalHistoryData | null>(null);
+const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdated, onNext, onBack }) => {
+  const [editedData, setEditedData] = useState<GeneratedData | null>(null);
   const [activeSection, setActiveSection] = useState<string>('patient');
   const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set());
   const [expandedVisitReports, setExpandedVisitReports] = useState<Set<number>>(new Set());
@@ -68,23 +62,10 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
-    if (medicalData) {
-      setEditedData(JSON.parse(JSON.stringify(medicalData))); // Deep clone
+    if (generatedData) {
+      setEditedData(JSON.parse(JSON.stringify(generatedData))); // Deep clone
     }
-    if (laboratoryReportsMap) {
-      const clonedMap = new Map<LabTestType, LaboratoryReportData>();
-      laboratoryReportsMap.forEach((value, key) => {
-        clonedMap.set(key, JSON.parse(JSON.stringify(value)));
-      });
-      setEditedLabReportsMap(clonedMap);
-    }
-    if (visitReportsData && visitReportsData.length > 0) {
-      setEditedVisitReportsData(JSON.parse(JSON.stringify(visitReportsData)));
-    }
-    if (medicalHistoryData) {
-      setEditedMedicalHistoryData(JSON.parse(JSON.stringify(medicalHistoryData))); // Deep clone
-    }
-  }, [medicalData, laboratoryReportsMap, visitReportsData, medicalHistoryData]);
+  }, [generatedData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -116,7 +97,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
 
   const handleSaveChanges = () => {
     if (editedData) {
-      onDataUpdated(editedData, editedLabReportsMap, editedVisitReportsData);
+      onDataUpdated(editedData);
       setHasChanges(false);
     }
   };
@@ -221,8 +202,8 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
             
             {activeSection === 'insurance' && (
               <InsuranceSection 
-                data={editedData.insurance} 
-                onChange={(field, value) => updateData('insurance', field, value)}
+                data={editedData.insuranceInfo} 
+                onChange={(field, value) => updateData('insuranceInfo', field, value)}
               />
             )}
             
@@ -233,9 +214,9 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               />
             )}
             
-            {activeSection === 'medical' && editedMedicalHistoryData && (
+            {activeSection === 'medical' && editedData.medicalHistory && (
               <MedicalHistorySection 
-                data={editedMedicalHistoryData}
+                data={editedData.medicalHistory}
                 expandedSections={expandedMedicalSections}
                 onToggleSection={(section) => {
                   const newExpanded = new Set(expandedMedicalSections);
@@ -247,11 +228,11 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
                   setExpandedMedicalSections(newExpanded);
                 }}
                 onChange={(field, value) => {
-                  setEditedMedicalHistoryData(prev => {
+                  setEditedData(prev => {
                     if (!prev) return prev;
                     const updated = JSON.parse(JSON.stringify(prev));
                     const keys = field.split('.');
-                    let current: any = updated;
+                    let current: any = updated.medicalHistory;
                     
                     for (let i = 0; i < keys.length - 1; i++) {
                       current = current[keys[i]];
@@ -264,31 +245,31 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               />
             )}
             
-            {/* Lab Results section: Data now managed via LaboratoryReportData */}
+            {/* Lab Results section: Data now managed via LabReport[] */}
             {activeSection === 'labs' && (
               <>
-                {editedLabReportsMap.size > 0 ? (
+                {editedData.labReports.length > 0 ? (
                   <div className="section">
-                    <h3>Laboratory Reports ({editedLabReportsMap.size} reports)</h3>
+                    <h3>Laboratory Reports ({editedData.labReports.length} reports)</h3>
                     <div className="lab-reports-accordion">
-                      {Array.from(editedLabReportsMap.entries()).map(([testType, labData]) => {
-                        const isExpanded = expandedLabReports.has(testType);
+                      {editedData.labReports.map((labData, index) => {
+                        const isExpanded = expandedLabReports.has(labData.testType as LabTestType);
                         return (
-                          <div key={testType} className="accordion-item">
+                          <div key={labData.testType} className="accordion-item">
                             <div 
                               className="accordion-header"
                               onClick={() => {
                                 const newExpanded = new Set(expandedLabReports);
                                 if (isExpanded) {
-                                  newExpanded.delete(testType);
+                                  newExpanded.delete(labData.testType as LabTestType);
                                 } else {
-                                  newExpanded.add(testType);
+                                  newExpanded.add(labData.testType as LabTestType);
                                 }
                                 setExpandedLabReports(newExpanded);
                               }}
                             >
                               <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
-                              <span className="accordion-title">{labData.testName} ({testType})</span>
+                              <span className="accordion-title">{labData.testName} ({labData.testType})</span>
                               <span className="accordion-meta">{labData.results.length} results</span>
                             </div>
                             {isExpanded && (
@@ -296,10 +277,13 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
                                 <LabResultsSection
                                   data={labData}
                                   onChange={(updated) => {
-                                    const newMap = new Map(editedLabReportsMap);
-                                    newMap.set(testType, updated);
-                                    setEditedLabReportsMap(newMap);
-                                    setHasChanges(true);
+                                    setEditedData(prev => {
+                                      if (!prev) return prev;
+                                      const newData = JSON.parse(JSON.stringify(prev));
+                                      newData.labReports[index] = updated;
+                                      setHasChanges(true);
+                                      return newData;
+                                    });
                                   }}
                                 />
                               </div>
@@ -318,14 +302,14 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               </>
             )}
             
-            {/* Vital Signs section: Data now managed via VisitReportData array */}
+            {/* Vital Signs section: Data now managed via VisitReport[] */}
             {activeSection === 'vitals' && (
               <>
-                {editedVisitReportsData.length > 0 ? (
+                {editedData.visitReports.length > 0 ? (
                   <div className="section">
-                    <h3>Vital Signs ({editedVisitReportsData.length} visits)</h3>
+                    <h3>Vital Signs ({editedData.visitReports.length} visits)</h3>
                     <div className="lab-reports-accordion">
-                      {editedVisitReportsData.map((visitData, index) => {
+                      {editedData.visitReports.map((visitData, index) => {
                         const isExpanded = expandedVisitReports.has(index);
                         return (
                           <div key={index} className="accordion-item">
@@ -350,10 +334,13 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
                                 <VitalSignsSection
                                   data={visitData}
                                   onChange={(updated) => {
-                                    const newArray = [...editedVisitReportsData];
-                                    newArray[index] = updated;
-                                    setEditedVisitReportsData(newArray);
-                                    setHasChanges(true);
+                                    setEditedData(prev => {
+                                      if (!prev) return prev;
+                                      const newData = JSON.parse(JSON.stringify(prev));
+                                      newData.visitReports[index] = updated;
+                                      setHasChanges(true);
+                                      return newData;
+                                    });
                                   }}
                                 />
                               </div>
@@ -372,14 +359,14 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               </>
             )}
             
-            {/* Visit Notes section: Data now managed via VisitReportData array */}
+            {/* Visit Notes section: Data now managed via VisitReport[] */}
             {activeSection === 'visits' && (
               <>
-                {editedVisitReportsData.length > 0 ? (
+                {editedData.visitReports.length > 0 ? (
                   <div className="section">
-                    <h3>Visit Notes ({editedVisitReportsData.length} visits)</h3>
+                    <h3>Visit Notes ({editedData.visitReports.length} visits)</h3>
                     <div className="lab-reports-accordion">
-                      {editedVisitReportsData.map((visitData, index) => {
+                      {editedData.visitReports.map((visitData, index) => {
                         const isExpanded = expandedVisitReports.has(index);
                         return (
                           <div key={index} className="accordion-item">
@@ -404,10 +391,13 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
                                 <VisitNotesSection
                                   data={visitData}
                                   onChange={(updated) => {
-                                    const newArray = [...editedVisitReportsData];
-                                    newArray[index] = updated;
-                                    setEditedVisitReportsData(newArray);
-                                    setHasChanges(true);
+                                    setEditedData(prev => {
+                                      if (!prev) return prev;
+                                      const newData = JSON.parse(JSON.stringify(prev));
+                                      newData.visitReports[index] = updated;
+                                      setHasChanges(true);
+                                      return newData;
+                                    });
                                   }}
                                 />
                               </div>
@@ -624,13 +614,14 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
 // Insurance Section Component
 const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) => {
   const handleAddSecondaryInsurance = () => {
+    // TODO: Implement secondary insurance generation
     // Generate secondary insurance with populated data, excluding the primary insurance provider
-    const result = generateSecondaryInsuranceAndInsured(data.primaryInsurance.provider);
-    onChange('secondaryInsurance', result?.secondaryInsurance);
-    // Optionally, also update secondaryInsured if needed
-    if (result?.secondaryInsured) {
-      onChange('secondaryInsured', result?.secondaryInsured);
-    }
+    // const result = generateSecondaryInsuranceAndInsured(data.primaryInsurance.provider);
+    // onChange('secondaryInsurance', result?.secondaryInsurance);
+    // if (result?.secondaryInsured) {
+    //   onChange('secondaryInsured', result?.secondaryInsured);
+    // }
+    console.warn('Secondary insurance generation not yet implemented');
   };
 
   const handleRemoveSecondaryInsurance = () => {

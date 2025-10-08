@@ -1,60 +1,80 @@
 import React from 'react';
-import { BasicData, LaboratoryReportData, VisitReportData, MedicalHistoryData } from '../../utils/constants';
-import PatientDemographicsPage from './PatientDemographicsPage';
+import { Patient, Provider, InsuranceInfo, LabReport, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
+import PatientPage from './PatientPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
-import LabResultsPage from './LabResultsPage';
+import LabReportsPage from './LabReportsPage';
 import VisitNotesPage from './VisitNotesPage';
 import './MedicalRecordsReport.css';
 
 interface MedicalRecordsReportProps {
-  data: BasicData;
-  laboratoryReportData?: LaboratoryReportData[];
-  visitReportData?: VisitReportData;
-  medicalHistoryData?: MedicalHistoryData;
+  patient: Patient;
+  provider: Provider;
+  insuranceInfo: InsuranceInfo;
+  labReports?: LabReport[];
+  visitReports?: VisitReport[];
+  medicalHistory?: MedicalHistory;
+
   fontFamily?: string;
 }
 
-const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, laboratoryReportData, visitReportData, medicalHistoryData, fontFamily = "'Arial', sans-serif" }) => {
+const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, provider, insuranceInfo, labReports, visitReports, medicalHistory, fontFamily = "'Arial', sans-serif" }) => {
   return (
-    <div 
+    <div
       className="medical-records-report"
-      id="medical-records-report" 
+      id="medical-records-report"
       style={{ fontFamily: fontFamily }}
     >
       {/* Page 1: Patient Demographics */}
-      <PatientDemographicsPage data={data} medicalHistoryData={medicalHistoryData} />
-      
-      {/* Page Break */}
-      <div className="page-break"></div>
-      
-      {/* Page 2: Medical History */}
-      {medicalHistoryData && <MedicalHistoryPage data={medicalHistoryData} />}
-      
-      {/* Page Break */}
-      <div className="page-break"></div>
-      
-      {/* Page 3: Medications */}
-      <MedicationsPage data={data} medicalHistoryData={medicalHistoryData} />
-      
-      {/* Page Break */}
-      <div className="page-break"></div>
-      
-      {/* Page 4: Lab Results */}
-      <LabResultsPage 
-        data={data} 
-        laboratoryReportData={laboratoryReportData}
-        visitReportData={visitReportData}
+      <PatientPage
+        patient={patient}
+        provider={provider}
+        insuranceInfo={insuranceInfo}
+        labReports={labReports}
+        medicalHistory={medicalHistory}
       />
-      
+
       {/* Page Break */}
       <div className="page-break"></div>
-      
+
+      {/* Page 2: Medical History */}
+      {medicalHistory && (
+        <MedicalHistoryPage
+          patient={patient}
+          provider={provider}
+          medicalHistory={medicalHistory}
+        />
+      )}
+
+      {/* Page Break */}
+      <div className="page-break"></div>
+
+      {/* Page 3: Medications */}
+      <MedicationsPage
+        patient={patient}
+        medicalHistory={medicalHistory}
+      />
+
+      {/* Page Break */}
+      <div className="page-break"></div>
+
+      {/* Page 4: Lab Results */}
+      <LabReportsPage
+        patient={patient}
+        provider={provider}
+        labReports={labReports}
+        visitReport={(visitReports && visitReports.length > 0 ? visitReports[0] : undefined)}
+      />
+
+      {/* Page Break */}
+      <div className="page-break"></div>
+
       {/* Page 5: Visit Notes */}
-      <VisitNotesPage 
-        data={data}
-        visitReportData={visitReportData}
-        medicalHistoryData={medicalHistoryData}
+      <VisitNotesPage
+        patient={patient}
+        provider={provider}
+        visitReport={(visitReports && visitReports.length > 0 ? visitReports[0] : undefined)}
+        medicalHistory={medicalHistory}
       />
     </div>
   );

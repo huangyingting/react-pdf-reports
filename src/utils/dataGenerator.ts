@@ -6,30 +6,33 @@ import {
   Address,
   Insurance,
   ClaimInfo,
-  LabReportData,
+  LabReport,
   LabTestType,
   LabTestResult,
   SurgicalHistory,
   Allergy,
   Complexity,
-  MedicalHistory,
   FamilyHistory,
   Medications,
   ChronicCondition,
   CurrentMedication,
   DiscontinuedMedication,
-  MedicalHistoryData,
-  LabReportsData,
+  MedicalHistory,
+  LabReports,
   VitalSigns,
-  VisitReportData,
+  VisitReport,
   VisitNote,
-  InsurancePolicyData,
-  CMS1500Data
+  InsurancePolicy,
+  CMS1500
 } from './zodSchemas';
 
 import { DataPreset } from './zodSchemas';
 
-// Constants
+// ============================================================================
+// CONSTANTS AND TYPE DEFINITIONS
+// ============================================================================
+
+// Medical Specialties
 export const MEDICAL_SPECIALTIES = [
   'Family Medicine',
   'Internal Medicine',
@@ -177,10 +180,7 @@ export const DEDUCTIBLE_AMOUNTS = [
 
 export type DeductibleAmount = typeof DEDUCTIBLE_AMOUNTS[number];
 
-
-/**
- * Data generation presets
- */
+// Data generation presets
 export const DATA_GENERATION_PRESETS: Record<string, DataPreset> = {
   simple: {
     name: 'Simple Patient',
@@ -214,7 +214,7 @@ export const DATA_GENERATION_PRESETS: Record<string, DataPreset> = {
   }
 };
 
-// Medical-specific data arrays
+// Medical conditions and medications
 export const MEDICAL_CONDITIONS: string[] = [
   'Hypertension', 'Diabetes Type 2', 'Hyperlipidemia', 'Asthma', 'COPD',
   'Arthritis', 'Depression', 'Anxiety', 'Migraine', 'GERD',
@@ -229,8 +229,7 @@ export const MEDICATIONS: string[] = [
   'Prednisone 10mg', 'Losartan 50mg', 'Amlodipine 5mg', 'Gabapentin 300mg'
 ];
 
-
-// Generate allergies as objects with required properties
+// Allergies and adverse reactions
 export const ALLERGY_NAMES = [
   { name: 'Penicillin', reaction: 'Severe rash and difficulty breathing', severity: 'High' },
   { name: 'Sulfa drugs', reaction: 'Hives and swelling', severity: 'Moderate' },
@@ -240,6 +239,7 @@ export const ALLERGY_NAMES = [
   { name: 'Pollen', reaction: 'Seasonal allergies, sneezing', severity: 'Low' }
 ];
 
+// Surgical and family history
 export const SURGICAL_PROCEDURES = [
   'Appendectomy', 'Cholecystectomy', 'Hernia repair', 'Knee arthroscopy',
   'Cataract surgery', 'Colonoscopy', 'Skin lesion removal', 'Gallbladder removal'
@@ -262,6 +262,7 @@ export const CAUSES_OF_DEATH = [
   'Cancer', 'Heart disease', 'Stroke', 'Natural causes', 'Heart attack'
 ] as const;
 
+// Condition statuses and medication details
 export const CONDITION_STATUSES = [
   'Active', 'Stable', 'Improving', 'Monitoring'
 ] as const;
@@ -288,6 +289,7 @@ export const DISCONTINUATION_REASONS = [
   'Side effects', 'Cost concerns', 'Drug interaction', 'Ineffective'
 ] as const;
 
+// Condition-medication mapping
 export const CONDITION_MEDICATION_MAP: Record<string, Array<{ name: string, strength: string, purpose: string }>> = {
   'Hypertension': [
     { name: 'Lisinopril', strength: '10mg', purpose: 'Blood pressure control' },
@@ -331,6 +333,7 @@ export const CONDITION_MEDICATION_MAP: Record<string, Array<{ name: string, stre
   ]
 } as const;
 
+// General medications
 export const GENERAL_MEDICATIONS = [
   { name: 'Vitamin D3', strength: '1000IU', purpose: 'Bone health', dosage: 'Daily' },
   { name: 'Multivitamin', strength: 'As directed', purpose: 'General health', dosage: 'Daily' },
@@ -342,9 +345,15 @@ export const GENERAL_MEDICATIONS = [
   { name: 'Vitamin B12', strength: '1000mcg', purpose: 'Energy and nerve health', dosage: 'Daily' },
   { name: 'Magnesium', strength: '400mg', purpose: 'Muscle and nerve function', dosage: 'Daily' },
   { name: 'Zinc', strength: '50mg', purpose: 'Immune support', dosage: 'Daily' }
-] as const;  
+] as const;
 
-// Visit report constants
+// Visit reports and assessments
+export const VISIT_TYPES: string[] = [
+  'Annual Physical Exam', 'Follow-up Visit', 'Sick Visit', 'Preventive Care',
+  'Chronic Disease Management', 'Medication Review', 'Consultation',
+  'Emergency Visit', 'Urgent Care', 'Specialist Referral'
+];
+
 export const CHIEF_COMPLAINTS: string[] = [
   'Annual wellness exam',
   'Follow-up for hypertension',
@@ -461,6 +470,10 @@ export const DIAGNOSIS_CODES: string[] = [
   'K72.90',   // Hepatic failure, unspecified without coma
   'D61.9',    // Aplastic anemia, unspecified
 ];
+
+// ============================================================================
+// GENERATOR FUNCTIONS - PATIENT AND PROVIDER
+// ============================================================================
 
 /**
  * Generate patient demographics
@@ -582,6 +595,10 @@ export const generateProvider = (): Provider => {
   };
 };
 
+// ============================================================================
+// GENERATOR FUNCTIONS - INSURANCE
+// ============================================================================
+
 /**
  * Generate insurance (policy) information
  * Returns just the Insurance object without subscriber/insured details
@@ -623,28 +640,6 @@ export const generateInsured = (
     name: `${faker.person.lastName()}, ${faker.person.firstName()}`,
     policyNumber: policy,
     planName: `${provider} ${faker.helpers.arrayElement(INSURANCE_PLAN_TYPES)} Plan`
-  };
-};
-
-/**
- * Generate secondary insurance and insured information together
- * @deprecated Use generateInsurance() and generateInsured() separately for more flexibility
- */
-export const generateSecondaryInsuranceAndInsured = (
-  excludeProvider?: string
-): {
-  secondaryInsurance: Insurance;
-  secondaryInsured: { name: string; policyNumber: string; planName: string };
-} => {
-  const secondaryInsurance = generateInsurance(excludeProvider);
-  const secondaryInsured = generateInsured(
-    secondaryInsurance.policyNumber,
-    secondaryInsurance.provider
-  );
-
-  return {
-    secondaryInsurance,
-    secondaryInsured
   };
 };
 
@@ -705,6 +700,10 @@ export const generateInsuranceInfo = (
 
   return result;
 };
+
+// ============================================================================
+// GENERATOR FUNCTIONS - CLAIMS AND BILLING
+// ============================================================================
 
 /**
  * Generate claim information for CMS-1500 forms
@@ -1190,6 +1189,10 @@ export const generateClaimInfo = (
   return result
 };
 
+// ============================================================================
+// LAB TEST PANEL DEFINITIONS
+// ============================================================================
+
 // Lab test panel definitions with realistic reference ranges
 const LAB_TEST_PANELS = {
   CBC: {
@@ -1378,10 +1381,14 @@ const LAB_TEST_PANELS = {
   }
 };
 
-export const generateLabReportData = (
+// ============================================================================
+// GENERATOR FUNCTIONS - LABORATORY REPORTS
+// ============================================================================
+
+export const generateLabReport = (
   testType: LabTestType,
   orderingPhysician: string
-): LabReportData => {
+): LabReport => {
 
   // Generate test panel data
   const panel = LAB_TEST_PANELS[testType];
@@ -1496,75 +1503,9 @@ export const generateLabReportData = (
   };
 };
 
-
-/**
- * Generate medical history including allergies, chronic conditions, surgical and family history
- */
-export const generateMedicalHistory = (complexity: Complexity = 'medium'): MedicalHistory => {
-  const conditionCount = complexity === 'low' ? 2 : complexity === 'high' ? 6 : 4;
-  const conditions = faker.helpers.arrayElements(MEDICAL_CONDITIONS, conditionCount);
-  
-  const allergyCount = faker.datatype.boolean(0.6) ? faker.number.int({ min: 1, max: 3 }) : 0;
-  const allergies: Allergy[] = allergyCount > 0 ? 
-    faker.helpers.arrayElements(ALLERGY_NAMES, allergyCount).map(allergy => ({
-      allergen: allergy.name,
-      reaction: allergy.reaction,
-      severity: allergy.severity,
-      dateIdentified: faker.date.past({ years: 10 }).toLocaleDateString('en-US')
-    })) : [{
-      allergen: 'No known allergies',
-      reaction: 'None',
-      severity: 'None',
-      dateIdentified: 'N/A'
-    }];
-
-  // Generate surgical history as objects
-  const surgicalCount = faker.datatype.boolean(0.4) ? faker.number.int({ min: 1, max: 3 }) : 0;
-  const surgicalHistory: SurgicalHistory[] = surgicalCount > 0 ?
-    Array.from({ length: surgicalCount }, () => ({
-      procedure: faker.helpers.arrayElement(SURGICAL_PROCEDURES),
-      date: faker.date.past({ years: 10 }).toLocaleDateString('en-US'),
-      hospital: faker.helpers.arrayElement(HOSPITALS),
-      surgeon: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
-      complications: faker.helpers.arrayElement(SURGICAL_COMPLICATIONS)
-    })) : [{
-      procedure: 'No surgical history',
-      date: 'N/A',
-      hospital: 'N/A',
-      surgeon: 'N/A',
-      complications: 'N/A'
-    }];
-
-  // Generate family history as objects
-  const familyHistory: FamilyHistory[] = [
-    {
-      relation: 'Mother',
-      conditions: faker.helpers.arrayElements(FAMILY_CONDITIONS, 
-        faker.number.int({ min: 0, max: 2 })),
-      ageAtDeath: faker.datatype.boolean(0.3) ? faker.number.int({ min: 65, max: 90 }).toString() : 'Living',
-      causeOfDeath: faker.datatype.boolean(0.3) ? faker.helpers.arrayElement(CAUSES_OF_DEATH) : 'N/A'
-    },
-    {
-      relation: 'Father',
-      conditions: faker.helpers.arrayElements(FAMILY_CONDITIONS, 
-        faker.number.int({ min: 0, max: 2 })),
-      ageAtDeath: faker.datatype.boolean(0.4) ? faker.number.int({ min: 60, max: 85 }).toString() : 'Living',
-      causeOfDeath: faker.datatype.boolean(0.4) ? faker.helpers.arrayElement(CAUSES_OF_DEATH) : 'N/A'
-    }
-  ];
-
-  return {
-    allergies,
-    chronicConditions: conditions.map(condition => ({
-      condition,
-      diagnosedDate: faker.date.past({ years: 5 }).toLocaleDateString('en-US'),
-      status: faker.helpers.arrayElement(CONDITION_STATUSES),
-      notes: faker.helpers.arrayElement(CONDITION_NOTES)
-    })),
-    surgicalHistory,
-    familyHistory
-  };
-};
+// ============================================================================
+// GENERATOR FUNCTIONS - MEDICAL HISTORY AND MEDICATIONS
+// ============================================================================
 
 /**
  * Generate medications list that correlate with chronic conditions
@@ -1575,11 +1516,11 @@ export const generateMedications = (
 ): Medications => {
   const currentMedCount = complexity === 'low' ? 3 : complexity === 'high' ? 8 : 5;
   const discontinuedMedCount = complexity === 'low' ? 1 : complexity === 'high' ? 4 : 2;
-  
+
   // Generate medications based on conditions
   const currentMedications: CurrentMedication[] = [];
   const usedMedications = new Set<string>();
-  
+
   // Add medications for each chronic condition
   chronicConditions.forEach(condition => {
     const medOptions = CONDITION_MEDICATION_MAP[condition.condition];
@@ -1602,11 +1543,11 @@ export const generateMedications = (
       }
     }
   });
-  
+
   // Safety counter to prevent infinite loops
   let attempts = 0;
   const maxAttempts = GENERAL_MEDICATIONS.length * 2;
-  
+
   while (currentMedications.length < currentMedCount && attempts < maxAttempts) {
     attempts++;
     const med = faker.helpers.arrayElement(GENERAL_MEDICATIONS);
@@ -1643,68 +1584,116 @@ export const generateMedications = (
   };
 };
 
-export const generateMedicalHistoryData = (complexity: Complexity = 'medium'): MedicalHistoryData => {    
+export const generateMedicalHistory = (complexity: Complexity = 'medium'): MedicalHistory => {
   // Generate medical history and medications using imported functions from medicalRecordsGenerator
-  const medicalHistory = generateMedicalHistory(complexity);
-  const medications = generateMedications(complexity, medicalHistory.chronicConditions);
+  const conditionCount = complexity === 'low' ? 2 : complexity === 'high' ? 6 : 4;
+  const conditions = faker.helpers.arrayElements(MEDICAL_CONDITIONS, conditionCount);
+
+  const allergyCount = faker.datatype.boolean(0.6) ? faker.number.int({ min: 1, max: 3 }) : 0;
+  const allergies: Allergy[] = allergyCount > 0 ?
+    faker.helpers.arrayElements(ALLERGY_NAMES, allergyCount).map(allergy => ({
+      allergen: allergy.name,
+      reaction: allergy.reaction,
+      severity: allergy.severity,
+      dateIdentified: faker.date.past({ years: 10 }).toLocaleDateString('en-US')
+    })) : [{
+      allergen: 'No known allergies',
+      reaction: 'None',
+      severity: 'None',
+      dateIdentified: 'N/A'
+    }];
+
+  // Generate surgical history as objects
+  const surgicalCount = faker.datatype.boolean(0.4) ? faker.number.int({ min: 1, max: 3 }) : 0;
+  const surgicalHistory: SurgicalHistory[] = surgicalCount > 0 ?
+    Array.from({ length: surgicalCount }, () => ({
+      procedure: faker.helpers.arrayElement(SURGICAL_PROCEDURES),
+      date: faker.date.past({ years: 10 }).toLocaleDateString('en-US'),
+      hospital: faker.helpers.arrayElement(HOSPITALS),
+      surgeon: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
+      complications: faker.helpers.arrayElement(SURGICAL_COMPLICATIONS)
+    })) : [{
+      procedure: 'No surgical history',
+      date: 'N/A',
+      hospital: 'N/A',
+      surgeon: 'N/A',
+      complications: 'N/A'
+    }];
+
+  // Generate family history as objects
+  const familyHistory: FamilyHistory[] = [
+    {
+      relation: 'Mother',
+      conditions: faker.helpers.arrayElements(FAMILY_CONDITIONS,
+        faker.number.int({ min: 0, max: 2 })),
+      ageAtDeath: faker.datatype.boolean(0.3) ? faker.number.int({ min: 65, max: 90 }).toString() : 'Living',
+      causeOfDeath: faker.datatype.boolean(0.3) ? faker.helpers.arrayElement(CAUSES_OF_DEATH) : 'N/A'
+    },
+    {
+      relation: 'Father',
+      conditions: faker.helpers.arrayElements(FAMILY_CONDITIONS,
+        faker.number.int({ min: 0, max: 2 })),
+      ageAtDeath: faker.datatype.boolean(0.4) ? faker.number.int({ min: 60, max: 85 }).toString() : 'Living',
+      causeOfDeath: faker.datatype.boolean(0.4) ? faker.helpers.arrayElement(CAUSES_OF_DEATH) : 'N/A'
+    }
+  ];
+
+  const chronicConditions: ChronicCondition[] = conditions.map(condition => ({
+    condition,
+    diagnosedDate: faker.date.past({ years: 5 }).toLocaleDateString('en-US'),
+    status: faker.helpers.arrayElement(CONDITION_STATUSES),
+    notes: faker.helpers.arrayElement(CONDITION_NOTES)
+  }));
+
+  const medications = generateMedications(complexity, chronicConditions);
 
   return {
     medications,
-    allergies: medicalHistory.allergies,
-    chronicConditions: medicalHistory.chronicConditions,
-    surgicalHistory: medicalHistory.surgicalHistory,
-    familyHistory: medicalHistory.familyHistory
+    allergies: allergies,
+    chronicConditions: chronicConditions,
+    surgicalHistory: surgicalHistory,
+    familyHistory: familyHistory
   };
 };
 
-export const generateLabReportsData = (
+export const generateLabReports = (
   testType: LabTestType[],
   orderingPhysician: string
-): LabReportsData => {
-  const labReports: LabReportsData = { reports: [] };
+): LabReports => {
+  const labReports: LabReports = [];
   testType.forEach(type => {
-    const report = generateLabReportData(type, orderingPhysician);
-    labReports.reports.push(report);
+    const report = generateLabReport(type, orderingPhysician);
+    labReports.push(report);
   });
   return labReports;
 };
 
-export const generateInsurancePolicyData = (patient: Patient, insuranceInfo: InsuranceInfo): InsurancePolicyData => {
-  return {
-    patient: patient,
-    insurance: insuranceInfo.primaryInsurance
-  };
-}
+// ============================================================================
+// GENERATOR FUNCTIONS - VISIT REPORTS
+// ============================================================================
 
-export const VISIT_TYPES: string[] = [
-  'Annual Physical Exam', 'Follow-up Visit', 'Sick Visit', 'Preventive Care',
-  'Chronic Disease Management', 'Medication Review', 'Consultation',
-  'Emergency Visit', 'Urgent Care', 'Specialist Referral'
-];
+export const generateVisitsReport = (numberOfVisits: number = 1, providerName: string): VisitReport[] => {
+  const visitReports: VisitReport[] = [];
 
-
-export const generateVisitReportData = (numberOfVisits: number = 1, providerName: string): VisitReportData[] => {
-  const visitReports: VisitReportData[] = [];
-  
   for (let i = 0; i < numberOfVisits; i++) {
-    visitReports.push(generateSingleVisitReport(i, providerName));
+    visitReports.push(generateVisitReport(i, providerName));
   }
-  
+
   return visitReports;
 };
 
-const generateSingleVisitReport = (visitIndex: number = 0, providerName: string): VisitReportData => {
+const generateVisitReport = (visitIndex: number = 0, providerName: string): VisitReport => {
 
   // Generate visit note
   const visitTypes = ['Office Visit', 'Follow-up Visit', 'Annual Physical', 'Sick Visit', 'Consultation', 'Initial Visit'];
   const visitType = faker.helpers.arrayElement(visitTypes);
-  
+
   // Generate visit date based on index - spread visits over the past year
   const daysAgo = 30 + (visitIndex * 60); // Space visits ~60 days apart, starting from 30 days ago
   const visitDate = faker.date.recent({ days: Math.min(daysAgo, 365) });
   const selectedAssessment = faker.helpers.arrayElement(VISIT_ASSESSMENTS);
   const selectedPlan = faker.helpers.arrayElement(VISIT_PLANS);
-  
+
   const visit: VisitNote = {
     date: visitDate.toLocaleDateString('en-US'),
     type: visitType,
@@ -1750,10 +1739,20 @@ function calculateBMI(weight: number, height: string): string {
   return bmi.toFixed(1);
 }
 
+// ============================================================================
+// GENERATOR FUNCTIONS - DOCUMENT ASSEMBLY
+// ============================================================================
 
-export const generateCMS1500Data = (patient: Patient, insuranceInfo: InsuranceInfo, provider: Provider): CMS1500Data => {
+export const generateInsurancePolicy = (patient: Patient, insuranceInfo: InsuranceInfo): InsurancePolicy => {
+  return {
+    patient: patient,
+    insurance: insuranceInfo.primaryInsurance
+  };
+}
 
-  const result: CMS1500Data = {
+export const generateCMS1500 = (patient: Patient, insuranceInfo: InsuranceInfo, provider: Provider): CMS1500 => {
+
+  const result: CMS1500 = {
     patient: patient,
     insuranceInfo: insuranceInfo,
     provider: provider,

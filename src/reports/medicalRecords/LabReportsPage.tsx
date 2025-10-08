@@ -1,14 +1,14 @@
 import React from 'react';
-import { BasicData, LaboratoryReportData, VisitReportData } from '../../utils/constants';
+import { Patient, Provider, LabReports, VisitReport } from '../../utils/zodSchemas';
 
-interface LabResultsPageProps {
-  data: BasicData;
-  laboratoryReportData?: LaboratoryReportData[];
-  visitReportData?: VisitReportData;
+interface LabReportsPageProps {
+  patient: Patient;
+  provider: Provider;
+  labReports?: LabReports;
+  visitReport?: VisitReport;
 }
 
-const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportData, visitReportData }) => {
-  const { patient, provider } = data;
+const LabResultsPage: React.FC<LabReportsPageProps> = ({ patient, provider, labReports, visitReport }) => {
   const currentDate = new Date().toLocaleDateString();
   
   // Facility information with fallbacks
@@ -20,7 +20,7 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
     : '123 Medical Center Drive, Healthcare City, HC 12345';
   
   const renderVitalSigns = () => {
-    const vitalSigns = visitReportData?.vitalSigns;
+    const vitalSigns = visitReport?.vitalSigns;
     if (!vitalSigns) return null;
 
     return (
@@ -40,7 +40,7 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
           </thead>
           <tbody>
             <tr>
-              <td>{visitReportData.visit?.date || 'N/A'}</td>
+              <td>{visitReport.visit?.date || 'N/A'}</td>
               <td>{vitalSigns.temperature} °F</td>
               <td>{vitalSigns.bloodPressure}</td>
               <td>{vitalSigns.heartRate} bpm</td>
@@ -55,13 +55,13 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
   };
 
   const renderRecentLabs = () => {
-    if (!laboratoryReportData || laboratoryReportData.length === 0) return null;
+    if (!labReports || labReports.length === 0) return null;
 
     return (
       <div className="compact-section">
         <h3>Recent Laboratory Results</h3>
         
-        {laboratoryReportData.slice(0, 3).map((labReport, labIndex) => (
+        {labReports.slice(0, 3).map((labReport, labIndex) => (
           <div key={labIndex} style={{marginBottom: '4mm'}}>
             <h4 style={{color: '#2c5aa0', fontSize: '11px', marginBottom: '2mm'}}>
               {labReport.testName} - {labReport.reportDate}
@@ -102,15 +102,15 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
   };
 
   const renderCriticalAlerts = () => {
-    if (!laboratoryReportData || laboratoryReportData.length === 0) return null;
+    if (!labReports || labReports.length === 0) return null;
     
     // Collect critical results from all lab reports
-    const allCriticalResults = laboratoryReportData.flatMap(labReport =>
+    const allCriticalResults = labReports.flatMap(labReport =>
       labReport.results
-        .filter(result => 
+        .filter((result: any) => 
           result.flag === 'High' || result.flag === 'Low' || result.flag === 'Critical' || result.flag === 'Abnormal'
         )
-        .map(result => ({ ...result, testName: labReport.testName }))
+        .map((result: any) => ({ ...result, testName: labReport.testName }))
     );
 
     if (allCriticalResults.length === 0) return null;
@@ -133,11 +133,11 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
   };
 
   const renderLabSummary = () => {
-    if (!laboratoryReportData || laboratoryReportData.length === 0) return null;
+    if (!labReports || labReports.length === 0) return null;
 
     // Calculate total abnormal results across all lab reports
-    const totalAbnormalCount = laboratoryReportData.reduce((sum, labReport) => {
-      return sum + labReport.results.filter(r => r.flag !== 'Normal' && r.flag !== '').length;
+    const totalAbnormalCount = labReports.reduce((sum: number, labReport) => {
+      return sum + labReport.results.filter((r: any) => r.flag !== 'Normal' && r.flag !== '').length;
     }, 0);
 
     return (
@@ -146,7 +146,7 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
         <div className="reference-grid">
           <div className="reference-item">
             <strong>Tests Ordered</strong>
-            <div>{laboratoryReportData.length} test{laboratoryReportData.length !== 1 ? 's' : ''}</div>
+            <div>{labReports.length} test{labReports.length !== 1 ? 's' : ''}</div>
             <div className="note">Recent reports available</div>
           </div>
           <div className="reference-item">
@@ -160,7 +160,7 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
         
         <div style={{marginTop: '3mm'}}>
           <h4>Test Information</h4>
-          {laboratoryReportData.slice(0, 2).map((labReport, index) => (
+          {labReports.slice(0, 2).map((labReport, index) => (
             <div key={index} style={{marginBottom: index < 1 ? '3mm' : '0'}}>
               <table className="info-table">
                 <tbody>
@@ -208,7 +208,7 @@ const LabResultsPage: React.FC<LabResultsPageProps> = ({ data, laboratoryReportD
         {renderCriticalAlerts()}
         {renderLabSummary()}
         
-        {(!visitReportData?.vitalSigns && !laboratoryReportData) && (
+        {(!visitReport?.vitalSigns && !labReports) && (
           <div className="no-data-message">
             <p>No laboratory or vital sign data available for this patient.</p>
           </div>
