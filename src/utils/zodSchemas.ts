@@ -58,11 +58,10 @@ export const PatientDemographicsSchema = z.object({
   gender: z.string().describe('Gender'),
   address: AddressSchema,
   contact: ContactSchema,
-  insurance: InsuranceSchema,
   pharmacy: PharmacySchema,
   medicalRecordNumber: z.string().describe('Medical record number (MRN)'),
   ssn: z.string().describe('Social Security Number in XXX-XX-XXXX format'),
-  accountNumber: z.string().optional().describe('Account number')
+  accountNumber: z.string().describe('Account number')
 });
 
 // ============================================================================

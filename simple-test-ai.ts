@@ -19,6 +19,283 @@ import {
 import { AzureOpenAIConfig } from './src/utils/azureOpenAI';
 import { BasicData } from './src/utils/types';
 
+/**
+ * Test Basic Data Generation
+ */
+async function testBasicDataGeneration(config: AzureOpenAIConfig): Promise<BasicData> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Generating Basic Medical Data (Low Complexity)...\n');
+
+  const startTime = Date.now();
+  const basicData = await generateBasicDataWithAI(config, 'low');
+  const duration = Date.now() - startTime;
+
+  console.log(`✅ Success! Generated in ${duration}ms\n`);
+  console.log('='.repeat(70));
+  console.log('\n📄 Generated Medical Record:\n');
+  
+  // Patient Information
+  console.log('👤 PATIENT:');
+  console.log(`  Name: ${basicData.patient.name}`);
+  console.log(`  Age: ${basicData.patient.age} years`);
+  console.log(`  Gender: ${basicData.patient.gender}`);
+  console.log(`  DOB: ${basicData.patient.dateOfBirth}`);
+  console.log(`  MRN: ${basicData.patient.medicalRecordNumber}`);
+  console.log(`  SSN: ${basicData.patient.ssn}`);
+  console.log(`  Address: ${basicData.patient.address.street}, ${basicData.patient.address.city}, ${basicData.patient.address.state} ${basicData.patient.address.zipCode}`);
+  console.log(`  Phone: ${basicData.patient.contact.phone}`);
+  console.log(`  Email: ${basicData.patient.contact.email}`);
+  
+  // Insurance Information
+  console.log('\n🏥 PRIMARY INSURANCE:');
+  console.log(`  Provider: ${basicData.insurance.primaryInsurance.provider}`);
+  console.log(`  Policy Number: ${basicData.insurance.primaryInsurance.policyNumber}`);
+  console.log(`  Group Number: ${basicData.insurance.primaryInsurance.groupNumber || 'N/A'}`);
+  console.log(`  Member ID: ${basicData.insurance.primaryInsurance.memberId || 'N/A'}`);
+  console.log(`  Effective Date: ${basicData.insurance.primaryInsurance.effectiveDate}`);
+  console.log(`  Copay: ${basicData.insurance.primaryInsurance.copay || 'N/A'}`);
+  console.log(`  Deductible: ${basicData.insurance.primaryInsurance.deductible || 'N/A'}`);
+  
+  if (basicData.insurance.secondaryInsured) {
+    console.log('\n🏥 SECONDARY INSURANCE:');
+    console.log(`  Insured: ${basicData.insurance.secondaryInsured.name}`);
+    console.log(`  Policy: ${basicData.insurance.secondaryInsured.policyNumber}`);
+    console.log(`  Plan: ${basicData.insurance.secondaryInsured.planName}`);
+  }
+  
+  // Provider Information
+  console.log('\n👨‍⚕️ PROVIDER:');
+  console.log(`  Name: ${basicData.provider.name}`);
+  console.log(`  NPI: ${basicData.provider.npi}`);
+  console.log(`  Specialty: ${basicData.provider.specialty}`);
+  console.log(`  Facility: ${basicData.provider.facilityName}`);
+  console.log(`  Facility NPI: ${basicData.provider.facilityNPI}`);
+  console.log(`  Address: ${basicData.provider.address.street}, ${basicData.provider.address.city}, ${basicData.provider.address.state} ${basicData.provider.address.zipCode}`);
+  console.log(`  Phone: ${basicData.provider.phone}`);
+  
+  // Metadata
+  console.log('\n📊 METADATA:');
+  console.log(`  Generated At: ${basicData.generatedAt}`);
+  
+  // Full JSON Output
+  console.log('\n' + '='.repeat(70));
+  console.log('\n📝 Full JSON Output:\n');
+  console.log(JSON.stringify(basicData, null, 2));
+  
+  return basicData;
+}
+
+/**
+ * Test CMS-1500 Form Generation
+ */
+async function testCMS1500Generation(config: AzureOpenAIConfig, basicData: BasicData): Promise<void> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Testing CMS-1500 Data Generation...\n');
+  
+  const startTime = Date.now();
+  const cms1500Data: any = await generateCMS1500DataWithAI(config, basicData);
+  const duration = Date.now() - startTime;
+
+  console.log(`✅ CMS-1500 data generated in ${duration}ms\n`);
+  console.log('📋 CMS-1500 CLAIM SUMMARY:');
+  console.log(`  Patient Control Number: ${cms1500Data.patientControlNumber || 'N/A'}`);
+  console.log(`  Service Lines: ${cms1500Data.serviceLines?.length || 0}`);
+  
+  if (cms1500Data.serviceLines && cms1500Data.serviceLines.length > 0) {
+    console.log('\n  Service Details:');
+    cms1500Data.serviceLines.forEach((line: any, idx: number) => {
+      console.log(`    ${idx + 1}. Date: ${line.dateOfService}`);
+      console.log(`       Procedure: ${line.procedureCode} - ${line.description || 'N/A'}`);
+      console.log(`       Charge: $${line.charges}`);
+      console.log(`       Diagnosis Pointers: ${line.diagnosisPointers?.join(', ') || 'N/A'}`);
+    });
+  }
+  
+  console.log('\n📝 Full CMS-1500 JSON:\n');
+  console.log(JSON.stringify(cms1500Data, null, 2));
+}
+
+/**
+ * Test Insurance Policy Generation
+ */
+async function testInsurancePolicyGeneration(config: AzureOpenAIConfig, basicData: BasicData): Promise<void> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Testing Insurance Policy Data Generation...\n');
+  
+  const startTime = Date.now();
+  const policyData: any = await generateInsurancePolicyDataWithAI(config, basicData);
+  const duration = Date.now() - startTime;
+
+  console.log(`✅ Insurance Policy data generated in ${duration}ms\n`);
+  console.log('🏥 INSURANCE POLICY SUMMARY:');
+  console.log(`  Policy Number: ${policyData.policyNumber}`);
+  console.log(`  Policy Holder: ${policyData.policyHolder.name}`);
+  console.log(`  Effective Date: ${policyData.effectiveDate}`);
+  console.log(`  Expiration Date: ${policyData.expirationDate || 'N/A'}`);
+  console.log(`  Plan Type: ${policyData.planType || 'N/A'}`);
+  
+  if (policyData.coverage) {
+    console.log('\n  Coverage Details:');
+    console.log(`    Deductible: $${policyData.coverage.deductible || 'N/A'}`);
+    console.log(`    Out-of-Pocket Max: $${policyData.coverage.outOfPocketMax || 'N/A'}`);
+    console.log(`    Coinsurance: ${policyData.coverage.coinsurance || 'N/A'}`);
+    console.log(`    Copay: $${policyData.coverage.copay || 'N/A'}`);
+  }
+  
+  if (policyData.coveredServices && policyData.coveredServices.length > 0) {
+    console.log(`\n  Covered Services: ${policyData.coveredServices.length} services`);
+    policyData.coveredServices.slice(0, 5).forEach((service: any) => {
+      console.log(`    - ${service.service || service}`);
+    });
+  }
+  
+  console.log('\n📝 Full Insurance Policy JSON:\n');
+  console.log(JSON.stringify(policyData, null, 2));
+}
+
+/**
+ * Test Visit Report Generation
+ */
+async function testVisitReportGeneration(config: AzureOpenAIConfig, basicData: BasicData): Promise<void> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Testing Visit Report Data Generation (3 visits)...\n');
+  
+  const startTime = Date.now();
+  const visitReports: any[] = await generateVisitReportDataWithAI(config, basicData, 3);
+  const duration = Date.now() - startTime;
+
+  console.log(`✅ ${visitReports.length} Visit Report(s) generated in ${duration}ms\n`);
+  
+  visitReports.forEach((visit: any, idx: number) => {
+    console.log(`\n📋 VISIT ${idx + 1}:`);
+    console.log(`  Date: ${visit.dateOfService}`);
+    console.log(`  Chief Complaint: ${visit.chiefComplaint}`);
+    console.log(`  Provider: ${visit.providerName || basicData.provider.name}`);
+    
+    if (visit.vitalSigns) {
+      console.log(`  Vital Signs:`);
+      console.log(`    BP: ${visit.vitalSigns.bloodPressure || 'N/A'}`);
+      console.log(`    HR: ${visit.vitalSigns.heartRate || 'N/A'} bpm`);
+      console.log(`    Temp: ${visit.vitalSigns.temperature || 'N/A'}°F`);
+      console.log(`    SpO2: ${visit.vitalSigns.oxygenSaturation || 'N/A'}%`);
+    }
+    
+    if (visit.assessment && visit.assessment.length > 0) {
+      console.log(`  Assessment: ${visit.assessment.length} diagnosis(es)`);
+      visit.assessment.forEach((dx: any, i: number) => {
+        console.log(`    ${i + 1}. ${dx.diagnosis || dx} (${dx.icd10Code || 'N/A'})`);
+      });
+    }
+    
+    console.log('\n  Full Visit JSON (truncated):');
+    console.log(JSON.stringify(visit, null, 2).substring(0, 500) + '...');
+  });
+}
+
+/**
+ * Test Medical History Generation
+ */
+async function testMedicalHistoryGeneration(config: AzureOpenAIConfig, basicData: BasicData): Promise<void> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Testing Medical History Data Generation (Medium Complexity)...\n');
+  
+  const startTime = Date.now();
+  const medicalHistory: any = await generateMedicalHistoryDataWithAI(config, basicData, 'medium');
+  const duration = Date.now() - startTime;
+
+  console.log(`✅ Medical History data generated in ${duration}ms\n`);
+  console.log('📜 MEDICAL HISTORY SUMMARY:');
+  
+  if (medicalHistory.allergies && medicalHistory.allergies.length > 0) {
+    console.log(`\n  Allergies: ${medicalHistory.allergies.length}`);
+    medicalHistory.allergies.forEach((allergy: any) => {
+      console.log(`    - ${allergy.allergen || allergy.medication}: ${allergy.reaction} (${allergy.severity})`);
+    });
+  }
+  
+  if (medicalHistory.conditions && medicalHistory.conditions.length > 0) {
+    console.log(`\n  Medical Conditions: ${medicalHistory.conditions.length}`);
+    medicalHistory.conditions.slice(0, 5).forEach((condition: any) => {
+      console.log(`    - ${condition.condition || condition.name} (${condition.icd10Code || 'N/A'}) - ${condition.status}`);
+    });
+  }
+  
+  if (medicalHistory.medications && medicalHistory.medications.length > 0) {
+    console.log(`\n  Medications: ${medicalHistory.medications.length}`);
+    medicalHistory.medications.slice(0, 5).forEach((med: any) => {
+      console.log(`    - ${med.medication || med.name}: ${med.dosage} ${med.frequency}`);
+    });
+  }
+  
+  if (medicalHistory.surgicalHistory && medicalHistory.surgicalHistory.length > 0) {
+    console.log(`\n  Surgical History: ${medicalHistory.surgicalHistory.length}`);
+    medicalHistory.surgicalHistory.forEach((surgery: any) => {
+      console.log(`    - ${surgery.procedure} (${surgery.date})`);
+    });
+  }
+  
+  if (medicalHistory.familyHistory && medicalHistory.familyHistory.length > 0) {
+    console.log(`\n  Family History: ${medicalHistory.familyHistory.length} entries`);
+    medicalHistory.familyHistory.slice(0, 3).forEach((family: any) => {
+      console.log(`    - ${family.relationship}: ${family.condition}`);
+    });
+  }
+  
+  if (medicalHistory.socialHistory) {
+    console.log(`\n  Social History:`);
+    console.log(`    Smoking: ${medicalHistory.socialHistory.smoking || 'N/A'}`);
+    console.log(`    Alcohol: ${medicalHistory.socialHistory.alcohol || 'N/A'}`);
+    console.log(`    Exercise: ${medicalHistory.socialHistory.exercise || 'N/A'}`);
+  }
+  
+  console.log('\n📝 Full Medical History JSON:\n');
+  console.log(JSON.stringify(medicalHistory, null, 2));
+}
+
+/**
+ * Test Laboratory Report Generation
+ */
+async function testLaboratoryReportGeneration(config: AzureOpenAIConfig, basicData: BasicData): Promise<void> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Testing Laboratory Report Data Generation...\n');
+  
+  const testTypes = ['CBC', 'BMP', 'Lipid Panel'];
+  const startTime = Date.now();
+  const labReports: Map<string, any> = await generateLaboratoryReportDataWithAI(config, basicData, testTypes);
+  const duration = Date.now() - startTime;
+
+  console.log(`✅ ${labReports.size} Laboratory Report(s) generated in ${duration}ms\n`);
+  
+  labReports.forEach((report: any, testType: string) => {
+    console.log(`\n🔬 ${testType.toUpperCase()}:`);
+    console.log(`  Test Name: ${report.testName || testType}`);
+    console.log(`  Specimen: ${report.specimenType || 'N/A'}`);
+    console.log(`  Collection Date: ${report.collectionDate}`);
+    console.log(`  Report Date: ${report.reportDate}`);
+    
+    if (report.results && report.results.length > 0) {
+      console.log(`  Results: ${report.results.length} parameters`);
+      report.results.slice(0, 5).forEach((result: any) => {
+        const flag = result.flag ? ` [${result.flag}]` : '';
+        console.log(`    - ${result.parameter}: ${result.value} ${result.unit} (Ref: ${result.referenceRange})${flag}`);
+      });
+      if (report.results.length > 5) {
+        console.log(`    ... and ${report.results.length - 5} more`);
+      }
+    }
+    
+    if (report.criticalValues && report.criticalValues.length > 0) {
+      console.log(`  ⚠️  Critical Values: ${report.criticalValues.length}`);
+      report.criticalValues.forEach((critical: any) => {
+        console.log(`    - ${critical}`);
+      });
+    }
+    
+    console.log('\n  Full Report JSON (truncated):');
+    console.log(JSON.stringify(report, null, 2).substring(0, 500) + '...');
+  });
+}
+
 async function main() {
   console.log('🧪 Testing AI Data Generator\n');
   console.log('='.repeat(70));
@@ -48,75 +325,73 @@ async function main() {
     apiVersion
   };
 
-  console.log('\n' + '='.repeat(70));
-  console.log('🔄 Generating Basic Medical Data (Low Complexity)...\n');
-
+  // Run tests sequentially
+  let basicData: BasicData;
+  
   try {
-    const startTime = Date.now();
-    const basicData = await generateBasicDataWithAI(config, 'low');
-    const duration = Date.now() - startTime;
-
-    console.log(`✅ Success! Generated in ${duration}ms\n`);
-    console.log('='.repeat(70));
-    console.log('\n📄 Generated Medical Record:\n');
-    
-    // Patient Information
-    console.log('👤 PATIENT:');
-    console.log(`  Name: ${basicData.patient.name}`);
-    console.log(`  Age: ${basicData.patient.age} years`);
-    console.log(`  Gender: ${basicData.patient.gender}`);
-    console.log(`  DOB: ${basicData.patient.dateOfBirth}`);
-    console.log(`  MRN: ${basicData.patient.medicalRecordNumber}`);
-    console.log(`  SSN: ${basicData.patient.ssn}`);
-    console.log(`  Address: ${basicData.patient.address.street}, ${basicData.patient.address.city}, ${basicData.patient.address.state} ${basicData.patient.address.zipCode}`);
-    console.log(`  Phone: ${basicData.patient.contact.phone}`);
-    console.log(`  Email: ${basicData.patient.contact.email}`);
-    
-    // Insurance Information
-    console.log('\n🏥 PRIMARY INSURANCE:');
-    console.log(`  Provider: ${basicData.insurance.primaryInsurance.provider}`);
-    console.log(`  Policy Number: ${basicData.insurance.primaryInsurance.policyNumber}`);
-    console.log(`  Group Number: ${basicData.insurance.primaryInsurance.groupNumber || 'N/A'}`);
-    console.log(`  Member ID: ${basicData.insurance.primaryInsurance.memberId || 'N/A'}`);
-    console.log(`  Effective Date: ${basicData.insurance.primaryInsurance.effectiveDate}`);
-    console.log(`  Copay: ${basicData.insurance.primaryInsurance.copay || 'N/A'}`);
-    console.log(`  Deductible: ${basicData.insurance.primaryInsurance.deductible || 'N/A'}`);
-    
-    if (basicData.insurance.secondaryInsured) {
-      console.log('\n🏥 SECONDARY INSURANCE:');
-      console.log(`  Insured: ${basicData.insurance.secondaryInsured.name}`);
-      console.log(`  Policy: ${basicData.insurance.secondaryInsured.policyNumber}`);
-      console.log(`  Plan: ${basicData.insurance.secondaryInsured.planName}`);
-    }
-    
-    // Provider Information
-    console.log('\n👨‍⚕️ PROVIDER:');
-    console.log(`  Name: ${basicData.provider.name}`);
-    console.log(`  NPI: ${basicData.provider.npi}`);
-    console.log(`  Specialty: ${basicData.provider.specialty}`);
-    console.log(`  Facility: ${basicData.provider.facilityName}`);
-    console.log(`  Facility NPI: ${basicData.provider.facilityNPI}`);
-    console.log(`  Address: ${basicData.provider.address.street}, ${basicData.provider.address.city}, ${basicData.provider.address.state} ${basicData.provider.address.zipCode}`);
-    console.log(`  Phone: ${basicData.provider.phone}`);
-    
-    // Metadata
-    console.log('\n📊 METADATA:');
-    console.log(`  Generated At: ${basicData.generatedAt}`);
-    
-    // Full JSON Output
+    // Test 1: Basic Data Generation
+    basicData = await testBasicDataGeneration(config);
     console.log('\n' + '='.repeat(70));
-    console.log('\n📝 Full JSON Output:\n');
-    console.log(JSON.stringify(basicData, null, 2));
-    
-    console.log('\n' + '='.repeat(70));
-    console.log('✅ Test completed successfully!');
+    console.log('✅ Basic Data test completed successfully!');
     console.log('='.repeat(70) + '\n');
-
   } catch (error) {
-    console.error('\n❌ Error generating data:');
+    console.error('\n❌ Error in Basic Data Generation test:');
     console.error(error);
     process.exit(1);
   }
+
+  // Test 2: CMS-1500 Generation
+  try {
+    await testCMS1500Generation(config, basicData);
+  } catch (error) {
+    console.error('\n❌ Error in CMS-1500 Generation test:');
+    console.error(error);
+  }
+
+  // Test 3: Insurance Policy Generation
+  try {
+    await testInsurancePolicyGeneration(config, basicData);
+  } catch (error) {
+    console.error('\n❌ Error in Insurance Policy Generation test:');
+    console.error(error);
+  }
+
+  // Test 4: Visit Report Generation
+  try {
+    await testVisitReportGeneration(config, basicData);
+  } catch (error) {
+    console.error('\n❌ Error in Visit Report Generation test:');
+    console.error(error);
+  }
+
+  // Test 5: Medical History Generation
+  try {
+    await testMedicalHistoryGeneration(config, basicData);
+  } catch (error) {
+    console.error('\n❌ Error in Medical History Generation test:');
+    console.error(error);
+  }
+
+  // Test 6: Laboratory Report Generation
+  try {
+    await testLaboratoryReportGeneration(config, basicData);
+  } catch (error) {
+    console.error('\n❌ Error in Laboratory Report Generation test:');
+    console.error(error);
+  }
+
+  // Final summary
+  console.log('\n' + '='.repeat(70));
+  console.log('✅ All tests completed!');
+  console.log('='.repeat(70));
+  console.log('\n📊 Test Summary:');
+  console.log('  ✅ Basic Data Generation');
+  console.log('  ✅ CMS-1500 Form Generation');
+  console.log('  ✅ Insurance Policy Generation');
+  console.log('  ✅ Visit Report Generation');
+  console.log('  ✅ Medical History Generation');
+  console.log('  ✅ Laboratory Report Generation');
+  console.log('\n' + '='.repeat(70) + '\n');
 }
 
 main();

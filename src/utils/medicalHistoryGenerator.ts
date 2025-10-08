@@ -310,15 +310,6 @@ export const generateMedicalHistoryData = (data?: BasicData, complexity: 'low' |
       email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
       emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
     },
-    insurance: data?.patient?.insurance || {
-      provider: fallbackInsuranceProvider,
-      policyNumber: fallbackPolicyNumber,
-      groupNumber: fallbackGroupNumber,
-      effectiveDate: fallbackEffectiveDate.toLocaleDateString('en-US'),
-      memberId: fallbackPolicyNumber,
-      copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
-      deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
-    },
     medicalRecordNumber: data?.patient?.medicalRecordNumber || fallbackMRN,
     ssn: data?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
     accountNumber: data?.patient?.accountNumber || data?.patient?.id || fallbackPatientId,

@@ -54,15 +54,6 @@ export const generateInsurancePolicyData = (data?: BasicData): InsurancePolicyDa
       email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
       emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
     },
-    insurance: data?.patient?.insurance || {
-      provider: fallbackInsuranceProvider,
-      policyNumber: fallbackPolicyNumber,
-      groupNumber: fallbackGroupNumber,
-      effectiveDate: fallbackEffectiveDate.toLocaleDateString('en-US'),
-      memberId: fallbackPolicyNumber,
-      copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
-      deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
-    },
     medicalRecordNumber: data?.patient?.medicalRecordNumber || fallbackMRN,
     ssn: data?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
     accountNumber: data?.patient?.accountNumber || data?.patient?.id || fallbackPatientId,
@@ -75,13 +66,13 @@ export const generateInsurancePolicyData = (data?: BasicData): InsurancePolicyDa
   
   const insurance: InsuranceInfo = {
     primaryInsurance: {
-      provider: data?.patient?.insurance?.provider || fallbackInsuranceProvider,
-      policyNumber: data?.patient?.insurance?.policyNumber || fallbackPolicyNumber,
-      groupNumber: data?.patient?.insurance?.groupNumber || fallbackGroupNumber,
-      memberId: data?.patient?.insurance?.memberId || data?.patient?.insurance?.policyNumber || fallbackPolicyNumber,
-      effectiveDate: data?.patient?.insurance?.effectiveDate || fallbackEffectiveDate.toLocaleDateString('en-US'),
-      copay: data?.patient?.insurance?.copay || faker.helpers.arrayElement(COPAY_AMOUNTS),
-      deductible: data?.patient?.insurance?.deductible || faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
+      provider: data?.insurance?.primaryInsurance?.provider || fallbackInsuranceProvider,
+      policyNumber: data?.insurance?.primaryInsurance?.policyNumber || fallbackPolicyNumber,
+      groupNumber: data?.insurance?.primaryInsurance?.groupNumber || fallbackGroupNumber,
+      memberId: data?.insurance?.primaryInsurance?.memberId || data?.insurance?.primaryInsurance?.policyNumber || fallbackPolicyNumber,
+      effectiveDate: data?.insurance?.primaryInsurance?.effectiveDate || fallbackEffectiveDate.toLocaleDateString('en-US'),
+      copay: data?.insurance?.primaryInsurance?.copay || faker.helpers.arrayElement(COPAY_AMOUNTS),
+      deductible: data?.insurance?.primaryInsurance?.deductible || faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
     },
     secondaryInsurance: null,
     subscriberName: data?.patient?.name || `${fallbackLastName}, ${fallbackFirstName} ${fallbackMiddleInitial}`,

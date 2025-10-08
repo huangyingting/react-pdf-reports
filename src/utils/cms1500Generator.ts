@@ -19,7 +19,6 @@ export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
   const fallbackGender = faker.person.sex();
   const fallbackPatientId = `PAT-${faker.string.numeric(6)}`;
   const fallbackMRN = `MRN-${faker.string.numeric(8)}`;
-  const fallbackPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
   
   const result: CMS1500Data = {
     patient: {
@@ -42,15 +41,6 @@ export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
         phone: data?.patient?.contact?.phone || faker.phone.number(),
         email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
         emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling'])}) - ${faker.phone.number()}`,
-      },
-      insurance: data?.patient?.insurance || {
-        provider: faker.helpers.arrayElement(['BLUE CROSS BLUE SHIELD', 'AETNA', 'CIGNA', 'UNITEDHEALTH', 'HUMANA']),
-        policyNumber: fallbackPolicyNumber,
-        groupNumber: `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`,
-        effectiveDate: faker.date.past({ years: 2 }).toLocaleDateString('en-US'),
-        memberId: fallbackPolicyNumber,
-        copay: faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
-        deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000'])
       },
       pharmacy: data?.patient?.pharmacy || {
         name: `${faker.location.city()} ${faker.helpers.arrayElement(['CVS Pharmacy', 'Walgreens', 'Rite Aid'])}`,

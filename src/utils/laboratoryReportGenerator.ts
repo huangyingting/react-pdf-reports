@@ -9,8 +9,6 @@ import {
   MEDICAL_SPECIALTIES,
   FACILITY_NAMES,
   INSURANCE_COMPANIES,
-  COPAY_AMOUNTS,
-  DEDUCTIBLE_AMOUNTS
 } from './types';
 
 // Lab test panel definitions with realistic reference ranges
@@ -213,10 +211,6 @@ export const generateLaboratoryReportData = (
   const fallbackGender = faker.person.sex();
   const fallbackPatientId = `PAT-${faker.string.numeric(6)}`;
   const fallbackMRN = `MRN-${faker.string.numeric(8)}`;
-  const fallbackInsuranceProvider = faker.helpers.arrayElement(INSURANCE_COMPANIES);
-  const fallbackPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-  const fallbackGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-  const fallbackEffectiveDate = faker.date.past({ years: 2 });
   
   const today = new Date();
   let fallbackAge = today.getFullYear() - fallbackDOB.getFullYear();
@@ -245,15 +239,6 @@ export const generateLaboratoryReportData = (
       phone: data?.patient?.contact?.phone || faker.phone.number(),
       email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
       emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent'])}) - ${faker.phone.number()}`
-    },
-    insurance: data?.patient?.insurance || {
-      provider: fallbackInsuranceProvider,
-      policyNumber: fallbackPolicyNumber,
-      groupNumber: fallbackGroupNumber,
-      effectiveDate: fallbackEffectiveDate.toLocaleDateString('en-US'),
-      memberId: fallbackPolicyNumber,
-      copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
-      deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
     },
     medicalRecordNumber: data?.patient?.medicalRecordNumber || fallbackMRN,
     ssn: data?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),

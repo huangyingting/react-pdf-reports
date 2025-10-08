@@ -83,7 +83,7 @@ export const ResponseFormats = {
   BasicData: zodToOpenAISchema(
     BasicDataSchema,
     'BasicDataResponse',
-    { description: 'Basic data', strict: false }
+    { description: 'Basic data', strict: true }
   ),
 
   /**

@@ -69,10 +69,10 @@ Generate completely fictional yet realistic data following US healthcare standar
       throw new Error(`AI generated invalid data: ${errors.join(', ')}`);
     }
 
-    console.log('✅ Medical record validated successfully with Zod');
+    console.log('✅ Basic data validated successfully with Zod');
     return validation.data as BasicData;
   } catch (error) {
-    console.error('Failed to generate medical record with AI:', error);
+    console.error('Failed to generate basic data with AI:', error);
     throw new Error(
       `AI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}. ` +
       'Please check your Azure OpenAI configuration or try again.'
