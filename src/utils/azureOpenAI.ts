@@ -177,7 +177,7 @@ export async function generateMedicalDataWithAI(
   for (let attempt = 0; attempt < retries; attempt++) {
     console.log(`[generateMedicalDataWithAI] Attempt ${attempt + 1}/${retries}`);
     try {
-      const responseText = await callAzureOpenAI(messages, config, 1.0, 20*1024);
+      const responseText = await callAzureOpenAI(messages, config, 1.0, 50*1024);
       
       console.log('[generateMedicalDataWithAI] Received response text, length:', responseText?.length || 0);
       
