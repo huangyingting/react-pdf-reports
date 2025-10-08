@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MEDICAL_SPECIALTIES } from '../utils/types';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
 import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;
-  laboratoryReportData?: LaboratoryReportData;
+  laboratoryReportsMap?: Map<LabTestType, LaboratoryReportData>;
   visitReportData?: VisitReportData;
-  onDataUpdated: (data: MedicalRecord, labData?: LaboratoryReportData, visitData?: VisitReportData) => void;
+  onDataUpdated: (data: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitData?: VisitReportData) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -55,24 +55,29 @@ interface VisitNotesSectionProps {
   onChange: (updatedData: VisitReportData) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportData, visitReportData, onDataUpdated, onNext, onBack }) => {
+const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportData, onDataUpdated, onNext, onBack }) => {
   const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
-  const [editedLabData, setEditedLabData] = useState<LaboratoryReportData | undefined>(undefined);
+  const [editedLabReportsMap, setEditedLabReportsMap] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
   const [editedVisitData, setEditedVisitData] = useState<VisitReportData | undefined>(undefined);
   const [activeSection, setActiveSection] = useState<string>('patient');
+  const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set(['CBC']));
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
     if (medicalData) {
       setEditedData(JSON.parse(JSON.stringify(medicalData))); // Deep clone
     }
-    if (laboratoryReportData) {
-      setEditedLabData(JSON.parse(JSON.stringify(laboratoryReportData)));
+    if (laboratoryReportsMap) {
+      const clonedMap = new Map<LabTestType, LaboratoryReportData>();
+      laboratoryReportsMap.forEach((value, key) => {
+        clonedMap.set(key, JSON.parse(JSON.stringify(value)));
+      });
+      setEditedLabReportsMap(clonedMap);
     }
     if (visitReportData) {
       setEditedVisitData(JSON.parse(JSON.stringify(visitReportData)));
     }
-  }, [medicalData, laboratoryReportData, visitReportData]);
+  }, [medicalData, laboratoryReportsMap, visitReportData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -104,7 +109,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
 
   const handleSaveChanges = () => {
     if (editedData) {
-      onDataUpdated(editedData, editedLabData, editedVisitData);
+      onDataUpdated(editedData, editedLabReportsMap, editedVisitData);
       setHasChanges(false);
     }
   };
@@ -240,14 +245,48 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
             {/* Lab Results section: Data now managed via LaboratoryReportData */}
             {activeSection === 'labs' && (
               <>
-                {editedLabData ? (
-                  <LabResultsSection
-                    data={editedLabData}
-                    onChange={(updated) => {
-                      setEditedLabData(updated);
-                      setHasChanges(true);
-                    }}
-                  />
+                {editedLabReportsMap.size > 0 ? (
+                  <div className="section">
+                    <h3>Laboratory Reports ({editedLabReportsMap.size} reports)</h3>
+                    <div className="lab-reports-accordion">
+                      {Array.from(editedLabReportsMap.entries()).map(([testType, labData]) => {
+                        const isExpanded = expandedLabReports.has(testType);
+                        return (
+                          <div key={testType} className="accordion-item">
+                            <div 
+                              className="accordion-header"
+                              onClick={() => {
+                                const newExpanded = new Set(expandedLabReports);
+                                if (isExpanded) {
+                                  newExpanded.delete(testType);
+                                } else {
+                                  newExpanded.add(testType);
+                                }
+                                setExpandedLabReports(newExpanded);
+                              }}
+                            >
+                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-title">{labData.testName} ({testType})</span>
+                              <span className="accordion-meta">{labData.results.length} results</span>
+                            </div>
+                            {isExpanded && (
+                              <div className="accordion-content">
+                                <LabResultsSection
+                                  data={labData}
+                                  onChange={(updated) => {
+                                    const newMap = new Map(editedLabReportsMap);
+                                    newMap.set(testType, updated);
+                                    setEditedLabReportsMap(newMap);
+                                    setHasChanges(true);
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 ) : (
                   <div className="section">
                     <h3>Laboratory Report</h3>

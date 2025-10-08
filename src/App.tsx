@@ -93,7 +93,7 @@ function App() {
     setLaboratoryReports(labReportsMap);
   };
 
-  const handleDataUpdated = (newData: MedicalRecord, labData?: LaboratoryReportData, visitData?: VisitReportData) => {
+  const handleDataUpdated = (newData: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitData?: VisitReportData) => {
     setMedicalData(newData);
     setCms1500Data(generateCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));
@@ -107,18 +107,18 @@ function App() {
     
     setMedicationHistoryData(generateMedicationHistoryData(newData));
     
-    // Regenerate all laboratory reports
-    const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
-    const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
-    allLabTypes.forEach(testType => {
-      // If edited lab data is provided for this test type, use it; otherwise generate new
-      if (labData && labData.testType === testType) {
-        labReportsMap.set(testType, labData);
-      } else {
-        labReportsMap.set(testType, generateLaboratoryReportData(testType, newData));
-      }
-    });
-    setLaboratoryReports(labReportsMap);
+    // Update laboratory reports - use provided map if available, otherwise regenerate
+    if (labReportsMap && labReportsMap.size > 0) {
+      setLaboratoryReports(labReportsMap);
+    } else {
+      // Regenerate all laboratory reports
+      const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
+      const newLabReportsMap = new Map<LabTestType, LaboratoryReportData>();
+      allLabTypes.forEach(testType => {
+        newLabReportsMap.set(testType, generateLaboratoryReportData(testType, newData));
+      });
+      setLaboratoryReports(newLabReportsMap);
+    }
   };
 
   const handleNextStep = () => {
@@ -261,7 +261,7 @@ function App() {
         return (
           <EditDataStep
             medicalData={medicalData}
-            laboratoryReportData={laboratoryReports.get('CBC')}
+            laboratoryReportsMap={laboratoryReports}
             visitReportData={visitReportData || undefined}
             onDataUpdated={handleDataUpdated}
             onNext={handleNextStep}

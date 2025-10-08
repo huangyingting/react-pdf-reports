@@ -327,15 +327,6 @@ input[type="checkbox"] {
   overflow: visible;
 }
 
-.section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #6b8e23 0%, #8d6e63 50%, #a1887f 100%);
-}
 
 .section h3 {
   margin: 0 0 1.25rem 0;
