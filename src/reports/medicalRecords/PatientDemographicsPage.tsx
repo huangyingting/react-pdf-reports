@@ -8,7 +8,10 @@ interface PatientDemographicsPageProps {
 }
 
 const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData, medicalHistoryData }) => {
-  const { patient, provider } = data;
+  const { patient, provider, insurance } = data;
+  
+  // Extract primary insurance from InsuranceInfo
+  const primaryInsurance = insurance?.primaryInsurance;
   const currentDate = new Date().toLocaleDateString();
   
   // Extract dynamic data from medicalHistoryData
@@ -32,7 +35,7 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data,
   const bloodTypeDate = laboratoryReportData?.reportDate;
   
   // Use pharmacy data from patient demographics
-  const pharmacy = patient.pharmacy;
+  const pharmacy = patient?.pharmacy || { name: 'Not specified', address: 'Not specified', phone: 'Not specified' };
   
   return (
     <div className="medical-page demographics-page">
@@ -113,15 +116,15 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data,
             <tbody>
               <tr>
                 <td className="label">Provider:</td>
-                <td className="value">{patient.insurance.provider}</td>
+                <td className="value">{primaryInsurance?.provider || 'Not specified'}</td>
                 <td className="label">Policy Number:</td>
-                <td className="value">{patient.insurance.policyNumber}</td>
+                <td className="value">{primaryInsurance?.policyNumber || 'Not specified'}</td>
               </tr>
               <tr>
                 <td className="label">Group Number:</td>
-                <td className="value">{patient.insurance.groupNumber}</td>
+                <td className="value">{primaryInsurance?.groupNumber || 'Not specified'}</td>
                 <td className="label">Effective Date:</td>
-                <td className="value">{patient.insurance.effectiveDate}</td>
+                <td className="value">{primaryInsurance?.effectiveDate || 'Not specified'}</td>
               </tr>
             </tbody>
           </table>

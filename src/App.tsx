@@ -77,26 +77,43 @@ function App() {
   ];
 
   // Step navigation handlers
-  const handleDataGenerated = (data: BasicData) => {
+  const handleDataGenerated = (
+    data: BasicData,
+    preGeneratedMedicalHistory?: MedicalHistoryData | null,
+    preGeneratedVisitReports?: VisitReportData[] | null,
+    preGeneratedLabReports?: Map<LabTestType, LaboratoryReportData> | null
+  ) => {
     setBasicData(data);
     setCms1500Data(generateCMS1500Data(data));
     setInsurancePolicyData(generateInsurancePolicyData(data));
     
-    // Generate visit reports based on numberOfVisits from metadata
-    const numberOfVisits = data.metadata?.numberOfVisits || 1;
-    setVisitReportsData(generateVisitReportData(data, numberOfVisits));
+    // Use pre-generated visit reports if provided, otherwise generate with Faker
+    if (preGeneratedVisitReports && preGeneratedVisitReports.length > 0) {
+      setVisitReportsData(preGeneratedVisitReports);
+    } else {
+      const numberOfVisits = data.metadata?.numberOfVisits || 1;
+      setVisitReportsData(generateVisitReportData(data, numberOfVisits));
+    }
     
-    // Generate medical history with complexity parameter
-    const complexity = (data.metadata?.complexity || 'medium') as 'low' | 'medium' | 'high';
-    setMedicalHistoryData(generateMedicalHistoryData(data, complexity));
+    // Use pre-generated medical history if provided, otherwise generate with Faker
+    if (preGeneratedMedicalHistory) {
+      setMedicalHistoryData(preGeneratedMedicalHistory);
+    } else {
+      const complexity = (data.metadata?.complexity || 'medium') as 'low' | 'medium' | 'high';
+      setMedicalHistoryData(generateMedicalHistoryData(data, complexity));
+    }
     
-    // Generate all laboratory reports
-    const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
-    const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
-    allLabTypes.forEach(testType => {
-      labReportsMap.set(testType, generateLaboratoryReportData(testType, data));
-    });
-    setLaboratoryReports(labReportsMap);
+    // Use pre-generated lab reports if provided, otherwise generate with Faker
+    if (preGeneratedLabReports && preGeneratedLabReports.size > 0) {
+      setLaboratoryReports(preGeneratedLabReports);
+    } else {
+      const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
+      const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
+      allLabTypes.forEach(testType => {
+        labReportsMap.set(testType, generateLaboratoryReportData(testType, data));
+      });
+      setLaboratoryReports(labReportsMap);
+    }
   };
 
   const handleDataUpdated = (newData: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => {

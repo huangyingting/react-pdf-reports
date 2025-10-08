@@ -66,60 +66,15 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
     setError('');
     try {
       let data: BasicData;
-      let medicalHistory: MedicalHistoryData | null = null;
-      let visitReports: VisitReportData[] | null = null;
-      let labReports: Map<LabTestType, LaboratoryReportData> | null = null;
       
       if (generationMethod === 'ai' && azureConfig) {
-        // Use Azure OpenAI to generate all data
-        console.log('[GenerateDataStep] Generating data with AI...');
-        
-        // Generate basic patient data
+        // Use Azure OpenAI to generate data
         data = await generateMedicalRecordWithAI(
           azureConfig,
           customOptions.complexity as 'low' | 'medium' | 'high',
           customOptions.numberOfVisits,
           customOptions.numberOfLabTests
         );
-        console.log('[GenerateDataStep] Basic data generated');
-        
-        // Generate medical history
-        try {
-          medicalHistory = await generateMedicalHistoryDataWithAI(
-            azureConfig,
-            data,
-            customOptions.complexity as 'low' | 'medium' | 'high'
-          );
-          console.log('[GenerateDataStep] Medical history generated');
-        } catch (err) {
-          console.error('[GenerateDataStep] Failed to generate medical history:', err);
-        }
-        
-        // Generate visit reports
-        try {
-          visitReports = await generateVisitReportDataWithAI(
-            azureConfig,
-            data,
-            customOptions.numberOfVisits
-          );
-          console.log('[GenerateDataStep] Visit reports generated:', visitReports?.length);
-        } catch (err) {
-          console.error('[GenerateDataStep] Failed to generate visit reports:', err);
-        }
-        
-        // Generate laboratory reports
-        try {
-          const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
-          const labReportsData = await generateLaboratoryReportDataWithAI(
-            azureConfig,
-            data,
-            allLabTypes
-          );
-          labReports = labReportsData as Map<LabTestType, LaboratoryReportData>;
-          console.log('[GenerateDataStep] Laboratory reports generated:', labReports?.size);
-        } catch (err) {
-          console.error('[GenerateDataStep] Failed to generate laboratory reports:', err);
-        }
       } else {
         // Use standard Faker.js generation
         // Add a small delay to show loading state
@@ -127,8 +82,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         data = generateBasicData(customOptions);
       }
       
-      // Pass all generated data to parent
-      onDataGenerated(data, medicalHistory, visitReports, labReports);
+      onDataGenerated(data);
       
       // Automatically move to next step
       onNext();

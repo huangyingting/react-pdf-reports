@@ -29,6 +29,7 @@ Visit the live application: [https://huangyingting.github.io/react-pdf-reports](
 
 - Node.js (v14 or higher)
 - npm or yarn package manager
+- (Optional) Azure OpenAI account for AI-powered data generation
 
 ### Installation
 
@@ -42,12 +43,18 @@ Visit the live application: [https://huangyingting.github.io/react-pdf-reports](
    npm install
    ```
 
-3. Start the development server:
+3. (Optional) Configure Azure OpenAI for AI-powered data generation:
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your Azure OpenAI credentials
+   ```
+
+4. Start the development server:
    ```bash
    npm start
    ```
 
-4. Open your browser and visit:
+5. Open your browser and visit:
    ```
    http://localhost:3000
    ```
