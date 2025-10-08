@@ -14,6 +14,13 @@ import {
   InsurancePolicyDataSchema,
   VisitReportDataSchema
 } from './jsonSchemaGenerator';
+import {
+  CacheConfig,
+  DEFAULT_CACHE_CONFIG,
+  generateCacheKey,
+  getFromCache,
+  saveToCache,
+} from './cache';
 
 /**
  * Generate a complete medical record using Azure OpenAI
@@ -24,8 +31,18 @@ import {
  */
 export async function generateBasicDataWithAI(
   config: AzureOpenAIConfig,
-  complexity: 'low' | 'medium' | 'high' = 'medium'
+  complexity: 'low' | 'medium' | 'high' = 'medium',
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<BasicData> {
+  // Generate cache key based on function name and parameters
+  const cacheKey = generateCacheKey('generateBasicDataWithAI', complexity);
+  
+  // Try to get from cache first
+  const cached = getFromCache<BasicData>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const complexityDetails = {
     low: '1-2 chronic conditions, 2-3 current medications, 1 allergy, minimal history',
     medium: '2-4 chronic conditions, 4-6 current medications, 2-3 allergies, moderate history',
@@ -70,7 +87,12 @@ Generate completely fictional yet realistic data following US healthcare standar
     }
 
     console.log('✅ Basic data validated successfully with Zod');
-    return validation.data as BasicData;
+    const validatedData = validation.data as BasicData;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData;
   } catch (error) {
     console.error('Failed to generate basic data with AI:', error);
     throw new Error(
@@ -85,8 +107,18 @@ Generate completely fictional yet realistic data following US healthcare standar
  */
 export async function generateCMS1500DataWithAI(
   config: AzureOpenAIConfig,
-  basicData: BasicData
+  basicData: BasicData,
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<CMS1500Data> {
+  // Generate cache key based on function name and patient ID
+  const cacheKey = generateCacheKey('generateCMS1500DataWithAI', basicData.patient.id);
+  
+  // Try to get from cache first
+  const cached = getFromCache<CMS1500Data>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const prompt = `Based on this patient data, generate realistic CMS-1500 insurance claim form data:
 
 Patient: ${basicData.patient.firstName} ${basicData.patient.lastName}
@@ -124,7 +156,12 @@ Respond with valid JSON matching CMS1500Data interface.`;
     }
 
     console.log('✅ CMS-1500 data validated successfully');
-    return validation.data as CMS1500Data;
+    const validatedData = validation.data as CMS1500Data;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData;
   } catch (error) {
     throw new Error(`Failed to generate CMS-1500 data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -135,8 +172,18 @@ Respond with valid JSON matching CMS1500Data interface.`;
  */
 export async function generateInsurancePolicyDataWithAI(
   config: AzureOpenAIConfig,
-  basicData: BasicData
+  basicData: BasicData,
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<InsurancePolicyData> {
+  // Generate cache key based on function name and patient ID
+  const cacheKey = generateCacheKey('generateInsurancePolicyDataWithAI', basicData.patient.id);
+  
+  // Try to get from cache first
+  const cached = getFromCache<InsurancePolicyData>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const prompt = `Generate a detailed insurance policy document for this patient:
 
 Patient: ${basicData.patient.firstName} ${basicData.patient.lastName}
@@ -174,7 +221,12 @@ Respond with valid JSON matching InsurancePolicyData interface.`;
     }
 
     console.log('✅ Insurance Policy data validated successfully');
-    return validation.data as InsurancePolicyData;
+    const validatedData = validation.data as InsurancePolicyData;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData;
   } catch (error) {
     throw new Error(`Failed to generate Insurance Policy data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -186,8 +238,18 @@ Respond with valid JSON matching InsurancePolicyData interface.`;
 export async function generateVisitReportDataWithAI(
   config: AzureOpenAIConfig,
   basicData: BasicData,
-  numberOfVisits: number = 1
+  numberOfVisits: number = 1,
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<VisitReportData[]> {
+  // Generate cache key based on function name, patient ID, and number of visits
+  const cacheKey = generateCacheKey('generateVisitReportDataWithAI', basicData.patient.id, numberOfVisits);
+  
+  // Try to get from cache first
+  const cached = getFromCache<VisitReportData[]>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const prompt = `Generate ${numberOfVisits} realistic medical visit report(s) for this patient:
 
 Patient: ${basicData.patient.firstName} ${basicData.patient.lastName}
@@ -203,6 +265,10 @@ For each visit, include:
 - Assessment (diagnoses with ICD-10 codes)
 - Plan (treatment recommendations, medications prescribed, follow-up instructions)
 - Provider signature and credentials
+
+IMPORTANT: In the provider object, set referringProvider to null (most visits don't have a referring provider).
+
+IMPORTANT: In visit.vitals object (inside visit note), use NUMBER types for heartRate, temperature, weight, and oxygenSaturation (not strings).
 
 Make visits clinically coherent (follow-up visits should reference previous visits).
 
@@ -237,6 +303,10 @@ Respond with valid JSON array matching VisitReportData[] interface.`;
     }
 
     console.log(`✅ ${validatedVisits.length} Visit Report(s) validated successfully`);
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedVisits);
+    
     return validatedVisits;
   } catch (error) {
     throw new Error(`Failed to generate Visit Report data: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -249,36 +319,52 @@ Respond with valid JSON array matching VisitReportData[] interface.`;
 export async function generateMedicalHistoryDataWithAI(
   config: AzureOpenAIConfig,
   basicData: BasicData,
-  complexity: 'low' | 'medium' | 'high' = 'medium'
+  complexity: 'low' | 'medium' | 'high' = 'medium',
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<MedicalHistoryData> {
+  // Generate cache key based on function name, patient ID, and complexity
+  const cacheKey = generateCacheKey('generateMedicalHistoryDataWithAI', basicData.patient.id, complexity);
+  
+  // Try to get from cache first
+  const cached = getFromCache<MedicalHistoryData>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  let REQUIREMENT;
+  switch (complexity) {
+    case 'low':
+      REQUIREMENT = '1-2 conditions, 2-3 medications, minimal history';
+      break;
+    case 'medium':
+      REQUIREMENT = '2-4 conditions, 4-6 medications, moderate history';
+      break;
+    case 'high':
+      REQUIREMENT = '4+ conditions, 7+ medications, extensive history';
+      break;
+    default:
+      REQUIREMENT = 'medium';
+  }
+
   const prompt = `Generate a comprehensive medical history for this patient:
 
 Patient: ${basicData.patient.firstName} ${basicData.patient.lastName}
 Age: ${new Date().getFullYear() - new Date(basicData.patient.dateOfBirth).getFullYear()} years
 
-Complexity: ${complexity}
-- Low: 1-2 conditions, 2-3 medications, minimal history
-- Medium: 2-4 conditions, 4-6 medications, moderate history  
-- High: 4+ conditions, 7+ medications, extensive history
+REQUIREMENT: ${REQUIREMENT}
 
-Include:
-- Allergies (medication name, allergen, reaction, severity)
-- Active and past medical conditions (condition name, ICD-10 code, diagnosis date, status)
-- Current and discontinued medications (name, dosage, frequency, start/end dates, prescribing doctor, notes)
-- Surgical history (procedure name, date, surgeon, hospital, indications, complications)
-- Family history (relative relationship, condition, age at diagnosis, status, notes)
-- Social history (smoking, alcohol use, exercise, occupation, etc.)
-- Immunization history
-
-Ensure clinical coherence - medications should match conditions.
-
-Respond with valid JSON matching MedicalHistoryData interface.`;
+`;
 
   const systemPrompt = 'You are a medical historian specializing in comprehensive patient histories. Generate realistic, clinically coherent medical histories. Always respond with ONLY valid JSON.';
 
   try {
-    const data = await generateDataWithAI(config, prompt, systemPrompt);
-    return data as MedicalHistoryData;
+    const data = await generateDataWithAI(config, prompt, systemPrompt, 3, ResponseFormats.MedicalHistoryData);
+    const historyData = data as MedicalHistoryData;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, historyData);
+    
+    return historyData;
   } catch (error) {
     throw new Error(`Failed to generate Medical History data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -286,76 +372,114 @@ Respond with valid JSON matching MedicalHistoryData interface.`;
 
 /**
  * Generate Laboratory Report data using Azure OpenAI
+ * Generates each laboratory report one by one for better progress tracking
  */
 export async function generateLaboratoryReportDataWithAI(
   config: AzureOpenAIConfig,
   basicData: BasicData,
-  testTypes: string[]
+  testTypes: string[],
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG,
+  progressCallback?: (testType: string, report: any, current: number, total: number) => void
 ): Promise<Map<string, any>> {
-  const prompt = `Generate realistic laboratory test results for this patient:
+  const labReportsMap = new Map<string, any>();
+  const totalTests = testTypes.length;
+
+  // Test type details for prompts
+  const testTypeDetails: Record<string, string> = {
+    'CBC': 'Complete Blood Count (WBC, RBC, Hemoglobin, Hematocrit, Platelets, etc.)',
+    'BMP': 'Basic Metabolic Panel (Glucose, Calcium, Sodium, Potassium, CO2, Chloride, BUN, Creatinine)',
+    'CMP': 'Comprehensive Metabolic Panel (includes BMP + liver enzymes)',
+    'Urinalysis': 'Color, Clarity, pH, Specific Gravity, Protein, Glucose, Ketones, Blood, etc.',
+    'Lipid': 'Total Cholesterol, HDL, LDL, Triglycerides',
+    'LFT': 'Liver Function Tests (ALT, AST, ALP, Bilirubin, Albumin, Total Protein)',
+    'Thyroid': 'TSH, T3, T4',
+    'HbA1c': 'Hemoglobin A1c percentage',
+    'Coagulation': 'PT, PTT, INR',
+    'Microbiology': 'Culture results, organism identification, sensitivities',
+    'Pathology': 'Tissue examination, diagnosis',
+    'Hormone': 'Various hormone levels',
+    'Infectious': 'Disease markers, antibody tests'
+  };
+
+  console.log(`\n🧪 Generating ${totalTests} laboratory reports one by one...`);
+
+  // Generate each laboratory report individually
+  for (let i = 0; i < testTypes.length; i++) {
+    const testType = testTypes[i];
+    const currentStep = i + 1;
+
+    // Check cache for individual test type
+    const cacheKey = generateCacheKey('generateLaboratoryReport', basicData.patient.id, testType);
+    const cached = getFromCache<any>(cacheConfig, cacheKey);
+    
+    if (cached) {
+      console.log(`  ✨ [${currentStep}/${totalTests}] ${testType}: Retrieved from cache`);
+      labReportsMap.set(testType, cached);
+      progressCallback?.(testType, cached, currentStep, totalTests);
+      continue;
+    }
+
+    // Generate prompt for this specific test type
+    const testDetail = testTypeDetails[testType] || testType;
+    const prompt = `Generate a realistic laboratory test result for this patient:
 
 Patient: ${basicData.patient.firstName} ${basicData.patient.lastName}
 Age: ${new Date().getFullYear() - new Date(basicData.patient.dateOfBirth).getFullYear()} years
 Provider: ${basicData.provider.name}
 
-Generate ${testTypes.length} laboratory report(s) for the following test types: ${testTypes.join(', ')}
+Generate a ${testType} laboratory report: ${testDetail}
 
-For each lab report, include:
-- Test type and full test name
-- Specimen type (e.g., Blood, Urine, etc.)
-- Collection date and time (within last 30 days)
-- Received date (same or next day after collection)
-- Report date (1-3 days after collection)
-- Report time
-- Ordering physician: ${basicData.provider.name}
-- Performing lab details (name, address, phone, CLIA number, director name)
-- Detailed test results array with:
-  * Parameter name
-  * Value (realistic for the test)
-  * Unit
-  * Reference range
-  * Flag (Normal/High/Low/Critical/Abnormal or empty string)
-  * Optional notes for abnormal values
-- Optional interpretation (for complex panels)
-- Optional comments (clinical significance)
-- Optional critical values array (if any results are critical)
-- Technologist name (for who performed the test)
-- Pathologist name (for who reviewed/signed off)
+Include:
+- Test name and type
+- Date of collection and reporting (within last 30 days)
+- Specimen type and collection method
+- Individual test results with values, units, and reference ranges
+- Flags for abnormal values (High/Low)
+- Performing laboratory information
+- Ordering provider
 
-Test type details:
-- CBC: Complete Blood Count (WBC, RBC, Hemoglobin, Hematocrit, Platelets, etc.)
-- BMP: Basic Metabolic Panel (Glucose, Calcium, Sodium, Potassium, CO2, Chloride, BUN, Creatinine)
-- CMP: Comprehensive Metabolic Panel (includes BMP + liver enzymes)
-- Urinalysis: Color, Clarity, pH, Specific Gravity, Protein, Glucose, Ketones, Blood, etc.
-- Lipid: Total Cholesterol, HDL, LDL, Triglycerides
-- LFT: Liver Function Tests (ALT, AST, ALP, Bilirubin, Albumin, Total Protein)
-- Thyroid: TSH, T3, T4
-- HbA1c: Hemoglobin A1c percentage
-- Coagulation: PT, PTT, INR
-- Microbiology: Culture results, organism identification, sensitivities
-- Pathology: Tissue examination, diagnosis
-- Hormone: Various hormone levels
-- Infectious: Disease markers, antibody tests
+Make results clinically coherent with patient age and realistic for the test type.
+Return a single laboratory report object.`;
 
-Make results clinically coherent with patient age and any conditions mentioned.
+    const systemPrompt = 'You are a clinical laboratory specialist. Generate realistic, clinically accurate laboratory test results. Always respond with ONLY valid JSON.';
 
-Respond with valid JSON object where keys are test types and values are LaboratoryReportData objects.`;
+    try {
+      console.log(`  🔬 [${currentStep}/${totalTests}] Generating ${testType}...`);
+      const data = await generateDataWithAI(config, prompt, systemPrompt, 3, ResponseFormats.LaboratoryReportsData);
+      
+      // Extract the report (might be wrapped in a reports array)
+      let report = data;
+      if ((data as any).reports && Array.isArray((data as any).reports)) {
+        report = (data as any).reports[0] || data;
+      }
 
-  const systemPrompt = 'You are a clinical laboratory specialist. Generate realistic, clinically accurate laboratory test results. Always respond with ONLY valid JSON.';
+      // Ensure testType is set
+      if (!report.testType && !report.testName) {
+        report.testType = testType;
+      }
 
-  try {
-    const data = await generateDataWithAI(config, prompt, systemPrompt);
-    const labReportsMap = new Map<string, any>();
-    
-    // Convert the response to a Map
-    if (typeof data === 'object' && data !== null) {
-      Object.entries(data).forEach(([testType, reportData]) => {
-        labReportsMap.set(testType, reportData);
-      });
+      // Save individual report to cache
+      saveToCache(cacheConfig, cacheKey, report);
+      
+      labReportsMap.set(testType, report);
+      console.log(`  ✅ [${currentStep}/${totalTests}] ${testType} generated successfully`);
+      
+      // Call progress callback
+      progressCallback?.(testType, report, currentStep, totalTests);
+      
+    } catch (error) {
+      console.error(`  ❌ [${currentStep}/${totalTests}] Failed to generate ${testType}:`, error);
+      // Continue with other tests even if one fails
+      progressCallback?.(testType, null, currentStep, totalTests);
     }
-    
-    return labReportsMap;
-  } catch (error) {
-    throw new Error(`Failed to generate Laboratory Report data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+
+  console.log(`✅ Generated ${labReportsMap.size}/${totalTests} laboratory reports\n`);
+  
+  // Save the complete collection to cache as well
+  const completeCacheKey = generateCacheKey('generateLaboratoryReportDataWithAI', basicData.patient.id, testTypes.sort().join(','));
+  const cacheData = Object.fromEntries(labReportsMap.entries());
+  saveToCache(cacheConfig, completeCacheKey, cacheData);
+
+  return labReportsMap;
 }

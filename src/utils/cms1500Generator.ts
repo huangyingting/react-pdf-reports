@@ -81,6 +81,7 @@ export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
         city: faker.location.city().toUpperCase(),
         state: faker.location.state({ abbreviated: true }),
         zipCode: faker.location.zipCode('#####'),
+        country: faker.location.country() || 'USA',
       },
       phone: data?.insurance?.phone || faker.phone.number(),
       secondaryInsured: data?.insurance?.secondaryInsured || {
@@ -99,7 +100,8 @@ export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
         street: faker.location.streetAddress().toUpperCase(),
         city: faker.location.city().toUpperCase(),
         state: faker.location.state({ abbreviated: true }),
-        zipCode: faker.location.zipCode('#####')
+        zipCode: faker.location.zipCode('#####'),
+        country: faker.location.country() || null
       },
       signature: data?.provider?.signature || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD`,
       taxId: data?.provider?.taxId || faker.helpers.replaceSymbols('##-#######'),
@@ -109,8 +111,11 @@ export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
         street: faker.location.streetAddress().toUpperCase(),
         city: faker.location.city().toUpperCase(),
         state: faker.location.state({ abbreviated: true }),
-        zipCode: faker.location.zipCode('#####')
+        zipCode: faker.location.zipCode('#####'),
+        country: faker.location.country() || null,
       },
+      facilityPhone: data?.provider?.facilityPhone || faker.phone.number(),
+      facilityFax: data?.provider?.facilityFax || faker.phone.number(),
       facilityNPI: data?.provider?.facilityNPI || faker.string.numeric(10),
       billingName: data?.provider?.billingName || faker.helpers.arrayElement(['MEDICAL CENTER', 'HEALTH CLINIC', 'HEALTHCARE ASSOCIATES', 'MEDICAL GROUP']).toUpperCase(),
       billingAddress: data?.provider?.billingAddress || `${faker.location.streetAddress().toUpperCase()}, ${faker.location.city().toUpperCase()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
@@ -119,7 +124,7 @@ export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
       referringProvider: data?.provider?.referringProvider || (faker.datatype.boolean(0.3) ? {
         name: `DR. ${faker.person.firstName().toUpperCase()} ${faker.person.lastName().toUpperCase()}`,
         npi: faker.string.numeric(10),
-      } : undefined),
+      } : null),
     },
 
     claim: (() => {

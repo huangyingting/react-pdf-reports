@@ -1,9 +1,3 @@
-/**
- * Basic Data Generator
- * Contains core functions for generating patient, insurance, and provider data
- * For medical records generation, see medicalRecordsGenerator.ts
- */
-
 import { faker } from '@faker-js/faker';
 import {
   PatientDemographics,
@@ -44,12 +38,6 @@ export const generatePatientDemographics = (): PatientDemographics => {
   const patientId = `PAT-${faker.string.numeric(6)}`;
   const mrn = `MRN-${faker.string.numeric(8)}`;
   
-  // Generate insurance with proper formatting
-  const insuranceProvider = faker.helpers.arrayElement(INSURANCE_COMPANIES);
-  const policyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-  const groupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-  const effectiveDate = faker.date.past({ years: 2 });
-  
   // Generate pharmacy information
   const cityName = faker.location.city();
   const pharmacyName = faker.helpers.arrayElement(PHARMACY_NAMES);
@@ -77,13 +65,6 @@ export const generatePatientDemographics = (): PatientDemographics => {
       phone: faker.phone.number(),
       email: faker.internet.email({ firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase() }),
       emergencyContact: `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
-    },
-    insurance: {
-      provider: insuranceProvider,
-      policyNumber,
-      groupNumber,
-      effectiveDate: effectiveDate.toLocaleDateString('en-US'),
-      memberId: policyNumber
     },
     pharmacy: {
       name: fullPharmacyName,
@@ -171,7 +152,7 @@ export const generateInsuranceInfo = (
   const subscriberPhone = subscriberInfo?.phone || faker.phone.number();
   
   let secondaryInsurance: Insurance | null = null;
-  let secondaryInsured: { name: string; policyNumber: string; planName: string } | undefined;
+  let secondaryInsured: { name: string; policyNumber: string; planName: string } | null = null;
   
   if (includeSecondary && faker.datatype.boolean(0.3)) {
     const result = generateSecondaryInsuranceAndInsured(primaryProvider);
@@ -218,7 +199,8 @@ export const generateProviderInfo = (): Provider => {
     street: faker.location.streetAddress(),
     city: faker.location.city(),
     state: faker.location.state({ abbreviated: true }),
-    zipCode: faker.location.zipCode('#####')
+    zipCode: faker.location.zipCode('#####'),
+    country: 'USA'
   };
   
   const providerAddress = faker.datatype.boolean(0.7) 
@@ -227,7 +209,8 @@ export const generateProviderInfo = (): Provider => {
         street: faker.location.streetAddress(),
         city: facilityAddress.city, // Same city but different address
         state: facilityAddress.state,
-        zipCode: faker.location.zipCode('#####')
+        zipCode: faker.location.zipCode('#####'),
+        country: 'USA'
       };
   
   const facilityPhone = faker.phone.number();
@@ -254,7 +237,7 @@ export const generateProviderInfo = (): Provider => {
     referringProvider: faker.datatype.boolean(0.3) ? {
       name: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
       npi: faker.string.numeric(10)
-    } : undefined
+    } : null
   };
 };
 
@@ -262,11 +245,8 @@ export const generateProviderInfo = (): Provider => {
  * Generate basic medical record with patient demographics, insurance, and provider info
  * Does not include medical history, medications, or clinical data - those are generated separately
  */
-export const generateBasicData = (options: GenerationOptions = {}): BasicData => {
+export const generateBasicData = (options: Partial<GenerationOptions> = {}): BasicData => {
   const {
-    complexity = 'medium',
-    numberOfVisits = 3,
-    numberOfLabTests = 3,
     includeSecondaryInsurance = true
   } = options;
 
@@ -276,7 +256,7 @@ export const generateBasicData = (options: GenerationOptions = {}): BasicData =>
   // Generate insurance with proper secondary insurance handling and subscriber info
   // 70% chance the patient is the subscriber, 30% chance someone else is (spouse, parent, etc.)
   const isPatientSubscriber = faker.datatype.boolean(0.7);
-  const insurance = generateInsuranceInfo(includeSecondaryInsurance, isPatientSubscriber ? {
+  const insurance = generateInsuranceInfo(includeSecondaryInsurance ?? true, isPatientSubscriber ? {
     name: patient.name,
     dateOfBirth: patient.dateOfBirth,
     gender: patient.gender.charAt(0).toUpperCase(),

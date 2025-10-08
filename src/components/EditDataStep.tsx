@@ -626,10 +626,10 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
   const handleAddSecondaryInsurance = () => {
     // Generate secondary insurance with populated data, excluding the primary insurance provider
     const result = generateSecondaryInsuranceAndInsured(data.primaryInsurance.provider);
-    onChange('secondaryInsurance', result.secondaryInsurance);
+    onChange('secondaryInsurance', result?.secondaryInsurance);
     // Optionally, also update secondaryInsured if needed
-    if (result.secondaryInsured) {
-      onChange('secondaryInsured', result.secondaryInsured);
+    if (result?.secondaryInsured) {
+      onChange('secondaryInsured', result?.secondaryInsured);
     }
   };
 

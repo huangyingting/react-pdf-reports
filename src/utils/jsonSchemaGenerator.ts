@@ -19,7 +19,8 @@ import {
   InsurancePolicyDataSchema,
   VisitReportDataSchema,
   MedicalHistoryDataSchema,
-  LaboratoryReportDataSchema
+  LaboratoryReportDataSchema,
+  LaboratoryReportsCollectionSchema
 } from './zodSchemas';
 
 /**
@@ -92,7 +93,7 @@ export const ResponseFormats = {
   CMS1500Data: zodToOpenAISchema(
     CMS1500DataSchema,
     'CMS1500DataResponse',
-    { description: 'CMS-1500 claim form data', strict: false }
+    { description: 'CMS-1500 claim form data', strict: true }
   ),
 
   /**
@@ -101,7 +102,7 @@ export const ResponseFormats = {
   InsurancePolicyData: zodToOpenAISchema(
     InsurancePolicyDataSchema,
     'InsurancePolicyDataResponse',
-    { description: 'Insurance policy document', strict: false }
+    { description: 'Insurance policy document', strict: true }
   ),
 
   /**
@@ -110,7 +111,7 @@ export const ResponseFormats = {
   VisitReportData: zodToOpenAISchema(
     VisitReportDataSchema,
     'VisitReportDataResponse',
-    { description: 'Medical visit report', strict: false }
+    { description: 'Medical visit report', strict: true }
   ),
 
   /**
@@ -119,7 +120,7 @@ export const ResponseFormats = {
   PatientDemographics: zodToOpenAISchema(
     PatientDemographicsSchema,
     'PatientDemographicsResponse',
-    { description: 'Patient demographics', strict: false }
+    { description: 'Patient demographics', strict: true }
   ),
 
   /**
@@ -128,7 +129,7 @@ export const ResponseFormats = {
   MedicalHistoryData: zodToOpenAISchema(
     MedicalHistoryDataSchema,
     'MedicalHistoryDataResponse',
-    { description: 'Complete medical history', strict: false }
+    { description: 'Complete medical history', strict: true }
   ),
 
   /**
@@ -137,9 +138,19 @@ export const ResponseFormats = {
   LaboratoryReportData: zodToOpenAISchema(
     LaboratoryReportDataSchema,
     'LaboratoryReportDataResponse',
-    { description: 'Laboratory test report', strict: false }
+    { description: 'Laboratory test report', strict: true }
+  ),
+
+  /**
+   * Multiple laboratory reports wrapped in object (Azure OpenAI requires object root)
+   */
+  LaboratoryReportsData: zodToOpenAISchema(
+    LaboratoryReportsCollectionSchema,
+    'LaboratoryReportsDataResponse',
+    { description: 'Multiple laboratory test reports', strict: true }
   )
 };
+
 
 /**
  * Validate data against a Zod schema at runtime
@@ -184,6 +195,7 @@ export function formatZodErrors(error: z.ZodError): string[] {
   });
 }
 
+
 /**
  * Export Zod schemas for direct use
  * This allows users to:
@@ -199,6 +211,7 @@ export {
   VisitReportDataSchema,
   MedicalHistoryDataSchema,
   LaboratoryReportDataSchema,
+  LaboratoryReportsCollectionSchema,
   // Also export individual component schemas for custom usage
   AllergySchema,
   ChronicConditionSchema,

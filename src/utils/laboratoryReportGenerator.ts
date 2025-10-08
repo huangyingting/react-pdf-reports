@@ -8,7 +8,6 @@ import {
   LabTestResult,
   MEDICAL_SPECIALTIES,
   FACILITY_NAMES,
-  INSURANCE_COMPANIES,
 } from './types';
 
 // Lab test panel definitions with realistic reference ranges
@@ -252,6 +251,7 @@ export const generateLaboratoryReportData = (
 
   // Generate provider
   const providerName = data?.provider?.name || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`;
+  const facilityName = faker.helpers.arrayElement(FACILITY_NAMES);
   const provider: Provider = data?.provider || {
     name: providerName,
     npi: faker.string.numeric(10),
@@ -266,8 +266,23 @@ export const generateLaboratoryReportData = (
     },
     taxId: faker.helpers.replaceSymbols('##-#######'),
     taxIdType: 'EIN',
-    facilityName: faker.helpers.arrayElement(FACILITY_NAMES),
-    facilityNPI: faker.string.numeric(10)
+    signature: providerName,
+    facilityName,
+    facilityAddress: {
+      street: faker.location.streetAddress(),
+      city: faker.location.city(),
+      state: faker.location.state({ abbreviated: true }),
+      zipCode: faker.location.zipCode('#####'),
+      country: 'USA'
+    },
+    facilityPhone: faker.phone.number(),
+    facilityFax: faker.phone.number(),
+    facilityNPI: faker.string.numeric(10),
+    billingName: facilityName,
+    billingAddress: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
+    billingPhone: faker.phone.number(),
+    billingNPI: faker.string.numeric(10),
+    referringProvider: null
   };
 
   // Generate test panel data
@@ -312,7 +327,8 @@ export const generateLaboratoryReportData = (
       value,
       unit: test.unit,
       referenceRange: test.range,
-      flag
+      flag,
+      notes: null
     };
   };
 
@@ -339,7 +355,7 @@ export const generateLaboratoryReportData = (
   };
 
   // Generate interpretation for certain test types
-  let interpretation: string | undefined;
+  let interpretation: string | null = null;
   const hasAbnormal = results.some(r => r.flag && r.flag !== 'Normal');
   
   if (testType === 'Lipid' && hasAbnormal) {
@@ -377,9 +393,9 @@ export const generateLaboratoryReportData = (
     performingLab,
     results,
     interpretation,
-    comments: hasAbnormal ? 'Abnormal results noted. Clinical correlation recommended.' : undefined,
-    criticalValues: criticalValues.length > 0 ? criticalValues : undefined,
+    comments: hasAbnormal ? 'Abnormal results noted. Clinical correlation recommended.' : null,
+    criticalValues: criticalValues.length > 0 ? criticalValues : null,
     technologist: `${faker.person.firstName()} ${faker.person.lastName()}, MT(ASCP)`,
-    pathologist: testType === 'Pathology' ? `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD` : undefined
+    pathologist: testType === 'Pathology' ? `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD` : null
   };
 };

@@ -87,7 +87,8 @@ export const generateInsurancePolicyData = (data?: BasicData): InsurancePolicyDa
       state: faker.location.state({ abbreviated: true }),
       zipCode: faker.location.zipCode('#####'),
       country: 'USA'
-    }
+    },
+    secondaryInsured: data?.insurance?.secondaryInsured || null
   };
   
   return {

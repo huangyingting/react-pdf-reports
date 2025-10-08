@@ -14,9 +14,6 @@ import {
   Medications,
   MEDICAL_SPECIALTIES,
   FACILITY_NAMES,
-  INSURANCE_COMPANIES,
-  COPAY_AMOUNTS,
-  DEDUCTIBLE_AMOUNTS
 } from './types';
 
 
@@ -276,10 +273,6 @@ export const generateMedicalHistoryData = (data?: BasicData, complexity: 'low' |
   const fallbackGender = faker.person.sex();
   const fallbackPatientId = `PAT-${faker.string.numeric(6)}`;
   const fallbackMRN = `MRN-${faker.string.numeric(8)}`;
-  const fallbackInsuranceProvider = faker.helpers.arrayElement(INSURANCE_COMPANIES);
-  const fallbackPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
-  const fallbackGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
-  const fallbackEffectiveDate = faker.date.past({ years: 2 });
   
   // Calculate fallback age
   const today = new Date();
@@ -339,10 +332,23 @@ export const generateMedicalHistoryData = (data?: BasicData, complexity: 'low' |
     },
     taxId: faker.helpers.replaceSymbols('##-#######'),
     taxIdType: 'EIN',
+    signature: providerName,
     facilityName: facilityName,
-    facilityNPI: faker.string.numeric(10),
+    facilityAddress: {
+      street: faker.location.streetAddress(),
+      city: faker.location.city(),
+      state: faker.location.state({ abbreviated: true }),
+      zipCode: faker.location.zipCode('#####'),
+      country: 'USA'
+    },
     facilityPhone: faker.phone.number(),
-    facilityFax: faker.phone.number()
+    facilityFax: faker.phone.number(),
+    facilityNPI: faker.string.numeric(10),
+    billingName: facilityName,
+    billingAddress: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
+    billingPhone: faker.phone.number(),
+    billingNPI: faker.string.numeric(10),
+    referringProvider: null
   };
 
   // Generate medical history and medications using imported functions from medicalRecordsGenerator

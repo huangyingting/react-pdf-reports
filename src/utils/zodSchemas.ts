@@ -18,7 +18,7 @@ export const AddressSchema = z.object({
   city: z.string().describe('City name'),
   state: z.string().length(2).describe('Two-letter state code (e.g., CA, NY)'),
   zipCode: z.string().describe('ZIP code'),
-  country: z.string().optional().describe('Country name (optional)')
+  country: z.string().nullable().describe('Country name (optional)')
 });
 
 export const ContactSchema = z.object({
@@ -30,11 +30,11 @@ export const ContactSchema = z.object({
 export const InsuranceSchema = z.object({
   provider: z.string().describe('Insurance provider name'),
   policyNumber: z.string().describe('Policy number'),
-  groupNumber: z.string().optional().describe('Group number'),
+  groupNumber: z.string().nullable().describe('Group number'),
   effectiveDate: z.string().describe('Effective date in YYYY-MM-DD format'),
-  memberId: z.string().optional().describe('Member ID'),
-  copay: z.string().optional().describe('Copay amount (e.g., $20)'),
-  deductible: z.string().optional().describe('Deductible amount (e.g., $1000)')
+  memberId: z.string().nullable().describe('Member ID'),
+  copay: z.string().nullable().describe('Copay amount (e.g., $20)'),
+  deductible: z.string().nullable().describe('Deductible amount (e.g., $1000)')
 });
 
 export const PharmacySchema = z.object({
@@ -52,7 +52,7 @@ export const PatientDemographicsSchema = z.object({
   name: z.string().describe('Full name (FirstName MiddleInitial LastName)'),
   firstName: z.string().describe('First name'),
   lastName: z.string().describe('Last name'),
-  middleInitial: z.string().optional().describe('Middle initial'),
+  middleInitial: z.string().nullable().describe('Middle initial'),
   dateOfBirth: z.string().describe('Date of birth in MM/DD/YYYY format'),
   age: z.number().int().min(1).describe('Age in years'),
   gender: z.string().describe('Gender'),
@@ -71,19 +71,18 @@ export const PatientDemographicsSchema = z.object({
 export const InsuranceInfoSchema = z.object({
   primaryInsurance: InsuranceSchema,
   secondaryInsurance: InsuranceSchema.nullable(),
-  subscriberName: z.string().optional().describe('Subscriber name if different from patient'),
-  subscriberDOB: z.string().optional().describe('Subscriber date of birth'),
-  subscriberGender: z.string().optional().describe('Subscriber gender'),
-  type: z.string().optional().describe('Insurance type'),
-  picaCode: z.string().optional().describe('PICA code'),
-  phone: z.string().optional().describe('Insurance company phone'),
-  address: AddressSchema.optional(),
-  // Legacy field for backward compatibility
+  subscriberName: z.string().describe('Subscribername if different from patient'),
+  subscriberDOB: z.string().describe('Subscriber date of birth'),
+  subscriberGender: z.string().describe('Subscriber gender'),
+  type: z.string().describe('Insurance type'),
+  picaCode: z.string().nullable().describe('PICA code'),
+  phone: z.string().describe('Subscriber phone'),
+  address: AddressSchema.describe("Subscriber address"),
   secondaryInsured: z.object({
     name: z.string(),
     policyNumber: z.string(),
     planName: z.string()
-  }).optional().describe('Secondary insured information (legacy field)')
+  }).nullable().describe('Secondary insured information')
 });
 
 // ============================================================================
@@ -96,23 +95,23 @@ export const ProviderSchema = z.object({
   specialty: z.string().describe('Medical specialty'),
   phone: z.string().describe('Provider phone number'),
   address: AddressSchema,
-  taxId: z.string().optional().describe('Tax ID number'),
-  taxIdType: z.enum(['SSN', 'EIN']).optional().describe('Tax ID type'),
-  signature: z.string().optional().describe('Provider signature'),
-  facilityName: z.string().optional().describe('Facility name'),
-  facilityAddress: AddressSchema.optional(),
-  facilityPhone: z.string().optional().describe('Facility phone number'),
-  facilityFax: z.string().optional().describe('Facility fax number'),
-  facilityNPI: z.string().optional().describe('Facility NPI'),
-  billingName: z.string().optional().describe('Billing provider name'),
-  billingAddress: z.string().optional().describe('Billing address'),
-  billingPhone: z.string().optional().describe('Billing phone number'),
-  billingNPI: z.string().optional().describe('Billing NPI'),
+  taxId: z.string().describe('Tax ID number'),
+  taxIdType: z.enum(['SSN', 'EIN']).describe('Tax ID type'),
+  signature: z.string().nullable().describe('Provider signature'),
+  facilityName: z.string().describe('Facility name'),
+  facilityAddress: AddressSchema,
+  facilityPhone: z.string().describe('Facility phone number'),
+  facilityFax: z.string().describe('Facility fax number'),
+  facilityNPI: z.string().describe('Facility NPI'),
+  billingName: z.string().describe('Billing provider name'),
+  billingAddress: z.string().describe('Billing address'),
+  billingPhone: z.string().describe('Billing phone number'),
+  billingNPI: z.string().describe('Billing NPI'),
   // Legacy field for backward compatibility
   referringProvider: z.object({
     name: z.string(),
     npi: z.string()
-  }).optional().describe('Referring provider information')
+  }).nullable().describe('Referring provider information')
 });
 
 // ============================================================================
@@ -332,7 +331,7 @@ export const LabTestResultSchema = z.object({
   unit: z.string().describe('Unit of measurement'),
   referenceRange: z.string().describe('Normal reference range'),
   flag: z.enum(['Normal', 'High', 'Low', 'Critical', 'Abnormal', '']).describe('Result flag'),
-  notes: z.string().optional().describe('Additional notes')
+  notes: z.string().nullable().describe('Additional notes')
 });
 
 export const LaboratoryReportDataSchema = z.object({
@@ -355,11 +354,11 @@ export const LaboratoryReportDataSchema = z.object({
     director: z.string().describe('Lab director name')
   }).describe('Performing laboratory information'),
   results: z.array(LabTestResultSchema).describe('Test results'),
-  interpretation: z.string().optional().describe('Clinical interpretation'),
-  comments: z.string().optional().describe('Additional comments'),
-  criticalValues: z.array(z.string()).optional().describe('Critical values'),
-  technologist: z.string().optional().describe('Technologist name'),
-  pathologist: z.string().optional().describe('Pathologist name')
+  interpretation: z.string().nullable().describe('Clinical interpretation'),
+  comments: z.string().nullable().describe('Additional comments'),
+  criticalValues: z.array(z.string()).nullable().describe('Critical values'),
+  technologist: z.string().nullable().describe('Technologist name'),
+  pathologist: z.string().nullable().describe('Pathologist name')
 });
 
 // ============================================================================
@@ -367,10 +366,10 @@ export const LaboratoryReportDataSchema = z.object({
 // ============================================================================
 
 export const GenerationOptionsSchema = z.object({
-  complexity: z.enum(['low', 'medium', 'high']).optional().describe('Medical complexity level'),
-  numberOfVisits: z.number().int().min(1).optional().describe('Number of visits to generate'),
-  numberOfLabTests: z.number().int().min(1).optional().describe('Number of lab tests to generate'),
-  includeSecondaryInsurance: z.boolean().optional().describe('Whether to include secondary insurance')
+  complexity: z.enum(['low', 'medium', 'high']).describe('Medical complexity level'),
+  numberOfVisits: z.number().int().min(1).describe('Number of visits to generate'),
+  numberOfLabTests: z.number().int().min(1).describe('Number of lab tests to generate'),
+  includeSecondaryInsurance: z.boolean().describe('Whether to include secondary insurance')
 });
 
 export const DataPresetSchema = z.object({
@@ -382,6 +381,12 @@ export const DataPresetSchema = z.object({
     numberOfLabTests: z.number().int().min(1),
     includeSecondaryInsurance: z.boolean()
   }).describe('Preset options')
+});
+
+
+// Wrap array in object for Azure OpenAI compatibility (API requires root to be object type)
+export const LaboratoryReportsCollectionSchema = z.object({
+  reports: z.array(LaboratoryReportDataSchema)
 });
 
 // ============================================================================
@@ -422,6 +427,7 @@ export type MedicalHistoryData = z.infer<typeof MedicalHistoryDataSchema>;
 export type LabTestType = z.infer<typeof LabTestTypeEnum>;
 export type LabTestResult = z.infer<typeof LabTestResultSchema>;
 export type LaboratoryReportData = z.infer<typeof LaboratoryReportDataSchema>;
+export type LaboratoryReportsCollection = z.infer<typeof LaboratoryReportsCollectionSchema>;
 
 // Generation Options
 export type GenerationOptions = z.infer<typeof GenerationOptionsSchema>;
