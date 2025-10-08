@@ -38,7 +38,7 @@ type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'm
 function App() {
   // Workflow state management
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [medicalData, setMedicalData] = useState<BasicData | null>(null);
+  const [basicData, setBasicData] = useState<BasicData | null>(null);
   const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
   const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
   const [visitReportsData, setVisitReportsData] = useState<VisitReportData[]>([]);
@@ -78,7 +78,7 @@ function App() {
 
   // Step navigation handlers
   const handleDataGenerated = (data: BasicData) => {
-    setMedicalData(data);
+    setBasicData(data);
     setCms1500Data(generateCMS1500Data(data));
     setInsurancePolicyData(generateInsurancePolicyData(data));
     
@@ -100,7 +100,7 @@ function App() {
   };
 
   const handleDataUpdated = (newData: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => {
-    setMedicalData(newData);
+    setBasicData(newData);
     setCms1500Data(generateCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));
     
@@ -143,7 +143,7 @@ function App() {
   };
 
   const handleExportPDF = async (reportType: ReportType, filename: string) => {
-    if (!medicalData) {
+    if (!basicData) {
       alert('Please generate medical data first.');
       return;
     }
@@ -179,7 +179,7 @@ function App() {
   };
 
   const handlePreview = (reportType: ReportType = 'medical') => {
-    if (!medicalData) {
+    if (!basicData) {
       alert('Please generate medical data first.');
       return;
     }
@@ -188,7 +188,7 @@ function App() {
   };
 
   const renderActiveReport = () => {
-    if (!medicalData) {
+    if (!basicData) {
       return <div>No medical data available. Please generate data first.</div>;
     }
 
@@ -248,7 +248,7 @@ function App() {
     
     return (
       <MedicalRecordsReport 
-        data={medicalData} 
+        data={basicData} 
         laboratoryReportData={Array.from(laboratoryReports.values())}
         visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
         medicalHistoryData={medicalHistoryData || undefined}
@@ -269,7 +269,7 @@ function App() {
       case 2:
         return (
           <EditDataStep
-            medicalData={medicalData}
+            medicalData={basicData}
             laboratoryReportsMap={laboratoryReports}
             visitReportsData={visitReportsData}
             medicalHistoryData={medicalHistoryData}
@@ -281,7 +281,7 @@ function App() {
       case 3:
         return (
           <ExportPdfStep
-            medicalData={medicalData}
+            medicalData={basicData}
             exportFormat={exportFormat}
             setExportFormat={setExportFormat}
             qualityLevel={qualityLevel}
@@ -375,9 +375,9 @@ function App() {
 
       {/* Hidden reports for PDF export */}
       <div className="report-display">
-          {medicalData && (
+          {basicData && (
             <MedicalRecordsReport 
-              data={medicalData}
+              data={basicData}
               laboratoryReportData={Array.from(laboratoryReports.values())}
               visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
               medicalHistoryData={medicalHistoryData || undefined}
