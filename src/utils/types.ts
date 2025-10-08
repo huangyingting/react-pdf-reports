@@ -1,7 +1,88 @@
 /**
  * Shared Type Definitions for Medical Records and CMS-1500 Data Generation
- * This file contains all interface definitions used across the application
+ * 
+ * This file now primarily contains:
+ * - Constants (MEDICAL_SPECIALTIES, FACILITY_NAMES, etc.)
+ * - Re-exports from zodSchemas.ts for backward compatibility
+ * - Types not yet migrated to Zod schemas (MedicalHistoryData, LaboratoryReportData, etc.)
+ * 
+ * Main type definitions are now in zodSchemas.ts
  */
+
+// Import and re-export types from zodSchemas.ts for backward compatibility
+import type {
+  Address,
+  Contact,
+  Insurance,
+  Pharmacy,
+  PatientDemographics,
+  InsuranceInfo,
+  Provider,
+  ServiceLine,
+  ClaimInfo,
+  VisitVitals,
+  VitalSigns,
+  VisitNote,
+  BasicData,
+  CMS1500Data,
+  InsurancePolicyData,
+  VisitReportData,
+  // Medical History Types
+  Allergy,
+  ChronicCondition,
+  SurgicalHistory,
+  FamilyHistory,
+  MedicalHistory,
+  // Medication Types
+  CurrentMedication,
+  DiscontinuedMedication,
+  Medications,
+  MedicalHistoryData,
+  // Laboratory Types
+  LabTestType,
+  LabTestResult,
+  LaboratoryReportData,
+  // Generation Options
+  GenerationOptions,
+  DataPreset
+} from './zodSchemas';
+
+export type {
+  Address,
+  Contact,
+  Insurance,
+  Pharmacy,
+  PatientDemographics,
+  InsuranceInfo,
+  Provider,
+  ServiceLine,
+  ClaimInfo,
+  VisitVitals,
+  VitalSigns,
+  VisitNote,
+  BasicData,
+  CMS1500Data,
+  InsurancePolicyData,
+  VisitReportData,
+  // Medical History Types
+  Allergy,
+  ChronicCondition,
+  SurgicalHistory,
+  FamilyHistory,
+  MedicalHistory,
+  // Medication Types
+  CurrentMedication,
+  DiscontinuedMedication,
+  Medications,
+  MedicalHistoryData,
+  // Laboratory Types
+  LabTestType,
+  LabTestResult,
+  LaboratoryReportData,
+  // Generation Options
+  GenerationOptions,
+  DataPreset
+};
 
 // Constants
 export const MEDICAL_SPECIALTIES = [
@@ -151,363 +232,13 @@ export const DEDUCTIBLE_AMOUNTS = [
 
 export type DeductibleAmount = typeof DEDUCTIBLE_AMOUNTS[number];
 
-// Basic Types
-export interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country?: string;
-}
-
-export interface Contact {
-  phone: string;
-  email: string;
-  emergencyContact: string;
-}
-
-export interface Insurance {
-  provider: string;
-  policyNumber: string;
-  groupNumber?: string;
-  effectiveDate: string;
-  memberId?: string;  // Member ID for insurance (used in CMS-1500)
-  copay?: string;
-  deductible?: string;
-}
-
-export interface Pharmacy {
-  name: string;
-  address: string;
-  phone: string;
-}
-
-// Patient Types
-export interface PatientDemographics {
-  id: string;
-  name: string;
-  firstName: string;
-  lastName: string;
-  middleInitial?: string;
-  dateOfBirth: string;
-  age: number;
-  gender: string;
-  address: Address;
-  contact: Contact;
-  insurance: Insurance;
-  pharmacy: Pharmacy;
-  medicalRecordNumber: string;
-  ssn: string;
-  accountNumber?: string;
-}
-
-export interface InsuranceInfo {
-  primaryInsurance: Insurance;
-  secondaryInsurance: Insurance | null;
-  subscriberName?: string;
-  subscriberDOB?: string;
-  subscriberGender?: string;
-  type?: string;
-  picaCode?: string;
-  phone?: string;
-  address?: Address;
-  secondaryInsured?: {
-    name: string;
-    policyNumber: string;
-    planName: string;
-  };
-}
-
-// Provider Types
-export interface Provider {
-  name: string;
-  npi: string;
-  specialty: string;
-  phone: string;
-  address: Address;
-  taxId?: string;
-  taxIdType?: 'SSN' | 'EIN';
-  signature?: string;
-  // Facility information
-  facilityName?: string;
-  facilityAddress?: Address;
-  facilityPhone?: string;
-  facilityFax?: string;
-  facilityNPI?: string;
-  // Billing information
-  billingName?: string;
-  billingAddress?: string;
-  billingPhone?: string;
-  billingNPI?: string;
-  referringProvider?: {
-    name: string;
-    npi: string;
-  };
-}
-
-// Medical History Types
-export interface Allergy {
-  allergen: string;
-  reaction: string;
-  severity: string;
-  dateIdentified: string;
-}
-
-export interface ChronicCondition {
-  condition: string;
-  diagnosedDate: string;
-  status: string;
-  notes: string;
-}
-
-export interface SurgicalHistory {
-  procedure: string;
-  date: string;
-  hospital: string;
-  surgeon: string;
-  complications: string;
-}
-
-export interface FamilyHistory {
-  relation: string;
-  conditions: string[];
-  ageAtDeath: string;
-  causeOfDeath: string;
-}
-
-export interface MedicalHistory {
-  allergies: Allergy[];
-  chronicConditions: ChronicCondition[];
-  surgicalHistory: SurgicalHistory[];
-  familyHistory: FamilyHistory[];
-}
-
-// Medication Types
-export interface CurrentMedication {
-  name: string;
-  strength: string;
-  dosage: string;
-  purpose: string;
-  prescribedBy: string;
-  startDate: string;
-  instructions: string;
-}
-
-export interface DiscontinuedMedication {
-  name: string;
-  strength: string;
-  reason: string;
-  discontinuedDate: string;
-  prescribedBy: string;
-}
-
-export interface Medications {
-  current: CurrentMedication[];
-  discontinued: DiscontinuedMedication[];
-}
-
-// Vital Signs and Lab Results Types
-export interface VitalSigns {
-  date: string;
-  time: string;
-  bloodPressure: string;
-  heartRate: string;
-  temperature: string;
-  weight: string;
-  height: string;
-  bmi: string;
-  oxygenSaturation: string;
-  respiratoryRate: string;
-}
-
-// export interface LabResult {
-//   parameter: string;
-//   value: string;
-//   unit: string;
-//   referenceRange: string;
-//   status: string;
-// }
-
-// export interface LabTest {
-//   testDate: string;
-//   testName: string;
-//   results: LabResult[];
-//   orderingPhysician: string;
-// }
-
-// Visit Types
-export interface VisitVitals {
-  bloodPressure: string;
-  heartRate: number;
-  temperature: number;
-  weight: number;
-  height: string;
-  oxygenSaturation: number;
-}
-
-export interface VisitNote {
-  date: string;
-  type: string;
-  chiefComplaint: string;
-  assessment: string[];
-  plan: string[];
-  provider: string;
-  duration: string;
-  vitals: VisitVitals;
-}
-
-// CMS-1500 Specific Types
-export interface ServiceLine {
-  dateFrom: string;
-  dateTo: string;
-  placeOfService: string;
-  emg: string;
-  procedureCode: string;
-  modifier: string;
-  diagnosisPointer: string;
-  charges: string;
-  units: string;
-  epsdt: string;
-  idQual: string;
-  renderingProviderNPI: string;
-}
-
-export interface ClaimInfo {
-  patientRelationship: 'self' | 'spouse' | 'child' | 'other';
-  signatureDate: string;
-  providerSignatureDate: string;
-  dateOfIllness: string;
-  serviceDate: string;
-  illnessQualifier: string;
-  otherDate: string;
-  otherDateQualifier: string;
-  unableToWorkFrom: string;
-  unableToWorkTo: string;
-  hospitalizationFrom: string;
-  hospitalizationTo: string;
-  additionalInfo: string;
-  outsideLab: boolean;
-  outsideLabCharges: string;
-  diagnosisCodes: string[];
-  resubmissionCode: string;
-  originalRefNo: string;
-  priorAuthNumber: string;
-  serviceLines: ServiceLine[];
-  hasOtherHealthPlan: boolean;
-  otherClaimId: string;
-  acceptAssignment: boolean;
-  totalCharges: string;
-  amountPaid: string;
-}
-
-// Complete Record Types
-export interface BasicData {
-  patient: PatientDemographics;
-  insurance: InsuranceInfo;
-  provider: Provider;
-  generatedAt: string;
-  metadata: {
-    complexity: string;
-    numberOfVisits: number;
-    numberOfLabTests: number;
-    dataVersion: string;
-  };
-}
-
-export interface CMS1500Data {
-  patient: PatientDemographics;
-  insurance: InsuranceInfo;
-  provider: Provider;
-  claim: ClaimInfo;
-}
-
-export interface InsurancePolicyData {
-  patient: PatientDemographics;
-  insurance: InsuranceInfo;
-}
-
-export interface VisitReportData {
-  patient: PatientDemographics;
-  provider: Provider;
-  visit: VisitNote;
-  vitalSigns: VitalSigns;
-}
-
-export interface MedicalHistoryData {
-  patient: PatientDemographics;
-  provider: Provider;
-  medications: Medications;
-  allergies: Allergy[];
-  chronicConditions: ChronicCondition[];
-  surgicalHistory: SurgicalHistory[];
-  familyHistory: FamilyHistory[];
-}
-
-// Laboratory Report Types
-export type LabTestType = 
-  | 'CBC'           // Complete Blood Count
-  | 'BMP'           // Basic Metabolic Panel
-  | 'CMP'           // Comprehensive Metabolic Panel
-  | 'Urinalysis'    // Urinalysis
-  | 'Lipid'         // Lipid Profile
-  | 'LFT'           // Liver Function Tests
-  | 'Thyroid'       // Thyroid Function Tests
-  | 'HbA1c'         // Hemoglobin A1c
-  | 'Coagulation'   // Coagulation Panel
-  | 'Microbiology'  // Microbiology Cultures
-  | 'Pathology'     // Pathology Reports
-  | 'Hormone'       // Hormone Panels
-  | 'Infectious';   // Infectious Disease Panels
-
-export interface LabTestResult {
-  parameter: string;
-  value: string;
-  unit: string;
-  referenceRange: string;
-  flag: 'Normal' | 'High' | 'Low' | 'Critical' | 'Abnormal' | '';
-  notes?: string;
-}
-
-export interface LaboratoryReportData {
-  patient: PatientDemographics;
-  provider: Provider;
-  testType: LabTestType;
-  testName: string;
-  specimenType: string;
-  specimenCollectionDate: string;
-  specimenCollectionTime: string;
-  specimenReceivedDate: string;
-  reportDate: string;
-  reportTime: string;
-  orderingPhysician: string;
-  performingLab: {
-    name: string;
-    address: Address;
-    phone: string;
-    cliaNumber: string;
-    director: string;
-  };
-  results: LabTestResult[];
-  interpretation?: string;
-  comments?: string;
-  criticalValues?: string[];
-  technologist?: string;
-  pathologist?: string;
-}
-
-// Generation Options and Presets
-export interface GenerationOptions {
-  complexity?: 'low' | 'medium' | 'high';
-  numberOfVisits?: number;
-  numberOfLabTests?: number;
-  includeSecondaryInsurance?: boolean;
-}
-
-export interface DataPreset {
-  name: string;
-  description: string;
-  options: Required<GenerationOptions>;
-}
+// NOTE: All interface types are now defined in zodSchemas.ts and re-exported above
+// This includes: Address, Contact, Insurance, Pharmacy, PatientDemographics, InsuranceInfo,
+// Provider, ServiceLine, ClaimInfo, VisitVitals, VitalSigns, VisitNote, BasicData,
+// CMS1500Data, InsurancePolicyData, VisitReportData, Allergy, ChronicCondition,
+// SurgicalHistory, FamilyHistory, MedicalHistory, CurrentMedication, DiscontinuedMedication,
+// Medications, MedicalHistoryData, LabTestType, LabTestResult, LaboratoryReportData,
+// GenerationOptions, and DataPreset
 
 /**
  * Data generation presets

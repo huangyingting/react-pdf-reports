@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DATA_GENERATION_PRESETS, GenerationOptions, BasicData, MedicalHistoryData, VisitReportData, LaboratoryReportData, LabTestType } from '../utils/types';
 import { generateBasicData } from '../utils/baseDataGenerator';
 import { 
-  generateMedicalRecordWithAI, 
+  generateBasicDataWithAI, 
   generateMedicalHistoryDataWithAI, 
   generateVisitReportDataWithAI, 
   generateLaboratoryReportDataWithAI 
@@ -17,6 +17,7 @@ import './GenerateDataStep.css';
 interface GenerateDataStepProps {
   onDataGenerated: (
     data: BasicData,
+    generationOptions: Required<GenerationOptions>,
     preGeneratedMedicalHistory?: MedicalHistoryData | null,
     preGeneratedVisitReports?: VisitReportData[] | null,
     preGeneratedLabReports?: Map<LabTestType, LaboratoryReportData> | null
@@ -75,11 +76,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         console.log('[GenerateDataStep] Generating data with AI...');
         
         // Generate basic patient data
-        data = await generateMedicalRecordWithAI(
+        data = await generateBasicDataWithAI(
           azureConfig,
-          customOptions.complexity as 'low' | 'medium' | 'high',
-          customOptions.numberOfVisits,
-          customOptions.numberOfLabTests
+          customOptions.complexity as 'low' | 'medium' | 'high'
         );
         console.log('[GenerateDataStep] Basic data generated');
         
@@ -127,8 +126,8 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         data = generateBasicData(customOptions);
       }
       
-      // Pass all generated data to parent
-      onDataGenerated(data, medicalHistory, visitReports, labReports);
+      // Pass all generated data AND generation options to parent
+      onDataGenerated(data, customOptions, medicalHistory, visitReports, labReports);
       
       // Automatically move to next step
       onNext();

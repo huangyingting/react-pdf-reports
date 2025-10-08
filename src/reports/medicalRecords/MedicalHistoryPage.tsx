@@ -133,7 +133,7 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
               <ul>
                 <li>Current: {data.medications?.current?.length || 0} medications</li>
                 <li>Recently Discontinued: {data.medications?.discontinued?.length || 0}</li>
-                <li>Pharmacy: {patient.pharmacy?.name || 'Not on file'}</li>
+                <li>Pharmacy: {patient?.pharmacy?.name || 'Not on file'}</li>
               </ul>
             </div>
             <div className="risk-category">

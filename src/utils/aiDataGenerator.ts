@@ -3,214 +3,74 @@
  * Generates realistic medical records using large language models
  */
 
-import { generateMedicalDataWithAI, AzureOpenAIConfig } from './azureOpenAI';
+import { generateDataWithAI, AzureOpenAIConfig } from './azureOpenAI';
 import { BasicData, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData } from './types';
+import { 
+  ResponseFormats, 
+  validateWithSchema, 
+  formatZodErrors,
+  BasicDataSchema,
+  CMS1500DataSchema,
+  InsurancePolicyDataSchema,
+  VisitReportDataSchema
+} from './jsonSchemaGenerator';
 
 /**
  * Generate a complete medical record using Azure OpenAI
+ * The structure is enforced by the Zod schema via structured outputs
+ * 
+ * Note: numberOfVisits and numberOfLabTests are not part of BasicData schema.
+ * They are used by the calling code to generate additional reports.
  */
-export async function generateMedicalRecordWithAI(
+export async function generateBasicDataWithAI(
   config: AzureOpenAIConfig,
-  complexity: 'low' | 'medium' | 'high' = 'medium',
-  numberOfVisits: number = 1,
-  numberOfLabTests: number = 3
+  complexity: 'low' | 'medium' | 'high' = 'medium'
 ): Promise<BasicData> {
-  const prompt = `Generate a complete, realistic synthetic medical record for educational purposes with the following specifications:
+  const complexityDetails = {
+    low: '1-2 chronic conditions, 2-3 current medications, 1 allergy, minimal history',
+    medium: '2-4 chronic conditions, 4-6 current medications, 2-3 allergies, moderate history',
+    high: '4+ chronic conditions, 7+ current medications, 3+ allergies, extensive history'
+  };
 
-**Patient Requirements:**
-- Generate realistic demographics (first name, middle initial, last name, date of birth, gender)
-- Include contact information (phone, email, emergency contact)
-- Include address (street, city, state, ZIP code)
-- Generate unique medical record number and SSN
-- Optional account number
+  const prompt = `Generate a complete, realistic synthetic medical record for educational purposes.
 
-**Insurance Requirements:**
-- Primary insurance with provider, policy number, group number, member ID
-- Include subscriber information (name, DOB, gender) if different from patient
-- Include copay and deductible amounts
-- Optional secondary insurance (20% chance)
+**Complexity Level: ${complexity}** (${complexityDetails[complexity]})
 
-**Provider Requirements:**
-- Provider name, NPI number, specialty (choose from: Family Medicine, Internal Medicine, Cardiology, etc.)
-- Phone number and tax ID information
-- Facility name, phone, fax, NPI
-- Complete address
+**Requirements:**
+- Patient: Complete demographics with realistic US address, contact info, MRN, SSN
+- Insurance: Primary insurance (required), secondary insurance (20% chance if medium/high complexity)
+- Provider: Include complete facility information with NPI numbers
+- Current timestamp for generatedAt field
+- Age should be between 18-85 years
+- All dates in MM/DD/YYYY format (except generatedAt which is ISO8601)
+- All data must be completely synthetic and HIPAA-compliant
 
-**Complexity Level: ${complexity}**
-- Low: 1-2 chronic conditions, 2-3 current medications, 1 allergy, minimal history
-- Medium: 2-4 chronic conditions, 4-6 current medications, 2-3 allergies, moderate history
-- High: 4+ chronic conditions, 7+ current medications, 3+ allergies, extensive history
+The JSON structure is enforced by the schema - just generate realistic, clinically coherent data.`;
 
-**Additional Data:**
-- Number of visits to generate: ${numberOfVisits}
-- Number of lab tests: ${numberOfLabTests}
-- Include metadata with complexity level, data version, generation timestamp
+  const systemPrompt = `You are an expert medical data generator creating synthetic, realistic medical records for educational purposes.
 
-**IMPORTANT:**
-1. Generate current date as today's date in MM/DD/YYYY format
-2. Ensure all dates are realistic and consistent
-3. All data must be completely synthetic and HIPAA-compliant
-4. Return ONLY valid JSON matching this structure:
-
-{
-  "patient": {
-    "firstName": "string",
-    "middleInitial": "string",
-    "lastName": "string",
-    "dateOfBirth": "MM/DD/YYYY",
-    "medicalRecordNumber": "string",
-    "ssn": "XXX-XX-XXXX",
-    "accountNumber": "string (optional)",
-    "gender": "Male|Female|Other",
-    "contact": {
-      "phone": "string",
-      "email": "string",
-      "emergencyContact": "string"
-    },
-    "address": {
-      "street": "string",
-      "city": "string",
-      "state": "XX",
-      "zipCode": "string"
-    }
-  },
-  "insurance": {
-    "subscriberName": "string (optional)",
-    "subscriberDOB": "string (optional)",
-    "subscriberGender": "string (optional)",
-    "primaryInsurance": {
-      "provider": "string",
-      "policyNumber": "string",
-      "groupNumber": "string",
-      "memberId": "string",
-      "copay": "string",
-      "deductible": "string"
-    },
-    "secondaryInsurance": null or {
-      "provider": "string",
-      "policyNumber": "string",
-      "groupNumber": "string",
-      "memberId": "string",
-      "effectiveDate": "YYYY-MM-DD",
-      "copay": "string",
-      "deductible": "string"
-    }
-  },
-  "provider": {
-    "name": "Dr. FirstName LastName",
-    "npi": "string (10 digits)",
-    "specialty": "string",
-    "phone": "string",
-    "taxId": "string",
-    "taxIdType": "SSN|EIN",
-    "facilityName": "string",
-    "facilityPhone": "string",
-    "facilityFax": "string",
-    "facilityNPI": "string",
-    "address": {
-      "street": "string",
-      "city": "string",
-      "state": "XX",
-      "zipCode": "string"
-    }
-  },
-  "generatedAt": "ISO8601 timestamp",
-  "metadata": {
-    "complexity": "${complexity}",
-    "numberOfVisits": ${numberOfVisits},
-    "numberOfLabTests": ${numberOfLabTests},
-    "dataVersion": "2.0",
-    "generationMethod": "azure-openai"
-  }
-}`;
-
-  const systemPrompt = `You are an expert medical data generator creating synthetic, realistic medical records for educational and training purposes. 
-
-Key Requirements:
-- Generate completely fictional data that appears realistic
-- Ensure all data is HIPAA-compliant (no real patient information)
-- Follow US healthcare standards and formats
-- Maintain internal consistency (e.g., dates, relationships)
-- Use realistic medical terminology and conventions
-- Always respond with ONLY valid JSON, no additional text
-
-Your expertise includes:
-- Medical record systems and EMR standards
-- Healthcare billing and insurance processes
-- Clinical documentation best practices
-- Medical coding (ICD-10, CPT)
-- US healthcare regulations`;
+Generate completely fictional yet realistic data following US healthcare standards. Ensure internal consistency in all relationships and dates. Use proper medical terminology and conventions.`;
 
   try {
-    const generatedData = await generateMedicalDataWithAI(config, prompt, systemPrompt);
+    // Generate data with Zod-derived JSON Schema for guaranteed structure
+    const data = await generateDataWithAI(
+      config, 
+      prompt, 
+      systemPrompt,
+      3,
+      ResponseFormats.BasicData
+    );
     
-    // Validate that we have the required structure
-    if (!generatedData.patient || !generatedData.insurance || !generatedData.provider) {
-      throw new Error('Generated data is missing required fields');
+    // Validate with Zod schema
+    const validation = validateWithSchema(BasicDataSchema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      throw new Error(`AI generated invalid data: ${errors.join(', ')}`);
     }
 
-    // Ensure metadata is present
-    if (!generatedData.metadata) {
-      generatedData.metadata = {
-        complexity,
-        numberOfVisits,
-        numberOfLabTests,
-        dataVersion: '2.0',
-        generationMethod: 'azure-openai'
-      };
-    }
-
-    // Ensure generatedAt is present
-    if (!generatedData.generatedAt) {
-      generatedData.generatedAt = new Date().toISOString();
-    }
-
-    // IMPORTANT: Ensure patient.insurance is populated from primaryInsurance
-    // The PatientDemographics interface expects patient.insurance to be a simple Insurance object
-    if (generatedData.insurance?.primaryInsurance && !generatedData.patient.insurance) {
-      generatedData.patient.insurance = {
-        provider: generatedData.insurance.primaryInsurance.provider,
-        policyNumber: generatedData.insurance.primaryInsurance.policyNumber,
-        groupNumber: generatedData.insurance.primaryInsurance.groupNumber,
-        effectiveDate: generatedData.insurance.primaryInsurance.effectiveDate || new Date().toLocaleDateString('en-US'),
-        memberId: generatedData.insurance.primaryInsurance.memberId,
-        copay: generatedData.insurance.primaryInsurance.copay,
-        deductible: generatedData.insurance.primaryInsurance.deductible
-      };
-    }
-
-    // Ensure patient has required computed fields
-    if (!generatedData.patient.id) {
-      generatedData.patient.id = generatedData.patient.medicalRecordNumber || `MRN-${Date.now()}`;
-    }
-    if (!generatedData.patient.name) {
-      generatedData.patient.name = `${generatedData.patient.lastName}, ${generatedData.patient.firstName}${generatedData.patient.middleInitial ? ' ' + generatedData.patient.middleInitial : ''}`;
-    }
-    if (!generatedData.patient.age && generatedData.patient.dateOfBirth) {
-      const birthDate = new Date(generatedData.patient.dateOfBirth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      generatedData.patient.age = age;
-    }
-    if (!generatedData.patient.pharmacy) {
-      generatedData.patient.pharmacy = {
-        name: 'CVS Pharmacy',
-        address: '123 Main St',
-        phone: '(555) 123-4567'
-      };
-    }
-    if (!generatedData.patient.address?.country) {
-      generatedData.patient.address = {
-        ...generatedData.patient.address,
-        country: 'USA'
-      };
-    }
-
-    return generatedData as BasicData;
+    console.log('✅ Medical record validated successfully with Zod');
+    return validation.data as BasicData;
   } catch (error) {
     console.error('Failed to generate medical record with AI:', error);
     throw new Error(
@@ -246,8 +106,25 @@ Respond with valid JSON matching CMS1500Data interface.`;
   const systemPrompt = 'You are a medical billing expert specializing in CMS-1500 forms. Generate realistic, compliant claims data. Always respond with ONLY valid JSON.';
 
   try {
-    const data = await generateMedicalDataWithAI(config, prompt, systemPrompt);
-    return data as CMS1500Data;
+    const data = await generateDataWithAI(
+      config, 
+      prompt, 
+      systemPrompt,
+      3,
+      ResponseFormats.CMS1500Data
+    );
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(CMS1500DataSchema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      console.error('CMS-1500 validation errors:', errors);
+      throw new Error(`AI generated invalid CMS-1500 data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ CMS-1500 data validated successfully');
+    return validation.data as CMS1500Data;
   } catch (error) {
     throw new Error(`Failed to generate CMS-1500 data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -279,8 +156,25 @@ Respond with valid JSON matching InsurancePolicyData interface.`;
   const systemPrompt = 'You are an insurance policy specialist. Generate comprehensive, realistic health insurance policy documents. Always respond with ONLY valid JSON.';
 
   try {
-    const data = await generateMedicalDataWithAI(config, prompt, systemPrompt);
-    return data as InsurancePolicyData;
+    const data = await generateDataWithAI(
+      config, 
+      prompt, 
+      systemPrompt,
+      3,
+      ResponseFormats.InsurancePolicyData
+    );
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(InsurancePolicyDataSchema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      console.error('Insurance Policy validation errors:', errors);
+      throw new Error(`AI generated invalid Insurance Policy data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ Insurance Policy data validated successfully');
+    return validation.data as InsurancePolicyData;
   } catch (error) {
     throw new Error(`Failed to generate Insurance Policy data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -317,8 +211,33 @@ Respond with valid JSON array matching VisitReportData[] interface.`;
   const systemPrompt = 'You are a physician specializing in clinical documentation. Generate realistic, SOAP-format visit notes. Always respond with ONLY valid JSON.';
 
   try {
-    const data = await generateMedicalDataWithAI(config, prompt, systemPrompt);
-    return Array.isArray(data) ? data as VisitReportData[] : [data as VisitReportData];
+    const data = await generateDataWithAI(
+      config, 
+      prompt, 
+      systemPrompt,
+      3,
+      ResponseFormats.VisitReportData
+    );
+    
+    // Handle single visit or array of visits
+    const visits = Array.isArray(data) ? data : [data];
+    
+    // Validate each visit with Zod schema
+    const validatedVisits: VisitReportData[] = [];
+    for (const visit of visits) {
+      const validation = validateWithSchema(VisitReportDataSchema, visit);
+      
+      if (!validation.success) {
+        const errors = formatZodErrors(validation.errors);
+        console.error('Visit Report validation errors:', errors);
+        throw new Error(`AI generated invalid Visit Report data: ${errors.join(', ')}`);
+      }
+      
+      validatedVisits.push(validation.data as VisitReportData);
+    }
+
+    console.log(`✅ ${validatedVisits.length} Visit Report(s) validated successfully`);
+    return validatedVisits;
   } catch (error) {
     throw new Error(`Failed to generate Visit Report data: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
@@ -358,7 +277,7 @@ Respond with valid JSON matching MedicalHistoryData interface.`;
   const systemPrompt = 'You are a medical historian specializing in comprehensive patient histories. Generate realistic, clinically coherent medical histories. Always respond with ONLY valid JSON.';
 
   try {
-    const data = await generateMedicalDataWithAI(config, prompt, systemPrompt);
+    const data = await generateDataWithAI(config, prompt, systemPrompt);
     return data as MedicalHistoryData;
   } catch (error) {
     throw new Error(`Failed to generate Medical History data: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -425,7 +344,7 @@ Respond with valid JSON object where keys are test types and values are Laborato
   const systemPrompt = 'You are a clinical laboratory specialist. Generate realistic, clinically accurate laboratory test results. Always respond with ONLY valid JSON.';
 
   try {
-    const data = await generateMedicalDataWithAI(config, prompt, systemPrompt);
+    const data = await generateDataWithAI(config, prompt, systemPrompt);
     const labReportsMap = new Map<string, any>();
     
     // Convert the response to a Map

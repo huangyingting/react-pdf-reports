@@ -292,11 +292,5 @@ export const generateBasicData = (options: GenerationOptions = {}): BasicData =>
     insurance,
     provider,
     generatedAt: new Date().toISOString(),
-    metadata: {
-      complexity,
-      numberOfVisits,
-      numberOfLabTests,
-      dataVersion: '2.0'
-    }
   };
 };

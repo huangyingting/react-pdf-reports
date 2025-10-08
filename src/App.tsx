@@ -39,6 +39,17 @@ function App() {
   // Workflow state management
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [basicData, setBasicData] = useState<BasicData | null>(null);
+  const [generationOptions, setGenerationOptions] = useState<{ 
+    complexity: 'low' | 'medium' | 'high';
+    numberOfVisits: number;
+    numberOfLabTests: number;
+    includeSecondaryInsurance: boolean;
+  }>({
+    complexity: 'medium',
+    numberOfVisits: 3,
+    numberOfLabTests: 5,
+    includeSecondaryInsurance: true
+  });
   const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
   const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
   const [visitReportsData, setVisitReportsData] = useState<VisitReportData[]>([]);
@@ -79,28 +90,33 @@ function App() {
   // Step navigation handlers
   const handleDataGenerated = (
     data: BasicData,
+    options: { 
+      complexity: 'low' | 'medium' | 'high';
+      numberOfVisits: number;
+      numberOfLabTests: number;
+      includeSecondaryInsurance: boolean;
+    },
     preGeneratedMedicalHistory?: MedicalHistoryData | null,
     preGeneratedVisitReports?: VisitReportData[] | null,
     preGeneratedLabReports?: Map<LabTestType, LaboratoryReportData> | null
   ) => {
     setBasicData(data);
+    setGenerationOptions(options);
     setCms1500Data(generateCMS1500Data(data));
     setInsurancePolicyData(generateInsurancePolicyData(data));
     
-    // Use pre-generated visit reports if provided, otherwise generate with Faker
+    // Use pre-generated visit reports if provided, otherwise generate with Faker using passed options
     if (preGeneratedVisitReports && preGeneratedVisitReports.length > 0) {
       setVisitReportsData(preGeneratedVisitReports);
     } else {
-      const numberOfVisits = data.metadata?.numberOfVisits || 1;
-      setVisitReportsData(generateVisitReportData(data, numberOfVisits));
+      setVisitReportsData(generateVisitReportData(data, options.numberOfVisits));
     }
     
-    // Use pre-generated medical history if provided, otherwise generate with Faker
+    // Use pre-generated medical history if provided, otherwise generate with Faker using passed options
     if (preGeneratedMedicalHistory) {
       setMedicalHistoryData(preGeneratedMedicalHistory);
     } else {
-      const complexity = (data.metadata?.complexity || 'medium') as 'low' | 'medium' | 'high';
-      setMedicalHistoryData(generateMedicalHistoryData(data, complexity));
+      setMedicalHistoryData(generateMedicalHistoryData(data, options.complexity));
     }
     
     // Use pre-generated lab reports if provided, otherwise generate with Faker
@@ -121,17 +137,15 @@ function App() {
     setCms1500Data(generateCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));
     
-    // Update visit reports data if provided, otherwise regenerate
+    // Update visit reports data if provided, otherwise regenerate using stored options
     if (visitDataArray && visitDataArray.length > 0) {
       setVisitReportsData(visitDataArray);
     } else {
-      const numberOfVisits = newData.metadata?.numberOfVisits || 1;
-      setVisitReportsData(generateVisitReportData(newData, numberOfVisits));
+      setVisitReportsData(generateVisitReportData(newData, generationOptions.numberOfVisits));
     }
     
-    // Generate medical history with complexity parameter
-    const complexity = (newData.metadata?.complexity || 'medium') as 'low' | 'medium' | 'high';
-    setMedicalHistoryData(generateMedicalHistoryData(newData, complexity));
+    // Generate medical history with complexity parameter from stored options
+    setMedicalHistoryData(generateMedicalHistoryData(newData, generationOptions.complexity));
     
     // Update laboratory reports - use provided map if available, otherwise regenerate
     if (labReportsMap && labReportsMap.size > 0) {

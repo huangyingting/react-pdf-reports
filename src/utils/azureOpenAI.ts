@@ -68,7 +68,8 @@ export async function callAzureOpenAI(
   messages: ChatMessage[],
   config: AzureOpenAIConfig,
   temperature: number = 0.7,
-  maxTokens: number = 20*1024
+  maxTokens: number = 20*1024,
+  responseFormat?: any  // Optional JSON schema for structured outputs
 ): Promise<string> {
   // Validate configuration
   const validation = validateAzureConfig(config);
@@ -90,9 +91,10 @@ export async function callAzureOpenAI(
     const requestBody: any = {
       messages,
       max_completion_tokens: maxTokens,
-      // Enable JSON mode - ensures response is valid JSON
-      // Note: system or user message must include "JSON" for this to work
-      response_format: { type: 'json_object' }
+      // Use provided response format (JSON schema) or fallback to basic JSON mode
+      // If responseFormat is provided, it should be a structured output schema
+      // Otherwise, use basic JSON object mode
+      response_format: responseFormat || { type: 'json_object' }
     };
 
     // Only include temperature if it's not the default value (1.0)
@@ -157,15 +159,16 @@ export async function callAzureOpenAI(
 /**
  * Generate medical data using Azure OpenAI with retry logic
  */
-export async function generateMedicalDataWithAI(
+export async function generateDataWithAI(
   config: AzureOpenAIConfig,
   prompt: string,
-  systemPrompt: string = 'You are a medical data generator that creates realistic, HIPAA-compliant synthetic medical records for educational purposes. Always respond with valid JSON.',
-  retries: number = 3
+  systemPrompt: string = 'You are a synthetic data generator tasked with producing realistic, HIPAA-compliant records for educational use. All responses must be formatted as valid JSON.',
+  retries: number = 3,
+  responseFormat?: any  // Optional JSON schema for structured outputs
 ): Promise<any> {
-  console.log('[generateMedicalDataWithAI] Starting generation with', retries, 'max retries');
-  console.log('[generateMedicalDataWithAI] Prompt length:', prompt.length, 'characters');
-  console.log('[generateMedicalDataWithAI] System prompt:', systemPrompt.substring(0, 100) + '...');
+  console.log('[generateDataWithAI] Starting generation with', retries, 'max retries');
+  console.log('[generateDataWithAI] Prompt length:', prompt.length, 'characters');
+  console.log('[generateDataWithAI] System prompt:', systemPrompt.substring(0, 100) + '...');
 
   const messages: ChatMessage[] = [
     { role: 'system', content: systemPrompt },
@@ -175,64 +178,64 @@ export async function generateMedicalDataWithAI(
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < retries; attempt++) {
-    console.log(`[generateMedicalDataWithAI] Attempt ${attempt + 1}/${retries}`);
+    console.log(`[generateDataWithAI] Attempt ${attempt + 1}/${retries}`);
     try {
-      const responseText = await callAzureOpenAI(messages, config, 1.0, 50*1024);
+      const responseText = await callAzureOpenAI(messages, config, 1.0, 32*1024, responseFormat);
       
-      console.log('[generateMedicalDataWithAI] Received response text, length:', responseText?.length || 0);
+      console.log('[generateDataWithAI] Received response text, length:', responseText?.length || 0);
       
       // Validate response is not empty
       if (!responseText || responseText.trim() === '') {
-        console.error('[generateMedicalDataWithAI] Empty response received');
+        console.error('[generateDataWithAI] Empty response received');
         throw new Error('Empty response from Azure OpenAI');
       }
       
-      console.log('[generateMedicalDataWithAI] Parsing JSON response...');
+      console.log('[generateDataWithAI] Parsing JSON response...');
       // Parse the JSON response (Azure OpenAI JSON mode guarantees valid JSON)
       const parsedData = JSON.parse(responseText);
       
-      console.log('[generateMedicalDataWithAI] JSON parsed successfully');
-      console.log('[generateMedicalDataWithAI] Parsed data type:', typeof parsedData);
-      console.log('[generateMedicalDataWithAI] Parsed data keys:', Object.keys(parsedData || {}).join(', '));
+      console.log('[generateDataWithAI] JSON parsed successfully');
+      console.log('[generateDataWithAI] Parsed data type:', typeof parsedData);
+      console.log('[generateDataWithAI] Parsed data keys:', Object.keys(parsedData || {}).join(', '));
       
       // Validate we got an object back
       if (typeof parsedData !== 'object' || parsedData === null) {
-        console.error('[generateMedicalDataWithAI] Invalid data type:', typeof parsedData);
+        console.error('[generateDataWithAI] Invalid data type:', typeof parsedData);
         throw new Error('Invalid JSON structure: expected object, got ' + typeof parsedData);
       }
       
-      console.log('[generateMedicalDataWithAI] ✅ Generation successful!');
+      console.log('[generateDataWithAI] ✅ Generation successful!');
       return parsedData;
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error');
       
       // Log the error for debugging
-      console.error(`[generateMedicalDataWithAI] ❌ Attempt ${attempt + 1}/${retries} failed:`, error);
-      console.error('[generateMedicalDataWithAI] Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error(`[generateDataWithAI] ❌ Attempt ${attempt + 1}/${retries} failed:`, error);
+      console.error('[generateDataWithAI] Error type:', error instanceof Error ? error.constructor.name : typeof error);
       if (error instanceof Error) {
-        console.error('[generateMedicalDataWithAI] Error message:', error.message);
-        console.error('[generateMedicalDataWithAI] Error stack:', error.stack);
+        console.error('[generateDataWithAI] Error message:', error.message);
+        console.error('[generateDataWithAI] Error stack:', error.stack);
       }
       
       // If it's a parsing error, try again
       if (error instanceof SyntaxError && attempt < retries - 1) {
-        console.warn(`[generateMedicalDataWithAI] JSON parsing failed, retrying in ${(attempt + 1) * 1000}ms...`);
+        console.warn(`[generateDataWithAI] JSON parsing failed, retrying in ${(attempt + 1) * 1000}ms...`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         continue;
       }
       
       // If it's an API error and we have retries left, wait and try again
       if (attempt < retries - 1) {
-        console.warn(`[generateMedicalDataWithAI] Retrying in ${(attempt + 1) * 1000}ms...`);
+        console.warn(`[generateDataWithAI] Retrying in ${(attempt + 1) * 1000}ms...`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         continue;
       }
       
-      console.error('[generateMedicalDataWithAI] All retry attempts exhausted');
+      console.error('[generateDataWithAI] All retry attempts exhausted');
       break;
     }
   }
 
-  console.error('[generateMedicalDataWithAI] Final error:', lastError);
+  console.error('[generateDataWithAI] Final error:', lastError);
   throw lastError || new Error('Failed to generate medical data after all retries');
 }

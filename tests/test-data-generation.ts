@@ -169,12 +169,6 @@ if (record.insurance.secondaryInsurance) {
 }
 console.log();
 
-console.log('📦 METADATA');
-console.log('-'.repeat(80));
-console.log(`Data Version: ${record.metadata.dataVersion}`);
-console.log(`Complexity: ${record.metadata.complexity}`);
-console.log(`Number of Visits: ${record.metadata.numberOfVisits}`);
-console.log(`Number of Lab Tests: ${record.metadata.numberOfLabTests}`);
 console.log(`Generated At: ${record.generatedAt}`);
 console.log();
 
