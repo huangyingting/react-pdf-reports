@@ -131,7 +131,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
     { id: 'insurance', label: 'Insurance', icon: 'card' },
     { id: 'provider', label: 'Provider', icon: 'stethoscope' },
     { id: 'medical', label: 'Medical History', icon: 'activity' },
-    { id: 'labs', label: 'Lab Results', icon: 'flask' },
+    { id: 'labs', label: 'Lab Reports', icon: 'flask' },
     { id: 'vitals', label: 'Vital Signs', icon: 'heart' },
     { id: 'visits', label: 'Visit Notes', icon: 'clipboard' }
   ];
