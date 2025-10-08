@@ -1,7 +1,7 @@
 import React from 'react';
 import { faker } from '@faker-js/faker';
 import './LaboratoryReportDocument.css';
-import { LaboratoryReportData } from '../../utils/types';
+import { LaboratoryReportData } from '../../utils/constants';
 
 interface LaboratoryReportDocumentProps {
   data: LaboratoryReportData;

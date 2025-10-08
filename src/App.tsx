@@ -12,12 +12,12 @@ import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDo
 import VisitReportDocument from './reports/visitReport/VisitReportDocument';
 import MedicationHistoryDocument from './reports/medicationHistory/MedicationHistoryDocument';
 import LaboratoryReportDocument from './reports/laboratoryReport/LaboratoryReportDocument';
-import { generateCMS1500Data } from './utils/cms1500Generator';
+import { getCMS1500Data } from './utils/cms1500Generator';
 import { generateInsurancePolicyData } from './utils/insurancePolicyGenerator';
 import { generateVisitReportData } from './utils/visitReportGenerator';
 import { generateMedicalHistoryData } from './utils/medicalHistoryGenerator';
-import { generateLaboratoryReportData } from './utils/laboratoryReportGenerator';
-import { BasicData, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData, LaboratoryReportData, LabTestType } from './utils/types';
+import { generateLabReportData } from './utils/labReportsGenerator';
+import { BasicData, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData, LaboratoryReportData, LabTestType } from './utils/constants';
 
 // Import utilities
 import { 
@@ -102,7 +102,7 @@ function App() {
   ) => {
     setBasicData(data);
     setGenerationOptions(options);
-    setCms1500Data(generateCMS1500Data(data));
+    setCms1500Data(getCMS1500Data(data));
     setInsurancePolicyData(generateInsurancePolicyData(data));
     
     // Use pre-generated visit reports if provided, otherwise generate with Faker using passed options
@@ -126,7 +126,7 @@ function App() {
       const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
       const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
       allLabTypes.forEach(testType => {
-        labReportsMap.set(testType, generateLaboratoryReportData(testType, data));
+        labReportsMap.set(testType, generateLabReportData(testType, data));
       });
       setLaboratoryReports(labReportsMap);
     }
@@ -134,7 +134,7 @@ function App() {
 
   const handleDataUpdated = (newData: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => {
     setBasicData(newData);
-    setCms1500Data(generateCMS1500Data(newData));
+    setCms1500Data(getCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));
     
     // Update visit reports data if provided, otherwise regenerate using stored options
@@ -155,7 +155,7 @@ function App() {
       const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
       const newLabReportsMap = new Map<LabTestType, LaboratoryReportData>();
       allLabTypes.forEach(testType => {
-        newLabReportsMap.set(testType, generateLaboratoryReportData(testType, newData));
+        newLabReportsMap.set(testType, generateLabReportData(testType, newData));
       });
       setLaboratoryReports(newLabReportsMap);
     }

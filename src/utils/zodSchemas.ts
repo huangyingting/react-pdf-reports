@@ -44,10 +44,10 @@ export const PharmacySchema = z.object({
 });
 
 // ============================================================================
-// Patient Demographics
+// Patient
 // ============================================================================
 
-export const PatientDemographicsSchema = z.object({
+export const PatientSchema = z.object({
   id: z.string().describe('Unique patient identifier'),
   name: z.string().describe('Full name (FirstName MiddleInitial LastName)'),
   firstName: z.string().describe('First name'),
@@ -133,7 +133,7 @@ export const ServiceLineSchema = z.object({
   renderingProviderNPI: z.string().describe('Rendering provider NPI')
 });
 
-export const ClaimInfoSchema = z.object({
+export const ClaimSchema = z.object({
   patientRelationship: z.enum(['self', 'spouse', 'child', 'other']).describe('Patient\'s relationship to subscriber'),
   signatureDate: z.string().describe('Patient signature date'),
   providerSignatureDate: z.string().describe('Provider signature date'),
@@ -199,31 +199,52 @@ export const VisitNoteSchema = z.object({
 });
 
 // ============================================================================
-// Complete Document Schemas
+// Standalone Data Generation Schemas
 // ============================================================================
 
-export const BasicDataSchema = z.object({
-  patient: PatientDemographicsSchema,
-  insurance: InsuranceInfoSchema,
-  provider: ProviderSchema,
-  generatedAt: z.string().describe('Generation timestamp'),
+/**
+ * Schema for generating patient data independently
+ */
+export const PatientDataSchema = z.object({
+  patient: PatientSchema,
+  generatedAt: z.string().describe('Generation timestamp')
 });
 
-export const CMS1500DataSchema = z.object({
-  patient: PatientDemographicsSchema,
-  insurance: InsuranceInfoSchema,
+/**
+ * Schema for generating provider data independently
+ */
+export const ProviderDataSchema = z.object({
   provider: ProviderSchema,
-  claim: ClaimInfoSchema
+  generatedAt: z.string().describe('Generation timestamp')
+});
+
+/**
+ * Schema for generating insurance data independently
+ */
+export const InsuranceDataSchema = z.object({
+  insurance: InsuranceSchema,
+  generatedAt: z.string().describe('Generation timestamp')
+});
+
+// ============================================================================
+// Complete Document Schemas
+// ============================================================================
+// Note: BasicDataSchema has been removed. Use PatientDataSchema, ProviderDataSchema, 
+// and InsuranceDataSchema separately for more modular data generation.
+
+export const CMS1500DataSchema = z.object({
+  patient: PatientSchema,
+  insuranceInfo: InsuranceInfoSchema,
+  provider: ProviderSchema,
+  claimInfo: ClaimSchema
 });
 
 export const InsurancePolicyDataSchema = z.object({
-  patient: PatientDemographicsSchema,
-  insurance: InsuranceInfoSchema
+  patient: PatientSchema,
+  insurance: InsuranceSchema
 });
 
 export const VisitReportDataSchema = z.object({
-  patient: PatientDemographicsSchema,
-  provider: ProviderSchema,
   visit: VisitNoteSchema,
   vitalSigns: VitalSignsSchema
 });
@@ -296,8 +317,6 @@ export const MedicationsSchema = z.object({
 });
 
 export const MedicalHistoryDataSchema = z.object({
-  patient: PatientDemographicsSchema,
-  provider: ProviderSchema,
   medications: MedicationsSchema,
   allergies: z.array(AllergySchema).describe('Patient allergies'),
   chronicConditions: z.array(ChronicConditionSchema).describe('Chronic conditions'),
@@ -334,9 +353,7 @@ export const LabTestResultSchema = z.object({
   notes: z.string().nullable().describe('Additional notes')
 });
 
-export const LaboratoryReportDataSchema = z.object({
-  patient: PatientDemographicsSchema,
-  provider: ProviderSchema,
+export const LabReportSchema = z.object({
   testType: LabTestTypeEnum.describe('Type of lab test'),
   testName: z.string().describe('Full test name'),
   specimenType: z.string().describe('Specimen type (e.g., Blood, Urine)'),
@@ -361,6 +378,9 @@ export const LaboratoryReportDataSchema = z.object({
   pathologist: z.string().nullable().describe('Pathologist name')
 });
 
+export const LabReportsSchema = z.object({
+  reports: z.array(LabReportSchema).describe('Array of laboratory reports')
+});
 // ============================================================================
 // Generation Options and Presets
 // ============================================================================
@@ -384,28 +404,29 @@ export const DataPresetSchema = z.object({
 });
 
 
-// Wrap array in object for Azure OpenAI compatibility (API requires root to be object type)
-export const LaboratoryReportsCollectionSchema = z.object({
-  reports: z.array(LaboratoryReportDataSchema)
-});
-
 // ============================================================================
 // TypeScript Type Exports (inferred from Zod schemas)
 // ============================================================================
 
 export type Address = z.infer<typeof AddressSchema>;
 export type Contact = z.infer<typeof ContactSchema>;
-export type Insurance = z.infer<typeof InsuranceSchema>;
 export type Pharmacy = z.infer<typeof PharmacySchema>;
-export type PatientDemographics = z.infer<typeof PatientDemographicsSchema>;
+export type Patient = z.infer<typeof PatientSchema>;
+export type Insurance = z.infer<typeof InsuranceSchema>;
 export type InsuranceInfo = z.infer<typeof InsuranceInfoSchema>;
 export type Provider = z.infer<typeof ProviderSchema>;
 export type ServiceLine = z.infer<typeof ServiceLineSchema>;
-export type ClaimInfo = z.infer<typeof ClaimInfoSchema>;
+export type ClaimInfo = z.infer<typeof ClaimSchema>;
 export type VisitVitals = z.infer<typeof VisitVitalsSchema>;
 export type VitalSigns = z.infer<typeof VitalSignsSchema>;
 export type VisitNote = z.infer<typeof VisitNoteSchema>;
-export type BasicData = z.infer<typeof BasicDataSchema>;
+
+// Standalone generation types
+// export type PatientData = z.infer<typeof PatientDataSchema>;
+// export type ProviderData = z.infer<typeof ProviderDataSchema>;
+// export type InsuranceData = z.infer<typeof InsuranceDataSchema>;
+
+// Composite document types
 export type CMS1500Data = z.infer<typeof CMS1500DataSchema>;
 export type InsurancePolicyData = z.infer<typeof InsurancePolicyDataSchema>;
 export type VisitReportData = z.infer<typeof VisitReportDataSchema>;
@@ -426,9 +447,13 @@ export type MedicalHistoryData = z.infer<typeof MedicalHistoryDataSchema>;
 // Laboratory Types
 export type LabTestType = z.infer<typeof LabTestTypeEnum>;
 export type LabTestResult = z.infer<typeof LabTestResultSchema>;
-export type LaboratoryReportData = z.infer<typeof LaboratoryReportDataSchema>;
-export type LaboratoryReportsCollection = z.infer<typeof LaboratoryReportsCollectionSchema>;
+export type LabReportData = z.infer<typeof LabReportSchema>;
+export type LabReportsData = z.infer<typeof LabReportsSchema>;
 
 // Generation Options
 export type GenerationOptions = z.infer<typeof GenerationOptionsSchema>;
 export type DataPreset = z.infer<typeof DataPresetSchema>;
+
+// Define Zod schema for complexity
+export const ComplexitySchema = z.enum(['low', 'medium', 'high']);
+export type Complexity = z.infer<typeof ComplexitySchema>;

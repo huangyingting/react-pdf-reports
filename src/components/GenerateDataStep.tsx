@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { DATA_GENERATION_PRESETS, GenerationOptions, BasicData, MedicalHistoryData, VisitReportData, LaboratoryReportData, LabTestType } from '../utils/types';
-import { generateBasicData } from '../utils/baseDataGenerator';
+import { DATA_GENERATION_PRESETS, GenerationOptions, BasicData, MedicalHistoryData, VisitReportData, LaboratoryReportData, LabTestType } from '../utils/constants';
+import { generateBasicData } from '../utils/dataGenerator';
 import { 
   generateBasicDataWithAI, 
   generateMedicalHistoryDataWithAI, 

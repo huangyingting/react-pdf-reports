@@ -4,15 +4,28 @@
  */
 
 import { generateDataWithAI, AzureOpenAIConfig } from './azureOpenAI';
-import { BasicData, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData } from './types';
+import { 
+  CMS1500Data, 
+  InsurancePolicyData, 
+  VisitReportData, 
+  MedicalHistoryData,
+  PatientData,
+  ProviderData,
+  InsuranceData,
+  PatientDemographics,
+  Provider,
+  InsuranceInfo
+} from './constants';
 import { 
   ResponseFormats, 
   validateWithSchema, 
   formatZodErrors,
-  BasicDataSchema,
   CMS1500DataSchema,
   InsurancePolicyDataSchema,
-  VisitReportDataSchema
+  VisitReportDataSchema,
+  PatientDataSchema,
+  ProviderDataSchema,
+  InsuranceDataSchema
 } from './jsonSchemaGenerator';
 import {
   CacheConfig,
@@ -22,9 +35,249 @@ import {
   saveToCache,
 } from './cache';
 
+
+
+// ============================================================================
+// Standalone Data Generation Functions
+// ============================================================================
+
+/**
+ * Generate patient demographics data independently using Azure OpenAI
+ */
+export async function generatePatientDataWithAI(
+  config: AzureOpenAIConfig,
+  options: {
+    ageRange?: { min: number; max: number };
+    gender?: string;
+    includeSecondaryInsurance?: boolean;
+  } = {},
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
+): Promise<PatientDemographics> {
+  const { ageRange = { min: 18, max: 85 }, gender, includeSecondaryInsurance = false } = options;
+  
+  // Generate cache key based on parameters
+  const cacheKey = generateCacheKey('generatePatientDataWithAI', ageRange, gender, includeSecondaryInsurance);
+  
+  // Try to get from cache first
+  const cached = getFromCache<PatientData>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached.patient;
+  }
+
+  const prompt = `Generate complete patient demographics for a synthetic medical record.
+
+**Requirements:**
+- Complete demographics with realistic US address, contact info
+- Medical Record Number (MRN), Social Security Number (SSN format: XXX-XX-XXXX)
+- Account number
+- Age between ${ageRange.min}-${ageRange.max} years
+${gender ? `- Gender: ${gender}` : '- Gender: randomly selected'}
+- All dates in MM/DD/YYYY format
+- Pharmacy information with name, address, and phone
+- All data must be completely synthetic and HIPAA-compliant
+
+Generate realistic, clinically coherent data following US healthcare standards.`;
+
+  const systemPrompt = 'You are an expert medical data generator creating synthetic, realistic patient demographics for educational purposes. Generate completely fictional yet realistic data.';
+
+  try {
+    const data = await generateDataWithAI(
+      config,
+      prompt,
+      systemPrompt,
+      3,
+      ResponseFormats.PatientData
+    );
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(PatientDataSchema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      throw new Error(`AI generated invalid patient data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ Patient data validated successfully');
+    const validatedData = validation.data as PatientData;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData.patient;
+  } catch (error) {
+    console.error('Failed to generate patient data with AI:', error);
+    throw new Error(
+      `Patient data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Generate provider information independently using Azure OpenAI
+ */
+export async function generateProviderDataWithAI(
+  config: AzureOpenAIConfig,
+  options: {
+    specialty?: string;
+    facilityType?: string;
+  } = {},
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
+): Promise<Provider> {
+  const { specialty, facilityType = 'Medical Center' } = options;
+  
+  // Generate cache key based on parameters
+  const cacheKey = generateCacheKey('generateProviderDataWithAI', specialty, facilityType);
+  
+  // Try to get from cache first
+  const cached = getFromCache<ProviderData>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached.provider;
+  }
+
+  const prompt = `Generate complete provider and facility information for a medical practice.
+
+**Requirements:**
+- Provider: Full name with credentials (Dr. First Last, MD)
+- National Provider Identifier (NPI): 10 digits
+- Medical specialty${specialty ? `: ${specialty}` : ' (choose appropriate specialty)'}
+- Provider phone, address (US format)
+- Tax ID (EIN or SSN format) with type
+- Provider signature (provider's name)
+- Facility information:
+  - Facility name (${facilityType})
+  - Facility address (US format)
+  - Facility phone and fax numbers
+  - Facility NPI (10 digits)
+- Billing provider information
+- All data must be completely synthetic
+
+Generate realistic, professional provider and facility data.`;
+
+  const systemPrompt = 'You are an expert medical data generator creating synthetic provider and facility information for educational purposes. Generate completely fictional yet realistic data.';
+
+  try {
+    const data = await generateDataWithAI(
+      config,
+      prompt,
+      systemPrompt,
+      3,
+      ResponseFormats.ProviderData
+    );
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(ProviderDataSchema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      throw new Error(`AI generated invalid provider data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ Provider data validated successfully');
+    const validatedData = validation.data as ProviderData;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData.provider;
+  } catch (error) {
+    console.error('Failed to generate provider data with AI:', error);
+    throw new Error(
+      `Provider data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Generate insurance information independently using Azure OpenAI
+ */
+export async function generateInsuranceDataWithAI(
+  config: AzureOpenAIConfig,
+  options: {
+    includeSecondary?: boolean;
+    subscriberSameAsPatient?: boolean;
+  } = {},
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
+): Promise<InsuranceInfo> {
+  const { includeSecondary = false, subscriberSameAsPatient = true } = options;
+  
+  // Generate cache key based on parameters
+  const cacheKey = generateCacheKey('generateInsuranceDataWithAI', includeSecondary, subscriberSameAsPatient);
+  
+  // Try to get from cache first
+  const cached = getFromCache<InsuranceData>(cacheConfig, cacheKey);
+  if (cached) {
+    return cached.insurance;
+  }
+
+  const prompt = `Generate complete insurance information for a medical record.
+
+**Requirements:**
+- Primary insurance (required):
+  - Provider name (major US insurer)
+  - Policy number
+  - Group number
+  - Member ID
+  - Effective date (current year)
+  - Copay and deductible amounts
+${includeSecondary ? '- Secondary insurance with similar details' : '- No secondary insurance (set to null)'}
+- Subscriber information:
+  - Name${subscriberSameAsPatient ? ' (same as patient)' : ''}
+  - Date of birth
+  - Gender
+  - Phone number
+  - Address (US format)
+- Insurance type (e.g., HMO, PPO, Medicare)
+- All data must be completely synthetic
+
+Generate realistic insurance information following US healthcare standards.`;
+
+  const systemPrompt = 'You are an expert medical data generator creating synthetic insurance information for educational purposes. Generate completely fictional yet realistic data.';
+
+  try {
+    const data = await generateDataWithAI(
+      config,
+      prompt,
+      systemPrompt,
+      3,
+      ResponseFormats.InsuranceData
+    );
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(InsuranceDataSchema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      throw new Error(`AI generated invalid insurance data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ Insurance data validated successfully');
+    const validatedData = validation.data as InsuranceData;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData.insurance;
+  } catch (error) {
+    console.error('Failed to generate insurance data with AI:', error);
+    throw new Error(
+      `Insurance data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+// ============================================================================
+// Legacy Combined Generation Function
+// ============================================================================
+
 /**
  * Generate a complete medical record using Azure OpenAI
  * The structure is enforced by the Zod schema via structured outputs
+ * 
+ * @deprecated Use generatePatientDataWithAI(), generateProviderDataWithAI(), 
+ * and generateInsuranceDataWithAI() separately instead. This provides more flexibility 
+ * and allows you to mix and match patient, provider, and insurance data independently.
+ * 
+ * This function is kept for backward compatibility only and will be removed in a future version.
  * 
  * Note: numberOfVisits and numberOfLabTests are not part of BasicData schema.
  * They are used by the calling code to generate additional reports.
@@ -75,7 +328,7 @@ Generate completely fictional yet realistic data following US healthcare standar
       prompt, 
       systemPrompt,
       3,
-      ResponseFormats.BasicData
+      BasicDataResponseFormat
     );
     
     // Validate with Zod schema

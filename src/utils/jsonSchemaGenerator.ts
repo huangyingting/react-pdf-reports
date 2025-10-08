@@ -13,14 +13,16 @@
 
 import { z } from 'zod';
 import {
-  PatientDemographicsSchema,
-  BasicDataSchema,
+  PatientSchema,
+  PatientDataSchema,
+  ProviderDataSchema,
+  InsuranceDataSchema,
   CMS1500DataSchema,
   InsurancePolicyDataSchema,
   VisitReportDataSchema,
   MedicalHistoryDataSchema,
-  LaboratoryReportDataSchema,
-  LaboratoryReportsCollectionSchema
+  LabReportSchema,
+  LabReportsSchema
 } from './zodSchemas';
 
 /**
@@ -79,12 +81,30 @@ export function createResponseFormat(schemaName: string, schema: any) {
  */
 export const ResponseFormats = {
   /**
-   * Complete medical record with patient, insurance and provider
+   * Standalone patient data generation
    */
-  BasicData: zodToOpenAISchema(
-    BasicDataSchema,
-    'BasicDataResponse',
-    { description: 'Basic data', strict: true }
+  PatientData: zodToOpenAISchema(
+    PatientDataSchema,
+    'PatientDataResponse',
+    { description: 'Patient demographics data', strict: true }
+  ),
+
+  /**
+   * Standalone provider data generation
+   */
+  ProviderData: zodToOpenAISchema(
+    ProviderDataSchema,
+    'ProviderDataResponse',
+    { description: 'Provider information', strict: true }
+  ),
+
+  /**
+   * Standalone insurance data generation
+   */
+  InsuranceData: zodToOpenAISchema(
+    InsuranceDataSchema,
+    'InsuranceDataResponse',
+    { description: 'Insurance information', strict: true }
   ),
 
   /**
@@ -118,7 +138,7 @@ export const ResponseFormats = {
    * Patient demographics only
    */
   PatientDemographics: zodToOpenAISchema(
-    PatientDemographicsSchema,
+    PatientSchema,
     'PatientDemographicsResponse',
     { description: 'Patient demographics', strict: true }
   ),
@@ -135,8 +155,8 @@ export const ResponseFormats = {
   /**
    * Laboratory report with test results
    */
-  LaboratoryReportData: zodToOpenAISchema(
-    LaboratoryReportDataSchema,
+  LabReportData: zodToOpenAISchema(
+    LabReportSchema,
     'LaboratoryReportDataResponse',
     { description: 'Laboratory test report', strict: true }
   ),
@@ -144,8 +164,8 @@ export const ResponseFormats = {
   /**
    * Multiple laboratory reports wrapped in object (Azure OpenAI requires object root)
    */
-  LaboratoryReportsData: zodToOpenAISchema(
-    LaboratoryReportsCollectionSchema,
+  LabReportsData: zodToOpenAISchema(
+    LabReportsSchema,
     'LaboratoryReportsDataResponse',
     { description: 'Multiple laboratory test reports', strict: true }
   )
@@ -204,14 +224,16 @@ export function formatZodErrors(error: z.ZodError): string[] {
  * 3. Convert to JSON Schema on demand
  */
 export {
-  PatientDemographicsSchema,
-  BasicDataSchema,
+  PatientSchema as PatientDemographicsSchema,
+  PatientDataSchema,
+  ProviderDataSchema,
+  InsuranceDataSchema,
   CMS1500DataSchema,
   InsurancePolicyDataSchema,
   VisitReportDataSchema,
   MedicalHistoryDataSchema,
-  LaboratoryReportDataSchema,
-  LaboratoryReportsCollectionSchema,
+  LabReportSchema,
+  LabReportsSchema,
   // Also export individual component schemas for custom usage
   AllergySchema,
   ChronicConditionSchema,

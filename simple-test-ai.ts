@@ -9,7 +9,9 @@
 
 import 'dotenv/config';
 import { 
-  generateBasicDataWithAI,
+  generatePatientDataWithAI,
+  generateProviderDataWithAI,
+  generateInsuranceDataWithAI,
   generateCMS1500DataWithAI,
   generateInsurancePolicyDataWithAI,
   generateVisitReportDataWithAI,
@@ -17,12 +19,120 @@ import {
   generateLaboratoryReportDataWithAI
 } from './src/utils/aiDataGenerator';
 import { AzureOpenAIConfig } from './src/utils/azureOpenAI';
-import { BasicData } from './src/utils/types';
+import { PatientData, ProviderData, InsuranceData } from './src/utils/types';
 
 /**
- * Test Basic Data Generation
+ * Test Modular Data Generation (New Approach)
+ * 
+ * Generates patient, provider, and insurance data separately.
+ * This demonstrates the new modular approach for more flexibility.
  */
-async function testBasicDataGeneration(config: AzureOpenAIConfig): Promise<BasicData> {
+async function testModularDataGeneration(config: AzureOpenAIConfig): Promise<{
+  patientData: PatientData;
+  providerData: ProviderData;
+  insuranceData: InsuranceData;
+}> {
+  console.log('\n' + '='.repeat(70));
+  console.log('🔄 Generating Medical Data (Modular Approach)...\n');
+
+  // Generate patient data
+  console.log('👤 Generating patient data...');
+  const patientStartTime = Date.now();
+  const patientData = await generatePatientDataWithAI(config, {
+    ageRange: { min: 25, max: 65 },
+    gender: 'any'
+  });
+  const patientDuration = Date.now() - patientStartTime;
+  console.log(`✅ Patient data generated in ${patientDuration}ms`);
+
+  // Generate provider data
+  console.log('\n👨‍⚕️ Generating provider data...');
+  const providerStartTime = Date.now();
+  const providerData = await generateProviderDataWithAI(config, {
+    specialty: 'any'
+  });
+  const providerDuration = Date.now() - providerStartTime;
+  console.log(`✅ Provider data generated in ${providerDuration}ms`);
+
+  // Generate insurance data
+  console.log('\n🏥 Generating insurance data...');
+  const insuranceStartTime = Date.now();
+  const insuranceData = await generateInsuranceDataWithAI(config, {
+    includeSecondary: false
+  });
+  const insuranceDuration = Date.now() - insuranceStartTime;
+  console.log(`✅ Insurance data generated in ${insuranceDuration}ms`);
+
+  const totalDuration = patientDuration + providerDuration + insuranceDuration;
+  console.log(`\n✅ Total generation time: ${totalDuration}ms\n`);
+  console.log('='.repeat(70));
+  console.log('\n📄 Generated Medical Record (Modular):\n');
+  
+  // Patient Information
+  console.log('👤 PATIENT:');
+  console.log(`  Name: ${patientData.patient.name}`);
+  console.log(`  Age: ${patientData.patient.age} years`);
+  console.log(`  Gender: ${patientData.patient.gender}`);
+  console.log(`  DOB: ${patientData.patient.dateOfBirth}`);
+  console.log(`  MRN: ${patientData.patient.medicalRecordNumber}`);
+  console.log(`  SSN: ${patientData.patient.ssn}`);
+  console.log(`  Address: ${patientData.patient.address.street}, ${patientData.patient.address.city}, ${patientData.patient.address.state} ${patientData.patient.address.zipCode}`);
+  console.log(`  Phone: ${patientData.patient.contact.phone}`);
+  console.log(`  Email: ${patientData.patient.contact.email}`);
+  
+  // Insurance Information
+  console.log('\n🏥 PRIMARY INSURANCE:');
+  console.log(`  Provider: ${insuranceData.insurance.primaryInsurance.provider}`);
+  console.log(`  Policy Number: ${insuranceData.insurance.primaryInsurance.policyNumber}`);
+  console.log(`  Group Number: ${insuranceData.insurance.primaryInsurance.groupNumber || 'N/A'}`);
+  console.log(`  Member ID: ${insuranceData.insurance.primaryInsurance.memberId || 'N/A'}`);
+  console.log(`  Effective Date: ${insuranceData.insurance.primaryInsurance.effectiveDate}`);
+  console.log(`  Copay: ${insuranceData.insurance.primaryInsurance.copay || 'N/A'}`);
+  console.log(`  Deductible: ${insuranceData.insurance.primaryInsurance.deductible || 'N/A'}`);
+  
+  if (insuranceData.insurance.secondaryInsured) {
+    console.log('\n🏥 SECONDARY INSURANCE:');
+    console.log(`  Insured: ${insuranceData.insurance.secondaryInsured.name}`);
+    console.log(`  Policy: ${insuranceData.insurance.secondaryInsured.policyNumber}`);
+    console.log(`  Plan: ${insuranceData.insurance.secondaryInsured.planName}`);
+  }
+  
+  // Provider Information
+  console.log('\n👨‍⚕️ PROVIDER:');
+  console.log(`  Name: ${providerData.provider.name}`);
+  console.log(`  NPI: ${providerData.provider.npi}`);
+  console.log(`  Specialty: ${providerData.provider.specialty}`);
+  console.log(`  Facility: ${providerData.provider.facilityName}`);
+  console.log(`  Facility NPI: ${providerData.provider.facilityNPI}`);
+  console.log(`  Address: ${providerData.provider.address.street}, ${providerData.provider.address.city}, ${providerData.provider.address.state} ${providerData.provider.address.zipCode}`);
+  console.log(`  Phone: ${providerData.provider.phone}`);
+  
+  // Metadata
+  console.log('\n📊 METADATA:');
+  console.log(`  Patient Generated At: ${patientData.generatedAt}`);
+  console.log(`  Provider Generated At: ${providerData.generatedAt}`);
+  console.log(`  Insurance Generated At: ${insuranceData.generatedAt}`);
+  
+  // Full JSON Output
+  console.log('\n' + '='.repeat(70));
+  console.log('\n📝 Full JSON Outputs:\n');
+  console.log('Patient Data:');
+  console.log(JSON.stringify(patientData, null, 2));
+  console.log('\nProvider Data:');
+  console.log(JSON.stringify(providerData, null, 2));
+  console.log('\nInsurance Data:');
+  console.log(JSON.stringify(insuranceData, null, 2));
+  
+  return { patientData, providerData, insuranceData };
+}
+
+/**
+ * Test Basic Data Generation (Legacy - Deprecated)
+ * 
+ * @deprecated This function uses the deprecated generateBasicDataWithAI.
+ * Use testModularDataGeneration instead for the new modular approach.
+ */
+async function testBasicDataGeneration_Legacy(config: AzureOpenAIConfig): Promise<{
   console.log('\n' + '='.repeat(70));
   console.log('🔄 Generating Basic Medical Data (Low Complexity)...\n');
 

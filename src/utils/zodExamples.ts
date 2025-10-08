@@ -9,7 +9,7 @@
 
 import { generateDataWithAI, AzureOpenAIConfig } from './azureOpenAI';
 import { 
-  PatientDemographics, 
+  Patient, 
   BasicData
 } from './zodSchemas';
 import {
@@ -31,7 +31,7 @@ import { z } from 'zod';
  */
 export async function generateValidatedPatient(
   config: AzureOpenAIConfig
-): Promise<PatientDemographics> {
+): Promise<Patient> {
   const prompt = `Generate realistic patient demographics with:
 - Name, date of birth (age 25-75), contact information
 - Complete US address

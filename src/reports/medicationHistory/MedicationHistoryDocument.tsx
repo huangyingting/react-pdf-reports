@@ -1,6 +1,6 @@
 import React from 'react';
 import './MedicationHistoryDocument.css';
-import { MedicalHistoryData } from '../../utils/types';
+import { MedicalHistoryData } from '../../utils/constants';
 
 interface MedicationHistoryDocumentProps {
   data: MedicalHistoryData;

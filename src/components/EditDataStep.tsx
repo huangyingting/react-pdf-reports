@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { BasicData, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
-import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
+import { BasicData, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/constants';
+import { generateSecondaryInsuranceAndInsured } from '../utils/dataGenerator';
 
 interface EditDataStepProps {
   medicalData: BasicData | null;
@@ -707,7 +707,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           <label>Group Number</label>
           <input
             type="text"
-            value={data.primaryInsurance.groupNumber}
+            value={data.primaryInsurance.groupNumber ?? ''}
             onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
             className="form-input"
           />
@@ -717,7 +717,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           <label>Member ID</label>
           <input
             type="text"
-            value={data.primaryInsurance.memberId}
+            value={data.primaryInsurance.memberId ?? ''}
             onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
             className="form-input"
           />

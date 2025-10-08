@@ -1,6 +1,6 @@
 import React from 'react';
 import './VisitReportDocument.css';
-import { VisitReportData } from '../../utils/types';
+import { VisitReportData } from '../../utils/constants';
 
 interface VisitReportDocumentProps {
   data: VisitReportData;

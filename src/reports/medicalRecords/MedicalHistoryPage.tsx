@@ -1,5 +1,5 @@
 import React from 'react';
-import { MedicalHistoryData } from '../../utils/types';
+import { MedicalHistoryData } from '../../utils/constants';
 
 interface MedicalHistoryPageProps {
   data: MedicalHistoryData;

@@ -1,6 +1,6 @@
 import React from 'react';
 import './CMS1500Form.css';
-import { CMS1500Data } from '../../utils/types';
+import { CMS1500Data } from '../../utils/constants';
 
 interface CMS1500FormProps {
   data: CMS1500Data;

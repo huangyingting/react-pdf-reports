@@ -1,6 +1,6 @@
 import React from 'react';
 import './InsurancePolicyDocument.css';
-import { InsurancePolicyData } from '../../utils/types';
+import { InsurancePolicyData } from '../../utils/constants';
 
 interface InsurancePolicyDocumentProps {
   data: InsurancePolicyData;

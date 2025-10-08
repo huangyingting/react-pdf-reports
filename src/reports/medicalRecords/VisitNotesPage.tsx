@@ -1,5 +1,5 @@
 import React from 'react';
-import { BasicData, VisitReportData, MedicalHistoryData } from '../../utils/types';
+import { BasicData, VisitReportData, MedicalHistoryData } from '../../utils/constants';
 
 interface VisitNotesPageProps {
   data: BasicData;

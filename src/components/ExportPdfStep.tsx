@@ -2,7 +2,7 @@ import React from 'react';
 import DocumentCard from './DocumentCard';
 import CustomSelect from './CustomSelect';
 import './ExportPdfStep.css';
-import { BasicData, LabTestType } from '../utils/types';
+import { BasicData, LabTestType } from '../utils/constants';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';

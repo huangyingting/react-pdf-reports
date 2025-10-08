@@ -1,5 +1,5 @@
 import React from 'react';
-import { BasicData, LaboratoryReportData, VisitReportData, MedicalHistoryData } from '../../utils/types';
+import { BasicData, LaboratoryReportData, VisitReportData, MedicalHistoryData } from '../../utils/constants';
 import PatientDemographicsPage from './PatientDemographicsPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
