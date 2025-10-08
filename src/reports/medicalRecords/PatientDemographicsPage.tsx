@@ -1,26 +1,27 @@
 import React from 'react';
-import { MedicalRecord, LaboratoryReportData } from '../../utils/types';
+import { MedicalRecord, LaboratoryReportData, MedicalHistoryData } from '../../utils/types';
 
 interface PatientDemographicsPageProps {
   data: MedicalRecord;
   laboratoryReportData?: LaboratoryReportData;
+  medicationHistoryData?: MedicalHistoryData;
 }
 
-const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData }) => {
-  const { patient, provider, medicalHistory, medications } = data;
+const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data, laboratoryReportData, medicationHistoryData }) => {
+  const { patient, provider } = data;
   const currentDate = new Date().toLocaleDateString();
   
-  // Extract dynamic data
-  const allergiesText = medicalHistory?.allergies?.length > 0
-    ? medicalHistory.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
+  // Extract dynamic data from medicationHistoryData
+  const allergiesText = medicationHistoryData?.allergies && medicationHistoryData.allergies.length > 0
+    ? medicationHistoryData.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
     : 'No known allergies';
   
-  const chronicConditionsText = medicalHistory?.chronicConditions?.length > 0
-    ? medicalHistory.chronicConditions.map(c => c.condition).join(', ')
+  const chronicConditionsText = medicationHistoryData?.chronicConditions && medicationHistoryData.chronicConditions.length > 0
+    ? medicationHistoryData.chronicConditions.map(c => c.condition).join(', ')
     : 'None documented';
   
-  const currentMedicationsText = medications?.current?.length > 0
-    ? medications.current.slice(0, 3).map(m => m.name).join(', ') + (medications.current.length > 3 ? `, +${medications.current.length - 3} more` : '')
+  const currentMedicationsText = medicationHistoryData?.medications?.current && medicationHistoryData.medications.current.length > 0
+    ? medicationHistoryData.medications.current.slice(0, 3).map(m => m.name).join(', ') + (medicationHistoryData.medications.current.length > 3 ? `, +${medicationHistoryData.medications.current.length - 3} more` : '')
     : 'No current medications';
   
   // Try to find blood type from laboratory report data

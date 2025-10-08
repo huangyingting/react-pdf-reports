@@ -1,9 +1,9 @@
 import React from 'react';
 import './MedicationHistoryDocument.css';
-import { MedicationHistoryData } from '../../utils/types';
+import { MedicalHistoryData } from '../../utils/types';
 
 interface MedicationHistoryDocumentProps {
-  data: MedicationHistoryData;
+  data: MedicalHistoryData;
   fontFamily?: string;
 }
 

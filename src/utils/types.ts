@@ -405,8 +405,6 @@ export interface MedicalRecord {
   patient: PatientDemographics;
   insurance: InsuranceInfo;
   provider: Provider;
-  medicalHistory: MedicalHistory;
-  medications: Medications;
   generatedAt: string;
   metadata: {
     complexity: string;
@@ -435,11 +433,14 @@ export interface VisitReportData {
   vitalSigns: VitalSigns;
 }
 
-export interface MedicationHistoryData {
+export interface MedicalHistoryData {
   patient: PatientDemographics;
   provider: Provider;
   medications: Medications;
   allergies: Allergy[];
+  chronicConditions: ChronicCondition[];
+  surgicalHistory: SurgicalHistory[];
+  familyHistory: FamilyHistory[];
 }
 
 // Laboratory Report Types

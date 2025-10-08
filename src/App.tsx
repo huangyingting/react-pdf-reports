@@ -15,9 +15,9 @@ import LaboratoryReportDocument from './reports/laboratoryReport/LaboratoryRepor
 import { generateCMS1500Data } from './utils/cms1500Generator';
 import { generateInsurancePolicyData } from './utils/insurancePolicyGenerator';
 import { generateVisitReportData } from './utils/visitReportGenerator';
-import { generateMedicationHistoryData } from './utils/medicationHistoryGenerator';
+import { generateMedicalHistoryData } from './utils/medicationHistoryGenerator';
 import { generateLaboratoryReportData } from './utils/laboratoryReportGenerator';
-import { MedicalRecord, CMS1500Data, InsurancePolicyData, VisitReportData, MedicationHistoryData, LaboratoryReportData, LabTestType } from './utils/types';
+import { MedicalRecord, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData, LaboratoryReportData, LabTestType } from './utils/types';
 
 // Import utilities
 import { 
@@ -42,7 +42,7 @@ function App() {
   const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
   const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
   const [visitReportsData, setVisitReportsData] = useState<VisitReportData[]>([]);
-  const [medicationHistoryData, setMedicationHistoryData] = useState<MedicationHistoryData | null>(null);
+  const [medicalHistoryData, setMedicalHistoryData] = useState<MedicalHistoryData | null>(null);
   const [laboratoryReports, setLaboratoryReports] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
   const [activeReportType, setActiveReportType] = useState<ReportType>('medical');
   
@@ -86,7 +86,9 @@ function App() {
     const numberOfVisits = data.metadata?.numberOfVisits || 1;
     setVisitReportsData(generateVisitReportData(data, numberOfVisits));
     
-    setMedicationHistoryData(generateMedicationHistoryData(data));
+    // Generate medical history with complexity parameter
+    const complexity = (data.metadata?.complexity || 'medium') as 'low' | 'medium' | 'high';
+    setMedicalHistoryData(generateMedicalHistoryData(data, complexity));
     
     // Generate all laboratory reports
     const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
@@ -110,7 +112,9 @@ function App() {
       setVisitReportsData(generateVisitReportData(newData, numberOfVisits));
     }
     
-    setMedicationHistoryData(generateMedicationHistoryData(newData));
+    // Generate medical history with complexity parameter
+    const complexity = (newData.metadata?.complexity || 'medium') as 'low' | 'medium' | 'high';
+    setMedicalHistoryData(generateMedicalHistoryData(newData, complexity));
     
     // Update laboratory reports - use provided map if available, otherwise regenerate
     if (labReportsMap && labReportsMap.size > 0) {
@@ -222,9 +226,9 @@ function App() {
     }
     
     if (activeReportType === 'medicationHistory') {
-      return medicationHistoryData ? (
+      return medicalHistoryData ? (
         <MedicationHistoryDocument 
-          data={medicationHistoryData}
+          data={medicalHistoryData}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
@@ -247,7 +251,7 @@ function App() {
         data={medicalData} 
         laboratoryReportData={Array.from(laboratoryReports.values())}
         visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
-        medicationHistoryData={medicationHistoryData || undefined}
+        medicationHistoryData={medicalHistoryData || undefined}
         fontFamily={fontFamilyStyle}
       />
     );
@@ -268,6 +272,7 @@ function App() {
             medicalData={medicalData}
             laboratoryReportsMap={laboratoryReports}
             visitReportsData={visitReportsData}
+            medicationHistoryData={medicalHistoryData}
             onDataUpdated={handleDataUpdated}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
@@ -375,7 +380,7 @@ function App() {
               data={medicalData}
               laboratoryReportData={Array.from(laboratoryReports.values())}
               visitReportData={visitReportsData.length > 0 ? visitReportsData[0] : undefined}
-              medicationHistoryData={medicationHistoryData || undefined}
+              medicationHistoryData={medicalHistoryData || undefined}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}
@@ -398,9 +403,9 @@ function App() {
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           ))}
-          {medicationHistoryData && (
+          {medicalHistoryData && (
             <MedicationHistoryDocument 
-              data={medicationHistoryData}
+              data={medicalHistoryData}
               fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
             />
           )}

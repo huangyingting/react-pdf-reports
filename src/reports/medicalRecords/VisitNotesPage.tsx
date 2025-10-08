@@ -1,12 +1,13 @@
 import React from 'react';
-import { MedicalRecord, VisitReportData } from '../../utils/types';
+import { MedicalRecord, VisitReportData, MedicalHistoryData } from '../../utils/types';
 
 interface VisitNotesPageProps {
   data: MedicalRecord;
   visitReportData?: VisitReportData;
+  medicationHistoryData?: MedicalHistoryData;
 }
 
-const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData }) => {
+const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData, medicationHistoryData }) => {
   const { patient } = data;
   const currentDate = new Date().toLocaleDateString();
   
@@ -68,8 +69,8 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData }
 
   const renderTreatmentSummary = () => {
     const visit = visitReportData?.visit;
-    const currentMeds = data.medications?.current || [];
-    const chronicConditions = data.medicalHistory?.chronicConditions || [];
+    const currentMeds = medicationHistoryData?.medications?.current || [];
+    const chronicConditions = medicationHistoryData?.chronicConditions || [];
 
     return (
       <div className="compact-section">
@@ -132,7 +133,7 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data, visitReportData }
   const renderProviderNotes = () => {
     const visit = visitReportData?.visit;
     const provider = visitReportData?.provider;
-    const allergies = data.medicalHistory?.allergies || [];
+    const allergies = medicationHistoryData?.allergies || [];
 
     return (
       <div className="compact-section">

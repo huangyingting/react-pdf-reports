@@ -380,20 +380,11 @@ export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): 
   
   // Generate provider information
   const provider = generateProviderInfo();
-  
-  // Generate medical history
-  const medicalHistory = generateMedicalHistory(complexity);
-  
-  // Generate medications correlated with chronic conditions
-  const medications = generateMedications(complexity, medicalHistory.chronicConditions);
-  
 
   return {
     patient,
     insurance,
     provider,
-    medicalHistory,
-    medications,
     generatedAt: new Date().toISOString(),
     metadata: {
       complexity,

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
 import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;
   laboratoryReportsMap?: Map<LabTestType, LaboratoryReportData>;
   visitReportsData?: VisitReportData[];
+  medicationHistoryData?: MedicalHistoryData | null;
   onDataUpdated: (data: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => void;
   onNext: () => void;
   onBack: () => void;
@@ -55,10 +56,11 @@ interface VisitNotesSectionProps {
   onChange: (updatedData: VisitReportData) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, onDataUpdated, onNext, onBack }) => {
+const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, medicationHistoryData, onDataUpdated, onNext, onBack }) => {
   const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
   const [editedLabReportsMap, setEditedLabReportsMap] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
   const [editedVisitReportsData, setEditedVisitReportsData] = useState<VisitReportData[]>([]);
+  const [editedMedicalHistoryData, setEditedMedicalHistoryData] = useState<MedicalHistoryData | null>(null);
   const [activeSection, setActiveSection] = useState<string>('patient');
   const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set());
   const [expandedVisitReports, setExpandedVisitReports] = useState<Set<number>>(new Set());
@@ -78,7 +80,10 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
     if (visitReportsData && visitReportsData.length > 0) {
       setEditedVisitReportsData(JSON.parse(JSON.stringify(visitReportsData)));
     }
-  }, [medicalData, laboratoryReportsMap, visitReportsData]);
+    if (medicationHistoryData) {
+      setEditedMedicalHistoryData(JSON.parse(JSON.stringify(medicationHistoryData))); // Deep clone
+    }
+  }, [medicalData, laboratoryReportsMap, visitReportsData, medicationHistoryData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -227,18 +232,30 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryRepo
               />
             )}
             
-            {activeSection === 'medical' && (
+            {activeSection === 'medical' && editedMedicalHistoryData && (
               <MedicalHistorySection 
-                data={editedData.medicalHistory} 
-                allergies={editedData.medicalHistory.allergies}
-                medications={editedData.medications}
+                data={{
+                  chronicConditions: editedMedicalHistoryData.chronicConditions,
+                  surgicalHistory: editedMedicalHistoryData.surgicalHistory,
+                  familyHistory: editedMedicalHistoryData.familyHistory,
+                  allergies: editedMedicalHistoryData.allergies
+                }} 
+                allergies={editedMedicalHistoryData.allergies}
+                medications={editedMedicalHistoryData.medications}
                 onChange={(field, value) => {
-                  // Handle medications separately since they're at root level
-                  if (field.startsWith('medications.')) {
-                    updateData('medications', field.replace('medications.', ''), value);
-                  } else {
-                    updateData('medicalHistory', field, value);
-                  }
+                  setEditedMedicalHistoryData(prev => {
+                    if (!prev) return prev;
+                    const updated = JSON.parse(JSON.stringify(prev));
+                    const keys = field.split('.');
+                    let current: any = updated;
+                    
+                    for (let i = 0; i < keys.length - 1; i++) {
+                      current = current[keys[i]];
+                    }
+                    current[keys[keys.length - 1]] = value;
+                    setHasChanges(true);
+                    return updated;
+                  });
                 }}
               />
             )}

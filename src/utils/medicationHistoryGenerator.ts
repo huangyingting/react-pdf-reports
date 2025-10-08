@@ -2,20 +2,17 @@ import { faker } from '@faker-js/faker';
 import { 
   PatientDemographics, 
   Provider,
-  Medications,
-  CurrentMedication,
-  DiscontinuedMedication,
-  Allergy,
   MedicalRecord,
-  MedicationHistoryData,
+  MedicalHistoryData,
   MEDICAL_SPECIALTIES,
   FACILITY_NAMES,
   INSURANCE_COMPANIES,
   COPAY_AMOUNTS,
   DEDUCTIBLE_AMOUNTS
 } from './types';
+import { generateMedicalHistory, generateMedications } from './medicalRecordsGenerator';
 
-export const generateMedicationHistoryData = (patientData?: MedicalRecord): MedicationHistoryData => {
+export const generateMedicalHistoryData = (patientData?: MedicalRecord, complexity: 'low' | 'medium' | 'high' = 'medium'): MedicalHistoryData => {
   // Generate fallback values using Faker.js
   const fallbackFirstName = faker.person.firstName();
   const fallbackLastName = faker.person.lastName();
@@ -102,137 +99,17 @@ export const generateMedicationHistoryData = (patientData?: MedicalRecord): Medi
     facilityFax: faker.phone.number()
   };
 
-  // Generate medications
-  const medicationTemplates = [
-    { name: 'Lisinopril', strengths: ['5mg', '10mg', '20mg', '40mg'], purpose: 'Hypertension', type: 'tablet' },
-    { name: 'Metformin', strengths: ['500mg', '850mg', '1000mg'], purpose: 'Type 2 Diabetes', type: 'tablet' },
-    { name: 'Atorvastatin', strengths: ['10mg', '20mg', '40mg', '80mg'], purpose: 'Hyperlipidemia', type: 'tablet' },
-    { name: 'Levothyroxine', strengths: ['25mcg', '50mcg', '75mcg', '100mcg'], purpose: 'Hypothyroidism', type: 'tablet' },
-    { name: 'Amlodipine', strengths: ['2.5mg', '5mg', '10mg'], purpose: 'Hypertension', type: 'tablet' },
-    { name: 'Omeprazole', strengths: ['20mg', '40mg'], purpose: 'GERD/Acid Reflux', type: 'capsule' },
-    { name: 'Metoprolol', strengths: ['25mg', '50mg', '100mg'], purpose: 'Hypertension/Heart Disease', type: 'tablet' },
-    { name: 'Gabapentin', strengths: ['100mg', '300mg', '400mg'], purpose: 'Neuropathic Pain', type: 'capsule' },
-    { name: 'Sertraline', strengths: ['25mg', '50mg', '100mg'], purpose: 'Depression/Anxiety', type: 'tablet' },
-    { name: 'Albuterol', strengths: ['90mcg'], purpose: 'Asthma/COPD', type: 'inhaler' },
-    { name: 'Aspirin', strengths: ['81mg'], purpose: 'Cardiovascular Prevention', type: 'tablet' },
-    { name: 'Losartan', strengths: ['25mg', '50mg', '100mg'], purpose: 'Hypertension', type: 'tablet' },
-    { name: 'Furosemide', strengths: ['20mg', '40mg', '80mg'], purpose: 'Edema/Heart Failure', type: 'tablet' },
-    { name: 'Warfarin', strengths: ['1mg', '2mg', '5mg'], purpose: 'Anticoagulation', type: 'tablet' },
-    { name: 'Insulin Glargine', strengths: ['100 units/mL'], purpose: 'Diabetes', type: 'injection' }
-  ];
-
-  const generateCurrentMedications = (): CurrentMedication[] => {
-    if (patientData?.medications?.current && patientData.medications.current.length > 0) {
-      return patientData.medications.current;
-    }
-    
-    const numMedications = faker.number.int({ min: 3, max: 8 });
-    const selectedMeds = faker.helpers.arrayElements(medicationTemplates, numMedications);
-    
-    return selectedMeds.map(med => {
-      const strength = faker.helpers.arrayElement(med.strengths);
-      let dosage = '';
-      
-      if (med.type === 'inhaler') {
-        dosage = 'Two puffs every 4-6 hours as needed';
-      } else if (med.type === 'injection') {
-        dosage = `${faker.number.int({ min: 10, max: 40 })} units subcutaneously once daily at bedtime`;
-      } else {
-        const frequency = faker.helpers.arrayElement(['once daily', 'twice daily', 'three times daily', 'every 12 hours']);
-        const timing = faker.helpers.arrayElement(['with food', 'on empty stomach', 'at bedtime', 'in the morning', 'as needed']);
-        dosage = `Take one ${med.type} ${frequency} ${timing}`;
-      }
-      
-      return {
-        name: med.name,
-        strength: strength,
-        dosage: dosage,
-        purpose: med.purpose,
-        prescribedBy: providerName,
-        startDate: faker.date.past({ years: 2 }).toLocaleDateString('en-US'),
-        instructions: dosage
-      };
-    });
-  };
-
-  const generateDiscontinuedMedications = (): DiscontinuedMedication[] => {
-    if (patientData?.medications?.discontinued && patientData.medications.discontinued.length > 0) {
-      return patientData.medications.discontinued;
-    }
-    
-    const numDiscontinued = faker.number.int({ min: 1, max: 4 });
-    const selectedMeds = faker.helpers.arrayElements(medicationTemplates, numDiscontinued);
-    
-    const discontinueReasons = [
-      'Switched to alternative medication',
-      'Side effects (nausea, dizziness)',
-      'Ineffective for condition',
-      'Allergic reaction',
-      'No longer needed',
-      'Drug interaction concern',
-      'Patient request',
-      'Condition resolved',
-      'Cost concerns'
-    ];
-    
-    return selectedMeds.map(med => ({
-      name: med.name,
-      strength: faker.helpers.arrayElement(med.strengths),
-      reason: faker.helpers.arrayElement(discontinueReasons),
-      discontinuedDate: faker.date.past({ years: 1 }).toLocaleDateString('en-US'),
-      prescribedBy: providerName
-    }));
-  };
-
-  const medications: Medications = {
-    current: generateCurrentMedications(),
-    discontinued: generateDiscontinuedMedications()
-  };
-
-  // Generate allergies
-  const generateAllergies = (): Allergy[] => {
-    if (patientData?.medicalHistory?.allergies && patientData.medicalHistory.allergies.length > 0) {
-      return patientData.medicalHistory.allergies;
-    }
-    
-    const allergenTemplates = [
-      { allergen: 'Penicillin', reaction: 'Rash, hives', severity: 'Moderate' },
-      { allergen: 'Sulfa drugs', reaction: 'Stevens-Johnson syndrome', severity: 'Severe' },
-      { allergen: 'Aspirin', reaction: 'Gastrointestinal bleeding', severity: 'Severe' },
-      { allergen: 'Latex', reaction: 'Contact dermatitis, itching', severity: 'Mild' },
-      { allergen: 'Iodine contrast', reaction: 'Anaphylaxis', severity: 'Severe' },
-      { allergen: 'Codeine', reaction: 'Nausea, vomiting', severity: 'Moderate' },
-      { allergen: 'Shellfish', reaction: 'Anaphylaxis, breathing difficulty', severity: 'Severe' },
-      { allergen: 'Pollen', reaction: 'Rhinitis, sneezing', severity: 'Mild' },
-      { allergen: 'Dust mites', reaction: 'Asthma exacerbation', severity: 'Moderate' },
-      { allergen: 'NSAIDs', reaction: 'Stomach upset, ulcers', severity: 'Moderate' }
-    ];
-    
-    const hasAllergies = faker.datatype.boolean(0.7);
-    if (!hasAllergies) {
-      return [{
-        allergen: 'No Known Drug Allergies (NKDA)',
-        reaction: 'None',
-        severity: 'N/A',
-        dateIdentified: 'N/A'
-      }];
-    }
-    
-    const numAllergies = faker.number.int({ min: 1, max: 3 });
-    const selectedAllergies = faker.helpers.arrayElements(allergenTemplates, numAllergies);
-    
-    return selectedAllergies.map(allergy => ({
-      ...allergy,
-      dateIdentified: faker.date.past({ years: 5 }).toLocaleDateString('en-US')
-    }));
-  };
-
-  const allergies = generateAllergies();
+  // Generate medical history and medications using imported functions from medicalRecordsGenerator
+  const medicalHistory = generateMedicalHistory(complexity);
+  const medications = generateMedications(complexity, medicalHistory.chronicConditions);
 
   return {
     patient,
     provider,
     medications,
-    allergies
+    allergies: medicalHistory.allergies,
+    chronicConditions: medicalHistory.chronicConditions,
+    surgicalHistory: medicalHistory.surgicalHistory,
+    familyHistory: medicalHistory.familyHistory
   };
 };

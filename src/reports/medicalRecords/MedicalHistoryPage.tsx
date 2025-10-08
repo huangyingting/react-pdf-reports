@@ -1,8 +1,8 @@
 import React from 'react';
-import { MedicationHistoryData } from '../../utils/types';
+import { MedicalHistoryData } from '../../utils/types';
 
 interface MedicalHistoryPageProps {
-  data: MedicationHistoryData;
+  data: MedicalHistoryData;
 }
 
 const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {

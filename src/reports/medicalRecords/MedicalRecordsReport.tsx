@@ -1,5 +1,5 @@
 import React from 'react';
-import { MedicalRecord, LaboratoryReportData, VisitReportData, MedicationHistoryData } from '../../utils/types';
+import { MedicalRecord, LaboratoryReportData, VisitReportData, MedicalHistoryData } from '../../utils/types';
 import PatientDemographicsPage from './PatientDemographicsPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
@@ -11,7 +11,7 @@ interface MedicalRecordsReportProps {
   data: MedicalRecord;
   laboratoryReportData?: LaboratoryReportData[];
   visitReportData?: VisitReportData;
-  medicationHistoryData?: MedicationHistoryData;
+  medicationHistoryData?: MedicalHistoryData;
   fontFamily?: string;
 }
 
@@ -23,7 +23,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, labor
       style={{ fontFamily: fontFamily }}
     >
       {/* Page 1: Patient Demographics */}
-      <PatientDemographicsPage data={data} />
+      <PatientDemographicsPage data={data} medicationHistoryData={medicationHistoryData} />
       
       {/* Page Break */}
       <div className="page-break"></div>
@@ -35,7 +35,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, labor
       <div className="page-break"></div>
       
       {/* Page 3: Medications */}
-      <MedicationsPage data={data} />
+      <MedicationsPage data={data} medicationHistoryData={medicationHistoryData} />
       
       {/* Page Break */}
       <div className="page-break"></div>
@@ -54,6 +54,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, labor
       <VisitNotesPage 
         data={data}
         visitReportData={visitReportData}
+        medicationHistoryData={medicationHistoryData}
       />
     </div>
   );

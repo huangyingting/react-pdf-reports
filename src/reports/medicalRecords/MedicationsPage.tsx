@@ -1,12 +1,14 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/types';
+import { MedicalRecord, MedicalHistoryData } from '../../utils/types';
 
 interface MedicationsPageProps {
   data: MedicalRecord;
+  medicationHistoryData?: MedicalHistoryData;
 }
 
-const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
-  const { medications, patient } = data;
+const MedicationsPage: React.FC<MedicationsPageProps> = ({ data, medicationHistoryData }) => {
+  const { patient } = data;
+  const medications = medicationHistoryData?.medications;
   const currentDate = new Date().toLocaleDateString();
   
   return (
