@@ -2,7 +2,7 @@ import React from 'react';
 import DocumentCard from './DocumentCard';
 import CustomSelect from './CustomSelect';
 import './ExportPdfStep.css';
-import { MedicalRecord, LabTestType } from '../utils/types';
+import { BasicData, LabTestType } from '../utils/types';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
@@ -15,7 +15,7 @@ interface FontFamily {
 }
 
 interface ExportPdfStepProps {
-  medicalData: MedicalRecord | null;
+  medicalData: BasicData | null;
   exportFormat: ExportFormat;
   setExportFormat: (format: ExportFormat) => void;
   qualityLevel: QualityLevel;

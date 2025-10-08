@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
+import { BasicData, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, MedicalHistoryData, MEDICAL_SPECIALTIES, LabTestType } from '../utils/types';
 import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
-  medicalData: MedicalRecord | null;
+  medicalData: BasicData | null;
   laboratoryReportsMap?: Map<LabTestType, LaboratoryReportData>;
   visitReportsData?: VisitReportData[];
   medicationHistoryData?: MedicalHistoryData | null;
-  onDataUpdated: (data: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => void;
+  onDataUpdated: (data: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -57,7 +57,7 @@ interface VisitNotesSectionProps {
 }
 
 const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportsMap, visitReportsData, medicationHistoryData, onDataUpdated, onNext, onBack }) => {
-  const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
+  const [editedData, setEditedData] = useState<BasicData | null>(null);
   const [editedLabReportsMap, setEditedLabReportsMap] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
   const [editedVisitReportsData, setEditedVisitReportsData] = useState<VisitReportData[]>([]);
   const [editedMedicalHistoryData, setEditedMedicalHistoryData] = useState<MedicalHistoryData | null>(null);

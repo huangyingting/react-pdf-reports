@@ -1,5 +1,5 @@
 import React from 'react';
-import { MedicalRecord, LaboratoryReportData, VisitReportData, MedicalHistoryData } from '../../utils/types';
+import { BasicData, LaboratoryReportData, VisitReportData, MedicalHistoryData } from '../../utils/types';
 import PatientDemographicsPage from './PatientDemographicsPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
@@ -8,7 +8,7 @@ import VisitNotesPage from './VisitNotesPage';
 import './MedicalRecordsReport.css';
 
 interface MedicalRecordsReportProps {
-  data: MedicalRecord;
+  data: BasicData;
   laboratoryReportData?: LaboratoryReportData[];
   visitReportData?: VisitReportData;
   medicationHistoryData?: MedicalHistoryData;

@@ -15,9 +15,9 @@ import LaboratoryReportDocument from './reports/laboratoryReport/LaboratoryRepor
 import { generateCMS1500Data } from './utils/cms1500Generator';
 import { generateInsurancePolicyData } from './utils/insurancePolicyGenerator';
 import { generateVisitReportData } from './utils/visitReportGenerator';
-import { generateMedicalHistoryData } from './utils/medicationHistoryGenerator';
+import { generateMedicalHistoryData } from './utils/medicalHistoryGenerator';
 import { generateLaboratoryReportData } from './utils/laboratoryReportGenerator';
-import { MedicalRecord, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData, LaboratoryReportData, LabTestType } from './utils/types';
+import { BasicData, CMS1500Data, InsurancePolicyData, VisitReportData, MedicalHistoryData, LaboratoryReportData, LabTestType } from './utils/types';
 
 // Import utilities
 import { 
@@ -38,7 +38,7 @@ type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'm
 function App() {
   // Workflow state management
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
+  const [medicalData, setMedicalData] = useState<BasicData | null>(null);
   const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
   const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
   const [visitReportsData, setVisitReportsData] = useState<VisitReportData[]>([]);
@@ -77,7 +77,7 @@ function App() {
   ];
 
   // Step navigation handlers
-  const handleDataGenerated = (data: MedicalRecord) => {
+  const handleDataGenerated = (data: BasicData) => {
     setMedicalData(data);
     setCms1500Data(generateCMS1500Data(data));
     setInsurancePolicyData(generateInsurancePolicyData(data));
@@ -99,7 +99,7 @@ function App() {
     setLaboratoryReports(labReportsMap);
   };
 
-  const handleDataUpdated = (newData: MedicalRecord, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => {
+  const handleDataUpdated = (newData: BasicData, labReportsMap?: Map<LabTestType, LaboratoryReportData>, visitDataArray?: VisitReportData[]) => {
     setMedicalData(newData);
     setCms1500Data(generateCMS1500Data(newData));
     setInsurancePolicyData(generateInsurancePolicyData(newData));

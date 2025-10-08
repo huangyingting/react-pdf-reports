@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/types';
-import {generateCompleteMedicalRecord} from '../utils/medicalRecordsGenerator';
+import { DATA_GENERATION_PRESETS, GenerationOptions, BasicData } from '../utils/types';
+import {generateBasicData} from '../utils/baseDataGenerator';
 import CustomSelect from './CustomSelect';
 
 import './GenerateDataStep.css';
 
 interface GenerateDataStepProps {
-  onDataGenerated: (data: MedicalRecord) => void;
+  onDataGenerated: (data: BasicData) => void;
   onNext: () => void;
 }
 
@@ -32,7 +32,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
       // Add a small delay to show loading state
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      const data = generateCompleteMedicalRecord(customOptions);
+      const data = generateBasicData(customOptions);
       onDataGenerated(data);
       
       // Automatically move to next step

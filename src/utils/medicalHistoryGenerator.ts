@@ -1,23 +1,24 @@
-/**
- * Medical Records Generator
- * Contains all medical-specific data generation logic
- */
-
 import { faker } from '@faker-js/faker';
-import {
+import { 
+  PatientDemographics, 
+  Provider,
+  BasicData,
+  MedicalHistoryData,
   MedicalHistory,
-  Medications,
-  VitalSigns,
-  GenerationOptions,
-  MedicalRecord,
   ChronicCondition,
   Allergy,
   SurgicalHistory,
   FamilyHistory,
   CurrentMedication,
   DiscontinuedMedication,
+  Medications,
+  MEDICAL_SPECIALTIES,
+  FACILITY_NAMES,
+  INSURANCE_COMPANIES,
+  COPAY_AMOUNTS,
+  DEDUCTIBLE_AMOUNTS
 } from './types';
-import { generatePatientDemographics, generateInsuranceInfo, generateProviderInfo } from './baseDataGenerator';
+
 
 // Medical-specific data arrays
 export const MEDICAL_CONDITIONS: string[] = [
@@ -34,20 +35,9 @@ export const MEDICATIONS: string[] = [
   'Prednisone 10mg', 'Losartan 50mg', 'Amlodipine 5mg', 'Gabapentin 300mg'
 ];
 
-export const VISIT_TYPES: string[] = [
-  'Annual Physical Exam', 'Follow-up Visit', 'Sick Visit', 'Preventive Care',
-  'Chronic Disease Management', 'Medication Review', 'Consultation',
-  'Emergency Visit', 'Urgent Care', 'Specialist Referral'
-];
-
-export const INSURANCE_COMPANIES: string[] = [
-  'Blue Cross Blue Shield', 'Aetna', 'Cigna', 'UnitedHealthcare',
-  'Humana', 'Kaiser Permanente', 'Medicare', 'Medicaid',
-  'Anthem', 'Independence Blue Cross', 'HealthPartners', 'Molina Healthcare'
-];
 
 /**
- * Generate medical history
+ * Generate medical history including allergies, chronic conditions, surgical and family history
  */
 export const generateMedicalHistory = (complexity: 'low' | 'medium' | 'high' = 'medium'): MedicalHistory => {
   const conditionCount = complexity === 'low' ? 2 : complexity === 'high' ? 6 : 4;
@@ -277,121 +267,104 @@ export const generateMedications = (
   };
 };
 
-/**
- * Generate vital signs history with values correlated to patient conditions
- */
-export const generateVitalSigns = (
-  numberOfReadings: number = 2,
-  chronicConditions: ChronicCondition[] = []
-): VitalSigns[] => {
-  // Determine if patient has specific conditions
-  const hasHypertension = chronicConditions.some(c => c.condition.toLowerCase().includes('hypertension'));
-  const hasCOPD = chronicConditions.some(c => c.condition === 'COPD');
-  const hasHeartDisease = chronicConditions.some(c => c.condition.toLowerCase().includes('heart'));
+export const generateMedicalHistoryData = (data?: BasicData, complexity: 'low' | 'medium' | 'high' = 'medium'): MedicalHistoryData => {
+  // Generate fallback values using Faker.js
+  const fallbackFirstName = faker.person.firstName();
+  const fallbackLastName = faker.person.lastName();
+  const fallbackMiddleInitial = faker.string.alpha({ length: 1, casing: 'upper' });
+  const fallbackDOB = faker.date.birthdate({ min: 18, max: 85, mode: 'age' });
+  const fallbackGender = faker.person.sex();
+  const fallbackPatientId = `PAT-${faker.string.numeric(6)}`;
+  const fallbackMRN = `MRN-${faker.string.numeric(8)}`;
+  const fallbackInsuranceProvider = faker.helpers.arrayElement(INSURANCE_COMPANIES);
+  const fallbackPolicyNumber = faker.string.alphanumeric({ length: 12, casing: 'upper' });
+  const fallbackGroupNumber = `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`;
+  const fallbackEffectiveDate = faker.date.past({ years: 2 });
   
-  // Generate consistent height for all readings
-  const heightInInches = faker.number.int({ min: 60, max: 76 });
-  const heightFeet = Math.floor(heightInInches / 12);
-  const heightInchesRemainder = heightInInches % 12;
-  const heightString = `${heightFeet}'${heightInchesRemainder}"`;
+  // Calculate fallback age
+  const today = new Date();
+  let fallbackAge = today.getFullYear() - fallbackDOB.getFullYear();
+  const monthDiff = today.getMonth() - fallbackDOB.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < fallbackDOB.getDate())) {
+    fallbackAge--;
+  }
   
-  return Array.from({ length: numberOfReadings }, (_, index) => {
-    const date = faker.date.recent({ days: 30 * (numberOfReadings - index) });
-    
-    // Weight may vary slightly between readings
-    const baseWeight = faker.number.int({ min: 120, max: 220 });
-    const weight = baseWeight + faker.number.int({ min: -3, max: 3 });
-    
-    // Calculate accurate BMI
-    const bmi = ((weight / (heightInInches * heightInInches)) * 703).toFixed(1);
-    
-    // Blood pressure based on conditions
-    let systolic: number, diastolic: number;
-    if (hasHypertension) {
-      // Elevated but controlled with medication
-      systolic = faker.number.int({ min: 125, max: 145 });
-      diastolic = faker.number.int({ min: 78, max: 92 });
-    } else {
-      // Normal blood pressure
-      systolic = faker.number.int({ min: 110, max: 130 });
-      diastolic = faker.number.int({ min: 70, max: 85 });
+  const patient: PatientDemographics = {
+    id: data?.patient?.id || fallbackPatientId,
+    name: data?.patient?.name || `${fallbackLastName}, ${fallbackFirstName} ${fallbackMiddleInitial}`,
+    firstName: data?.patient?.firstName || fallbackFirstName,
+    lastName: data?.patient?.lastName || fallbackLastName,
+    middleInitial: data?.patient?.middleInitial || fallbackMiddleInitial,
+    dateOfBirth: data?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
+    age: data?.patient?.age || fallbackAge,
+    gender: data?.patient?.gender || (fallbackGender.charAt(0).toUpperCase() + fallbackGender.slice(1)),
+    address: {
+      street: data?.patient?.address?.street || faker.location.streetAddress(),
+      city: data?.patient?.address?.city || faker.location.city(),
+      state: data?.patient?.address?.state || faker.location.state({ abbreviated: true }),
+      zipCode: data?.patient?.address?.zipCode || faker.location.zipCode('#####'),
+      country: data?.patient?.address?.country || 'USA'
+    },
+    contact: {
+      phone: data?.patient?.contact?.phone || faker.phone.number(),
+      email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
+      emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
+    },
+    insurance: data?.patient?.insurance || {
+      provider: fallbackInsuranceProvider,
+      policyNumber: fallbackPolicyNumber,
+      groupNumber: fallbackGroupNumber,
+      effectiveDate: fallbackEffectiveDate.toLocaleDateString('en-US'),
+      memberId: fallbackPolicyNumber,
+      copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
+      deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
+    },
+    medicalRecordNumber: data?.patient?.medicalRecordNumber || fallbackMRN,
+    ssn: data?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
+    accountNumber: data?.patient?.accountNumber || data?.patient?.id || fallbackPatientId,
+    pharmacy: data?.patient?.pharmacy || {
+      name: faker.company.name() + ' Pharmacy',
+      address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
+      phone: faker.phone.number()
     }
-    
-    // Heart rate based on conditions
-    let heartRate: number;
-    if (hasHeartDisease) {
-      heartRate = faker.number.int({ min: 65, max: 95 });
-    } else {
-      heartRate = faker.number.int({ min: 60, max: 90 });
-    }
-    
-    // Oxygen saturation based on respiratory conditions
-    let oxygenSaturation: number;
-    if (hasCOPD) {
-      oxygenSaturation = faker.number.int({ min: 90, max: 96 });
-    } else {
-      oxygenSaturation = faker.number.int({ min: 95, max: 100 });
-    }
-    
-    // Respiratory rate
-    const respiratoryRate = hasCOPD 
-      ? faker.number.int({ min: 16, max: 24 })
-      : faker.number.int({ min: 12, max: 20 });
-    
-    return {
-      date: date.toLocaleDateString('en-US'),
-      time: faker.helpers.arrayElement(['9:00 AM', '10:30 AM', '2:15 PM', '3:45 PM', '11:15 AM']),
-      bloodPressure: `${systolic}/${diastolic}`,
-      heartRate: heartRate.toString(),
-      temperature: faker.number.float({ min: 97.0, max: 99.2, fractionDigits: 1 }).toString(),
-      weight: weight.toString(),
-      height: heightString,
-      bmi,
-      oxygenSaturation: `${oxygenSaturation}%`,
-      respiratoryRate: respiratoryRate.toString()
-    };
-  });
-};
+  };
 
-/**
- * Generate complete medical records data with logically consistent relationships
- */
-export const generateCompleteMedicalRecord = (options: GenerationOptions = {}): MedicalRecord => {
-  const {
-    complexity = 'medium',
-    numberOfVisits = 3,
-    numberOfLabTests = 3,
-    includeSecondaryInsurance = true
-  } = options;
-
-  // Generate patient demographics first
-  const patient = generatePatientDemographics();
-  
-  // Generate insurance with proper secondary insurance handling and subscriber info
-  // 70% chance the patient is the subscriber, 30% chance someone else is (spouse, parent, etc.)
-  const isPatientSubscriber = faker.datatype.boolean(0.7);
-  const insurance = generateInsuranceInfo(includeSecondaryInsurance, isPatientSubscriber ? {
-    name: patient.name,
-    dateOfBirth: patient.dateOfBirth,
-    gender: patient.gender.charAt(0).toUpperCase(),
-    address: patient.address,
-    phone: patient.contact.phone
-  } : undefined);
-  
   // Generate provider information
-  const provider = generateProviderInfo();
+  const providerName = `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`;
+  const specialty = faker.helpers.arrayElement(MEDICAL_SPECIALTIES);
+  const facilityName = faker.helpers.arrayElement(FACILITY_NAMES);
+  
+  const provider: Provider = data?.provider || {
+    name: providerName,
+    npi: faker.string.numeric(10),
+    specialty: specialty,
+    phone: faker.phone.number(),
+    address: {
+      street: faker.location.streetAddress(),
+      city: faker.location.city(),
+      state: faker.location.state({ abbreviated: true }),
+      zipCode: faker.location.zipCode('#####'),
+      country: 'USA'
+    },
+    taxId: faker.helpers.replaceSymbols('##-#######'),
+    taxIdType: 'EIN',
+    facilityName: facilityName,
+    facilityNPI: faker.string.numeric(10),
+    facilityPhone: faker.phone.number(),
+    facilityFax: faker.phone.number()
+  };
+
+  // Generate medical history and medications using imported functions from medicalRecordsGenerator
+  const medicalHistory = generateMedicalHistory(complexity);
+  const medications = generateMedications(complexity, medicalHistory.chronicConditions);
 
   return {
     patient,
-    insurance,
     provider,
-    generatedAt: new Date().toISOString(),
-    metadata: {
-      complexity,
-      numberOfVisits,
-      numberOfLabTests,
-      dataVersion: '2.0'
-    }
+    medications,
+    allergies: medicalHistory.allergies,
+    chronicConditions: medicalHistory.chronicConditions,
+    surgicalHistory: medicalHistory.surgicalHistory,
+    familyHistory: medicalHistory.familyHistory
   };
 };
-

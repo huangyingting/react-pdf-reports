@@ -5,12 +5,12 @@
 
 import { faker } from '@faker-js/faker';
 import {
-  MedicalRecord,
+  BasicData,
   CMS1500Data
 } from './types';
 
 
-export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data => {
+export const generateCMS1500Data = (data?: BasicData): CMS1500Data => {
   // Generate fallback values using Faker.js
   const fallbackFirstName = faker.person.firstName();
   const fallbackLastName = faker.person.lastName();
@@ -23,27 +23,27 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
   
   const result: CMS1500Data = {
     patient: {
-      id: patientData?.patient?.id || fallbackPatientId,
-      name: patientData?.patient?.name || `${fallbackLastName.toUpperCase()}, ${fallbackFirstName.toUpperCase()} ${fallbackMiddleInitial}`,
-      lastName: patientData?.patient?.lastName || fallbackLastName.toUpperCase(),
-      firstName: patientData?.patient?.firstName || fallbackFirstName.toUpperCase(),
-      middleInitial: patientData?.patient?.middleInitial || fallbackMiddleInitial,
-      dateOfBirth: patientData?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
-      age: patientData?.patient?.age || new Date().getFullYear() - fallbackDOB.getFullYear(),
-      gender: patientData?.patient?.gender || fallbackGender.charAt(0).toUpperCase(),
+      id: data?.patient?.id || fallbackPatientId,
+      name: data?.patient?.name || `${fallbackLastName.toUpperCase()}, ${fallbackFirstName.toUpperCase()} ${fallbackMiddleInitial}`,
+      lastName: data?.patient?.lastName || fallbackLastName.toUpperCase(),
+      firstName: data?.patient?.firstName || fallbackFirstName.toUpperCase(),
+      middleInitial: data?.patient?.middleInitial || fallbackMiddleInitial,
+      dateOfBirth: data?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
+      age: data?.patient?.age || new Date().getFullYear() - fallbackDOB.getFullYear(),
+      gender: data?.patient?.gender || fallbackGender.charAt(0).toUpperCase(),
       address: {
-        street: patientData?.patient?.address?.street || faker.location.streetAddress().toUpperCase(),
-        city: patientData?.patient?.address?.city || faker.location.city().toUpperCase(),
-        state: patientData?.patient?.address?.state || faker.location.state({ abbreviated: true }),
-        zipCode: patientData?.patient?.address?.zipCode || faker.location.zipCode('#####'),
-        country: patientData?.patient?.address?.country || 'USA',
+        street: data?.patient?.address?.street || faker.location.streetAddress().toUpperCase(),
+        city: data?.patient?.address?.city || faker.location.city().toUpperCase(),
+        state: data?.patient?.address?.state || faker.location.state({ abbreviated: true }),
+        zipCode: data?.patient?.address?.zipCode || faker.location.zipCode('#####'),
+        country: data?.patient?.address?.country || 'USA',
       },
       contact: {
-        phone: patientData?.patient?.contact?.phone || faker.phone.number(),
-        email: patientData?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
-        emergencyContact: patientData?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling'])}) - ${faker.phone.number()}`,
+        phone: data?.patient?.contact?.phone || faker.phone.number(),
+        email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
+        emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling'])}) - ${faker.phone.number()}`,
       },
-      insurance: patientData?.patient?.insurance || {
+      insurance: data?.patient?.insurance || {
         provider: faker.helpers.arrayElement(['BLUE CROSS BLUE SHIELD', 'AETNA', 'CIGNA', 'UNITEDHEALTH', 'HUMANA']),
         policyNumber: fallbackPolicyNumber,
         groupNumber: `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`,
@@ -52,48 +52,48 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
         copay: faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
         deductible: faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000'])
       },
-      pharmacy: patientData?.patient?.pharmacy || {
+      pharmacy: data?.patient?.pharmacy || {
         name: `${faker.location.city()} ${faker.helpers.arrayElement(['CVS Pharmacy', 'Walgreens', 'Rite Aid'])}`,
         address: faker.location.streetAddress(),
         phone: faker.phone.number()
       },
-      medicalRecordNumber: patientData?.patient?.medicalRecordNumber || fallbackMRN,
-      ssn: patientData?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
-      accountNumber: patientData?.patient?.accountNumber || patientData?.patient?.id || fallbackPatientId,
+      medicalRecordNumber: data?.patient?.medicalRecordNumber || fallbackMRN,
+      ssn: data?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
+      accountNumber: data?.patient?.accountNumber || data?.patient?.id || fallbackPatientId,
     },
 
     insurance: {
-      type: patientData?.insurance?.type || faker.helpers.arrayElement(['group', 'individual', 'medicare', 'medicaid']),
-      picaCode: patientData?.insurance?.picaCode || (faker.datatype.boolean(0.3) ? faker.string.alphanumeric({ length: 2, casing: 'upper' }) : ''),
+      type: data?.insurance?.type || faker.helpers.arrayElement(['group', 'individual', 'medicare', 'medicaid']),
+      picaCode: data?.insurance?.picaCode || (faker.datatype.boolean(0.3) ? faker.string.alphanumeric({ length: 2, casing: 'upper' }) : ''),
       primaryInsurance: {
-        provider: patientData?.insurance?.primaryInsurance?.provider || faker.helpers.arrayElement(['BLUE CROSS BLUE SHIELD', 'AETNA', 'CIGNA', 'UNITEDHEALTH', 'HUMANA']),
-        policyNumber: patientData?.insurance?.primaryInsurance?.policyNumber || faker.string.alphanumeric({ length: 12, casing: 'upper' }),
-        groupNumber: patientData?.insurance?.primaryInsurance?.groupNumber || `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`,
-        memberId: patientData?.insurance?.primaryInsurance?.memberId || faker.string.alphanumeric({ length: 12, casing: 'upper' }),
-        effectiveDate: patientData?.insurance?.primaryInsurance?.effectiveDate || faker.date.past({ years: 2 }).toLocaleDateString('en-US'),
-        copay: patientData?.insurance?.primaryInsurance?.copay || faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
-        deductible: patientData?.insurance?.primaryInsurance?.deductible || faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000']),
+        provider: data?.insurance?.primaryInsurance?.provider || faker.helpers.arrayElement(['BLUE CROSS BLUE SHIELD', 'AETNA', 'CIGNA', 'UNITEDHEALTH', 'HUMANA']),
+        policyNumber: data?.insurance?.primaryInsurance?.policyNumber || faker.string.alphanumeric({ length: 12, casing: 'upper' }),
+        groupNumber: data?.insurance?.primaryInsurance?.groupNumber || `GRP-${faker.string.alphanumeric({ length: 6, casing: 'upper' })}`,
+        memberId: data?.insurance?.primaryInsurance?.memberId || faker.string.alphanumeric({ length: 12, casing: 'upper' }),
+        effectiveDate: data?.insurance?.primaryInsurance?.effectiveDate || faker.date.past({ years: 2 }).toLocaleDateString('en-US'),
+        copay: data?.insurance?.primaryInsurance?.copay || faker.helpers.arrayElement(['$20', '$30', '$40', '$50']),
+        deductible: data?.insurance?.primaryInsurance?.deductible || faker.helpers.arrayElement(['$500', '$1000', '$2500', '$5000']),
       },
-      secondaryInsurance: patientData?.insurance?.secondaryInsurance ? {
-        provider: patientData.insurance.secondaryInsurance.provider,
-        policyNumber: patientData.insurance.secondaryInsurance.policyNumber,
-        groupNumber: patientData.insurance.secondaryInsurance.groupNumber || '',
-        memberId: patientData.insurance.secondaryInsurance.memberId,
-        effectiveDate: patientData.insurance.secondaryInsurance.effectiveDate,
-        copay: patientData.insurance.secondaryInsurance.copay,
-        deductible: patientData.insurance.secondaryInsurance.deductible
+      secondaryInsurance: data?.insurance?.secondaryInsurance ? {
+        provider: data.insurance.secondaryInsurance.provider,
+        policyNumber: data.insurance.secondaryInsurance.policyNumber,
+        groupNumber: data.insurance.secondaryInsurance.groupNumber || '',
+        memberId: data.insurance.secondaryInsurance.memberId,
+        effectiveDate: data.insurance.secondaryInsurance.effectiveDate,
+        copay: data.insurance.secondaryInsurance.copay,
+        deductible: data.insurance.secondaryInsurance.deductible
       } : null,
-      subscriberName: patientData?.insurance?.subscriberName || patientData?.patient?.name || `${fallbackLastName.toUpperCase()}, ${fallbackFirstName.toUpperCase()} ${fallbackMiddleInitial}`,
-      subscriberDOB: patientData?.insurance?.subscriberDOB || patientData?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
-      subscriberGender: patientData?.insurance?.subscriberGender || patientData?.patient?.gender || fallbackGender.charAt(0).toUpperCase(),
-      address: patientData?.insurance?.address || {
+      subscriberName: data?.insurance?.subscriberName || data?.patient?.name || `${fallbackLastName.toUpperCase()}, ${fallbackFirstName.toUpperCase()} ${fallbackMiddleInitial}`,
+      subscriberDOB: data?.insurance?.subscriberDOB || data?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
+      subscriberGender: data?.insurance?.subscriberGender || data?.patient?.gender || fallbackGender.charAt(0).toUpperCase(),
+      address: data?.insurance?.address || {
         street: faker.location.streetAddress().toUpperCase(),
         city: faker.location.city().toUpperCase(),
         state: faker.location.state({ abbreviated: true }),
         zipCode: faker.location.zipCode('#####'),
       },
-      phone: patientData?.insurance?.phone || faker.phone.number(),
-      secondaryInsured: patientData?.insurance?.secondaryInsured || {
+      phone: data?.insurance?.phone || faker.phone.number(),
+      secondaryInsured: data?.insurance?.secondaryInsured || {
         name: '',
         policyNumber: '',
         planName: '',
@@ -101,32 +101,32 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
     },
 
     provider: {
-      name: patientData?.provider?.name || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD`,
-      npi: patientData?.provider?.npi || faker.string.numeric(10),
-      specialty: patientData?.provider?.specialty || faker.helpers.arrayElement(['Family Medicine', 'Internal Medicine', 'General Practice', 'Pediatrics']),
-      phone: patientData?.provider?.phone || faker.phone.number(),
-      address: patientData?.provider?.address || {
+      name: data?.provider?.name || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD`,
+      npi: data?.provider?.npi || faker.string.numeric(10),
+      specialty: data?.provider?.specialty || faker.helpers.arrayElement(['Family Medicine', 'Internal Medicine', 'General Practice', 'Pediatrics']),
+      phone: data?.provider?.phone || faker.phone.number(),
+      address: data?.provider?.address || {
         street: faker.location.streetAddress().toUpperCase(),
         city: faker.location.city().toUpperCase(),
         state: faker.location.state({ abbreviated: true }),
         zipCode: faker.location.zipCode('#####')
       },
-      signature: patientData?.provider?.signature || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD`,
-      taxId: patientData?.provider?.taxId || faker.helpers.replaceSymbols('##-#######'),
+      signature: data?.provider?.signature || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}, MD`,
+      taxId: data?.provider?.taxId || faker.helpers.replaceSymbols('##-#######'),
       taxIdType: 'EIN' as const,
-      facilityName: patientData?.provider?.facilityName || faker.helpers.arrayElement(['MEDICAL CENTER', 'HEALTH CLINIC', 'HEALTHCARE ASSOCIATES', 'MEDICAL GROUP']).toUpperCase(),
-      facilityAddress: patientData?.provider?.facilityAddress || {
+      facilityName: data?.provider?.facilityName || faker.helpers.arrayElement(['MEDICAL CENTER', 'HEALTH CLINIC', 'HEALTHCARE ASSOCIATES', 'MEDICAL GROUP']).toUpperCase(),
+      facilityAddress: data?.provider?.facilityAddress || {
         street: faker.location.streetAddress().toUpperCase(),
         city: faker.location.city().toUpperCase(),
         state: faker.location.state({ abbreviated: true }),
         zipCode: faker.location.zipCode('#####')
       },
-      facilityNPI: patientData?.provider?.facilityNPI || faker.string.numeric(10),
-      billingName: patientData?.provider?.billingName || faker.helpers.arrayElement(['MEDICAL CENTER', 'HEALTH CLINIC', 'HEALTHCARE ASSOCIATES', 'MEDICAL GROUP']).toUpperCase(),
-      billingAddress: patientData?.provider?.billingAddress || `${faker.location.streetAddress().toUpperCase()}, ${faker.location.city().toUpperCase()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
-      billingPhone: patientData?.provider?.billingPhone || faker.phone.number(),
-      billingNPI: patientData?.provider?.billingNPI || faker.string.numeric(10),
-      referringProvider: patientData?.provider?.referringProvider || (faker.datatype.boolean(0.3) ? {
+      facilityNPI: data?.provider?.facilityNPI || faker.string.numeric(10),
+      billingName: data?.provider?.billingName || faker.helpers.arrayElement(['MEDICAL CENTER', 'HEALTH CLINIC', 'HEALTHCARE ASSOCIATES', 'MEDICAL GROUP']).toUpperCase(),
+      billingAddress: data?.provider?.billingAddress || `${faker.location.streetAddress().toUpperCase()}, ${faker.location.city().toUpperCase()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
+      billingPhone: data?.provider?.billingPhone || faker.phone.number(),
+      billingNPI: data?.provider?.billingNPI || faker.string.numeric(10),
+      referringProvider: data?.provider?.referringProvider || (faker.datatype.boolean(0.3) ? {
         name: `DR. ${faker.person.firstName().toUpperCase()} ${faker.person.lastName().toUpperCase()}`,
         npi: faker.string.numeric(10),
       } : undefined),
@@ -199,10 +199,10 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
       return {
         patientRelationship: (() => {
           // Determine if patient is the subscriber
-          const subscriberName = patientData?.insurance?.subscriberName || 
-            patientData?.patient?.name || 
+          const subscriberName = data?.insurance?.subscriberName || 
+            data?.patient?.name || 
             `${fallbackLastName.toUpperCase()}, ${fallbackFirstName.toUpperCase()} ${fallbackMiddleInitial}`;
-          const patientName = patientData?.patient?.name || 
+          const patientName = data?.patient?.name || 
             `${fallbackLastName.toUpperCase()}, ${fallbackFirstName.toUpperCase()} ${fallbackMiddleInitial}`;
           
           // If names match, patient is self; otherwise randomly select relationship
@@ -312,7 +312,7 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
   
   // Now generate service lines using the actual diagnosis codes from the claim
   result.claim.serviceLines = (() => {
-          const serviceProviderNPI = patientData?.provider?.npi || faker.string.numeric(10);
+          const serviceProviderNPI = data?.provider?.npi || faker.string.numeric(10);
           const numServices = faker.number.int({ min: 1, max: 4 });
           
           // Map diagnosis codes to appropriate CPT codes
@@ -686,10 +686,10 @@ export const generateCMS1500Data = (patientData?: MedicalRecord): CMS1500Data =>
 /**
  * Generate multiple CMS-1500 forms if needed
  */
-export const generateMultipleCMS1500Forms = (patientData: MedicalRecord, count: number = 1): CMS1500Data[] => {
+export const generateMultipleCMS1500Forms = (data: BasicData, count: number = 1): CMS1500Data[] => {
   const forms: CMS1500Data[] = [];
   for (let i = 0; i < count; i++) {
-    forms.push(generateCMS1500Data(patientData));
+    forms.push(generateCMS1500Data(data));
   }
   return forms;
 };

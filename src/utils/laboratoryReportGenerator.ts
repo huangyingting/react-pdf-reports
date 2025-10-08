@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { 
   PatientDemographics, 
   Provider,
-  MedicalRecord,
+  BasicData,
   LaboratoryReportData,
   LabTestType,
   LabTestResult,
@@ -203,7 +203,7 @@ const LAB_TEST_PANELS = {
 
 export const generateLaboratoryReportData = (
   testType: LabTestType,
-  patientData?: MedicalRecord
+  data?: BasicData
 ): LaboratoryReportData => {
   // Generate fallback patient data
   const fallbackFirstName = faker.person.firstName();
@@ -226,27 +226,27 @@ export const generateLaboratoryReportData = (
   }
   
   const patient: PatientDemographics = {
-    id: patientData?.patient?.id || fallbackPatientId,
-    name: patientData?.patient?.name || `${fallbackLastName}, ${fallbackFirstName} ${fallbackMiddleInitial}`,
-    firstName: patientData?.patient?.firstName || fallbackFirstName,
-    lastName: patientData?.patient?.lastName || fallbackLastName,
-    middleInitial: patientData?.patient?.middleInitial || fallbackMiddleInitial,
-    dateOfBirth: patientData?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
-    age: patientData?.patient?.age || fallbackAge,
-    gender: patientData?.patient?.gender || (fallbackGender.charAt(0).toUpperCase() + fallbackGender.slice(1)),
+    id: data?.patient?.id || fallbackPatientId,
+    name: data?.patient?.name || `${fallbackLastName}, ${fallbackFirstName} ${fallbackMiddleInitial}`,
+    firstName: data?.patient?.firstName || fallbackFirstName,
+    lastName: data?.patient?.lastName || fallbackLastName,
+    middleInitial: data?.patient?.middleInitial || fallbackMiddleInitial,
+    dateOfBirth: data?.patient?.dateOfBirth || fallbackDOB.toLocaleDateString('en-US'),
+    age: data?.patient?.age || fallbackAge,
+    gender: data?.patient?.gender || (fallbackGender.charAt(0).toUpperCase() + fallbackGender.slice(1)),
     address: {
-      street: patientData?.patient?.address?.street || faker.location.streetAddress(),
-      city: patientData?.patient?.address?.city || faker.location.city(),
-      state: patientData?.patient?.address?.state || faker.location.state({ abbreviated: true }),
-      zipCode: patientData?.patient?.address?.zipCode || faker.location.zipCode('#####'),
-      country: patientData?.patient?.address?.country || 'USA'
+      street: data?.patient?.address?.street || faker.location.streetAddress(),
+      city: data?.patient?.address?.city || faker.location.city(),
+      state: data?.patient?.address?.state || faker.location.state({ abbreviated: true }),
+      zipCode: data?.patient?.address?.zipCode || faker.location.zipCode('#####'),
+      country: data?.patient?.address?.country || 'USA'
     },
     contact: {
-      phone: patientData?.patient?.contact?.phone || faker.phone.number(),
-      email: patientData?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
-      emergencyContact: patientData?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent'])}) - ${faker.phone.number()}`
+      phone: data?.patient?.contact?.phone || faker.phone.number(),
+      email: data?.patient?.contact?.email || faker.internet.email({ firstName: fallbackFirstName.toLowerCase(), lastName: fallbackLastName.toLowerCase() }),
+      emergencyContact: data?.patient?.contact?.emergencyContact || `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent'])}) - ${faker.phone.number()}`
     },
-    insurance: patientData?.patient?.insurance || {
+    insurance: data?.patient?.insurance || {
       provider: fallbackInsuranceProvider,
       policyNumber: fallbackPolicyNumber,
       groupNumber: fallbackGroupNumber,
@@ -255,10 +255,10 @@ export const generateLaboratoryReportData = (
       copay: faker.helpers.arrayElement(COPAY_AMOUNTS),
       deductible: faker.helpers.arrayElement(DEDUCTIBLE_AMOUNTS)
     },
-    medicalRecordNumber: patientData?.patient?.medicalRecordNumber || fallbackMRN,
-    ssn: patientData?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
-    accountNumber: patientData?.patient?.accountNumber || fallbackPatientId,
-    pharmacy: patientData?.patient?.pharmacy || {
+    medicalRecordNumber: data?.patient?.medicalRecordNumber || fallbackMRN,
+    ssn: data?.patient?.ssn || faker.helpers.replaceSymbols('###-##-####'),
+    accountNumber: data?.patient?.accountNumber || fallbackPatientId,
+    pharmacy: data?.patient?.pharmacy || {
       name: faker.company.name() + ' Pharmacy',
       address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode('#####')}`,
       phone: faker.phone.number()
@@ -266,8 +266,8 @@ export const generateLaboratoryReportData = (
   };
 
   // Generate provider
-  const providerName = patientData?.provider?.name || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`;
-  const provider: Provider = patientData?.provider || {
+  const providerName = data?.provider?.name || `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`;
+  const provider: Provider = data?.provider || {
     name: providerName,
     npi: faker.string.numeric(10),
     specialty: faker.helpers.arrayElement(MEDICAL_SPECIALTIES),

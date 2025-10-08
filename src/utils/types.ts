@@ -401,7 +401,7 @@ export interface ClaimInfo {
 }
 
 // Complete Record Types
-export interface MedicalRecord {
+export interface BasicData {
   patient: PatientDemographics;
   insurance: InsuranceInfo;
   provider: Provider;

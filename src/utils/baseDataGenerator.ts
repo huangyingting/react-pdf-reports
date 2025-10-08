@@ -17,9 +17,10 @@ import {
   INSURANCE_COMPANIES,
   INSURANCE_PLAN_TYPES,
   COPAY_AMOUNTS,
-  DEDUCTIBLE_AMOUNTS
+  DEDUCTIBLE_AMOUNTS,
+  GenerationOptions,
+  BasicData
 } from './types';
-
 
 /**
  * Generate patient demographics
@@ -254,5 +255,48 @@ export const generateProviderInfo = (): Provider => {
       name: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
       npi: faker.string.numeric(10)
     } : undefined
+  };
+};
+
+/**
+ * Generate basic medical record with patient demographics, insurance, and provider info
+ * Does not include medical history, medications, or clinical data - those are generated separately
+ */
+export const generateBasicData = (options: GenerationOptions = {}): BasicData => {
+  const {
+    complexity = 'medium',
+    numberOfVisits = 3,
+    numberOfLabTests = 3,
+    includeSecondaryInsurance = true
+  } = options;
+
+  // Generate patient demographics first
+  const patient = generatePatientDemographics();
+  
+  // Generate insurance with proper secondary insurance handling and subscriber info
+  // 70% chance the patient is the subscriber, 30% chance someone else is (spouse, parent, etc.)
+  const isPatientSubscriber = faker.datatype.boolean(0.7);
+  const insurance = generateInsuranceInfo(includeSecondaryInsurance, isPatientSubscriber ? {
+    name: patient.name,
+    dateOfBirth: patient.dateOfBirth,
+    gender: patient.gender.charAt(0).toUpperCase(),
+    address: patient.address,
+    phone: patient.contact.phone
+  } : undefined);
+  
+  // Generate provider information
+  const provider = generateProviderInfo();
+
+  return {
+    patient,
+    insurance,
+    provider,
+    generatedAt: new Date().toISOString(),
+    metadata: {
+      complexity,
+      numberOfVisits,
+      numberOfLabTests,
+      dataVersion: '2.0'
+    }
   };
 };

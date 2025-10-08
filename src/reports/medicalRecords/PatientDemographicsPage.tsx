@@ -1,8 +1,8 @@
 import React from 'react';
-import { MedicalRecord, LaboratoryReportData, MedicalHistoryData } from '../../utils/types';
+import { BasicData, LaboratoryReportData, MedicalHistoryData } from '../../utils/types';
 
 interface PatientDemographicsPageProps {
-  data: MedicalRecord;
+  data: BasicData;
   laboratoryReportData?: LaboratoryReportData;
   medicationHistoryData?: MedicalHistoryData;
 }
