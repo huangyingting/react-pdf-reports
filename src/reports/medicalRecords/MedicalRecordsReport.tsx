@@ -1,5 +1,5 @@
 import React from 'react';
-import { MedicalRecord, LaboratoryReportData, VisitReportData } from '../../utils/types';
+import { MedicalRecord, LaboratoryReportData, VisitReportData, MedicationHistoryData } from '../../utils/types';
 import PatientDemographicsPage from './PatientDemographicsPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
@@ -11,10 +11,11 @@ interface MedicalRecordsReportProps {
   data: MedicalRecord;
   laboratoryReportData?: LaboratoryReportData;
   visitReportData?: VisitReportData;
+  medicationHistoryData?: MedicationHistoryData;
   fontFamily?: string;
 }
 
-const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, laboratoryReportData, visitReportData, fontFamily = "'Arial', sans-serif" }) => {
+const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, laboratoryReportData, visitReportData, medicationHistoryData, fontFamily = "'Arial', sans-serif" }) => {
   return (
     <div 
       className="medical-records-report"
@@ -28,7 +29,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ data, labor
       <div className="page-break"></div>
       
       {/* Page 2: Medical History */}
-      <MedicalHistoryPage data={data} />
+      {medicationHistoryData && <MedicalHistoryPage data={medicationHistoryData} />}
       
       {/* Page Break */}
       <div className="page-break"></div>

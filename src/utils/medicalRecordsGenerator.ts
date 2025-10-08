@@ -8,7 +8,6 @@ import {
   MedicalHistory,
   Medications,
   VitalSigns,
-  VisitNote,
   GenerationOptions,
   MedicalRecord,
   ChronicCondition,
@@ -352,47 +351,6 @@ export const generateVitalSigns = (
       respiratoryRate: respiratoryRate.toString()
     };
   });
-};
-
-
-/**
- * Generate chief complaint based on patient's chronic conditions
- */
-const generateChiefComplaint = (chronicConditions: ChronicCondition[] = []): string => {
-  const conditionNames = chronicConditions.map(c => c.condition.toLowerCase());
-  
-  // Condition-specific complaints
-  const conditionComplaints: string[] = [];
-  
-  if (conditionNames.some(c => c.includes('hypertension'))) {
-    conditionComplaints.push('Follow-up for blood pressure', 'Blood pressure check');
-  }
-  if (conditionNames.some(c => c.includes('diabetes'))) {
-    conditionComplaints.push('Diabetes follow-up', 'Blood sugar management');
-  }
-  if (conditionNames.some(c => c.includes('asthma') || c.includes('copd'))) {
-    conditionComplaints.push('Shortness of breath', 'Respiratory follow-up');
-  }
-  if (conditionNames.some(c => c.includes('arthritis'))) {
-    conditionComplaints.push('Joint pain', 'Arthritis management');
-  }
-  
-  // General complaints
-  const generalComplaints = [
-    'Annual physical examination',
-    'Medication refill',
-    'Cold symptoms',
-    'Back pain',
-    'Fatigue',
-    'Headache',
-    'Routine check-up',
-    'Lab result review',
-    'Preventive care visit'
-  ];
-  
-  // Combine and select
-  const allComplaints = [...conditionComplaints, ...generalComplaints];
-  return faker.helpers.arrayElement(allComplaints);
 };
 
 /**

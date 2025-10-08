@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LabTest, VitalSigns, VisitNote, MEDICAL_SPECIALTIES } from '../utils/types';
+import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LaboratoryReportData, VisitReportData, VitalSigns, VisitNote, MEDICAL_SPECIALTIES } from '../utils/types';
 import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
 
 interface EditDataStepProps {
   medicalData: MedicalRecord | null;
-  onDataUpdated: (data: MedicalRecord) => void;
+  laboratoryReportData?: LaboratoryReportData;
+  visitReportData?: VisitReportData;
+  onDataUpdated: (data: MedicalRecord, labData?: LaboratoryReportData, visitData?: VisitReportData) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -38,8 +40,10 @@ interface MedicalHistorySectionProps {
   onChange: (field: string, value: any) => void;
 }
 
+// These interfaces are kept for legacy sections but no longer actively used
+// Data is now managed via LaboratoryReportData and VisitReportData
 interface LabResultsSectionProps {
-  data: LabTest[];
+  data: any[];
   onChange: (field: string, value: any) => void;
 }
 
@@ -53,8 +57,10 @@ interface VisitNotesSectionProps {
   onChange: (field: string, value: any) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated, onNext, onBack }) => {
+const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, laboratoryReportData, visitReportData, onDataUpdated, onNext, onBack }) => {
   const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
+  const [editedLabData, setEditedLabData] = useState<LaboratoryReportData | undefined>(undefined);
+  const [editedVisitData, setEditedVisitData] = useState<VisitReportData | undefined>(undefined);
   const [activeSection, setActiveSection] = useState<string>('patient');
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
@@ -62,7 +68,13 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
     if (medicalData) {
       setEditedData(JSON.parse(JSON.stringify(medicalData))); // Deep clone
     }
-  }, [medicalData]);
+    if (laboratoryReportData) {
+      setEditedLabData(JSON.parse(JSON.stringify(laboratoryReportData)));
+    }
+    if (visitReportData) {
+      setEditedVisitData(JSON.parse(JSON.stringify(visitReportData)));
+    }
+  }, [medicalData, laboratoryReportData, visitReportData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -94,7 +106,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
 
   const handleSaveChanges = () => {
     if (editedData) {
-      onDataUpdated(editedData);
+      onDataUpdated(editedData, editedLabData, editedVisitData);
       setHasChanges(false);
     }
   };
@@ -227,25 +239,46 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
               />
             )}
             
-            {activeSection === 'labs' && (
-              <LabResultsSection 
-                data={editedData.labResults} 
-                onChange={(field, value) => updateData('labResults', field, value)}
-              />
+            {/* Lab Results section: Data now managed via LaboratoryReportData */}
+            {activeSection === 'labs' && editedLabData && (
+              <div className="section">
+                <h3>Laboratory Report (Read-Only)</h3>
+                <p>Laboratory report data is managed separately. View in the final PDF report.</p>
+                <div className="info-display">
+                  <p><strong>Test Name:</strong> {editedLabData.testName}</p>
+                  <p><strong>Test Type:</strong> {editedLabData.testType}</p>
+                  <p><strong>Report Date:</strong> {editedLabData.reportDate}</p>
+                  <p><strong>Results Count:</strong> {editedLabData.results.length}</p>
+                </div>
+              </div>
             )}
             
-            {activeSection === 'vitals' && (
-              <VitalSignsSection 
-                data={editedData.vitalSigns} 
-                onChange={(field, value) => updateData('vitalSigns', field, value)}
-              />
+            {/* Vital Signs section: Data now managed via VisitReportData */}
+            {activeSection === 'vitals' && editedVisitData?.vitalSigns && (
+              <div className="section">
+                <h3>Vital Signs (Read-Only)</h3>
+                <p>Vital signs data is managed separately. View in the final PDF report.</p>
+                <div className="info-display">
+                  <p><strong>Blood Pressure:</strong> {editedVisitData.vitalSigns.bloodPressure}</p>
+                  <p><strong>Heart Rate:</strong> {editedVisitData.vitalSigns.heartRate} bpm</p>
+                  <p><strong>Temperature:</strong> {editedVisitData.vitalSigns.temperature} °F</p>
+                  <p><strong>Weight:</strong> {editedVisitData.vitalSigns.weight} lbs</p>
+                </div>
+              </div>
             )}
             
-            {activeSection === 'visits' && (
-              <VisitNotesSection 
-                data={editedData.visitNotes} 
-                onChange={(field, value) => updateData('visitNotes', field, value)}
-              />
+            {/* Visit Notes section: Data now managed via VisitReportData */}
+            {activeSection === 'visits' && editedVisitData?.visit && (
+              <div className="section">
+                <h3>Visit Notes (Read-Only)</h3>
+                <p>Visit notes data is managed separately. View in the final PDF report.</p>
+                <div className="info-display">
+                  <p><strong>Date:</strong> {editedVisitData.visit.date}</p>
+                  <p><strong>Type:</strong> {editedVisitData.visit.type}</p>
+                  <p><strong>Provider:</strong> {editedVisitData.visit.provider}</p>
+                  <p><strong>Chief Complaint:</strong> {editedVisitData.visit.chiefComplaint}</p>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -1404,7 +1437,7 @@ const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange })
           
           <h5>Test Results ({(test.results || []).length})</h5>
           <div className="lab-results-grid">
-            {(test.results || []).map((result, resultIndex) => (
+            {(test.results || []).map((result: any, resultIndex: number) => (
               <div key={resultIndex} className="lab-result-row">
                 <div className="form-grid">
                   <div className="form-group">
