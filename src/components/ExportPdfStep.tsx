@@ -63,6 +63,36 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
     );
   }
 
+  // Get the list of generated lab report types
+  const generatedLabTypes = new Set(
+    generatedData.labReports?.map(report => report.testType) || []
+  );
+
+  // Define all available lab tests with their metadata
+  const allLabTests: Array<{
+    type: LabTestType;
+    title: string;
+    description: string;
+    filename: string;
+  }> = [
+    { type: 'CBC', title: 'CBC', description: 'Complete blood cell analysis with differential count', filename: 'cbc-report' },
+    { type: 'BMP', title: 'BMP', description: 'Basic metabolic panel with glucose and electrolytes', filename: 'bmp-report' },
+    { type: 'CMP', title: 'CMP', description: 'Comprehensive metabolic panel with liver function', filename: 'cmp-report' },
+    { type: 'Urinalysis', title: 'Urinalysis', description: 'Complete urine analysis with microscopic exam', filename: 'urinalysis-report' },
+    { type: 'Lipid', title: 'Lipid Profile', description: 'Cardiovascular risk assessment panel', filename: 'lipid-profile-report' },
+    { type: 'LFT', title: 'Liver Function', description: 'Comprehensive liver health assessment', filename: 'lft-report' },
+    { type: 'Thyroid', title: 'Thyroid Panel', description: 'Complete thyroid function assessment', filename: 'thyroid-function-report' },
+    { type: 'HbA1c', title: 'HbA1c', description: 'Diabetes monitoring and glucose control', filename: 'hba1c-report' },
+    { type: 'Coagulation', title: 'Coagulation', description: 'Blood clotting function panel', filename: 'coagulation-panel-report' },
+    { type: 'Microbiology', title: 'Microbiology', description: 'Culture and sensitivity testing', filename: 'microbiology-culture-report' },
+    { type: 'Pathology', title: 'Pathology', description: 'Tissue specimen analysis report', filename: 'pathology-report' },
+    { type: 'Hormone', title: 'Hormone Panel', description: 'Endocrine function testing', filename: 'hormone-panel-report' },
+    { type: 'Infectious', title: 'Infectious Disease', description: 'Serological testing panel', filename: 'infectious-disease-panel-report' }
+  ];
+
+  // Filter to only show generated lab tests
+  const availableLabTests = allLabTests.filter(test => generatedLabTypes.has(test.type));
+
   return (
     <div className="step">
       <div className="step-content">
@@ -207,149 +237,34 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             </div>
           </div>
 
-          <div className="document-category">
-            <div className="category-header">
-              <div className="category-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 2v1m6-1v1M4 8h16M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
-                  <path d="M9 11h.01M9 14h.01M12 11h.01M12 14h.01M15 11h.01M15 14h.01" />
-                </svg>
+          {availableLabTests.length > 0 && (
+            <div className="document-category">
+              <div className="category-header">
+                <div className="category-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 2v1m6-1v1M4 8h16M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
+                    <path d="M9 11h.01M9 14h.01M12 11h.01M12 14h.01M15 11h.01M15 14h.01" />
+                  </svg>
+                </div>
+                <h3>Laboratory Reports</h3>
               </div>
-              <h3>Laboratory Reports</h3>
+
+              <div className="laboratory-cards-grid">
+                {availableLabTests.map((test) => (
+                  <DocumentCard
+                    key={test.type}
+                    title={test.title}
+                    description={test.description}
+                    onPreview={() => onPreview(test.type)}
+                    onGenerate={() => onExport(test.type, test.filename)}
+                    isLoading={isLoading}
+                    compact
+                    iconType="lab"
+                  />
+                ))}
+              </div>
             </div>
-
-            <div className="laboratory-cards-grid">
-              <DocumentCard
-                title="CBC"
-                description="Complete blood cell analysis with differential count"
-                onPreview={() => onPreview('CBC')}
-                onGenerate={() => onExport('CBC', 'cbc-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="BMP"
-                description="Basic metabolic panel with glucose and electrolytes"
-                onPreview={() => onPreview('BMP')}
-                onGenerate={() => onExport('BMP', 'bmp-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="CMP"
-                description="Comprehensive metabolic panel with liver function"
-                onPreview={() => onPreview('CMP')}
-                onGenerate={() => onExport('CMP', 'cmp-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Urinalysis"
-                description="Complete urine analysis with microscopic exam"
-                onPreview={() => onPreview('Urinalysis')}
-                onGenerate={() => onExport('Urinalysis', 'urinalysis-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Lipid Profile"
-                description="Cardiovascular risk assessment panel"
-                onPreview={() => onPreview('Lipid')}
-                onGenerate={() => onExport('Lipid', 'lipid-profile-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Liver Function"
-                description="Comprehensive liver health assessment"
-                onPreview={() => onPreview('LFT')}
-                onGenerate={() => onExport('LFT', 'lft-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Thyroid Panel"
-                description="Complete thyroid function assessment"
-                onPreview={() => onPreview('Thyroid')}
-                onGenerate={() => onExport('Thyroid', 'thyroid-function-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="HbA1c"
-                description="Diabetes monitoring and glucose control"
-                onPreview={() => onPreview('HbA1c')}
-                onGenerate={() => onExport('HbA1c', 'hba1c-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Coagulation"
-                description="Blood clotting function panel"
-                onPreview={() => onPreview('Coagulation')}
-                onGenerate={() => onExport('Coagulation', 'coagulation-panel-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Microbiology"
-                description="Culture and sensitivity testing"
-                onPreview={() => onPreview('Microbiology')}
-                onGenerate={() => onExport('Microbiology', 'microbiology-culture-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Pathology"
-                description="Tissue specimen analysis report"
-                onPreview={() => onPreview('Pathology')}
-                onGenerate={() => onExport('Pathology', 'pathology-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Hormone Panel"
-                description="Endocrine function testing"
-                onPreview={() => onPreview('Hormone')}
-                onGenerate={() => onExport('Hormone', 'hormone-panel-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-
-              <DocumentCard
-                title="Infectious Disease"
-                description="Serological testing panel"
-                onPreview={() => onPreview('Infectious')}
-                onGenerate={() => onExport('Infectious', 'infectious-disease-panel-report')}
-                isLoading={isLoading}
-                compact
-                iconType="lab"
-              />
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="step-actions">
