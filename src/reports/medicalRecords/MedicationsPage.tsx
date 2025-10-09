@@ -1,12 +1,13 @@
 import React from 'react';
-import { Patient, MedicalHistory } from '../../utils/zodSchemas';
+import { Patient, Provider, MedicalHistory } from '../../utils/zodSchemas';
 
 interface MedicationsPageProps {
   patient: Patient;
+  provider: Provider;
   medicalHistory?: MedicalHistory;
 }
 
-const MedicationsPage: React.FC<MedicationsPageProps> = ({ patient, medicalHistory }) => {
+const MedicationsPage: React.FC<MedicationsPageProps> = ({ patient, provider, medicalHistory }) => {
   const medications = medicalHistory?.medications;
   const currentDate = new Date().toLocaleDateString();
 
@@ -14,8 +15,14 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ patient, medicalHisto
     <div className="medical-page medications-page">
       <header className="medical-page-header">
         <div className="hospital-info">
-          <h2>Springfield Medical Center</h2>
-          <p>123 Healthcare Blvd, Springfield, IL 62701 | (555) 555-0100</p>
+          <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
+          <p>
+            {provider?.facilityAddress?.street && provider?.facilityAddress?.city && provider?.facilityAddress?.state && provider?.facilityAddress?.zipCode
+              ? `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}`
+              : '123 Healthcare Blvd, Springfield, IL 62701'}
+            {' | '}
+            {provider?.facilityPhone || '(555) 555-0100'}
+          </p>
         </div>
         <div className="page-title">
           <h1>Current Medications & Drug History</h1>

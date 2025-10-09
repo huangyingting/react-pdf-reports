@@ -52,6 +52,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
       {/* Page 3: Medications */}
       <MedicationsPage
         patient={patient}
+        provider={provider}
         medicalHistory={medicalHistory}
       />
 

@@ -271,7 +271,7 @@ const LabResultsPage: React.FC<LabReportsPageProps> = ({
 
   return (
     <>
-      {/* {(!visitReport?.vitalSigns && !labReports) &&
+      {(!visitReport?.vitalSigns && !labReports) &&
       renderPage(renderNoData, getNextChar())}
 
       {visitReport?.vitalSigns && (
@@ -279,7 +279,7 @@ const LabResultsPage: React.FC<LabReportsPageProps> = ({
           {renderPage(renderVitalSigns, getNextChar())}
           <div className="page-break"></div>
         </div>
-      )} */}
+      )}
       {labReports && labReports.map((labReport) => (
         <div>
           {renderPage(renderLabReport(labReport), getNextChar())}
@@ -287,7 +287,7 @@ const LabResultsPage: React.FC<LabReportsPageProps> = ({
         </div>
 
       ))}
-      {/* {labReports && labReports.length > 0 && (
+      {labReports && labReports.length > 0 && (
         <div>
           {renderPage(renderCriticalAlerts, getNextChar())}
           <div className="page-break"></div>
@@ -298,7 +298,7 @@ const LabResultsPage: React.FC<LabReportsPageProps> = ({
         <div>
           {renderPage(renderLabSummary, getNextChar())}
         </div>
-      )} */}
+      )}
     </>
   );
 };
