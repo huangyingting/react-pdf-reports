@@ -10,7 +10,10 @@ import {
   Checkbox,
   CircularProgress,
   Alert,
-  IconButton
+  IconButton,
+  Select,
+  MenuItem,
+  SelectChangeEvent
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -44,7 +47,6 @@ import {
 } from '../utils/aiDataGenerator';
 import { loadAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
 import { clearCache, DEFAULT_CACHE_CONFIG } from '../utils/cache';
-import CustomSelect from './CustomSelect';
 import AzureConfigModal from './AzureConfigModal';
 
 interface GenerateDataStepProps {
@@ -356,46 +358,64 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
             }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Typography variant="body2" fontWeight={600} color="text.secondary">Medical Complexity</Typography>
-                <CustomSelect
+                <Select
                   value={customOptions.complexity}
-                  onChange={(value) => setCustomOptions({...customOptions, complexity: value as 'low' | 'medium' | 'high'})}
-                  options={[
-                    { value: 'low', label: 'Basic (2-3 conditions)' },
-                    { value: 'medium', label: 'Moderate (4-5 conditions)' },
-                    { value: 'high', label: 'Complex (6+ conditions)' }
-                  ]}
-                />
+                  onChange={(e: SelectChangeEvent) => setCustomOptions({...customOptions, complexity: e.target.value as 'low' | 'medium' | 'high'})}
+                  fullWidth
+                  sx={{
+                    '& .MuiSelect-select': {
+                      display: 'flex',
+                      alignItems: 'center',
+                    }
+                  }}
+                >
+                  <MenuItem value="low">Basic (2-3 conditions)</MenuItem>
+                  <MenuItem value="medium">Moderate (4-5 conditions)</MenuItem>
+                  <MenuItem value="high">Complex (6+ conditions)</MenuItem>
+                </Select>
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Typography variant="body2" fontWeight={600} color="text.secondary">Number of Visits</Typography>
-                <CustomSelect
+                <Select
                   value={customOptions.numberOfVisits}
-                  onChange={(value) => setCustomOptions({...customOptions, numberOfVisits: value as number})}
-                  options={[
-                    { value: 1, label: '1 Visit' },
-                    { value: 2, label: '2 Visits' },
-                    { value: 3, label: '3 Visits' },
-                    { value: 5, label: '5 Visits' },
-                    { value: 7, label: '7 Visits' }
-                  ]}
-                />
+                  onChange={(e: SelectChangeEvent<number>) => setCustomOptions({...customOptions, numberOfVisits: e.target.value as number})}
+                  fullWidth
+                  sx={{
+                    '& .MuiSelect-select': {
+                      display: 'flex',
+                      alignItems: 'center',
+                    }
+                  }}
+                >
+                  <MenuItem value={1}>1 Visit</MenuItem>
+                  <MenuItem value={2}>2 Visits</MenuItem>
+                  <MenuItem value={3}>3 Visits</MenuItem>
+                  <MenuItem value={5}>5 Visits</MenuItem>
+                  <MenuItem value={7}>7 Visits</MenuItem>
+                </Select>
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                 <Typography variant="body2" fontWeight={600} color="text.secondary">Lab Tests</Typography>
-                <CustomSelect
+                <Select
                   value={customOptions.numberOfLabTests}
-                  onChange={(value) => setCustomOptions({...customOptions, numberOfLabTests: value as number})}
-                  options={[
-                    { value: 1, label: '1 Test' },
-                    { value: 2, label: '2 Tests' },
-                    { value: 3, label: '3 Tests' },
-                    { value: 5, label: '5 Tests' },
-                    { value: 8, label: '8 Tests' },
-                    { value: 10, label: '10 Tests' }
-                  ]}
-                />
+                  onChange={(e: SelectChangeEvent<number>) => setCustomOptions({...customOptions, numberOfLabTests: e.target.value as number})}
+                  fullWidth
+                  sx={{
+                    '& .MuiSelect-select': {
+                      display: 'flex',
+                      alignItems: 'center',
+                    }
+                  }}
+                >
+                  <MenuItem value={1}>1 Test</MenuItem>
+                  <MenuItem value={2}>2 Tests</MenuItem>
+                  <MenuItem value={3}>3 Tests</MenuItem>
+                  <MenuItem value={5}>5 Tests</MenuItem>
+                  <MenuItem value={8}>8 Tests</MenuItem>
+                  <MenuItem value={10}>10 Tests</MenuItem>
+                </Select>
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>

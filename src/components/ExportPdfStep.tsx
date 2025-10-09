@@ -1,7 +1,6 @@
 import React from 'react';
-import { Box, Typography, FormControlLabel, Checkbox, Button } from '@mui/material';
+import { Box, Typography, FormControlLabel, Checkbox, Button, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import DocumentCard from './DocumentCard';
-import CustomSelect from './CustomSelect';
 import { StepContainer, ContentContainer, SectionCard, CategoryHeader, DocumentGrid } from './SharedComponents';
 import * as styles from '../styles/commonStyles';
 import { GeneratedData, LabTestType } from '../utils/zodSchemas';
@@ -121,10 +120,10 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
           <Box sx={styles.flexWrapResponsive}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               <Typography variant="body2" fontWeight={600} color="text.secondary">Export Format</Typography>
-              <CustomSelect
+              <Select
                 value={exportFormat === 'canvas' ? `canvas-${qualityLevel}` : exportFormat}
-                onChange={(value) => {
-                  const val = value as string;
+                onChange={(e: SelectChangeEvent) => {
+                  const val = e.target.value;
                   if (val.startsWith('canvas-')) {
                     setExportFormat('canvas');
                     setQualityLevel(val.replace('canvas-', '') as QualityLevel);
@@ -132,13 +131,19 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                     setExportFormat(val as ExportFormat);
                   }
                 }}
-                options={[
-                  { value: 'pdf', label: 'Vector PDF (Selectable Text)' },
-                  { value: 'canvas-poor', label: 'Canvas Poor Quality (Fast, Small File)' },
-                  { value: 'canvas-standard', label: 'Canvas Standard Quality (Balanced)' },
-                  { value: 'canvas-high', label: 'Canvas High Quality (Best, Large File)' }
-                ]}
-              />
+                fullWidth
+                sx={{
+                  '& .MuiSelect-select': {
+                    display: 'flex',
+                    alignItems: 'center',
+                  }
+                }}
+              >
+                <MenuItem value="pdf">Vector PDF (Selectable Text)</MenuItem>
+                <MenuItem value="canvas-poor">Canvas Poor Quality (Fast, Small File)</MenuItem>
+                <MenuItem value="canvas-standard">Canvas Standard Quality (Balanced)</MenuItem>
+                <MenuItem value="canvas-high">Canvas High Quality (Best, Large File)</MenuItem>
+              </Select>
               <Typography variant="caption" color="text.secondary">
                 {exportFormat === 'pdf' && 'Vector-based PDF with selectable text and smaller file size'}
                 {exportFormat === 'canvas' && qualityLevel === 'poor' && 'Scale: 1x, Quality: 50% - Fastest generation, smallest file'}
@@ -149,14 +154,23 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               <Typography variant="body2" fontWeight={600} color="text.secondary">Font Family</Typography>
-              <CustomSelect
+              <Select
                 value={fontFamily}
-                onChange={(value) => setFontFamily(value as string)}
-                options={fontFamilies.map(font => ({
-                  value: font.value,
-                  label: font.label
-                }))}
-              />
+                onChange={(e: SelectChangeEvent) => setFontFamily(e.target.value)}
+                fullWidth
+                sx={{
+                  '& .MuiSelect-select': {
+                    display: 'flex',
+                    alignItems: 'center',
+                  }
+                }}
+              >
+                {fontFamilies.map(font => (
+                  <MenuItem key={font.value} value={font.value}>
+                    {font.label}
+                  </MenuItem>
+                ))}
+              </Select>
               <Typography variant="caption" color="text.secondary">
                 Choose font family for all document text
               </Typography>

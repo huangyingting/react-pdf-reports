@@ -144,7 +144,6 @@ src/
 │   ├── EditDataStep.tsx          # Step 2: Data editing UI
 │   ├── ExportPdfStep.tsx         # Step 3: PDF export UI
 │   ├── ProgressIndicator.tsx     # Workflow progress indicator
-│   ├── CustomSelect.tsx          # Custom dropdown component
 │   ├── DocumentCard.tsx          # Document type selector
 │   └── AzureConfigModal.tsx      # Azure OpenAI configuration
 ├── reports/                 # Medical Document Templates
