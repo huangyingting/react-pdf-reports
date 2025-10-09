@@ -1,33 +1,48 @@
-# React PDF Report Generator
+# Medical Document Generator
 
-A modern React.js application that demonstrates how to export HTML content to PDF files using jsPDF's `.html()` method. This application generates professional reports and converts them to downloadable PDF documents.
+A modern React.js application that generates realistic medical documents and reports using AI-powered data generation. This application creates professional healthcare documents and exports them to high-quality PDF files.
 
 ## Features
 
-- **Multiple Report Types**: Sales, Inventory, and Financial reports
-- **Professional PDF Export**: Uses jsPDF's `.html()` method for high-quality PDF generation
-- **Real-time Preview**: Preview PDFs before downloading
-- **Combined Reports**: Export multiple reports into a single PDF file
+- **AI-Powered Data Generation**: Uses Azure OpenAI to generate realistic, clinically coherent medical data
+- **Multiple Document Types**: 
+  - Medical Records Reports
+  - CMS-1500 Insurance Claim Forms
+  - Insurance Policy Documents
+  - Visit Report Documents
+  - Medication History Reports
+  - Laboratory Reports (various test types)
+- **Three-Step Workflow**:
+  1. Generate Data - AI-powered or faker-based generation
+  2. Edit Data - Review and modify generated data
+  3. Export PDF - Download high-quality PDF documents
+- **Professional PDF Export**: Uses jsPDF with html2canvas for high-quality PDF generation
+- **Customizable Settings**: Adjust data complexity, font families, quality levels, and watermarks
 - **Responsive Design**: Works on desktop and mobile devices
-- **Professional Styling**: Clean, modern interface with print-optimized layouts
+- **TypeScript & Zod Validation**: Type-safe data structures with runtime validation
 - **GitHub Pages Deployment**: Automated deployment workflow included
 
 ## Live Demo
 
-Visit the live application: [https://huangyingting.github.io/react-pdf-reports](https://huangyingting.github.io/react-pdf-reports)
+Visit the live application: [https://huangyingting.github.io/docgen](https://huangyingting.github.io/docgen)
 
 ## Technologies Used
 
-- **React.js** - Frontend framework
+- **React 19** - Modern React with latest features
+- **TypeScript** - Type-safe development
+- **Vite** - Fast build tool and dev server
 - **jsPDF** - PDF generation library
-- **html2canvas** - HTML to canvas conversion (used by jsPDF)
+- **html2canvas** - HTML to canvas conversion for PDF export
+- **Azure OpenAI** - AI-powered realistic data generation
+- **Zod** - Runtime schema validation
+- **Faker.js** - Fallback data generation
 - **CSS3** - Modern styling with gradients and animations
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v18 or higher)
 - npm or yarn package manager
 - (Optional) Azure OpenAI account for AI-powered data generation
 
@@ -35,7 +50,7 @@ Visit the live application: [https://huangyingting.github.io/react-pdf-reports](
 
 1. Clone or navigate to the project directory:
    ```bash
-   cd react-pdf-reports
+   cd docgen
    ```
 
 2. Install dependencies:
@@ -44,117 +59,186 @@ Visit the live application: [https://huangyingting.github.io/react-pdf-reports](
    ```
 
 3. (Optional) Configure Azure OpenAI for AI-powered data generation:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your Azure OpenAI credentials
-   ```
+   - The application will prompt you to configure Azure OpenAI settings when you first use AI generation
+   - Alternatively, you can store credentials in browser localStorage:
+     - `azureOpenAI.endpoint`: Your Azure OpenAI endpoint URL
+     - `azureOpenAI.apiKey`: Your Azure OpenAI API key
+     - `azureOpenAI.deploymentName`: Your deployment name
 
 4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   Or:
    ```bash
    npm start
    ```
 
 5. Open your browser and visit:
    ```
-   http://localhost:3000
+   http://localhost:5173
    ```
 
 ## Usage
 
-### Viewing Reports
+### Step 1: Generate Data
 
-1. Use the navigation buttons to switch between different report types:
-   - **Sales Report**: Shows product sales data with totals
-   - **Inventory Report**: Displays stock levels with low-stock alerts
-   - **Financial Report**: Presents revenue, expenses, and profit analysis
+1. Select your preferred data generation method:
+   - **AI-Powered Generation**: Uses Azure OpenAI for realistic, clinically coherent data
+   - **Faker-Based Generation**: Uses Faker.js for quick random data generation
 
-### Exporting to PDF
+2. Configure generation options:
+   - **Complexity Level**: Simple, Medium, or Complex
+   - **Number of Visits**: How many medical visits to generate
+   - **Number of Lab Tests**: How many laboratory tests to include
+   - **Secondary Insurance**: Whether to include secondary insurance
 
-#### Single Report Export
-1. Select the report you want to export using the navigation buttons
-2. Click **"Download PDF"** to directly download the current report
-3. Click **"Preview PDF"** to open the PDF in a new tab before downloading
+3. Click **"Generate with AI"** or **"Generate with Faker"**
 
-#### Combined Report Export
-- Click **"Download All Reports (Combined)"** to export all three reports into a single PDF file
+### Step 2: Edit Data
+
+1. Review the generated medical data across different tabs:
+   - Patient information
+   - Provider information
+   - Insurance details
+   - Medical history
+   - Visit notes
+   - Medications
+   - Lab reports
+
+2. Edit any field directly in the JSON editor
+3. Click **"Next: Export PDF"** when ready
+
+### Step 3: Export PDF
+
+1. Select document type:
+   - Medical Records Report (comprehensive)
+   - CMS-1500 Form (insurance claim)
+   - Insurance Policy Document
+   - Visit Report
+   - Medication History
+   - Laboratory Report
+
+2. Configure export settings:
+   - **Export Format**: PDF or Canvas (image)
+   - **Quality Level**: Poor, Standard, or High
+   - **Font Family**: Choose from 18 professional fonts
+   - **Watermark**: Enable/disable watermark
+
+3. Click **"Download PDF"** to export the document
 
 ### PDF Export Features
 
-- **High Quality**: 2x scaling for crisp text and graphics
-- **Professional Layout**: Optimized for A4 paper size
-- **Print-Ready**: Proper margins and page formatting
+- **High Quality**: Configurable quality levels for crisp output
+- **Professional Layout**: Medical document templates with proper formatting
+- **Print-Ready**: Optimized for A4/Letter paper sizes
+- **Watermark Support**: Optional watermarks for draft documents
 - **Cross-Browser Compatible**: Works in all modern browsers
 
 ## Project Structure
 
 ```
 src/
-├── components/          # Report components
-│   ├── SalesReport.js   # Sales report component
-│   ├── InventoryReport.js # Inventory report component
-│   └── FinancialReport.js # Financial report component
-├── utils/               # Utility functions
-│   ├── pdfExport.js     # PDF export functionality
-│   └── sampleData.js    # Sample data for reports
-├── App.js               # Main application component
-├── App.css              # Application styles
-└── index.js             # Application entry point
+├── components/              # UI Components
+│   ├── GenerateDataStep.tsx      # Step 1: Data generation UI
+│   ├── EditDataStep.tsx          # Step 2: Data editing UI
+│   ├── ExportPdfStep.tsx         # Step 3: PDF export UI
+│   ├── ProgressIndicator.tsx     # Workflow progress indicator
+│   ├── CustomSelect.tsx          # Custom dropdown component
+│   ├── DocumentCard.tsx          # Document type selector
+│   └── AzureConfigModal.tsx      # Azure OpenAI configuration
+├── reports/                 # Medical Document Templates
+│   ├── medicalRecords/          # Comprehensive medical records
+│   ├── cms1500/                 # CMS-1500 insurance claim form
+│   ├── insurancePolicy/         # Insurance policy documents
+│   ├── visitReport/             # Visit report documents
+│   ├── medicationHistory/       # Medication history reports
+│   └── labReport/               # Laboratory reports
+├── utils/                   # Utility Functions
+│   ├── aiDataGenerator.ts       # Azure OpenAI data generation
+│   ├── dataGenerator.ts         # Faker.js data generation
+│   ├── zodSchemas.ts            # Zod schema definitions
+│   ├── jsonSchemaGenerator.ts   # JSON schema utilities
+│   ├── pdfExport.ts             # PDF export functionality
+│   ├── watermark.ts             # Watermark generation
+│   ├── cache.ts                 # Caching utilities
+│   └── azureConfigStorage.ts    # Azure config management
+├── App.tsx                  # Main application component
+├── App.css                  # Application styles
+└── index.tsx                # Application entry point
 ```
 
 ## Key Functions
 
-### PDF Export Utilities (`src/utils/pdfExport.js`)
+### AI Data Generator (`src/utils/aiDataGenerator.ts`)
 
-- **`exportToPDF(elementId, filename, options)`** - Export a single HTML element to PDF
-- **`exportMultipleReportsToPDF(elementIds, filename, options)`** - Combine multiple reports into one PDF
-- **`previewPDF(elementId, options)`** - Preview PDF in a new browser tab
-- **`getPDFAsBase64(elementId, options)`** - Get PDF as base64 string for API uploads
+AI-powered medical data generation using Azure OpenAI:
+- **`generatePatientWithAI(config, complexity, cache?)`** - Generate realistic patient information
+- **`generateProviderWithAI(config, complexity, cache?)`** - Generate healthcare provider data
+- **`generateInsuranceWithAI(config, complexity, includeSecondary?, cache?)`** - Generate insurance information
+- **`generateMedicalHistoryWithAI(config, patient, complexity, cache?)`** - Generate medical history
+- **`generateVisitReportsWithAI(config, patient, provider, numVisits, complexity, cache?)`** - Generate visit notes
+- **`generateLabReportsWithAI(config, patient, numTests, complexity, cache?)`** - Generate lab reports
+- **`generateCMS1500WithAI(config, patient, provider, insurance, complexity, cache?)`** - Generate CMS-1500 claim form
 
-### Sample Data (`src/utils/sampleData.js`)
+### Data Generator (`src/utils/dataGenerator.ts`)
 
-Contains realistic sample data for all report types:
-- Sales transactions with products, quantities, and totals
-- Inventory items with stock levels and alerts
-- Financial data with revenue/expense breakdowns
+Faker.js-based data generation for quick testing:
+- Similar functions as AI generator but using Faker.js
+- Faster generation but less clinically coherent
+
+### PDF Export Utilities (`src/utils/pdfExport.ts`)
+
+- **`exportToPDF(elementId, filename, options)`** - Export HTML element to PDF
+- **`exportToPDFAsImage(elementId, filename, options)`** - Export as canvas image
+- **`createWatermarkedCanvas(canvas, watermarkOptions)`** - Add watermark to canvas
+
+### Schema Validation (`src/utils/zodSchemas.ts`)
+
+Type-safe data structures with Zod schemas:
+- Patient, Provider, Insurance, Medical History schemas
+- Visit Reports, Lab Reports, Medication schemas
+- CMS-1500 claim form schemas
+- Runtime validation with detailed error messages
 
 ## Customization
 
-### Adding New Report Types
+### Adding New Document Types
 
-1. Create a new component in `src/components/`
-2. Add sample data to `src/utils/sampleData.js`
-3. Import and integrate in `src/App.js`
-4. Add styling in `src/App.css`
+1. Create a new component in `src/reports/<documentType>/`
+2. Add the document template with appropriate styling
+3. Update the `ReportType` union type in `src/App.tsx`
+4. Add a case in the document rendering switch statement
+5. Optionally add Zod schemas in `src/utils/zodSchemas.ts`
+
+### Configuring AI Generation
+
+Azure OpenAI configuration can be customized:
+- **Model Parameters**: Temperature, max tokens, etc. in `aiDataGenerator.ts`
+- **Caching**: Configure cache TTL and storage in `cache.ts`
+- **Complexity Levels**: Adjust prompts for different complexity levels
 
 ### Modifying PDF Options
 
-Edit the default options in `src/utils/pdfExport.js`:
+Quality levels are defined in `src/App.tsx` and `src/utils/pdfExport.ts`:
 
-```javascript
-const defaultOptions = {
-  margin: [10, 10, 10, 10], // [top, left, bottom, right] in mm
-  image: { type: 'jpeg', quality: 0.98 },
-  html2canvas: { 
-    scale: 2,
-    useCORS: true,
-    letterRendering: true
-  },
-  jsPDF: { 
-    unit: 'mm', 
-    format: 'a4', 
-    orientation: 'portrait' 
-  }
+```typescript
+const qualitySettings = {
+  poor: { scale: 1, quality: 0.5 },
+  standard: { scale: 2, quality: 0.85 },
+  high: { scale: 3, quality: 0.98 }
 };
 ```
 
-### Styling Reports for PDF
+### Styling Documents for PDF
 
-The CSS includes special `@media print` rules and PDF-specific styling. Key considerations:
+Medical document CSS includes print-specific styling. Key considerations:
 
-- Use absolute units (mm, pt) for precise PDF layout
-- Avoid complex animations or transitions
-- Test with different page sizes and orientations
+- Use absolute units (pt, px) for precise PDF layout
+- Avoid CSS transforms and complex animations
+- Test with different page sizes (A4, Letter)
 - Ensure sufficient contrast for printing
+- Use web-safe fonts or embed custom fonts
 
 ## Browser Compatibility
 
@@ -165,48 +249,136 @@ The CSS includes special `@media print` rules and PDF-specific styling. Key cons
 
 ## Performance Tips
 
-- Large reports may take a few seconds to generate
-- For better performance, consider paginating very large datasets
-- The `scale: 2` option provides high quality but increases processing time
-- Use `previewPDF()` for quick previews before final export
+### AI Generation
+- AI generation may take 10-30 seconds depending on complexity and data volume
+- Use caching to avoid regenerating the same data
+- Faker-based generation is much faster for testing purposes
+- Consider lower complexity levels for faster generation
+
+### PDF Export
+- Large documents may take a few seconds to render
+- Higher quality settings increase processing time significantly
+- Standard quality (scale: 2) provides good balance
+- Canvas format exports are faster than PDF for simple use cases
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **PDF generation fails**: Ensure the target element has a proper ID and is visible
-2. **Poor quality output**: Increase the `scale` option in html2canvas settings
-3. **Large file sizes**: Reduce image quality or scale settings
-4. **Missing content**: Check for CSS that might hide elements during generation
+1. **AI generation fails**: 
+   - Verify Azure OpenAI credentials are correct
+   - Check deployment name matches your Azure setup
+   - Ensure API endpoint includes proper protocol (https://)
+   - Check browser console for detailed error messages
+
+2. **PDF generation fails**: 
+   - Ensure the target element has a proper ID and is visible
+   - Check browser console for rendering errors
+   - Try lower quality settings if browser runs out of memory
+
+3. **Poor quality output**: 
+   - Increase quality level to "High"
+   - Try different font families (some render better than others)
+   - Ensure sufficient screen resolution
+
+4. **Large file sizes**: 
+   - Reduce quality level to "Standard" or "Poor"
+   - Use canvas format instead of PDF for smaller files
+   - Simplify document complexity
+
+5. **Data validation errors**:
+   - Check Zod schema definitions match your data structure
+   - Review console for detailed validation error messages
+   - Ensure all required fields are populated
 
 ### Console Debugging
 
-The application logs PDF generation progress to the browser console. Check for error messages if exports fail.
+The application logs detailed information to the browser console:
+- AI generation requests and responses
+- Data validation results
+- PDF generation progress
+- Cache hit/miss information
 
 ## License
 
 This project is open source and available under the MIT License.
 
+## Development Scripts
+
+```bash
+# Start development server
+npm run dev
+npm start
+
+# Build for production
+npm run build
+
+# Preview production build
+npm preview
+
+# Generate favicon
+npm run generate:favicon
+
+# Run AI data generator tests
+npm run test:ai
+npm run test:ai:mock
+```
+
 ## Deployment
 
-This application includes automated deployment to GitHub Pages. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment instructions.
+This application can be deployed to GitHub Pages or any static hosting service.
 
-### Quick Deployment Steps
+### GitHub Pages Deployment
 
-1. Enable GitHub Pages in repository settings (Source: "GitHub Actions")
-2. Push changes to `master` branch
-3. GitHub Actions will automatically build and deploy
+1. Update `homepage` in `package.json` to match your repository:
+   ```json
+   "homepage": "https://<username>.github.io/<repo-name>"
+   ```
 
-The application will be available at: `https://huangyingting.github.io/react-pdf-reports`
+2. Build the application:
+   ```bash
+   npm run build
+   ```
+
+3. Deploy the `dist` folder to GitHub Pages
+
+The application will be available at: `https://huangyingting.github.io/docgen`
+
+### Environment Variables
+
+For production deployment with AI features:
+- Store Azure OpenAI credentials securely (not in git)
+- Configure through the application UI on first use
+- Credentials are stored in browser localStorage
+
+## Testing
+
+The project includes tests for AI data generation:
+
+```bash
+# Run tests with real Azure OpenAI (requires configuration)
+npm run test:ai
+
+# Run tests with mocked responses
+npm run test:ai:mock
+```
+
+## Security Considerations
+
+- **API Keys**: Never commit Azure OpenAI API keys to version control
+- **Local Storage**: Credentials are stored in browser localStorage (client-side only)
+- **Data Privacy**: All medical data is generated synthetically and is not real
+- **HIPAA Compliance**: This is a demonstration tool and should not be used with real patient data
 
 ## Contributing
 
-Feel free to submit issues, fork the repository, and create pull requests for any improvements.
+Contributions are welcome! Please feel free to submit issues, fork the repository, and create pull requests for:
+- New medical document templates
+- Additional data generation features
+- UI/UX improvements
+- Bug fixes and optimizations
+- Documentation enhancements
 
 ---
 
-**Note**: This application demonstrates the power of jsPDF's `.html()` method for converting React components to professional PDF documents. Perfect for generating reports, invoices, certificates, and other business documents directly in the browser.
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Note**: This application demonstrates AI-powered medical document generation using Azure OpenAI and professional PDF export capabilities. The generated medical data is entirely synthetic and intended for demonstration, testing, and training purposes only. Do not use this tool with real patient information.
