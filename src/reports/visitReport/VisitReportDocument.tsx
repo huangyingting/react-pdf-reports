@@ -1,17 +1,21 @@
 import React from 'react';
 import './VisitReportDocument.css';
-import { VisitReportData } from '../../utils/types';
+import { Patient, Provider, VisitReport } from '../../utils/zodSchemas';
 
 interface VisitReportDocumentProps {
-  data: VisitReportData;
+  patient: Patient;
+  provider: Provider;
+  visitReport: VisitReport;
   fontFamily?: string;
 }
 
 const VisitReportDocument: React.FC<VisitReportDocumentProps> = ({
-  data,
+  patient,
+  provider,
+  visitReport,
   fontFamily = "'Arial', sans-serif"
 }) => {
-  const { patient, provider, visit, vitalSigns } = data;
+  const { visit, vitalSigns } = visitReport;
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

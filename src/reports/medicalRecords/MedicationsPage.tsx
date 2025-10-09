@@ -1,14 +1,15 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/types';
+import { Patient, MedicalHistory } from '../../utils/zodSchemas';
 
 interface MedicationsPageProps {
-  data: MedicalRecord;
+  patient: Patient;
+  medicalHistory?: MedicalHistory;
 }
 
-const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
-  const { medications, patient } = data;
+const MedicationsPage: React.FC<MedicationsPageProps> = ({ patient, medicalHistory }) => {
+  const medications = medicalHistory?.medications;
   const currentDate = new Date().toLocaleDateString();
-  
+
   return (
     <div className="medical-page medications-page">
       <header className="medical-page-header">
@@ -50,7 +51,7 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
               ))}
             </tbody>
           </table>
-          
+
           {/* Medication Instructions */}
           <div className="medication-instructions">
             <h4>Special Instructions</h4>
@@ -109,7 +110,7 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
                 <span className="reaction">Moderate: Hives, swelling</span>
               </div>
             </div>
-            
+
             <div className="safety-column">
               <h4>Drug Interactions</h4>
               <ul className="interaction-list">
@@ -118,7 +119,7 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
                 <li>Take Metformin with food</li>
               </ul>
             </div>
-            
+
             <div className="safety-column">
               <h4>Monitoring Requirements</h4>
               <table className="monitoring-table">
@@ -152,8 +153,8 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
             <div className="compliance-item">
               <h4>Pharmacy Information</h4>
               <p><strong>Preferred Pharmacy:</strong> Springfield Pharmacy<br />
-              <strong>Address:</strong> 456 Main St, Springfield, IL<br />
-              <strong>Phone:</strong> (555) 987-6543</p>
+                <strong>Address:</strong> 456 Main St, Springfield, IL<br />
+                <strong>Phone:</strong> (555) 987-6543</p>
             </div>
             <div className="compliance-item">
               <h4>Refill Schedule</h4>
@@ -176,9 +177,9 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
             </div>
             <div className="compliance-item">
               <h4>Compliance Notes</h4>
-              <p>Patient reports good adherence to medication regimen. 
-              Uses pill organizer for daily medications. No missed doses reported 
-              in past month. Next medication review scheduled for December 2024.</p>
+              <p>Patient reports good adherence to medication regimen.
+                Uses pill organizer for daily medications. No missed doses reported
+                in past month. Next medication review scheduled for December 2024.</p>
             </div>
           </div>
         </section>
@@ -186,8 +187,8 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ data }) => {
 
       <footer className="medical-page-footer">
         <div className="confidentiality-notice">
-          <p><strong>CONFIDENTIAL:</strong> This document contains protected health information. 
-          Unauthorized disclosure is prohibited by law.</p>
+          <p><strong>CONFIDENTIAL:</strong> This document contains protected health information.
+            Unauthorized disclosure is prohibited by law.</p>
         </div>
         <div className="page-info">
           <span>Page 3 of 5</span>

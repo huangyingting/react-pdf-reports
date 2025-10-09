@@ -11,13 +11,15 @@ import CMS1500Form from './reports/cms1500/CMS1500Form';
 import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDocument';
 import VisitReportDocument from './reports/visitReport/VisitReportDocument';
 import MedicationHistoryDocument from './reports/medicationHistory/MedicationHistoryDocument';
-import LaboratoryReportDocument from './reports/laboratoryReport/LaboratoryReportDocument';
-import { generateCMS1500Data } from './utils/cms1500Generator';
-import { generateInsurancePolicyData } from './utils/insurancePolicyGenerator';
-import { generateVisitReportData } from './utils/visitReportGenerator';
-import { generateMedicationHistoryData } from './utils/medicationHistoryGenerator';
-import { generateLaboratoryReportData } from './utils/laboratoryReportGenerator';
-import { MedicalRecord, CMS1500Data, InsurancePolicyData, VisitReportData, MedicationHistoryData, LaboratoryReportData, LabTestType } from './utils/types';
+import LaboratoryReportDocument from './reports/labReport/LabReportDocument';
+import { 
+  InsurancePolicy,
+  VisitReport,
+  LabReport,
+  LabTestType,
+  GenerationOptions,
+  GeneratedData
+} from './utils/zodSchemas';
 
 // Import utilities
 import { 
@@ -38,12 +40,16 @@ type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'm
 function App() {
   // Workflow state management
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [medicalData, setMedicalData] = useState<MedicalRecord | null>(null);
-  const [cms1500Data, setCms1500Data] = useState<CMS1500Data | null>(null);
-  const [insurancePolicyData, setInsurancePolicyData] = useState<InsurancePolicyData | null>(null);
-  const [visitReportData, setVisitReportData] = useState<VisitReportData | null>(null);
-  const [medicationHistoryData, setMedicationHistoryData] = useState<MedicationHistoryData | null>(null);
-  const [laboratoryReports, setLaboratoryReports] = useState<Map<LabTestType, LaboratoryReportData>>(new Map());
+  const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null);
+  const [generationOptions, setGenerationOptions] = useState<Required<GenerationOptions>>({
+    complexity: 'medium',
+    numberOfVisits: 3,
+    numberOfLabTests: 5,
+    includeSecondaryInsurance: true
+  });
+  
+  // Keep generationOptions for future use (e.g., regenerating data)
+  console.log('Current generation options:', generationOptions);
   const [activeReportType, setActiveReportType] = useState<ReportType>('medical');
   
   // Export settings
@@ -77,36 +83,16 @@ function App() {
   ];
 
   // Step navigation handlers
-  const handleDataGenerated = (data: MedicalRecord) => {
-    setMedicalData(data);
-    setCms1500Data(generateCMS1500Data(data));
-    setInsurancePolicyData(generateInsurancePolicyData(data));
-    setVisitReportData(generateVisitReportData(data));
-    setMedicationHistoryData(generateMedicationHistoryData(data));
-    
-    // Generate all laboratory reports
-    const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
-    const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
-    allLabTypes.forEach(testType => {
-      labReportsMap.set(testType, generateLaboratoryReportData(testType, data));
-    });
-    setLaboratoryReports(labReportsMap);
+  const handleDataGenerated = (
+    data: GeneratedData,
+    options: Required<GenerationOptions>
+  ) => {
+    setGeneratedData(data);
+    setGenerationOptions(options);
   };
 
-  const handleDataUpdated = (newData: MedicalRecord) => {
-    setMedicalData(newData);
-    setCms1500Data(generateCMS1500Data(newData));
-    setInsurancePolicyData(generateInsurancePolicyData(newData));
-    setVisitReportData(generateVisitReportData(newData));
-    setMedicationHistoryData(generateMedicationHistoryData(newData));
-    
-    // Regenerate all laboratory reports
-    const allLabTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
-    const labReportsMap = new Map<LabTestType, LaboratoryReportData>();
-    allLabTypes.forEach(testType => {
-      labReportsMap.set(testType, generateLaboratoryReportData(testType, newData));
-    });
-    setLaboratoryReports(labReportsMap);
+  const handleDataUpdated = (updatedData: GeneratedData) => {
+    setGeneratedData(updatedData);
   };
 
   const handleNextStep = () => {
@@ -122,7 +108,7 @@ function App() {
   };
 
   const handleExportPDF = async (reportType: ReportType, filename: string) => {
-    if (!medicalData) {
+    if (!generatedData) {
       alert('Please generate medical data first.');
       return;
     }
@@ -158,7 +144,7 @@ function App() {
   };
 
   const handlePreview = (reportType: ReportType = 'medical') => {
-    if (!medicalData) {
+    if (!generatedData) {
       alert('Please generate medical data first.');
       return;
     }
@@ -167,7 +153,7 @@ function App() {
   };
 
   const renderActiveReport = () => {
-    if (!medicalData) {
+    if (!generatedData) {
       return <div>No medical data available. Please generate data first.</div>;
     }
 
@@ -175,51 +161,57 @@ function App() {
     const fontFamilyStyle = selectedFont ? selectedFont.css : "'Arial', sans-serif";
     
     if (activeReportType === 'cms1500') {
-      if (!cms1500Data) {
-        return <div>CMS-1500 data not available.</div>;
-      }
       return (
         <CMS1500Form 
-          data={cms1500Data} 
+          data={generatedData.cms1500} 
           fontFamily={fontFamilyStyle}
         />
       );
     }
     
     if (activeReportType === 'insurancePolicy') {
-      return insurancePolicyData ? (
+      const insurancePolicy: InsurancePolicy = {
+        patient: generatedData.patient,
+        insuranceInfo: generatedData.insuranceInfo
+      };
+      return (
         <InsurancePolicyDocument 
-          data={insurancePolicyData}
+          data={insurancePolicy}
           fontFamily={fontFamilyStyle}
         />
-      ) : null;
+      );
     }
     
     if (activeReportType === 'visitReport') {
-      return visitReportData ? (
+      return generatedData.visitReports.length > 0 ? (
         <VisitReportDocument 
-          data={visitReportData}
+          patient={generatedData.patient}
+          provider={generatedData.provider}
+          visitReport={generatedData.visitReports[0]}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
     }
     
     if (activeReportType === 'medicationHistory') {
-      return medicationHistoryData ? (
+      return (
         <MedicationHistoryDocument 
-          data={medicationHistoryData}
+          patient={generatedData.patient}
+          provider={generatedData.provider}
+          medicalHistory={generatedData.medicalHistory}
           fontFamily={fontFamilyStyle}
         />
-      ) : null;
+      );
     }
     
     // Check if it's a laboratory report type
     const labTestTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
     if (labTestTypes.includes(activeReportType as LabTestType)) {
-      const labData = laboratoryReports.get(activeReportType as LabTestType);
+      const labData = generatedData.labReports.find(report => report.testType === activeReportType);
       return labData ? (
         <LaboratoryReportDocument 
-          data={labData}
+          patient={generatedData.patient}
+          labReport={labData}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
@@ -227,7 +219,12 @@ function App() {
     
     return (
       <MedicalRecordsReport 
-        data={medicalData} 
+        patient={generatedData.patient}
+        provider={generatedData.provider}
+        insuranceInfo={generatedData.insuranceInfo}
+        labReports={generatedData.labReports}
+        visitReports={generatedData.visitReports}
+        medicalHistory={generatedData.medicalHistory}
         fontFamily={fontFamilyStyle}
       />
     );
@@ -245,7 +242,7 @@ function App() {
       case 2:
         return (
           <EditDataStep
-            medicalData={medicalData}
+            generatedData={generatedData}
             onDataUpdated={handleDataUpdated}
             onNext={handleNextStep}
             onBack={handlePreviousStep}
@@ -254,7 +251,7 @@ function App() {
       case 3:
         return (
           <ExportPdfStep
-            medicalData={medicalData}
+            generatedData={generatedData}
             exportFormat={exportFormat}
             setExportFormat={setExportFormat}
             qualityLevel={qualityLevel}
@@ -348,44 +345,54 @@ function App() {
 
       {/* Hidden reports for PDF export */}
       <div className="report-display">
-          {medicalData && (
-            <MedicalRecordsReport 
-              data={medicalData} 
-              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-            />
+          {generatedData && (
+            <>
+              <MedicalRecordsReport 
+                patient={generatedData.patient}
+                provider={generatedData.provider}
+                insuranceInfo={generatedData.insuranceInfo}
+                labReports={generatedData.labReports}
+                visitReports={generatedData.visitReports}
+                medicalHistory={generatedData.medicalHistory}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              <CMS1500Form 
+                data={generatedData.cms1500} 
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              <InsurancePolicyDocument 
+                data={{
+                  patient: generatedData.patient,
+                  insuranceInfo: generatedData.insuranceInfo
+                }}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              {generatedData.visitReports.map((visitData: VisitReport, index: number) => (
+                <VisitReportDocument 
+                  key={index}
+                  patient={generatedData.patient}
+                  provider={generatedData.provider}
+                  visitReport={visitData}
+                  fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+                />
+              ))}
+              <MedicationHistoryDocument 
+                patient={generatedData.patient}
+                provider={generatedData.provider}
+                medicalHistory={generatedData.medicalHistory}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              {/* Laboratory Reports */}
+              {generatedData.labReports.map((labReport: LabReport) => (
+                <LaboratoryReportDocument 
+                  key={labReport.testType}
+                  patient={generatedData.patient}
+                  labReport={labReport}
+                  fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+                />
+              ))}
+            </>
           )}
-          {cms1500Data && (
-            <CMS1500Form 
-              data={cms1500Data} 
-              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-            />
-          )}
-          {insurancePolicyData && (
-            <InsurancePolicyDocument 
-              data={insurancePolicyData}
-              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-            />
-          )}
-          {visitReportData && (
-            <VisitReportDocument 
-              data={visitReportData}
-              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-            />
-          )}
-          {medicationHistoryData && (
-            <MedicationHistoryDocument 
-              data={medicationHistoryData}
-              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-            />
-          )}
-          {/* Laboratory Reports */}
-          {Array.from(laboratoryReports.entries()).map(([testType, data]) => (
-            <LaboratoryReportDocument 
-              key={testType}
-              data={data}
-              fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-            />
-          ))}
       </div>
     </div>
   );

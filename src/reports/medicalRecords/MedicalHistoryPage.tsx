@@ -1,23 +1,30 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/types';
+import { MedicalHistory, Patient, Provider } from '../../utils/zodSchemas';
 
 interface MedicalHistoryPageProps {
-  data: MedicalRecord;
+  patient: Patient;
+  provider: Provider;
+  medicalHistory: MedicalHistory;
 }
 
-const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
-  const { medicalHistory, patient } = data;
+const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ patient, provider, medicalHistory }) => {
+  const { allergies, medications } = medicalHistory;
   const currentDate = new Date().toLocaleDateString();
   
   return (
     <div className="medical-page history-page">
       <header className="medical-page-header">
         <div className="hospital-info">
-          <h2>Springfield Medical Center</h2>
-          <p>123 Healthcare Blvd, Springfield, IL 62701 | (555) 555-0100</p>
+          <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
+          <p>
+            {provider?.facilityAddress?.street && provider?.facilityAddress?.city ? 
+              `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}` :
+              '123 Healthcare Blvd, Springfield, IL 62701'
+            } | {provider?.facilityPhone || '(555) 555-0100'}
+          </p>
         </div>
         <div className="page-title">
-          <h1>Medical History</h1>
+          <h1>Medication & Allergy History</h1>
           <p className="generated-date">Generated: {currentDate}</p>
         </div>
       </header>
@@ -36,7 +43,7 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
               </tr>
             </thead>
             <tbody>
-              {(medicalHistory.allergies || []).map((allergy, index) => (
+              {(allergies || []).map((allergy, index) => (
                 <tr key={index}>
                   <td><strong>{allergy.allergen}</strong></td>
                   <td>{allergy.reaction}</td>
@@ -52,113 +59,100 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ data }) => {
           </table>
         </section>
 
-        {/* Compact Chronic Conditions */}
-        <section className="chronic-conditions-section compact-section">
-          <h3>Chronic Conditions</h3>
+        {/* Current Medications */}
+        <section className="current-medications-section compact-section">
+          <h3>Current Medications</h3>
           <table className="compact-table">
             <thead>
               <tr>
-                <th>Condition</th>
-                <th>Diagnosed</th>
-                <th>Status</th>
-                <th>Notes</th>
+                <th>Medication</th>
+                <th>Strength/Dosage</th>
+                <th>Purpose</th>
+                <th>Prescribed By</th>
+                <th>Start Date</th>
               </tr>
             </thead>
             <tbody>
-              {(medicalHistory.chronicConditions || []).map((condition, index) => (
+              {(medications?.current || []).map((med, index) => (
                 <tr key={index}>
-                  <td><strong>{condition.condition}</strong></td>
-                  <td>{condition.diagnosedDate}</td>
-                  <td>
-                    <span className={`status-badge status-${(condition.status || 'unknown').toLowerCase()}`}>
-                      {condition.status || 'Unknown'}
-                    </span>
-                  </td>
-                  <td>{condition.notes}</td>
+                  <td><strong>{med.name}</strong></td>
+                  <td>{med.strength} - {med.dosage}</td>
+                  <td>{med.purpose}</td>
+                  <td>{med.prescribedBy}</td>
+                  <td>{med.startDate}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </section>
 
-        {/* Compact Surgical History */}
-        <section className="surgical-history-section compact-section">
-          <h3>Surgical History</h3>
+        {/* Discontinued Medications */}
+        <section className="discontinued-medications-section compact-section">
+          <h3>Discontinued Medications</h3>
           <table className="compact-table">
             <thead>
               <tr>
-                <th>Procedure</th>
-                <th>Date</th>
-                <th>Hospital</th>
-                <th>Surgeon</th>
-                <th>Complications</th>
+                <th>Medication</th>
+                <th>Strength</th>
+                <th>Discontinued Date</th>
+                <th>Reason</th>
+                <th>Prescribed By</th>
               </tr>
             </thead>
             <tbody>
-              {(medicalHistory.surgicalHistory || []).map((surgery, index) => (
+              {(medications?.discontinued || []).map((med, index) => (
                 <tr key={index}>
-                  <td><strong>{surgery.procedure}</strong></td>
-                  <td>{surgery.date}</td>
-                  <td>{surgery.hospital}</td>
-                  <td>{surgery.surgeon}</td>
-                  <td>{surgery.complications}</td>
+                  <td><strong>{med.name}</strong></td>
+                  <td>{med.strength}</td>
+                  <td>{med.discontinuedDate}</td>
+                  <td>{med.reason}</td>
+                  <td>{med.prescribedBy}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </section>
 
-        {/* Compact Family History */}
-        <section className="family-history-section compact-section">
-          <h3>Family History</h3>
-          <table className="compact-table">
-            <thead>
-              <tr>
-                <th>Relation</th>
-                <th>Medical Conditions</th>
-                <th>Age at Death</th>
-                <th>Cause of Death</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(medicalHistory.familyHistory || []).map((family, index) => (
-                <tr key={index}>
-                  <td><strong>{family.relation}</strong></td>
-                  <td>{(family.conditions || []).join(', ')}</td>
-                  <td>{family.ageAtDeath}</td>
-                  <td>{family.causeOfDeath}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* Medication Instructions Summary */}
+        <section className="medication-instructions-section compact-section">
+          <h3>Medication Instructions & Notes</h3>
+          <div className="reference-grid">
+            {(medications?.current || []).map((med, index) => (
+              <div key={index} className="reference-item">
+                <strong>{med.name}</strong>
+                <div className="note">{med.instructions}</div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {/* Risk Factors Summary */}
-        <section className="risk-factors compact-section">
-          <h3>Risk Assessment Summary</h3>
+        {/* Medication Safety Summary */}
+        <section className="medication-safety compact-section">
+          <h3>Medication Safety Summary</h3>
           <div className="risk-grid">
             <div className="risk-category">
-              <h4>High Risk Factors</h4>
+              <h4>Active Medications</h4>
               <ul>
-                <li>Family history of heart disease</li>
-                <li>Family history of diabetes</li>
-                <li>Multiple drug allergies</li>
+                <li>Current: {medications?.current?.length || 0} medications</li>
+                <li>Recently Discontinued: {medications?.discontinued?.length || 0}</li>
+                <li>Pharmacy: {patient?.pharmacy?.name || 'Not on file'}</li>
               </ul>
             </div>
             <div className="risk-category">
-              <h4>Moderate Risk Factors</h4>
+              <h4>Allergy Alerts</h4>
               <ul>
-                <li>Age over 35</li>
-                <li>Previous surgeries</li>
-                <li>Chronic hypertension</li>
+                <li>Documented Allergies: {allergies?.length || 0}</li>
+                {allergies?.slice(0, 2).map((allergy, idx) => (
+                  <li key={idx}>{allergy.allergen} - {allergy.severity}</li>
+                ))}
               </ul>
             </div>
             <div className="risk-category">
-              <h4>Preventive Measures</h4>
+              <h4>Safety Recommendations</h4>
               <ul>
-                <li>Regular cardiac screening</li>
-                <li>Diabetes monitoring</li>
-                <li>Allergy identification bracelet</li>
+                <li>Verify allergies before prescribing</li>
+                <li>Check drug interactions</li>
+                <li>Review medication adherence</li>
               </ul>
             </div>
           </div>

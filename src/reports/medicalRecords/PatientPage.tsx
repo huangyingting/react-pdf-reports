@@ -1,20 +1,65 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/types';
+import { Patient, Provider, InsuranceInfo, LabReports, MedicalHistory } from '../../utils/zodSchemas';
 
-interface PatientDemographicsPageProps {
-  data: MedicalRecord;
+interface PatientPageProps {
+  patient: Patient;
+  provider: Provider;
+  insuranceInfo: InsuranceInfo;
+  labReports?: LabReports;
+  medicalHistory?: MedicalHistory;
 }
 
-const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data }) => {
-  const { patient } = data;
+const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceInfo, labReports: labReports, medicalHistory: medicalHistoryData }) => {
+
+  // Extract primary insurance from InsuranceInfo
+  const primaryInsurance = insuranceInfo?.primaryInsurance;
   const currentDate = new Date().toLocaleDateString();
-  
+
+  // Extract dynamic data from medicalHistoryData
+  const allergiesText = medicalHistoryData?.allergies && medicalHistoryData.allergies.length > 0
+    ? medicalHistoryData.allergies.map(a => `${a.allergen} (${a.severity})`).join(', ')
+    : 'No known allergies';
+
+  const chronicConditionsText = medicalHistoryData?.chronicConditions && medicalHistoryData.chronicConditions.length > 0
+    ? medicalHistoryData.chronicConditions.map(c => c.condition).join(', ')
+    : 'None documented';
+
+  const currentMedicationsText = medicalHistoryData?.medications?.current && medicalHistoryData.medications.current.length > 0
+    ? medicalHistoryData.medications.current.slice(0, 3).map(m => m.name).join(', ') + (medicalHistoryData.medications.current.length > 3 ? `, +${medicalHistoryData.medications.current.length - 3} more` : '')
+    : 'No current medications';
+
+  // Try to find blood type from all laboratory reports
+  let bloodTypeResult = null;
+  let bloodTypeDate = null;
+  if (labReports && labReports.length > 0) {
+    for (const report of labReports) {
+      const result = report.results?.find((r: any) =>
+        r.parameter?.toLowerCase().includes('blood type') || r.parameter?.toLowerCase().includes('abo')
+      );
+      if (result) {
+        bloodTypeResult = result;
+        bloodTypeDate = report.reportDate;
+        break;
+      }
+    }
+  }
+  const bloodType = bloodTypeResult?.value || 'Not on file';
+
+  // Use pharmacy data from patient demographics
+  const pharmacy = patient?.pharmacy || { name: 'Not specified', address: 'Not specified', phone: 'Not specified' };
+
   return (
     <div className="medical-page demographics-page">
       <header className="medical-page-header">
         <div className="hospital-info">
-          <h2>Springfield Medical Center</h2>
-          <p>123 Healthcare Blvd, Springfield, IL 62701 | (555) 555-0100</p>
+          <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
+          <p>
+            {provider?.facilityAddress?.street && provider?.facilityAddress?.city && provider?.facilityAddress?.state && provider?.facilityAddress?.zipCode
+              ? `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}`
+              : '123 Healthcare Blvd, Springfield, IL 62701'}
+            {' | '}
+            {provider?.facilityPhone || '(555) 555-0100'}
+          </p>
         </div>
         <div className="page-title">
           <h1>Patient Demographics & Information</h1>
@@ -82,15 +127,15 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
             <tbody>
               <tr>
                 <td className="label">Provider:</td>
-                <td className="value">{patient.insurance.provider}</td>
+                <td className="value">{primaryInsurance?.provider || 'Not specified'}</td>
                 <td className="label">Policy Number:</td>
-                <td className="value">{patient.insurance.policyNumber}</td>
+                <td className="value">{primaryInsurance?.policyNumber || 'Not specified'}</td>
               </tr>
               <tr>
                 <td className="label">Group Number:</td>
-                <td className="value">{patient.insurance.groupNumber}</td>
+                <td className="value">{primaryInsurance?.groupNumber || 'Not specified'}</td>
                 <td className="label">Effective Date:</td>
-                <td className="value">{patient.insurance.effectiveDate}</td>
+                <td className="value">{primaryInsurance?.effectiveDate || 'Not specified'}</td>
               </tr>
             </tbody>
           </table>
@@ -101,13 +146,13 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
           <h3>Medical Alerts & Allergies</h3>
           <div className="alert-summary">
             <div className="alert-box critical">
-              <strong>⚠️ DRUG ALLERGIES:</strong> Penicillin (Severe), Shellfish (Moderate)
+              <strong>⚠️ DRUG ALLERGIES:</strong> {allergiesText}
             </div>
             <div className="alert-box warning">
-              <strong>🩺 CHRONIC CONDITIONS:</strong> Hypertension, Type 2 Diabetes
+              <strong>🩺 CHRONIC CONDITIONS:</strong> {chronicConditionsText}
             </div>
             <div className="alert-box info">
-              <strong>💊 CURRENT MEDICATIONS:</strong> Lisinopril, Metformin, Atorvastatin
+              <strong>💊 CURRENT MEDICATIONS:</strong> {currentMedicationsText}
             </div>
           </div>
         </section>
@@ -118,26 +163,26 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
           <div className="reference-grid">
             <div className="reference-item">
               <strong>Primary Care Physician:</strong><br />
-              Dr. Sarah Williams<br />
-              Internal Medicine<br />
-              (555) 123-4567
+              {provider?.name || 'Not assigned'}<br />
+              {provider?.specialty || 'General Practice'}<br />
+              {provider?.phone || 'N/A'}
             </div>
             <div className="reference-item">
               <strong>Last Visit:</strong><br />
-              September 15, 2024<br />
-              Annual Physical<br />
-              Follow-up: 3 months
+              No visits on record<br />
+              N/A<br />
+              N/A
             </div>
             <div className="reference-item">
               <strong>Blood Type:</strong><br />
-              O+ (Rh Positive)<br />
-              <span className="note">Verified 2024-09-15</span>
+              {bloodType}<br />
+              <span className="note">{bloodTypeDate ? `Verified ${bloodTypeDate}` : 'Pending verification'}</span>
             </div>
             <div className="reference-item">
               <strong>Preferred Pharmacy:</strong><br />
-              Springfield Pharmacy<br />
-              456 Main St<br />
-              (555) 987-6543
+              {pharmacy.name}<br />
+              {pharmacy.address}<br />
+              {pharmacy.phone}
             </div>
           </div>
         </section>
@@ -145,8 +190,8 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
 
       <footer className="medical-page-footer">
         <div className="confidentiality-notice">
-          <p><strong>CONFIDENTIAL:</strong> This document contains protected health information. 
-          Unauthorized disclosure is prohibited by law.</p>
+          <p><strong>CONFIDENTIAL:</strong> This document contains protected health information.
+            Unauthorized disclosure is prohibited by law.</p>
         </div>
         <div className="page-info">
           <span>Page 1 of 5</span>
@@ -158,4 +203,4 @@ const PatientDemographicsPage: React.FC<PatientDemographicsPageProps> = ({ data 
   );
 };
 
-export default PatientDemographicsPage;
+export default PatientPage;

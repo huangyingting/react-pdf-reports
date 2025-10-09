@@ -1,14 +1,18 @@
 import React from 'react';
 import './CMS1500Form.css';
-import { CMS1500Data } from '../../utils/types';
+import { CMS1500 } from '../../utils/zodSchemas';
 
 interface CMS1500FormProps {
-  data: CMS1500Data;
+  data: CMS1500;
   fontFamily?: string;
 }
-const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
-  const { patient, insurance, provider, claim } = data;
 
+const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
+  const { patient, insuranceInfo, provider, claimInfo } = data;
+
+  {
+    console.log('Rendering CMS1500Form with data:', data);
+  }
   return (
     <div
       className="cms1500-report"
@@ -22,31 +26,34 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="header-left">
             <div className="pica-checkbox">
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'medicare'} readOnly />
+                <label>Type</label>
+              </div>
+              <div className="checkbox-group">
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Medicare'} readOnly />
                 <label>MEDICARE</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'medicaid'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Medicaid'} readOnly />
                 <label>MEDICAID</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'tricare'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'TRICARE'} readOnly />
                 <label>TRICARE</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'champva'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'CHAMPVA'} readOnly />
                 <label>CHAMPVA</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'group'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Group'} readOnly />
                 <label>GROUP HEALTH PLAN</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'feca'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'FECA'} readOnly />
                 <label>FECA BLK LUNG</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insurance?.type === 'other'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Other'} readOnly />
                 <label>OTHER</label>
               </div>
             </div>
@@ -57,7 +64,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           </div>
           <div className="header-pica">
             <label>PICA</label>
-            <div className="pica-box">{insurance?.picaCode || ''}</div>
+            <div className="pica-box">{insuranceInfo?.picaCode || ''}</div>
           </div>
         </div>
 
@@ -66,11 +73,11 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-1a">
               <label>1. INSURED'S I.D. NUMBER</label>
-              <div className="field-value">{insurance?.primaryInsurance?.memberId || ''}</div>
+              <div className="field-value">{insuranceInfo?.primaryInsurance?.memberId || ''}</div>
             </div>
             <div className="form-field field-1">
               <label>1a. INSURED'S I.D. NUMBER</label>
-              <div className="field-value">{insurance?.primaryInsurance?.memberId || ''}</div>
+              <div className="field-value">{insuranceInfo?.primaryInsurance?.memberId || ''}</div>
             </div>
           </div>
 
@@ -84,10 +91,12 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <div className="field-value">{patient?.dateOfBirth}</div>
               <div className="sex-group">
                 <label>SEX</label>
-                <input type="checkbox" checked={patient?.gender === 'M'} readOnly />
+                <input type="checkbox" checked={patient?.gender === 'Male'} readOnly />
                 <label>M</label>
-                <input type="checkbox" checked={patient?.gender === 'F'} readOnly />
+                <input type="checkbox" checked={patient?.gender === 'Female'} readOnly />
                 <label>F</label>
+                <input type="checkbox" checked={patient?.gender === 'Other'} readOnly />
+                <label>Other</label>
               </div>
             </div>
           </div>
@@ -95,7 +104,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-4">
               <label>4. INSURED'S NAME (Last Name, First Name, Middle Initial)</label>
-              <div className="field-value">{insurance?.subscriberName || patient?.name}</div>
+              <div className="field-value">{insuranceInfo?.subscriberName || patient?.name}</div>
             </div>
             <div className="form-field field-5">
               <label>5. PATIENT'S ADDRESS (No., Street)</label>
@@ -127,37 +136,37 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             <div className="form-field field-6">
               <label>6. PATIENT RELATIONSHIP TO INSURED</label>
               <div className="checkbox-group">
-                <input type="checkbox" checked={claim?.patientRelationship === 'self'} readOnly />
+                <input type="checkbox" checked={claimInfo?.patientRelationship === 'self'} readOnly />
                 <label>Self</label>
-                <input type="checkbox" checked={claim?.patientRelationship === 'spouse'} readOnly />
+                <input type="checkbox" checked={claimInfo?.patientRelationship === 'spouse'} readOnly />
                 <label>Spouse</label>
-                <input type="checkbox" checked={claim?.patientRelationship === 'child'} readOnly />
+                <input type="checkbox" checked={claimInfo?.patientRelationship === 'child'} readOnly />
                 <label>Child</label>
-                <input type="checkbox" checked={claim?.patientRelationship === 'other'} readOnly />
+                <input type="checkbox" checked={claimInfo?.patientRelationship === 'other'} readOnly />
                 <label>Other</label>
               </div>
             </div>
             <div className="form-field field-7">
               <label>7. INSURED'S ADDRESS (No., Street)</label>
-              <div className="field-value">{insurance?.address?.street || ''}</div>
+              <div className="field-value">{insuranceInfo?.address?.street || ''}</div>
               <div className="address-line2">
                 <div className="field-city">
                   <label>CITY</label>
-                  <div className="field-value">{insurance?.address?.city || ''}</div>
+                  <div className="field-value">{insuranceInfo?.address?.city || ''}</div>
                 </div>
                 <div className="field-state">
                   <label>STATE</label>
-                  <div className="field-value">{insurance?.address?.state || ''}</div>
+                  <div className="field-value">{insuranceInfo?.address?.state || ''}</div>
                 </div>
               </div>
               <div className="address-line3">
                 <div className="field-zip">
                   <label>ZIP CODE</label>
-                  <div className="field-value">{insurance?.address?.zipCode || ''}</div>
+                  <div className="field-value">{insuranceInfo?.address?.zipCode || ''}</div>
                 </div>
                 <div className="field-telephone">
                   <label>TELEPHONE (Include Area Code)</label>
-                  <div className="field-value">{insurance?.phone || ''}</div>
+                  <div className="field-value">{insuranceInfo?.phone || ''}</div>
                 </div>
               </div>
             </div>
@@ -166,10 +175,10 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-9">
               <label>9. OTHER INSURED'S NAME (Last Name, First Name, Middle Initial)</label>
-              <div className="field-value">{insurance?.secondaryInsured?.name || ''}</div>
+              <div className="field-value">{insuranceInfo?.secondaryInsured?.name || ''}</div>
               <div className="subfield">
                 <label>a. OTHER INSURED'S POLICY OR GROUP NUMBER</label>
-                <div className="field-value">{insurance?.secondaryInsured?.policyNumber || ''}</div>
+                <div className="field-value">{insuranceInfo?.secondaryInsured?.policyNumber || ''}</div>
               </div>
               <div className="subfield">
                 <label>b. RESERVED FOR NUCC USE</label>
@@ -181,36 +190,38 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               </div>
               <div className="subfield">
                 <label>d. INSURANCE PLAN NAME OR PROGRAM NAME</label>
-                <div className="field-value">{insurance?.secondaryInsured?.planName || ''}</div>
+                <div className="field-value">{insuranceInfo?.secondaryInsured?.planName || ''}</div>
               </div>
             </div>
             <div className="form-field field-11">
               <label>11. INSURED'S POLICY GROUP OR FECA NUMBER</label>
-              <div className="field-value">{insurance?.primaryInsurance?.groupNumber || ''}</div>
+              <div className="field-value">{insuranceInfo?.primaryInsurance?.groupNumber || ''}</div>
               <div className="subfield">
                 <label>a. INSURED'S DATE OF BIRTH</label>
-                <div className="field-value">{insurance?.subscriberDOB || ''}</div>
+                <div className="field-value">{insuranceInfo?.subscriberDOB || ''}</div>
                 <div className="sex-group">
                   <label>SEX</label>
-                  <input type="checkbox" checked={insurance?.subscriberGender === 'M'} readOnly />
+                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Male'} readOnly />
                   <label>M</label>
-                  <input type="checkbox" checked={insurance?.subscriberGender === 'F'} readOnly />
+                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Female'} readOnly />
                   <label>F</label>
+                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Other'} readOnly />
+                  <label>Other</label>
                 </div>
               </div>
               <div className="subfield">
                 <label>b. OTHER CLAIM ID (Designated by NUCC)</label>
-                <div className="field-value">{claim?.otherClaimId || ''}</div>
+                <div className="field-value">{claimInfo?.otherClaimId || ''}</div>
               </div>
               <div className="subfield">
                 <label>c. INSURANCE PLAN NAME OR PROGRAM NAME</label>
-                <div className="field-value">{insurance?.primaryInsurance?.provider || ''}</div>
+                <div className="field-value">{insuranceInfo?.primaryInsurance?.provider || ''}</div>
               </div>
               <div className="subfield checkbox-row">
                 <label>d. IS THERE ANOTHER HEALTH BENEFIT PLAN?</label>
-                <input type="checkbox" checked={claim?.hasOtherHealthPlan === true} readOnly />
+                <input type="checkbox" checked={claimInfo?.hasOtherHealthPlan === true} readOnly />
                 <label>YES</label>
-                <input type="checkbox" checked={claim?.hasOtherHealthPlan === false} readOnly />
+                <input type="checkbox" checked={claimInfo?.hasOtherHealthPlan === false} readOnly />
                 <label>NO</label>
               </div>
             </div>
@@ -224,7 +235,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
                 <div className="signature-text">Signature on File</div>
                 <div className="date-field">
                   <label>DATE</label>
-                  <div className="field-value">{claim?.signatureDate || ''}</div>
+                  <div className="field-value">{claimInfo?.signatureDate || ''}</div>
                 </div>
               </div>
             </div>
@@ -242,18 +253,18 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-14">
               <label>14. DATE OF CURRENT ILLNESS, INJURY, or PREGNANCY (LMP)</label>
-              <div className="field-value">{claim?.dateOfIllness || ''}</div>
+              <div className="field-value">{claimInfo?.dateOfIllness || ''}</div>
               <div className="qual-field">
                 <label>QUAL</label>
-                <div className="field-value">{claim?.illnessQualifier || '431'}</div>
+                <div className="field-value">{claimInfo?.illnessQualifier || '431'}</div>
               </div>
             </div>
             <div className="form-field field-15">
               <label>15. OTHER DATE</label>
-              <div className="field-value">{claim?.otherDate || ''}</div>
+              <div className="field-value">{claimInfo?.otherDate || ''}</div>
               <div className="qual-field">
                 <label>QUAL</label>
-                <div className="field-value">{claim?.otherDateQualifier || ''}</div>
+                <div className="field-value">{claimInfo?.otherDateQualifier || ''}</div>
               </div>
             </div>
             <div className="form-field field-16">
@@ -261,11 +272,11 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <div className="date-range">
                 <div className="from-field">
                   <label>FROM</label>
-                  <div className="field-value">{claim?.unableToWorkFrom || ''}</div>
+                  <div className="field-value">{claimInfo?.unableToWorkFrom || ''}</div>
                 </div>
                 <div className="to-field">
                   <label>TO</label>
-                  <div className="field-value">{claim?.unableToWorkTo || ''}</div>
+                  <div className="field-value">{claimInfo?.unableToWorkTo || ''}</div>
                 </div>
               </div>
             </div>
@@ -277,7 +288,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <div className="field-value">{provider?.referringProvider?.name || ''}</div>
               <div className="npi-field">
                 <label>17a.</label>
-                <div className="field-value">{provider?.referringProvider?.npi || ''}</div>
+                <div className="field-value">{provider?.referringProvider?.qualifier || ''}</div>
               </div>
               <div className="qualifier-field">
                 <label>17b. NPI</label>
@@ -289,11 +300,11 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <div className="date-range">
                 <div className="from-field">
                   <label>FROM</label>
-                  <div className="field-value">{claim?.hospitalizationFrom || ''}</div>
+                  <div className="field-value">{claimInfo?.hospitalizationFrom || ''}</div>
                 </div>
                 <div className="to-field">
                   <label>TO</label>
-                  <div className="field-value">{claim?.hospitalizationTo || ''}</div>
+                  <div className="field-value">{claimInfo?.hospitalizationTo || ''}</div>
                 </div>
               </div>
             </div>
@@ -302,19 +313,19 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-19">
               <label>19. ADDITIONAL CLAIM INFORMATION (Designated by NUCC)</label>
-              <div className="field-value">{claim?.additionalInfo || ''}</div>
+              <div className="field-value">{claimInfo?.additionalInfo || ''}</div>
             </div>
             <div className="form-field field-20">
               <label>20. OUTSIDE LAB?</label>
               <div className="checkbox-group">
-                <input type="checkbox" checked={claim?.outsideLab === true} readOnly />
+                <input type="checkbox" checked={claimInfo?.outsideLab === true} readOnly />
                 <label>YES</label>
-                <input type="checkbox" checked={claim?.outsideLab === false} readOnly />
+                <input type="checkbox" checked={claimInfo?.outsideLab === false} readOnly />
                 <label>NO</label>
               </div>
               <div className="charges-field">
                 <label>$ CHARGES</label>
-                <div className="field-value">{claim?.outsideLabCharges || ''}</div>
+                <div className="field-value">{claimInfo?.outsideLabCharges || ''}</div>
               </div>
             </div>
           </div>
@@ -353,7 +364,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-field field-21">
             <label>21. DIAGNOSIS OR NATURE OF ILLNESS OR INJURY (Relate A-L to service line below)</label>
             <div className="diagnosis-grid">
-              {claim?.diagnosisCodes?.map((code, index) => (
+              {claimInfo?.diagnosisCodes?.map((code, index) => (
                 <div key={index} className="diagnosis-item">
                   <label>{String.fromCharCode(65 + index)}.</label>
                   <div className="diagnosis-code">{code}</div>
@@ -363,15 +374,15 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           </div>
           <div className="form-field field-22">
             <label>22. RESUBMISSION CODE</label>
-            <div className="field-value">{claim?.resubmissionCode || ''}</div>
+            <div className="field-value">{claimInfo?.resubmissionCode || ''}</div>
             <div className="original-ref">
               <label>ORIGINAL REF. NO.</label>
-              <div className="field-value">{claim?.originalRefNo || ''}</div>
+              <div className="field-value">{claimInfo?.originalRefNo || ''}</div>
             </div>
           </div>
           <div className="form-field field-23">
             <label>23. PRIOR AUTHORIZATION NUMBER</label>
-            <div className="field-value">{claim?.priorAuthNumber || ''}</div>
+            <div className="field-value">{claimInfo?.priorAuthNumber || ''}</div>
           </div>
         </div>
         {/* Section 4: Service Lines */}
@@ -420,7 +431,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           </div>
 
           {/* Service Lines Data */}
-          {claim?.serviceLines?.map((line, index) => (
+          {claimInfo?.serviceLines?.map((line, index) => (
             <div key={index} className="service-line-row">
               <div className="col-dates">
                 <div className="subcol">{line.dateFrom}</div>
@@ -462,9 +473,9 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             <div className="form-field field-27">
               <label>27. ACCEPT ASSIGNMENT?</label>
               <div className="checkbox-group">
-                <input type="checkbox" checked={claim?.acceptAssignment === true} readOnly />
+                <input type="checkbox" checked={claimInfo?.acceptAssignment === true} readOnly />
                 <label>YES</label>
-                <input type="checkbox" checked={claim?.acceptAssignment === false} readOnly />
+                <input type="checkbox" checked={claimInfo?.acceptAssignment === false} readOnly />
                 <label>NO</label>
               </div>
             </div>
@@ -473,11 +484,11 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-28">
               <label>28. TOTAL CHARGE</label>
-              <div className="field-value">${claim?.totalCharges || '0.00'}</div>
+              <div className="field-value">${claimInfo?.totalCharges || '0.00'}</div>
             </div>
             <div className="form-field field-29">
               <label>29. AMOUNT PAID</label>
-              <div className="field-value">${claim?.amountPaid || '0.00'}</div>
+              <div className="field-value">${claimInfo?.amountPaid || '0.00'}</div>
             </div>
             <div className="form-field field-30">
               <label>30. RSVD FOR NUCC USE</label>
@@ -492,7 +503,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
                 <div className="signature-text">{provider?.signature || 'Signature on File'}</div>
                 <div className="date-field">
                   <label>DATE</label>
-                  <div className="field-value">{claim?.providerSignatureDate || ''}</div>
+                  <div className="field-value">{claimInfo?.providerSignatureDate || ''}</div>
                 </div>
               </div>
             </div>
@@ -500,9 +511,9 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <label>32. SERVICE FACILITY LOCATION INFORMATION</label>
               <div className="field-value">{provider?.facilityName || ''}</div>
               <div className="field-value">
-                {provider?.facilityAddress 
-                  ? typeof provider.facilityAddress === 'string' 
-                    ? provider.facilityAddress 
+                {provider?.facilityAddress
+                  ? typeof provider.facilityAddress === 'string'
+                    ? provider.facilityAddress
                     : `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}`
                   : ''}
               </div>
@@ -538,9 +549,9 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             <p>NUCC Instruction Manual available at: www.nucc.org</p>
             <p>PLEASE PRINT OR TYPE</p>
           </div>
-          {/* <div className="form-info">
+          <div className="form-info">
             <p>APPROVED OMB-0938-1197 FORM 1500 (02-12)</p>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

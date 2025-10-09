@@ -1,14 +1,45 @@
-import React, { useState } from 'react';
-import { DATA_GENERATION_PRESETS, GenerationOptions, MedicalRecord } from '../utils/types';
-import {generateCompleteMedicalRecord} from '../utils/medicalRecordsGenerator';
+import React, { useState, useEffect } from 'react';
+import { 
+  GenerationOptions,
+  GeneratedData,
+  LabTestType
+} from '../utils/zodSchemas';
+import { 
+  DATA_GENERATION_PRESETS, 
+  generatePatient,
+  generateProvider,
+  generateInsuranceInfo,
+  generateMedicalHistory,
+  generateVisitsReport,
+  generateLabReports,
+  generateCMS1500
+} from '../utils/dataGenerator';
+import { 
+  AzureOpenAIConfig, 
+  generatePatientWithAI,
+  generateProviderWithAI,
+  generateInsuranceInfoWithAI,
+  generateMedicalHistoryWithAI,
+  generateVisitReportsWithAI,
+  generateLabReportsWithAI,
+  generateCMS1500WithAI
+} from '../utils/aiDataGenerator';
+import { loadAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
+import { clearCache, DEFAULT_CACHE_CONFIG } from '../utils/cache';
 import CustomSelect from './CustomSelect';
+import AzureConfigModal from './AzureConfigModal';
 
 import './GenerateDataStep.css';
 
 interface GenerateDataStepProps {
-  onDataGenerated: (data: MedicalRecord) => void;
+  onDataGenerated: (
+    data: GeneratedData,
+    generationOptions: Required<GenerationOptions>
+  ) => void;
   onNext: () => void;
 }
+
+type GenerationMethod = 'faker' | 'ai';
 
 const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, onNext }) => {
   const [selectedPreset, setSelectedPreset] = useState<string>('standard');
@@ -19,6 +50,19 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
     includeSecondaryInsurance: true
   });
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [generationMethod, setGenerationMethod] = useState<GenerationMethod>('faker');
+  const [azureConfig, setAzureConfig] = useState<AzureOpenAIConfig | null>(null);
+  const [showConfigModal, setShowConfigModal] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+  // Load saved Azure configuration on mount
+  useEffect(() => {
+    const savedConfig = loadAzureConfig();
+    if (savedConfig) {
+      setAzureConfig(savedConfig);
+      console.log('[GenerateDataStep] Loaded saved Azure configuration');
+    }
+  }, []);
 
   const handlePresetChange = (presetKey: string) => {
     setSelectedPreset(presetKey);
@@ -27,21 +71,126 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
   };
 
   const handleGenerateData = async () => {
+    // If AI is selected but no config, show modal
+    if (generationMethod === 'ai' && !azureConfig) {
+      setShowConfigModal(true);
+      return;
+    }
+
     setIsGenerating(true);
+    setError('');
     try {
-      // Add a small delay to show loading state
-      await new Promise(resolve => setTimeout(resolve, 500));
+      let generatedData: GeneratedData;
       
-      const data = generateCompleteMedicalRecord(customOptions);
-      onDataGenerated(data);
+      if (generationMethod === 'ai' && azureConfig) {
+        // AI-powered generation using Azure OpenAI
+        console.log('[GenerateDataStep] Using AI generation with Azure OpenAI');
+        
+        // Generate using AI functions
+        const patient = await generatePatientWithAI(azureConfig);
+        const provider = await generateProviderWithAI(azureConfig);
+        const insuranceInfo = await generateInsuranceInfoWithAI(azureConfig, patient, customOptions.includeSecondaryInsurance);
+        const medicalHistory = await generateMedicalHistoryWithAI(azureConfig, customOptions.complexity);
+        const visitReports = await generateVisitReportsWithAI(azureConfig, customOptions.numberOfVisits, provider.name);
+
+        // Generate lab reports - randomly select from available tests
+        const availableLabTests: LabTestType[] = [
+          'CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 
+          'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 
+          'Pathology', 'Hormone', 'Infectious'
+        ];
+        // Shuffle and select random lab tests
+        const shuffled = [...availableLabTests].sort(() => Math.random() - 0.5);
+        const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
+        const labReports = await generateLabReportsWithAI(azureConfig, selectedLabTests, provider.name);
+        
+        const cms1500 = await generateCMS1500WithAI(azureConfig, patient, insuranceInfo, provider);
+        
+        generatedData = {
+          patient,
+          provider,
+          insuranceInfo,
+          medicalHistory,
+          visitReports,
+          labReports,
+          cms1500
+        };
+      } else {
+        // Use standard Faker.js generation
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const patient = generatePatient();
+        const provider = generateProvider();
+        const insuranceInfo = generateInsuranceInfo(patient,customOptions.includeSecondaryInsurance);
+        const medicalHistory = generateMedicalHistory(customOptions.complexity);
+        const visitReports = generateVisitsReport(customOptions.numberOfVisits, provider.name);
+        
+        // Generate lab reports - randomly select from available tests
+        const availableLabTests: LabTestType[] = [
+          'CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 
+          'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 
+          'Pathology', 'Hormone', 'Infectious'
+        ];
+        // Shuffle and select random lab tests
+        const shuffled = [...availableLabTests].sort(() => Math.random() - 0.5);
+        const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
+        const labReports = generateLabReports(selectedLabTests, provider.name);
+        
+        const cms1500 = generateCMS1500(patient, insuranceInfo, provider);
+        
+        generatedData = {
+          patient,
+          provider,
+          insuranceInfo,
+          medicalHistory,
+          visitReports,
+          labReports,
+          cms1500
+        };
+      }
+      
+      // Pass generated data and generation options to parent
+      onDataGenerated(generatedData, customOptions);
       
       // Automatically move to next step
       onNext();
     } catch (error) {
       console.error('Error generating data:', error);
-      alert('Failed to generate data. Please try again.');
+      const errorMessage = generationMethod === 'ai' 
+        ? 'Failed to generate data with AI. Please check your Azure OpenAI configuration or try standard generation.'
+        : 'Failed to generate data. Please try again.';
+      setError(errorMessage);
+      alert(errorMessage);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleConfigSave = (config: AzureOpenAIConfig) => {
+    setAzureConfig(config);
+    setShowConfigModal(false);
+    console.log('[GenerateDataStep] Azure configuration saved successfully');
+  };
+
+  const handleClearConfig = () => {
+    if (window.confirm('Are you sure you want to reset the Azure OpenAI configuration? This will remove all saved settings from browser storage.')) {
+      clearAzureConfig();
+      setAzureConfig(null);
+      setGenerationMethod('faker');
+      console.log('[GenerateDataStep] Azure configuration cleared');
+    }
+  };
+
+  const handleClearCache = () => {
+    if (window.confirm('Are you sure you want to clear the cache? This will remove all cached AI-generated data from browser storage.')) {
+      try {
+        clearCache(DEFAULT_CACHE_CONFIG);
+        console.log('[GenerateDataStep] Cache cleared successfully');
+        alert('Cache cleared successfully!');
+      } catch (error) {
+        console.error('[GenerateDataStep] Failed to clear cache:', error);
+        alert('Failed to clear cache. Please check the console for details.');
+      }
     }
   };
 
@@ -52,6 +201,92 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
 
         <div className="data-generation-options">
           <div className="section">
+            <h3>Generation Method</h3>
+            <div className="generation-method-compact">
+              <div className="method-options-inline">
+                <div 
+                  className={`method-option-radio ${generationMethod === 'faker' ? 'selected' : ''}`}
+                  onClick={() => setGenerationMethod('faker')}
+                >
+                  <input
+                    type="radio"
+                    name="generationMethod"
+                    value="faker"
+                    checked={generationMethod === 'faker'}
+                    onChange={() => setGenerationMethod('faker')}
+                  />
+                  <span className="method-name">Faker.js</span>
+                </div>
+
+                <div 
+                  className={`method-option-radio ${generationMethod === 'ai' ? 'selected' : ''} ${!azureConfig ? 'disabled' : ''}`}
+                  onClick={() => {
+                    if (azureConfig) {
+                      setGenerationMethod('ai');
+                    }
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="generationMethod"
+                    value="ai"
+                    checked={generationMethod === 'ai'}
+                    onChange={() => {
+                      if (azureConfig) {
+                        setGenerationMethod('ai');
+                      }
+                    }}
+                    disabled={!azureConfig}
+                  />
+                  <span className="method-name">AI-Powered</span>
+                  {azureConfig && <span className="status-badge configured">✓</span>}
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-config-inline"
+                  onClick={() => setShowConfigModal(true)}
+                  title={azureConfig ? 'Update Azure OpenAI settings' : 'Configure Azure OpenAI'}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6"/>
+                  </svg>
+                  {azureConfig ? 'Update' : 'Configure'}
+                </button>
+
+                {azureConfig && (
+                  <button
+                    type="button"
+                    className="btn-reset-inline"
+                    onClick={handleClearConfig}
+                    title="Reset Azure OpenAI configuration"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="1 4 1 10 7 10"/>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                    </svg>
+                    Reset
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  className="btn-cache-inline"
+                  onClick={handleClearCache}
+                  title="Clear cached AI-generated data"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                  </svg>
+                  Clear Cache
+                </button>
+              </div>
+            </div>
+
             <h3>Choose Data Complexity</h3>
             <p>Select a preset configuration or customize your own settings</p>
             
@@ -144,6 +379,13 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
             </div>
           </div>
 
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
                     <div className="step-actions">
             <button
               className="btn btn-primary"
@@ -153,7 +395,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               {isGenerating ? (
                 <>
                   <div className="spinner"></div>
-                  <span>Generating...</span>
+                  <span>{generationMethod === 'ai' ? 'Generating with AI...' : 'Generating...'}</span>
                 </>
               ) : (
                 <span>Generate & Continue →</span>
@@ -162,6 +404,15 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
           </div>
         </div>
       </div>
+
+      {/* Azure Config Modal */}
+      {showConfigModal && (
+        <AzureConfigModal
+          onSave={handleConfigSave}
+          onCancel={() => setShowConfigModal(false)}
+          initialConfig={azureConfig || undefined}
+        />
+      )}
     </div>
   );
 };

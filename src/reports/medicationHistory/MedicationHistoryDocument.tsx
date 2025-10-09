@@ -1,17 +1,21 @@
 import React from 'react';
 import './MedicationHistoryDocument.css';
-import { MedicationHistoryData } from '../../utils/types';
+import { MedicalHistory, Provider, Patient } from '../../utils/zodSchemas';
 
 interface MedicationHistoryDocumentProps {
-  data: MedicationHistoryData;
+  patient: Patient;
+  provider: Provider;
+  medicalHistory: MedicalHistory;
   fontFamily?: string;
 }
 
 const MedicationHistoryDocument: React.FC<MedicationHistoryDocumentProps> = ({
-  data,
+  patient,
+  provider,
+  medicalHistory,
   fontFamily = "'Arial', sans-serif"
 }) => {
-  const { patient, provider, medications, allergies } = data;
+  const { medications, allergies } = medicalHistory;
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

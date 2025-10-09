@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './EditDataStep.css';
-import { MedicalRecord, Allergy, ChronicCondition, PatientDemographics, InsuranceInfo, Provider, MedicalHistory, Medications, SurgicalHistory, FamilyHistory, DiscontinuedMedication, LabTest, VitalSigns, VisitNote, MEDICAL_SPECIALTIES } from '../utils/types';
-import { generateSecondaryInsuranceAndInsured } from '../utils/baseDataGenerator';
+import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
+import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
 
 interface EditDataStepProps {
-  medicalData: MedicalRecord | null;
-  onDataUpdated: (data: MedicalRecord) => void;
+  generatedData: GeneratedData | null;
+  onDataUpdated: (data: GeneratedData) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -17,7 +17,7 @@ interface Section {
 }
 
 interface PatientInfoSectionProps {
-  data: PatientDemographics;
+  data: Patient;
   onChange: (field: string, value: any) => void;
 }
 
@@ -33,36 +33,39 @@ interface ProviderSectionProps {
 
 interface MedicalHistorySectionProps {
   data: MedicalHistory;
-  allergies: Allergy[];
-  medications: Medications;
   onChange: (field: string, value: any) => void;
+  expandedSections: Set<string>;
+  onToggleSection: (section: string) => void;
 }
 
 interface LabResultsSectionProps {
-  data: LabTest[];
-  onChange: (field: string, value: any) => void;
+  data: LabReport;
+  onChange: (updatedData: LabReport) => void;
 }
 
 interface VitalSignsSectionProps {
-  data: VitalSigns[];
-  onChange: (field: string, value: any) => void;
+  data: VisitReport;
+  onChange: (updatedData: VisitReport) => void;
 }
 
 interface VisitNotesSectionProps {
-  data: VisitNote[];
-  onChange: (field: string, value: any) => void;
+  data: VisitReport;
+  onChange: (updatedData: VisitReport) => void;
 }
 
-const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated, onNext, onBack }) => {
-  const [editedData, setEditedData] = useState<MedicalRecord | null>(null);
+const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdated, onNext, onBack }) => {
+  const [editedData, setEditedData] = useState<GeneratedData | null>(null);
   const [activeSection, setActiveSection] = useState<string>('patient');
+  const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set());
+  const [expandedVisitReports, setExpandedVisitReports] = useState<Set<number>>(new Set());
+  const [expandedMedicalSections, setExpandedMedicalSections] = useState<Set<string>>(new Set(['allergies', 'conditions', 'currentMeds', 'discontinuedMeds', 'surgicalHistory', 'familyHistory']));
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
-    if (medicalData) {
-      setEditedData(JSON.parse(JSON.stringify(medicalData))); // Deep clone
+    if (generatedData) {
+      setEditedData(JSON.parse(JSON.stringify(generatedData))); // Deep clone
     }
-  }, [medicalData]);
+  }, [generatedData]);
 
   const updateData = (section: string, field: string, value: any) => {
     setEditedData(prev => {
@@ -115,7 +118,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
     { id: 'insurance', label: 'Insurance', icon: 'card' },
     { id: 'provider', label: 'Provider', icon: 'stethoscope' },
     { id: 'medical', label: 'Medical History', icon: 'activity' },
-    { id: 'labs', label: 'Lab Results', icon: 'flask' },
+    { id: 'labs', label: 'Lab Reports', icon: 'flask' },
     { id: 'vitals', label: 'Vital Signs', icon: 'heart' },
     { id: 'visits', label: 'Visit Notes', icon: 'clipboard' }
   ];
@@ -199,8 +202,8 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
             
             {activeSection === 'insurance' && (
               <InsuranceSection 
-                data={editedData.insurance} 
-                onChange={(field, value) => updateData('insurance', field, value)}
+                data={editedData.insuranceInfo} 
+                onChange={(field, value) => updateData('insuranceInfo', field, value)}
               />
             )}
             
@@ -211,41 +214,206 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ medicalData, onDataUpdated,
               />
             )}
             
-            {activeSection === 'medical' && (
+            {activeSection === 'medical' && editedData.medicalHistory && (
               <MedicalHistorySection 
-                data={editedData.medicalHistory} 
-                allergies={editedData.medicalHistory.allergies}
-                medications={editedData.medications}
-                onChange={(field, value) => {
-                  // Handle medications separately since they're at root level
-                  if (field.startsWith('medications.')) {
-                    updateData('medications', field.replace('medications.', ''), value);
+                data={editedData.medicalHistory}
+                expandedSections={expandedMedicalSections}
+                onToggleSection={(section) => {
+                  const newExpanded = new Set(expandedMedicalSections);
+                  if (newExpanded.has(section)) {
+                    newExpanded.delete(section);
                   } else {
-                    updateData('medicalHistory', field, value);
+                    newExpanded.add(section);
                   }
+                  setExpandedMedicalSections(newExpanded);
+                }}
+                onChange={(field, value) => {
+                  setEditedData(prev => {
+                    if (!prev) return prev;
+                    const updated = JSON.parse(JSON.stringify(prev));
+                    const keys = field.split('.');
+                    let current: any = updated.medicalHistory;
+                    
+                    for (let i = 0; i < keys.length - 1; i++) {
+                      current = current[keys[i]];
+                    }
+                    current[keys[keys.length - 1]] = value;
+                    setHasChanges(true);
+                    return updated;
+                  });
                 }}
               />
             )}
             
+            {/* Lab Results section: Data now managed via LabReport[] */}
             {activeSection === 'labs' && (
-              <LabResultsSection 
-                data={editedData.labResults} 
-                onChange={(field, value) => updateData('labResults', field, value)}
-              />
+              <>
+                {editedData.labReports.length > 0 ? (
+                  <div className="section">
+                    <h3>Laboratory Reports ({editedData.labReports.length} reports)</h3>
+                    <div className="lab-reports-accordion">
+                      {editedData.labReports.map((labData, index) => {
+                        const isExpanded = expandedLabReports.has(labData.testType as LabTestType);
+                        return (
+                          <div key={labData.testType} className="accordion-item">
+                            <div 
+                              className="accordion-header"
+                              onClick={() => {
+                                const newExpanded = new Set(expandedLabReports);
+                                if (isExpanded) {
+                                  newExpanded.delete(labData.testType as LabTestType);
+                                } else {
+                                  newExpanded.add(labData.testType as LabTestType);
+                                }
+                                setExpandedLabReports(newExpanded);
+                              }}
+                            >
+                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-title">{labData.testName} ({labData.testType})</span>
+                              <span className="accordion-meta">{labData.results.length} results</span>
+                            </div>
+                            {isExpanded && (
+                              <div className="accordion-content">
+                                <LabResultsSection
+                                  data={labData}
+                                  onChange={(updated) => {
+                                    setEditedData(prev => {
+                                      if (!prev) return prev;
+                                      const newData = JSON.parse(JSON.stringify(prev));
+                                      newData.labReports[index] = updated;
+                                      setHasChanges(true);
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="section">
+                    <h3>Laboratory Report</h3>
+                    <p className="info-message">⚠️ No laboratory report data available. Please generate data first.</p>
+                  </div>
+                )}
+              </>
             )}
             
+            {/* Vital Signs section: Data now managed via VisitReport[] */}
             {activeSection === 'vitals' && (
-              <VitalSignsSection 
-                data={editedData.vitalSigns} 
-                onChange={(field, value) => updateData('vitalSigns', field, value)}
-              />
+              <>
+                {editedData.visitReports.length > 0 ? (
+                  <div className="section">
+                    <h3>Vital Signs ({editedData.visitReports.length} visits)</h3>
+                    <div className="lab-reports-accordion">
+                      {editedData.visitReports.map((visitData, index) => {
+                        const isExpanded = expandedVisitReports.has(index);
+                        return (
+                          <div key={index} className="accordion-item">
+                            <div 
+                              className="accordion-header"
+                              onClick={() => {
+                                const newExpanded = new Set(expandedVisitReports);
+                                if (isExpanded) {
+                                  newExpanded.delete(index);
+                                } else {
+                                  newExpanded.add(index);
+                                }
+                                setExpandedVisitReports(newExpanded);
+                              }}
+                            >
+                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-title">Visit {index + 1} - {visitData.visit.date}</span>
+                              <span className="accordion-meta">{visitData.visit.type}</span>
+                            </div>
+                            {isExpanded && (
+                              <div className="accordion-content">
+                                <VitalSignsSection
+                                  data={visitData}
+                                  onChange={(updated) => {
+                                    setEditedData(prev => {
+                                      if (!prev) return prev;
+                                      const newData = JSON.parse(JSON.stringify(prev));
+                                      newData.visitReports[index] = updated;
+                                      setHasChanges(true);
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="section">
+                    <h3>Vital Signs</h3>
+                    <p className="info-message">⚠️ No visit report data available. Please generate data first.</p>
+                  </div>
+                )}
+              </>
             )}
             
+            {/* Visit Notes section: Data now managed via VisitReport[] */}
             {activeSection === 'visits' && (
-              <VisitNotesSection 
-                data={editedData.visitNotes} 
-                onChange={(field, value) => updateData('visitNotes', field, value)}
-              />
+              <>
+                {editedData.visitReports.length > 0 ? (
+                  <div className="section">
+                    <h3>Visit Notes ({editedData.visitReports.length} visits)</h3>
+                    <div className="lab-reports-accordion">
+                      {editedData.visitReports.map((visitData, index) => {
+                        const isExpanded = expandedVisitReports.has(index);
+                        return (
+                          <div key={index} className="accordion-item">
+                            <div 
+                              className="accordion-header"
+                              onClick={() => {
+                                const newExpanded = new Set(expandedVisitReports);
+                                if (isExpanded) {
+                                  newExpanded.delete(index);
+                                } else {
+                                  newExpanded.add(index);
+                                }
+                                setExpandedVisitReports(newExpanded);
+                              }}
+                            >
+                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
+                              <span className="accordion-title">Visit {index + 1} - {visitData.visit.date}</span>
+                              <span className="accordion-meta">{visitData.visit.type}</span>
+                            </div>
+                            {isExpanded && (
+                              <div className="accordion-content">
+                                <VisitNotesSection
+                                  data={visitData}
+                                  onChange={(updated) => {
+                                    setEditedData(prev => {
+                                      if (!prev) return prev;
+                                      const newData = JSON.parse(JSON.stringify(prev));
+                                      newData.visitReports[index] = updated;
+                                      setHasChanges(true);
+                                      return newData;
+                                    });
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="section">
+                    <h3>Visit Notes</h3>
+                    <p className="info-message">⚠️ No visit report data available. Please generate data first.</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -446,13 +614,14 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
 // Insurance Section Component
 const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) => {
   const handleAddSecondaryInsurance = () => {
+    // TODO: Implement secondary insurance generation
     // Generate secondary insurance with populated data, excluding the primary insurance provider
-    const result = generateSecondaryInsuranceAndInsured(data.primaryInsurance.provider);
-    onChange('secondaryInsurance', result.secondaryInsurance);
-    // Optionally, also update secondaryInsured if needed
-    if (result.secondaryInsured) {
-      onChange('secondaryInsured', result.secondaryInsured);
-    }
+    // const result = generateSecondaryInsuranceAndInsured(data.primaryInsurance.provider);
+    // onChange('secondaryInsurance', result?.secondaryInsurance);
+    // if (result?.secondaryInsured) {
+    //   onChange('secondaryInsured', result?.secondaryInsured);
+    // }
+    console.warn('Secondary insurance generation not yet implemented');
   };
 
   const handleRemoveSecondaryInsurance = () => {
@@ -529,7 +698,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           <label>Group Number</label>
           <input
             type="text"
-            value={data.primaryInsurance.groupNumber}
+            value={data.primaryInsurance.groupNumber ?? ''}
             onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
             className="form-input"
           />
@@ -539,7 +708,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           <label>Member ID</label>
           <input
             type="text"
-            value={data.primaryInsurance.memberId}
+            value={data.primaryInsurance.memberId ?? ''}
             onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
             className="form-input"
           />
@@ -829,11 +998,24 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
 );
 
 // Medical History Section Component
-const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, allergies, medications, onChange }) => (
+const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onChange, expandedSections, onToggleSection }) => (
   <div className="section">
-    <h3>Allergies ({(allergies || []).length})</h3>
-    <div className="allergies-list">
-      {(allergies || []).map((allergy, index) => (
+    <h3>Medical History</h3>
+    <div className="lab-reports-accordion">
+      {/* Allergies Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('allergies')}
+        >
+          <span className="accordion-icon">{expandedSections.has('allergies') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Allergies</span>
+          <span className="accordion-meta">{(data.allergies || []).length} items</span>
+        </div>
+        {expandedSections.has('allergies') && (
+          <div className="accordion-content">
+            <div className="allergies-list">
+      {(data.allergies || []).map((allergy, index) => (
         <div key={index} className="allergy-item">
           <div className="form-grid">
             <div className="form-group">
@@ -842,7 +1024,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={allergy.allergen}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].allergen = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -857,7 +1039,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={allergy.reaction}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].reaction = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -871,7 +1053,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
               <select
                 value={allergy.severity}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].severity = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -889,7 +1071,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={allergy.dateIdentified}
                 onChange={(e) => {
-                  const updated = [...(allergies || [])];
+                  const updated = [...(data.allergies || [])];
                   updated[index].dateIdentified = e.target.value;
                   onChange('allergies', updated);
                 }}
@@ -900,9 +1082,23 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Active Conditions ({(data.chronicConditions || []).length})</h4>
+      {/* Active Conditions Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('conditions')}
+        >
+          <span className="accordion-icon">{expandedSections.has('conditions') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Active Conditions</span>
+          <span className="accordion-meta">{(data.chronicConditions || []).length} items</span>
+        </div>
+        {expandedSections.has('conditions') && (
+          <div className="accordion-content">
     <div className="conditions-list">
       {(data.chronicConditions || []).map((condition: ChronicCondition, index: number) => (
         <div key={index} className="condition-item">
@@ -978,11 +1174,25 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Current Medications ({(medications.current || []).length})</h4>
+      {/* Current Medications Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('currentMeds')}
+        >
+          <span className="accordion-icon">{expandedSections.has('currentMeds') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Current Medications</span>
+          <span className="accordion-meta">{(data.medications.current || []).length} items</span>
+        </div>
+        {expandedSections.has('currentMeds') && (
+          <div className="accordion-content">
     <div className="medications-list">
-      {(medications.current || []).map((med, index) => (
+      {(data.medications.current || []).map((med, index) => (
         <div key={index} className="medication-item">
           <div className="medication-header">
             <span className="medication-number">💊 #{index + 1}</span>
@@ -994,7 +1204,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.name}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].name = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1009,7 +1219,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.strength}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].strength = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1024,7 +1234,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.dosage}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].dosage = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1039,7 +1249,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.purpose}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].purpose = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1054,7 +1264,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.prescribedBy}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].prescribedBy = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1069,7 +1279,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.startDate}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].startDate = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1084,7 +1294,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.instructions}
                 onChange={(e) => {
-                  const updated = [...(medications.current || [])];
+                  const updated = [...(data.medications.current || [])];
                   updated[index].instructions = e.target.value;
                   onChange('medications.current', updated);
                 }}
@@ -1095,11 +1305,25 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Discontinued Medications ({(medications.discontinued || []).length})</h4>
+      {/* Discontinued Medications Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('discontinuedMeds')}
+        >
+          <span className="accordion-icon">{expandedSections.has('discontinuedMeds') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Discontinued Medications</span>
+          <span className="accordion-meta">{(data.medications.discontinued || []).length} items</span>
+        </div>
+        {expandedSections.has('discontinuedMeds') && (
+          <div className="accordion-content">
     <div className="medications-list">
-      {(medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
+      {(data.medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
         <div key={index} className="medication-item discontinued">
           <div className="medication-header">
             <span className="medication-number">🚫 #{index + 1}</span>
@@ -1111,7 +1335,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.name}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].name = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1126,7 +1350,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.strength}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].strength = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1141,7 +1365,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.reason}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].reason = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1156,7 +1380,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.discontinuedDate}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].discontinuedDate = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1171,7 +1395,7 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
                 type="text"
                 value={med.prescribedBy}
                 onChange={(e) => {
-                  const updated = [...(medications.discontinued || [])];
+                  const updated = [...(data.medications.discontinued || [])];
                   updated[index].prescribedBy = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
@@ -1182,9 +1406,23 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Surgical History ({(data.surgicalHistory || []).length})</h4>
+      {/* Surgical History Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('surgicalHistory')}
+        >
+          <span className="accordion-icon">{expandedSections.has('surgicalHistory') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Surgical History</span>
+          <span className="accordion-meta">{(data.surgicalHistory || []).length} items</span>
+        </div>
+        {expandedSections.has('surgicalHistory') && (
+          <div className="accordion-content">
     <div className="surgical-list">
       {(data.surgicalHistory || []).map((surgery: SurgicalHistory, index: number) => (
         <div key={index} className="surgery-item">
@@ -1269,9 +1507,23 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
-    </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-    <h4>Family History ({(data.familyHistory || []).length})</h4>
+      {/* Family History Accordion */}
+      <div className="accordion-item">
+        <div 
+          className="accordion-header"
+          onClick={() => onToggleSection('familyHistory')}
+        >
+          <span className="accordion-icon">{expandedSections.has('familyHistory') ? '▼' : '▶'}</span>
+          <span className="accordion-title">Family History</span>
+          <span className="accordion-meta">{(data.familyHistory || []).length} items</span>
+        </div>
+        {expandedSections.has('familyHistory') && (
+          <div className="accordion-content">
     <div className="family-history-list">
       {(data.familyHistory || []).map((family: FamilyHistory, index: number) => (
         <div key={index} className="family-item">
@@ -1341,540 +1593,440 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, all
           </div>
         </div>
       ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 );
 
-// Lab Results Section Component
-const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Lab Tests ({(data || []).length})</h3>
-    <div className="lab-tests-list">
-      {(data || []).map((test, testIndex) => (
-        <div key={testIndex} className="lab-test-item">
-          <div className="lab-test-header">
-            <span className="test-number">🔬 Test #{testIndex + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Test Date</label>
-              <input
-                type="text"
-                value={test.testDate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[testIndex].testDate = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Test Name</label>
-              <input
-                type="text"
-                value={test.testName}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[testIndex].testName = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="e.g., Complete Blood Count"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Ordering Physician</label>
-              <input
-                type="text"
-                value={test.orderingPhysician}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[testIndex].orderingPhysician = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="Provider name"
-              />
-            </div>
-          </div>
-          
-          <h5>Test Results ({(test.results || []).length})</h5>
-          <div className="lab-results-grid">
-            {(test.results || []).map((result, resultIndex) => (
-              <div key={resultIndex} className="lab-result-row">
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label>Parameter</label>
-                    <input
-                      type="text"
-                      value={result.parameter}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].parameter = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., WBC"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Value</label>
-                    <input
-                      type="text"
-                      value={result.value}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].value = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., 7.5"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Unit</label>
-                    <input
-                      type="text"
-                      value={result.unit}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].unit = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., K/uL"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Reference Range</label>
-                    <input
-                      type="text"
-                      value={result.referenceRange}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].referenceRange = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-input"
-                      placeholder="e.g., 4.5-11.0"
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <label>Status</label>
-                    <select
-                      value={result.status}
-                      onChange={(e) => {
-                        const updated = [...(data || [])];
-                        updated[testIndex].results[resultIndex].status = e.target.value;
-                        onChange('', updated);
-                      }}
-                      className="form-select"
-                    >
-                      <option value="Normal">Normal</option>
-                      <option value="High">High</option>
-                      <option value="Low">Low</option>
-                      <option value="Critical">Critical</option>
-                    </select>
-                  </div>
-                </div>
+// Lab Results Section Component - Updated to use LaboratoryReportData
+const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange }) => {
+  if (!data) return null;
+
+  const handleFieldChange = (field: string, value: any) => {
+    const updated = { ...data, [field]: value };
+    onChange(updated);
+  };
+
+  const handleResultChange = (resultIndex: number, field: string, value: any) => {
+    const updated = { ...data };
+    updated.results = [...data.results];
+    updated.results[resultIndex] = { ...updated.results[resultIndex], [field]: value };
+    onChange(updated);
+  };
+
+  return (
+    <div className="section">
+      <h3>Laboratory Report - {data.testName}</h3>
+      
+      <h4>Test Information</h4>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Test Name</label>
+          <input
+            type="text"
+            value={data.testName}
+            onChange={(e) => handleFieldChange('testName', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Specimen Type</label>
+          <input
+            type="text"
+            value={data.specimenType}
+            onChange={(e) => handleFieldChange('specimenType', e.target.value)}
+            className="form-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Collection Date</label>
+          <input
+            type="text"
+            value={data.specimenCollectionDate}
+            onChange={(e) => handleFieldChange('specimenCollectionDate', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Report Date</label>
+          <input
+            type="text"
+            value={data.reportDate}
+            onChange={(e) => handleFieldChange('reportDate', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Ordering Physician</label>
+          <input
+            type="text"
+            value={data.orderingPhysician}
+            onChange={(e) => handleFieldChange('orderingPhysician', e.target.value)}
+            className="form-input"
+          />
+        </div>
+      </div>
+      
+      <h4>Test Results ({data.results.length})</h4>
+      <div className="lab-results-list">
+        {data.results.map((result, index) => (
+          <div key={index} className="lab-result-item">
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Parameter</label>
+                <input
+                  type="text"
+                  value={result.parameter}
+                  onChange={(e) => handleResultChange(index, 'parameter', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., WBC"
+                />
               </div>
-            ))}
+              
+              <div className="form-group">
+                <label>Value</label>
+                <input
+                  type="text"
+                  value={result.value}
+                  onChange={(e) => handleResultChange(index, 'value', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., 7.5"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Unit</label>
+                <input
+                  type="text"
+                  value={result.unit}
+                  onChange={(e) => handleResultChange(index, 'unit', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., K/uL"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Reference Range</label>
+                <input
+                  type="text"
+                  value={result.referenceRange}
+                  onChange={(e) => handleResultChange(index, 'referenceRange', e.target.value)}
+                  className="form-input"
+                  placeholder="e.g., 4.5-11.0"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Flag</label>
+                <select
+                  value={result.flag}
+                  onChange={(e) => handleResultChange(index, 'flag', e.target.value)}
+                  className="form-select"
+                >
+                  <option value="">None</option>
+                  <option value="Normal">Normal</option>
+                  <option value="High">High</option>
+                  <option value="Low">Low</option>
+                  <option value="Critical">Critical</option>
+                  <option value="Abnormal">Abnormal</option>
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
-// Vital Signs Section Component
-const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Vital Signs Records ({(data || []).length})</h3>
-    <div className="vitals-list">
-      {(data || []).map((vitals, index) => (
-        <div key={index} className="vitals-item">
-          <div className="vitals-header">
-            <span className="vitals-number">💓 Record #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Date</label>
-              <input
-                type="text"
-                value={vitals.date}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].date = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Time</label>
-              <input
-                type="text"
-                value={vitals.time}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].time = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="HH:MM AM/PM"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Blood Pressure</label>
-              <input
-                type="text"
-                value={vitals.bloodPressure}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].bloodPressure = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="120/80"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Heart Rate</label>
-              <input
-                type="text"
-                value={vitals.heartRate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].heartRate = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="72 bpm"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Temperature</label>
-              <input
-                type="text"
-                value={vitals.temperature}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].temperature = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98.6°F"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Weight</label>
-              <input
-                type="text"
-                value={vitals.weight}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].weight = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="150 lbs"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Height</label>
-              <input
-                type="text"
-                value={vitals.height}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].height = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="5'8&quot;"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>BMI</label>
-              <input
-                type="text"
-                value={vitals.bmi}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].bmi = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="22.8"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Oxygen Saturation</label>
-              <input
-                type="text"
-                value={vitals.oxygenSaturation}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].oxygenSaturation = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98%"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Respiratory Rate</label>
-              <input
-                type="text"
-                value={vitals.respiratoryRate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].respiratoryRate = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="16 breaths/min"
-              />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
+// Vital Signs Section Component - Updated to use VisitReportData
+const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange }) => {
+  if (!data || !data.vitalSigns) return null;
 
-// Visit Notes Section Component
-const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Visit Notes ({(data || []).length})</h3>
-    <div className="visits-list">
-      {(data || []).map((visit, index) => (
-        <div key={index} className="visit-item">
-          <div className="visit-header">
-            <span className="visit-number">📝 Visit #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Visit Date</label>
-              <input
-                type="text"
-                value={visit.date}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].date = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="MM/DD/YYYY"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Visit Type</label>
-              <input
-                type="text"
-                value={visit.type}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].type = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="e.g., Follow-up, Annual Physical"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Duration</label>
-              <input
-                type="text"
-                value={visit.duration}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].duration = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="e.g., 30 minutes"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Provider</label>
-              <input
-                type="text"
-                value={visit.provider}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].provider = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="Provider name"
-              />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Chief Complaint</label>
-              <textarea
-                value={visit.chiefComplaint}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].chiefComplaint = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                rows={2}
-                placeholder="Patient's main concern..."
-              />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Assessment (comma-separated)</label>
-              <textarea
-                value={visit.assessment.join(', ')}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].assessment = e.target.value.split(',').map(a => a.trim()).filter(a => a);
-                  onChange('', updated);
-                }}
-                className="form-input"
-                rows={2}
-                placeholder="Diagnoses and findings..."
-              />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Plan (comma-separated)</label>
-              <textarea
-                value={visit.plan.join(', ')}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].plan = e.target.value.split(',').map(p => p.trim()).filter(p => p);
-                  onChange('', updated);
-                }}
-                className="form-input"
-                rows={2}
-                placeholder="Treatment plan and next steps..."
-              />
-            </div>
-          </div>
-          
-          <h5>Vitals</h5>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Blood Pressure</label>
-              <input
-                type="text"
-                value={visit.vitals.bloodPressure}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.bloodPressure = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="120/80"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Heart Rate</label>
-              <input
-                type="number"
-                value={visit.vitals.heartRate}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.heartRate = parseInt(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="72"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Temperature (°F)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={visit.vitals.temperature}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.temperature = parseFloat(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98.6"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Weight (lbs)</label>
-              <input
-                type="number"
-                value={visit.vitals.weight}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.weight = parseInt(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="150"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Height</label>
-              <input
-                type="text"
-                value={visit.vitals.height}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.height = e.target.value;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="5'8&quot;"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label>Oxygen Saturation (%)</label>
-              <input
-                type="number"
-                value={visit.vitals.oxygenSaturation}
-                onChange={(e) => {
-                  const updated = [...(data || [])];
-                  updated[index].vitals.oxygenSaturation = parseInt(e.target.value) || 0;
-                  onChange('', updated);
-                }}
-                className="form-input"
-                placeholder="98"
-              />
-            </div>
-          </div>
+  const handleVitalChange = (field: string, value: any) => {
+    const updated = { ...data };
+    updated.vitalSigns = { ...data.vitalSigns, [field]: value };
+    onChange(updated);
+  };
+
+  const vitals = data.vitalSigns;
+
+  return (
+    <div className="section">
+      <h3>Vital Signs</h3>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Blood Pressure</label>
+          <input
+            type="text"
+            value={vitals.bloodPressure}
+            onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
+            className="form-input"
+            placeholder="120/80"
+          />
         </div>
-      ))}
+        
+        <div className="form-group">
+          <label>Heart Rate (bpm)</label>
+          <input
+            type="text"
+            value={vitals.heartRate}
+            onChange={(e) => handleVitalChange('heartRate', e.target.value)}
+            className="form-input"
+            placeholder="72"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Temperature (°F)</label>
+          <input
+            type="text"
+            value={vitals.temperature}
+            onChange={(e) => handleVitalChange('temperature', e.target.value)}
+            className="form-input"
+            placeholder="98.6"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Weight (lbs)</label>
+          <input
+            type="text"
+            value={vitals.weight}
+            onChange={(e) => handleVitalChange('weight', e.target.value)}
+            className="form-input"
+            placeholder="150"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Height</label>
+          <input
+            type="text"
+            value={vitals.height}
+            onChange={(e) => handleVitalChange('height', e.target.value)}
+            className="form-input"
+            placeholder="5'8&quot;"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>BMI</label>
+          <input
+            type="text"
+            value={vitals.bmi}
+            onChange={(e) => handleVitalChange('bmi', e.target.value)}
+            className="form-input"
+            placeholder="22.8"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Oxygen Saturation (%)</label>
+          <input
+            type="text"
+            value={vitals.oxygenSaturation}
+            onChange={(e) => handleVitalChange('oxygenSaturation', e.target.value)}
+            className="form-input"
+            placeholder="98"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Respiratory Rate (breaths/min)</label>
+          <input
+            type="text"
+            value={vitals.respiratoryRate}
+            onChange={(e) => handleVitalChange('respiratoryRate', e.target.value)}
+            className="form-input"
+            placeholder="16"
+          />
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+// Visit Notes Section Component - Updated to use VisitReportData
+const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => {
+  if (!data || !data.visit) return null;
+
+  const handleVisitChange = (field: string, value: any) => {
+    const updated = { ...data };
+    updated.visit = { ...data.visit, [field]: value };
+    onChange(updated);
+  };
+
+  const handleVitalChange = (field: string, value: any) => {
+    const updated = { ...data };
+    updated.vitalSigns = { ...data.vitalSigns, [field]: value };
+    onChange(updated);
+  };
+
+  const visit = data.visit;
+
+  return (
+    <div className="section">
+      <h3>Visit Notes</h3>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Visit Date</label>
+          <input
+            type="text"
+            value={visit.date}
+                onChange={(e) => handleVisitChange('date', e.target.value)}
+            className="form-input"
+            placeholder="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Visit Type</label>
+          <input
+            type="text"
+            value={visit.type}
+            onChange={(e) => handleVisitChange('type', e.target.value)}
+            className="form-input"
+            placeholder="e.g., Follow-up, Annual Physical"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Duration</label>
+          <input
+            type="text"
+            value={visit.duration}
+            onChange={(e) => handleVisitChange('duration', e.target.value)}
+            className="form-input"
+            placeholder="e.g., 30 minutes"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Provider</label>
+          <input
+            type="text"
+            value={visit.provider}
+            onChange={(e) => handleVisitChange('provider', e.target.value)}
+            className="form-input"
+            placeholder="Provider name"
+          />
+        </div>
+        
+        <div className="form-group form-group-full">
+          <label>Chief Complaint</label>
+          <textarea
+            value={visit.chiefComplaint}
+            onChange={(e) => handleVisitChange('chiefComplaint', e.target.value)}
+            className="form-input"
+            rows={2}
+            placeholder="Patient's main concern..."
+          />
+        </div>
+        
+        <div className="form-group form-group-full">
+          <label>Assessment (comma-separated)</label>
+          <textarea
+            value={visit.assessment.join(', ')}
+            onChange={(e) => handleVisitChange('assessment', e.target.value.split(',').map(a => a.trim()).filter(a => a))}
+            className="form-input"
+            rows={2}
+            placeholder="Diagnoses and findings..."
+          />
+        </div>
+        
+        <div className="form-group form-group-full">
+          <label>Plan (comma-separated)</label>
+          <textarea
+            value={visit.plan.join(', ')}
+            onChange={(e) => handleVisitChange('plan', e.target.value.split(',').map(p => p.trim()).filter(p => p))}
+            className="form-input"
+            rows={2}
+            placeholder="Treatment plan and next steps..."
+          />
+        </div>
+      </div>
+      
+      <h5>Vitals</h5>
+      <div className="form-grid">
+        <div className="form-group">
+          <label>Blood Pressure</label>
+          <input
+            type="text"
+            value={data.vitalSigns.bloodPressure}
+            onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
+            className="form-input"
+            placeholder="120/80"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Heart Rate</label>
+          <input
+            type="number"
+            value={data.vitalSigns.heartRate}
+            onChange={(e) => handleVitalChange('heartRate', parseInt(e.target.value) || 0)}
+            className="form-input"
+            placeholder="72"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Temperature (°F)</label>
+          <input
+            type="number"
+            step="0.1"
+            value={data.vitalSigns.temperature}
+            onChange={(e) => handleVitalChange('temperature', parseFloat(e.target.value) || 0)}
+            className="form-input"
+            placeholder="98.6"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Weight (lbs)</label>
+          <input
+            type="number"
+            value={data.vitalSigns.weight}
+            onChange={(e) => handleVitalChange('weight', parseInt(e.target.value) || 0)}
+            className="form-input"
+            placeholder="150"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Height</label>
+          <input
+            type="text"
+            value={data.vitalSigns.height}
+            onChange={(e) => handleVitalChange('height', e.target.value)}
+            className="form-input"
+            placeholder="5'8&quot;"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Oxygen Saturation (%)</label>
+          <input
+            type="number"
+            value={data.vitalSigns.oxygenSaturation}
+            onChange={(e) => handleVitalChange('oxygenSaturation', parseInt(e.target.value) || 0)}
+            className="form-input"
+            placeholder="98"
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default EditDataStep;

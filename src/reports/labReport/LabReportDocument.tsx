@@ -1,21 +1,23 @@
 import React from 'react';
 import { faker } from '@faker-js/faker';
-import './LaboratoryReportDocument.css';
-import { LaboratoryReportData } from '../../utils/types';
+import './LabReportDocument.css';
+import { LabReport, Patient } from '../../utils/zodSchemas';
 
-interface LaboratoryReportDocumentProps {
-  data: LaboratoryReportData;
+interface LabReportProps {
+  patient: Patient;
+  labReport: LabReport;
   fontFamily?: string;
 }
 
-const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
-  data,
+const LabReportDocument: React.FC<LabReportProps> = ({
+  patient,
+  labReport,
   fontFamily = "'Arial', sans-serif"
 }) => {
-  const { patient, performingLab, results, testName, specimenType, 
+  const { performingLab, results, testName, specimenType, 
           specimenCollectionDate, specimenCollectionTime, specimenReceivedDate,
           reportDate, reportTime, orderingPhysician, interpretation, comments,
-          criticalValues, technologist, pathologist, testType } = data;
+          criticalValues, technologist, pathologist, testType } = labReport;
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -24,8 +26,8 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
   });
 
   // Check if there are any abnormal results
-  const hasAbnormal = results.some(r => r.flag && r.flag !== 'Normal');
-  const hasCritical = results.some(r => r.flag === 'Critical');
+  const hasAbnormal = results.some((r: any) => r.flag && r.flag !== 'Normal');
+  const hasCritical = results.some((r: any) => r.flag === 'Critical');
 
   return (
     <div
@@ -62,11 +64,11 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
             <div className="info-grid-2col">
               <div className="info-item">
                 <span className="info-label">Patient Name:</span>
-                <span className="info-value strong">{patient.name}</span>
+                <span className="info-value strong">{patient.firstName} {patient.lastName}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">MRN:</span>
-                <span className="info-value strong">{patient.medicalRecordNumber}</span>
+                <span className="info-value strong">{patient.id}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Date of Birth:</span>
@@ -125,7 +127,7 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
             <div className="critical-values-content">
               <p className="critical-note">The following critical values were called to {orderingPhysician} on {reportDate} at {reportTime}</p>
               <ul className="critical-list">
-                {criticalValues.map((value, index) => (
+                {criticalValues.map((value: any, index: number) => (
                   <li key={index} className="critical-item">{value}</li>
                 ))}
               </ul>
@@ -147,7 +149,7 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
               </tr>
             </thead>
             <tbody>
-              {results.map((result, index) => (
+              {results.map((result: any, index: number) => (
                 <tr 
                   key={index} 
                   className={`
@@ -207,7 +209,7 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
               <div className="legend-item">
                 <span className="flag-badge flag-critical">Critical</span> Critically abnormal - requires immediate attention
               </div>
-              {results.some(r => r.flag === 'Abnormal') && (
+              {results.some((r: any) => r.flag === 'Abnormal') && (
                 <div className="legend-item">
                   <span className="flag-badge flag-abnormal">Abnormal</span> Outside normal parameters
                 </div>
@@ -254,7 +256,7 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
         {/* Footer */}
         <div className="lab-footer">
           <div className="footer-info">
-            <span>MRN: {patient.medicalRecordNumber}</span>
+            <span>MRN: {patient.id}</span>
             <span>Accession: {faker.string.alphanumeric({ length: 10, casing: 'upper' })}</span>
             <span>Page 1 of 1</span>
             <span>Printed: {currentDate}</span>
@@ -268,4 +270,4 @@ const LaboratoryReportDocument: React.FC<LaboratoryReportDocumentProps> = ({
   );
 };
 
-export default LaboratoryReportDocument;
+export default LabReportDocument;

@@ -1,9 +1,9 @@
 import React from 'react';
 import './InsurancePolicyDocument.css';
-import { InsurancePolicyData } from '../../utils/types';
+import { InsurancePolicy } from '../../utils/zodSchemas';
 
 interface InsurancePolicyDocumentProps {
-  data: InsurancePolicyData;
+  data: InsurancePolicy;
   fontFamily?: string;
 }
 
@@ -11,14 +11,14 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
   data,
   fontFamily = "'Arial', sans-serif"
 }) => {
-  const { patient, insurance } = data;
+  const { patient, insuranceInfo } = data;
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   });
 
-  const policyEffectiveDate = insurance.primaryInsurance.effectiveDate;
+  const policyEffectiveDate = insuranceInfo.primaryInsurance.effectiveDate;
   const policyEndDate = new Date(new Date(policyEffectiveDate).setFullYear(
     new Date(policyEffectiveDate).getFullYear() + 1
   )).toLocaleDateString('en-US');
@@ -34,12 +34,12 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         {/* Letterhead */}
         <div className="policy-letterhead">
           <div className="company-header">
-            <h1 className="company-name">{insurance.primaryInsurance.provider.toUpperCase()}</h1>
-            <p className="company-address">P.O. Box {Math.floor(Math.random() * 90000 + 10000)} • {insurance.address?.city || patient.address.city}, {insurance.address?.state || patient.address.state} {insurance.address?.zipCode || patient.address.zipCode}</p>
+            <h1 className="company-name">{insuranceInfo.primaryInsurance.provider.toUpperCase()}</h1>
+            <p className="company-address">P.O. Box {Math.floor(Math.random() * 90000 + 10000)} • {insuranceInfo.address?.city || patient.address.city}, {insuranceInfo.address?.state || patient.address.state} {insuranceInfo.address?.zipCode || patient.address.zipCode}</p>
           </div>
           <div className="company-contact">
             <p>Customer Service: 1-800-{Math.floor(Math.random() * 900 + 100)}-{Math.floor(Math.random() * 9000 + 1000)}</p>
-            <p>www.{insurance.primaryInsurance.provider.toLowerCase().replace(/\s+/g, '')}.com</p>
+            <p>www.{insuranceInfo.primaryInsurance.provider.toLowerCase().replace(/\s+/g, '')}.com</p>
           </div>
         </div>
 
@@ -52,15 +52,15 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         <div className="policy-info-box">
           <div className="info-row">
             <div className="info-label">Policy Number:</div>
-            <div className="info-value strong">{insurance.primaryInsurance.policyNumber}</div>
+            <div className="info-value strong">{insuranceInfo.primaryInsurance.policyNumber}</div>
           </div>
           <div className="info-row">
             <div className="info-label">Group Number:</div>
-            <div className="info-value strong">{insurance.primaryInsurance.groupNumber}</div>
+            <div className="info-value strong">{insuranceInfo.primaryInsurance.groupNumber}</div>
           </div>
           <div className="info-row">
             <div className="info-label">Member ID:</div>
-            <div className="info-value strong">{insurance.primaryInsurance.memberId}</div>
+            <div className="info-value strong">{insuranceInfo.primaryInsurance.memberId}</div>
           </div>
           <div className="info-row">
             <div className="info-label">Effective Date:</div>
@@ -72,7 +72,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
           </div>
           <div className="info-row">
             <div className="info-label">Plan Type:</div>
-            <div className="info-value">{insurance.type?.toUpperCase() || 'GROUP'} HEALTH PLAN</div>
+            <div className="info-value">{insuranceInfo.insuranceType?.toUpperCase() || 'GROUP'} HEALTH PLAN</div>
           </div>
         </div>
 
@@ -83,16 +83,16 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
             <tbody>
               <tr>
                 <td className="label-col">Name:</td>
-                <td className="value-col">{insurance.subscriberName || patient.name}</td>
+                <td className="value-col">{insuranceInfo.subscriberName || patient.name}</td>
                 <td className="label-col">DOB:</td>
-                <td className="value-col">{insurance.subscriberDOB || patient.dateOfBirth}</td>
+                <td className="value-col">{insuranceInfo.subscriberDOB || patient.dateOfBirth}</td>
                 <td className="label-col">Gender:</td>
-                <td className="value-col">{insurance.subscriberGender || patient.gender}</td>
+                <td className="value-col">{insuranceInfo.subscriberGender || patient.gender}</td>
               </tr>
               <tr>
                 <td className="label-col">Address:</td>
                 <td className="value-col" colSpan={5}>
-                  {insurance.address?.street || patient.address.street}, {insurance.address?.city || patient.address.city}, {insurance.address?.state || patient.address.state} {insurance.address?.zipCode || patient.address.zipCode}
+                  {insuranceInfo.address?.street || patient.address.street}, {insuranceInfo.address?.city || patient.address.city}, {insuranceInfo.address?.state || patient.address.state} {insuranceInfo.address?.zipCode || patient.address.zipCode}
                 </td>
               </tr>
             </tbody>
@@ -100,7 +100,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         </div>
 
         {/* Dependent Information (if subscriber is different from patient) */}
-        {insurance.subscriberName && insurance.subscriberName !== patient.name && (
+        {insuranceInfo.subscriberName && insuranceInfo.subscriberName !== patient.name && (
           <div className="compact-section">
             <h3 className="section-title">DEPENDENT INFORMATION</h3>
             <table className="info-table">
@@ -132,17 +132,17 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
             <tbody>
               <tr>
                 <td>Annual Deductible</td>
-                <td>{insurance.primaryInsurance.deductible || '$1,000'}</td>
-                <td>{insurance.primaryInsurance.deductible ? `$${parseInt(insurance.primaryInsurance.deductible.replace(/\D/g, '')) * 2}` : '$2,000'}</td>
+                <td>{insuranceInfo.primaryInsurance.deductible || '$1,000'}</td>
+                <td>{insuranceInfo.primaryInsurance.deductible ? `$${parseInt(insuranceInfo.primaryInsurance.deductible.replace(/\D/g, '')) * 2}` : '$2,000'}</td>
               </tr>
               <tr>
                 <td>Primary Care</td>
-                <td>{insurance.primaryInsurance.copay || '$20'} copay</td>
+                <td>{insuranceInfo.primaryInsurance.copay || '$20'} copay</td>
                 <td>40% coinsurance</td>
               </tr>
               <tr>
                 <td>Specialist</td>
-                <td>{insurance.primaryInsurance.copay ? `$${parseInt(insurance.primaryInsurance.copay.replace(/\D/g, '')) + 20}` : '$40'} copay</td>
+                <td>{insuranceInfo.primaryInsurance.copay ? `$${parseInt(insuranceInfo.primaryInsurance.copay.replace(/\D/g, '')) + 20}` : '$40'} copay</td>
                 <td>40% coinsurance</td>
               </tr>
               <tr>
@@ -186,9 +186,9 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
             <tbody>
               <tr>
                 <td className="label-col">Individual:</td>
-                <td className="value-col">${insurance.primaryInsurance.deductible ? parseInt(insurance.primaryInsurance.deductible.replace(/\D/g, '')) * 5 : '5,000'}</td>
+                <td className="value-col">${insuranceInfo.primaryInsurance.deductible ? parseInt(insuranceInfo.primaryInsurance.deductible.replace(/\D/g, '')) * 5 : '5,000'}</td>
                 <td className="label-col">Family:</td>
-                <td className="value-col">${insurance.primaryInsurance.deductible ? parseInt(insurance.primaryInsurance.deductible.replace(/\D/g, '')) * 10 : '10,000'}</td>
+                <td className="value-col">${insuranceInfo.primaryInsurance.deductible ? parseInt(insuranceInfo.primaryInsurance.deductible.replace(/\D/g, '')) * 10 : '10,000'}</td>
               </tr>
             </tbody>
           </table>
@@ -212,8 +212,8 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
       <div className="insurance-policy-page page-2">
         <div className="policy-letterhead compact">
           <div className="company-header">
-            <h1 className="company-name small">{insurance.primaryInsurance.provider.toUpperCase()}</h1>
-            <span className="policy-ref">Policy #{insurance.primaryInsurance.policyNumber}</span>
+            <h1 className="company-name small">{insuranceInfo.primaryInsurance.provider.toUpperCase()}</h1>
+            <span className="policy-ref">Policy #{insuranceInfo.primaryInsurance.policyNumber}</span>
           </div>
           <div className="page-number">Page 2 of 2</div>
         </div>
@@ -260,7 +260,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         {/* Exclusions and Limitations */}
         <div className="compact-section">
           <h3 className="section-title">EXCLUSIONS &amp; LIMITATIONS</h3>
-          <p className="compact-text">This policy does not cover: services outside policy dates; experimental treatments; cosmetic procedures (unless medically necessary); non-medically necessary services; out-of-network services without authorization (except emergencies); charges exceeding allowed amounts; services covered by workers' compensation or other insurance.</p>
+          <p className="compact-text">This policy does not cover: services outside policy dates; experimental treatments; cosmetic procedures (unless medically necessary); non-medically necessary services; out-of-network services without authorization (except emergencies); charges exceeding allowed amounts; services covered by workers' compensation or other insuranceInfo.</p>
         </div>
 
         {/* Rights and Responsibilities */}
@@ -288,22 +288,22 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         </div>
 
         {/* Secondary Insurance Information */}
-        {insurance.secondaryInsurance && (
+        {insuranceInfo.secondaryInsurance && (
           <div className="compact-section highlight-section">
             <h3 className="section-title">COORDINATION OF BENEFITS - SECONDARY INSURANCE</h3>
             <table className="info-table">
               <tbody>
                 <tr>
                   <td className="label-col">Carrier:</td>
-                  <td className="value-col">{insurance.secondaryInsurance.provider}</td>
+                  <td className="value-col">{insuranceInfo.secondaryInsurance.provider}</td>
                   <td className="label-col">Policy #:</td>
-                  <td className="value-col">{insurance.secondaryInsurance.policyNumber}</td>
+                  <td className="value-col">{insuranceInfo.secondaryInsurance.policyNumber}</td>
                 </tr>
                 <tr>
                   <td className="label-col">Group #:</td>
-                  <td className="value-col">{insurance.secondaryInsurance.groupNumber}</td>
+                  <td className="value-col">{insuranceInfo.secondaryInsurance.groupNumber}</td>
                   <td className="label-col">Member ID:</td>
-                  <td className="value-col">{insurance.secondaryInsurance.memberId}</td>
+                  <td className="value-col">{insuranceInfo.secondaryInsurance.memberId}</td>
                 </tr>
               </tbody>
             </table>
@@ -323,7 +323,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
 
         {/* Document Footer */}
         <div className="document-footer">
-          <span>{insurance.primaryInsurance.provider} | Policy #{insurance.primaryInsurance.policyNumber} | Issued {currentDate}</span>
+          <span>{insuranceInfo.primaryInsurance.provider} | Policy #{insuranceInfo.primaryInsurance.policyNumber} | Issued {currentDate}</span>
         </div>
       </div>
     </div>

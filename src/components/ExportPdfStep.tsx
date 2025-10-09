@@ -2,7 +2,7 @@ import React from 'react';
 import DocumentCard from './DocumentCard';
 import CustomSelect from './CustomSelect';
 import './ExportPdfStep.css';
-import { MedicalRecord, LabTestType } from '../utils/types';
+import { GeneratedData, LabTestType } from '../utils/zodSchemas';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
@@ -15,7 +15,7 @@ interface FontFamily {
 }
 
 interface ExportPdfStepProps {
-  medicalData: MedicalRecord | null;
+  generatedData: GeneratedData | null;
   exportFormat: ExportFormat;
   setExportFormat: (format: ExportFormat) => void;
   qualityLevel: QualityLevel;
@@ -32,7 +32,7 @@ interface ExportPdfStepProps {
 }
 
 const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
-  medicalData,
+  generatedData,
   exportFormat,
   setExportFormat,
   qualityLevel,
@@ -47,7 +47,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   onBack,
   isLoading
 }) => {
-  if (!medicalData) {
+  if (!generatedData) {
     return (
       <div className="edit-data-step">
         <div className="step-content">

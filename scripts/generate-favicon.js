@@ -9,7 +9,7 @@ if (typeof pngToIco !== 'function') {
   throw new TypeError('png-to-ico did not provide a callable export.');
 }
 
-const SVG_SOURCE = path.resolve(__dirname, '../public/docgen-icon.svg');
+const SVG_SOURCE = path.resolve(__dirname, '../public/logo.svg');
 const OUTPUT_PATH = path.resolve(__dirname, '../public/favicon.ico');
 const ICO_SIZES = [16, 24, 32, 48, 64];
 const PNG_OUTPUTS = [

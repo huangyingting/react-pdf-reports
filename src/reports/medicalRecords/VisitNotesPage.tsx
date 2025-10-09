@@ -1,71 +1,77 @@
 import React from 'react';
-import { MedicalRecord } from '../../utils/types';
+import { Patient, Provider, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
 
 interface VisitNotesPageProps {
-  data: MedicalRecord;
+  patient: Patient;
+  provider?: Provider;
+  visitReport?: VisitReport;
+  medicalHistory?: MedicalHistory;
 }
 
-const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
-  const { visitNotes, patient } = data;
+const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ patient, provider, visitReport, medicalHistory }) => {
   const currentDate = new Date().toLocaleDateString();
   
   const renderRecentVisits = () => {
-    const visits = visitNotes || [];
-    if (visits.length === 0) return null;
+    if (!visitReport?.visit) return null;
+
+    const visit = visitReport.visit;
+    const vitalSigns = visitReport.vitalSigns;
 
     return (
       <div className="compact-section">
         <h3>Recent Visit Notes</h3>
         
-        {visits.slice(0, 2).map((visit, index) => (
-          <div key={index} className="visit-container">
-            <h4 className="visit-header">
-              {visit.type} - {visit.date} - {visit.provider}
-            </h4>
-            
-            <table className="info-table">
-              <tbody>
-                <tr>
-                  <td className="label">Chief Complaint</td>
-                  <td className="value">{visit.chiefComplaint}</td>
-                </tr>
-                <tr>
-                  <td className="label">Vital Signs</td>
-                  <td className="value">
-                    BP: {visit.vitals?.bloodPressure || 'N/A'}, HR: {visit.vitals?.heartRate || 'N/A'}, 
-                    Temp: {visit.vitals?.temperature || 'N/A'}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            
-            <div className="assessment-plan-grid">
-              <div className="assessment-plan-container">
-                <div className="assessment-section">
-                  <h4>Assessment</h4>
-                  <div className="assessment-list">
-                    {(Array.isArray(visit.assessment) ? visit.assessment : [visit.assessment]).filter(Boolean).slice(0, 3).map((item, idx) => (
-                      <div key={idx} className="assessment-item">• {item}</div>
-                    ))}
-                  </div>
+        <div className="visit-container">
+          <h4 className="visit-header">
+            {visit.type} - {visit.date} - {visit.provider}
+          </h4>
+          
+          <table className="info-table">
+            <tbody>
+              <tr>
+                <td className="label">Chief Complaint</td>
+                <td className="value">{visit.chiefComplaint}</td>
+              </tr>
+              <tr>
+                <td className="label">Vital Signs</td>
+                <td className="value">
+                  BP: {vitalSigns?.bloodPressure || 'N/A'}, HR: {vitalSigns?.heartRate || 'N/A'}, 
+                  Temp: {vitalSigns?.temperature || 'N/A'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div className="assessment-plan-grid">
+            <div className="assessment-plan-container">
+              <div className="assessment-section">
+                <h4>Assessment</h4>
+                <div className="assessment-list">
+                  {(Array.isArray(visit.assessment) ? visit.assessment : [visit.assessment]).filter(Boolean).slice(0, 3).map((item, idx) => (
+                    <div key={idx} className="assessment-item">• {item}</div>
+                  ))}
                 </div>
-                <div className="plan-section">
-                  <h4>Plan</h4>
-                  <div className="plan-list">
-                    {(Array.isArray(visit.plan) ? visit.plan : [visit.plan]).filter(Boolean).slice(0, 3).map((item, idx) => (
-                      <div key={idx} className="plan-item">• {item}</div>
-                    ))}
-                  </div>
+              </div>
+              <div className="plan-section">
+                <h4>Plan</h4>
+                <div className="plan-list">
+                  {(Array.isArray(visit.plan) ? visit.plan : [visit.plan]).filter(Boolean).slice(0, 3).map((item, idx) => (
+                    <div key={idx} className="plan-item">• {item}</div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
     );
   };
 
   const renderTreatmentSummary = () => {
+    const visit = visitReport?.visit;
+    const currentMeds = medicalHistory?.medications?.current || [];
+    const chronicConditions = medicalHistory?.chronicConditions || [];
+
     return (
       <div className="compact-section">
         <h3>Current Treatment Summary</h3>
@@ -73,41 +79,50 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
           <div className="reference-item">
             <strong>Active Diagnoses</strong>
             <div className="diagnosis-list">
-              <div className="diagnosis-item">• Hypertension (well controlled)</div>
-              <div className="diagnosis-item">• Type 2 Diabetes (fair control)</div>
-              <div className="diagnosis-item">• Dyslipidemia (LDL elevated)</div>
+              {visit?.assessment && visit.assessment.length > 0 ? (
+                visit.assessment.slice(0, 3).map((diag, idx) => (
+                  <div key={idx} className="diagnosis-item">• {diag}</div>
+                ))
+              ) : chronicConditions.length > 0 ? (
+                chronicConditions.slice(0, 3).map((condition, idx) => (
+                  <div key={idx} className="diagnosis-item">• {condition.condition} ({condition.status})</div>
+                ))
+              ) : (
+                <div className="diagnosis-item">• No active diagnoses documented</div>
+              )}
             </div>
           </div>
           <div className="reference-item">
             <strong>Current Medications</strong>
             <div className="medication-list">
-              <div className="medication-item">• Lisinopril 10mg daily</div>
-              <div className="medication-item">• Metformin 500mg BID</div>
-              <div className="medication-item">• Atorvastatin 20mg daily</div>
+              {currentMeds.length > 0 ? (
+                currentMeds.slice(0, 3).map((med, idx) => (
+                  <div key={idx} className="medication-item">• {med.name} {med.strength} {med.dosage}</div>
+                ))
+              ) : (
+                <div className="medication-item">• No current medications documented</div>
+              )}
             </div>
           </div>
         </div>
         
         <div className="treatment-monitoring">
-          <h4>Monitoring & Goals</h4>
+          <h4>Visit Plan & Follow-up</h4>
           <table className="info-table">
             <tbody>
-              <tr>
-                <td className="label">Blood Pressure</td>
-                <td className="value">Weekly at home, Target &lt; 130/80 mmHg</td>
-              </tr>
-              <tr>
-                <td className="label">HbA1c</td>
-                <td className="value">Every 3 months, Target &lt; 7.0%</td>
-              </tr>
-              <tr>
-                <td className="label">Lipid Panel</td>
-                <td className="value">Annually, LDL Target &lt; 100 mg/dL</td>
-              </tr>
-              <tr>
-                <td className="label">Weight Management</td>
-                <td className="value">Goal: 10-15 lbs weight loss</td>
-              </tr>
+              {visit?.plan && visit.plan.length > 0 ? (
+                visit.plan.slice(0, 4).map((planItem, idx) => (
+                  <tr key={idx}>
+                    <td className="label">Plan Item {idx + 1}</td>
+                    <td className="value">{planItem}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="label">Treatment Plan</td>
+                  <td className="value">No specific treatment plan documented</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -116,32 +131,39 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
   };
 
   const renderProviderNotes = () => {
+    const visit = visitReport?.visit;
+    const allergies = medicalHistory?.allergies || [];
+
     return (
       <div className="compact-section">
-        <h3>Provider Communication Notes</h3>
+        <h3>Provider Information & Clinical Notes</h3>
         <div className="risk-grid">
           <div className="risk-category">
-            <h4>Care Coordination</h4>
+            <h4>Treating Provider</h4>
             <ul className="provider-notes-list">
-              <li>Endocrinology referral pending</li>
-              <li>Dietitian consultation scheduled</li>
-              <li>Home health aide arranged</li>
+              <li><strong>Name:</strong> {visit?.provider || 'Not specified'}</li>
+              <li><strong>Specialty:</strong> {'Not specified'}</li>
+              <li><strong>Contact:</strong> {'Not specified'}</li>
             </ul>
           </div>
           <div className="risk-category">
-            <h4>Patient Education</h4>
+            <h4>Allergies & Alerts</h4>
             <ul className="provider-notes-list">
-              <li>Diabetes self-management reviewed</li>
-              <li>Blood pressure monitoring taught</li>
-              <li>Medication compliance discussed</li>
+              {allergies.length > 0 ? (
+                allergies.slice(0, 3).map((allergy, idx) => (
+                  <li key={idx}>⚠️ {allergy.allergen} ({allergy.severity})</li>
+                ))
+              ) : (
+                <li>No known allergies</li>
+              )}
             </ul>
           </div>
           <div className="risk-category">
-            <h4>Follow-up Schedule</h4>
+            <h4>Visit Details</h4>
             <ul className="provider-notes-list">
-              <li>Next visit: 3 months</li>
-              <li>Lab work: 6 weeks</li>
-              <li>Emergency contact if concerns</li>
+              <li><strong>Visit Type:</strong> {visit?.type || 'N/A'}</li>
+              <li><strong>Visit Date:</strong> {visit?.date || 'N/A'}</li>
+              <li><strong>Duration:</strong> {visit?.duration || 'N/A'}</li>
             </ul>
           </div>
         </div>
@@ -150,9 +172,9 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
   };
 
   const renderVisitSummary = () => {
-    const visits = visitNotes || [];
-    const totalVisits = visits.length;
-    const lastVisitDate = visits[0]?.date || 'N/A';
+    const visit = visitReport?.visit;
+    const vitalSigns = visitReport?.vitalSigns;
+    const lastVisitDate = visit?.date || 'N/A';
     
     return (
       <div className="compact-section">
@@ -160,32 +182,44 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
         <div className="reference-grid">
           <div className="reference-item">
             <strong>Visit History</strong>
-            <div>{totalVisits} visits in past 12 months</div>
-            <div className="note">Last visit: {lastVisitDate}</div>
+            <div>Visit documented on {lastVisitDate}</div>
+            <div className="note">Chief Complaint: {visit?.chiefComplaint || 'Not specified'}</div>
           </div>
           <div className="reference-item">
-            <strong>Care Quality Metrics</strong>
-            <div>Adherence: Good (85%)</div>
-            <div className="note">Medication compliance tracking</div>
+            <strong>Visit Duration</strong>
+            <div>{visit?.duration || 'Not specified'}</div>
+            <div className="note">Visit Type: {visit?.type || 'N/A'}</div>
           </div>
         </div>
         
         <div className="clinical-trends">
-          <h4>Clinical Trends</h4>
+          <h4>Vital Signs Summary</h4>
           <table className="info-table">
             <tbody>
               <tr>
-                <td className="label">Blood Pressure Control</td>
-                <td className="value">Improving trend, average 135/82 mmHg</td>
+                <td className="label">Blood Pressure</td>
+                <td className="value">{vitalSigns?.bloodPressure || 'Not recorded'}</td>
               </tr>
               <tr>
-                <td className="label">Glucose Management</td>
-                <td className="value">Stable, last HbA1c 7.2% (3 months ago)</td>
+                <td className="label">Heart Rate</td>
+                <td className="value">{vitalSigns?.heartRate || 'Not recorded'}</td>
               </tr>
               <tr>
-                <td className="label">Weight Tracking</td>
-                <td className="value">Gradual decrease, lost 3 lbs since last visit</td>
+                <td className="label">Temperature</td>
+                <td className="value">{vitalSigns?.temperature || 'Not recorded'}</td>
               </tr>
+              {vitalSigns?.respiratoryRate && (
+                <tr>
+                  <td className="label">Respiratory Rate</td>
+                  <td className="value">{vitalSigns.respiratoryRate}</td>
+                </tr>
+              )}
+              {vitalSigns?.oxygenSaturation && (
+                <tr>
+                  <td className="label">Oxygen Saturation</td>
+                  <td className="value">{vitalSigns.oxygenSaturation}</td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -199,8 +233,13 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
       <div className="medical-page">
         <div className="medical-page-header">
           <div className="hospital-info">
-            <h2>Metropolitan General Hospital</h2>
-            <p>123 Medical Center Drive, Healthcare City, HC 12345 | Phone: (555) 123-4567</p>
+            <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
+            <p>
+              {provider?.facilityAddress?.street && provider?.facilityAddress?.city ? 
+                `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}` :
+                '123 Medical Center Drive, Healthcare City, HC 12345'
+              } | Phone: {provider?.facilityPhone || '(555) 123-4567'}
+            </p>
           </div>
           <div className="page-title">
             <h1>Clinical Visit Notes</h1>
@@ -211,7 +250,7 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
         <div className="medical-page-content">
           {renderRecentVisits()}
           
-          {(!visitNotes || visitNotes.length === 0) && (
+          {!visitReport?.visit && (
             <div className="no-data">
               No visit notes available
             </div>
@@ -235,8 +274,13 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ data }) => {
       <div className="medical-page">
         <div className="medical-page-header">
           <div className="hospital-info">
-            <h2>Metropolitan General Hospital</h2>
-            <p>123 Medical Center Drive, Healthcare City, HC 12345 | Phone: (555) 123-4567</p>
+            <h2>{provider?.facilityName || 'Healthcare Facility'}</h2>
+            <p>
+              {provider?.facilityAddress?.street && provider?.facilityAddress?.city ? 
+                `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}` :
+                '123 Medical Center Drive, Healthcare City, HC 12345'
+              } | Phone: {provider?.facilityPhone || '(555) 123-4567'}
+            </p>
           </div>
           <div className="page-title">
             <h1>Treatment Summary & Care Coordination</h1>
