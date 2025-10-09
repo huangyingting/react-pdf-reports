@@ -125,7 +125,7 @@ export const exportToPDF = async (
     console.log('Starting PDF export for element:', elementId);
     console.log('Element found:', element.tagName, element.className);
 
-    const explicitPageSelectors = ['.cms1500-page', '.medical-records-page', '.report-page', '[data-pdf-page]'];
+    const explicitPageSelectors = ['.cms1500-page', '.medical-page', '.visit-report-page', '.laboratory-report-page'];
     const explicitPages = explicitPageSelectors.reduce(
       (count, selector) => count + element.querySelectorAll(selector).length,
       0

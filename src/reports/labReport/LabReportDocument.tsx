@@ -14,10 +14,10 @@ const LabReportDocument: React.FC<LabReportProps> = ({
   labReport,
   fontFamily = "'Arial', sans-serif"
 }) => {
-  const { performingLab, results, testName, specimenType, 
-          specimenCollectionDate, specimenCollectionTime, specimenReceivedDate,
-          reportDate, reportTime, orderingPhysician, interpretation, comments,
-          criticalValues, technologist, pathologist, testType } = labReport;
+  const { performingLab, results, testName, specimenType,
+    specimenCollectionDate, specimenCollectionTime, specimenReceivedDate,
+    reportDate, reportTime, orderingPhysician, interpretation, comments,
+    criticalValues, technologist, pathologist, testType } = labReport;
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -150,8 +150,8 @@ const LabReportDocument: React.FC<LabReportProps> = ({
             </thead>
             <tbody>
               {results.map((result: any, index: number) => (
-                <tr 
-                  key={index} 
+                <tr
+                  key={index}
                   className={`
                     ${result.flag === 'Critical' ? 'row-critical' : ''}
                     ${result.flag === 'High' || result.flag === 'Low' ? 'row-abnormal' : ''}
@@ -174,7 +174,33 @@ const LabReportDocument: React.FC<LabReportProps> = ({
             </tbody>
           </table>
         </div>
+        {/* Footer */}
+        <div className="lab-footer">
+          <div className="footer-info">
+            <span>MRN: {patient.id}</span>
+            <span>Accession: {faker.string.alphanumeric({ length: 10, casing: 'upper' })}</span>
+            <span>Page 1 of 2</span>
+            <span>Printed: {currentDate}</span>
+          </div>
+          <p className="footer-notice">
+            This laboratory is certified under the Clinical Laboratory Improvement Amendments (CLIA) of 1988.
+          </p>
+        </div>
+      </div>
 
+      <div className="laboratory-report-page page-2">
+        {/* Letterhead */}
+        <div className="lab-letterhead">
+          <div className="lab-header">
+            <h1 className="lab-name">{performingLab.name.toUpperCase()}</h1>
+            <p className="lab-address">
+              {performingLab.address.street} • {performingLab.address.city}, {performingLab.address.state} {performingLab.address.zipCode}
+            </p>
+            <p className="lab-contact">Phone: {performingLab.phone} • CLIA#: {performingLab.cliaNumber}</p>
+          </div>
+        </div>
+
+        <div className="page-break"></div>
         {/* Interpretation */}
         {interpretation && (
           <div className="interpretation-section">
@@ -258,7 +284,7 @@ const LabReportDocument: React.FC<LabReportProps> = ({
           <div className="footer-info">
             <span>MRN: {patient.id}</span>
             <span>Accession: {faker.string.alphanumeric({ length: 10, casing: 'upper' })}</span>
-            <span>Page 1 of 1</span>
+            <span>Page 2 of 2</span>
             <span>Printed: {currentDate}</span>
           </div>
           <p className="footer-notice">

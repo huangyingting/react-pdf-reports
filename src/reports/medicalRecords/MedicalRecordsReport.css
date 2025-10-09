@@ -30,7 +30,7 @@
     width: 210mm;
     height: 297mm;
     padding: 12mm;
-    margin: 0 auto 10px auto;
+    margin: 0 0 0 0;
     background: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     page-break-after: always;
@@ -572,7 +572,7 @@
         height: auto;
         min-height: 100vh;
         padding: 3mm;
-        margin: 0 0 2mm 0;
+        margin: 0 0 0 0;
     }
 
     .reference-grid,
