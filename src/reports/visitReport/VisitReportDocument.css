@@ -24,7 +24,7 @@
 .visit-report-page {
   width: 210mm;
   height: 297mm;
-  padding: 12mm 15mm;
+  padding: 8mm 15mm 12mm 15mm;
   margin: 0 auto;
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -66,7 +66,7 @@
     width: 210mm;
     height: 297mm;
     margin: 0;
-    padding: 12mm 15mm;
+    padding: 8mm 15mm 12mm 15mm;
     box-shadow: none;
     page-break-after: always;
     break-after: page;
@@ -96,8 +96,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 4mm;
-  padding-bottom: 2.5mm;
+  margin-bottom: 3mm;
+  padding-bottom: 2mm;
   border-bottom: 2px solid #222;
 }
 
@@ -135,7 +135,7 @@
 /* Title Section */
 .visit-title-section {
   text-align: center;
-  margin-bottom: 4mm;
+  margin-bottom: 3mm;
 }
 
 .visit-title {
@@ -157,8 +157,8 @@
 .visit-info-box {
   background: #f9f9f9;
   border: 1.5px solid #ccc;
-  padding: 3mm;
-  margin-bottom: 4mm;
+  padding: 2.5mm;
+  margin-bottom: 3mm;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3mm;
@@ -209,7 +209,7 @@
 
 /* Visit Sections */
 .visit-section {
-  margin-bottom: 4mm;
+  margin-bottom: 3mm;
 }
 
 .section-title {
@@ -386,7 +386,6 @@
 .footer-notice {
   font-size: 8.5px;
   color: #666;
-  margin: 0 0 1.5mm 0;
   line-height: 1.3;
   font-style: italic;
   text-align: center;
