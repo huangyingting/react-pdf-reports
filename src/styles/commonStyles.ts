@@ -34,9 +34,10 @@ export const sectionContainer: SxProps<Theme> = {
 // ==================== Typography ====================
 
 export const sectionTitle: SxProps<Theme> = {
-  mb: 3,
+  mb: 2,
   color: 'primary.main',
-  fontWeight: 600,
+  fontWeight: 700,
+  fontSize: '1.125rem',
 };
 
 export const subsectionTitle: SxProps<Theme> = {
@@ -54,20 +55,20 @@ export const labelText: SxProps<Theme> = {
 
 export const formGrid: SxProps<Theme> = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-  gap: 2,
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+  gap: 1.5,
 };
 
 export const formGridTwoColumn: SxProps<Theme> = {
   display: 'grid',
   gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
-  gap: 2,
+  gap: 1.5,
 };
 
 export const formGridThreeColumn: SxProps<Theme> = {
   display: 'grid',
   gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' },
-  gap: 2,
+  gap: 1.5,
 };
 
 export const fullWidthField: SxProps<Theme> = {
@@ -243,8 +244,11 @@ export const iconBox: SxProps<Theme> = {
 export const categoryHeader: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-  mb: 2,
+  gap: 1.5,
+  mb: 3,
+  pb: 1.5,
+  borderBottom: '2px solid',
+  borderColor: 'rgba(107, 142, 35, 0.15)',
 };
 
 // ==================== Dividers ====================
@@ -293,9 +297,8 @@ export const documentGridThreeColumn: SxProps<Theme> = {
 // ==================== Tab Container ====================
 
 export const tabContainer: SxProps<Theme> = {
-  p: 3,
+  p: 2.5,
   flex: 1,
-  overflowY: 'auto',
 };
 
 // ==================== Helper Functions ====================

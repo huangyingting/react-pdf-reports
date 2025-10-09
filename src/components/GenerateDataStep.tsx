@@ -217,7 +217,10 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
       <ContentContainer>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <SectionCard>
-            <Typography variant="h3" gutterBottom>Generation Method</Typography>
+            <Typography variant="h3" gutterBottom sx={{ fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>Generation Method</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Choose how you want to generate your medical data
+            </Typography>
             <Box sx={{ 
               display: 'flex', 
               gap: 2, 
@@ -242,13 +245,21 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   control={<Radio />}
                   label="Faker.js"
                   sx={{
-                    border: '1.5px solid',
+                    border: '2px solid',
                     borderColor: generationMethod === 'faker' ? 'primary.main' : 'divider',
-                    borderRadius: 2,
-                    px: 2,
-                    py: 1,
+                    borderRadius: 2.5,
+                    px: 2.5,
+                    py: 1.25,
                     m: 0,
-                    bgcolor: generationMethod === 'faker' ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                    background: generationMethod === 'faker' 
+                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
+                      : 'transparent',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
+                      transform: 'translateY(-2px)',
+                    }
                   }}
                 />
                 <FormControlLabel
@@ -261,14 +272,22 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     </Box>
                   }
                   sx={{
-                    border: '1.5px solid',
+                    border: '2px solid',
                     borderColor: generationMethod === 'ai' ? 'primary.main' : 'divider',
-                    borderRadius: 2,
-                    px: 2,
-                    py: 1,
+                    borderRadius: 2.5,
+                    px: 2.5,
+                    py: 1.25,
                     m: 0,
-                    bgcolor: generationMethod === 'ai' ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                    background: generationMethod === 'ai' 
+                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
+                      : 'transparent',
                     opacity: !azureConfig ? 0.6 : 1,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: !azureConfig ? 'divider' : 'primary.main',
+                      boxShadow: !azureConfig ? 'none' : '0 4px 12px rgba(107, 142, 35, 0.15)',
+                      transform: !azureConfig ? 'none' : 'translateY(-2px)',
+                    }
                   }}
                 />
               </RadioGroup>
@@ -279,6 +298,17 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 startIcon={<SettingsIcon />}
                 onClick={() => setShowConfigModal(true)}
                 title={azureConfig ? 'Update Azure OpenAI settings' : 'Configure Azure OpenAI'}
+                sx={{
+                  borderRadius: 2,
+                  borderWidth: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 2,
+                  '&:hover': {
+                    borderWidth: 1.5,
+                    transform: 'scale(1.05)',
+                  }
+                }}
               >
                 {azureConfig ? 'Update' : 'Configure'}
               </Button>
@@ -288,7 +318,17 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   size="small"
                   onClick={handleClearConfig}
                   title="Reset Azure OpenAI configuration"
-                  sx={{ border: '1px solid', borderColor: 'divider' }}
+                  sx={{ 
+                    border: '1.5px solid', 
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: 'error.main',
+                      color: 'error.main',
+                      transform: 'rotate(90deg)',
+                    }
+                  }}
                 >
                   <RefreshIcon fontSize="small" />
                 </IconButton>
@@ -298,21 +338,31 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 size="small"
                 onClick={handleClearCache}
                 title="Clear cached AI-generated data"
-                sx={{ border: '1px solid', borderColor: 'divider' }}
+                sx={{ 
+                  border: '1.5px solid', 
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    borderColor: 'error.main',
+                    color: 'error.main',
+                    transform: 'scale(1.1)',
+                  }
+                }}
               >
                 <DeleteIcon fontSize="small" />
               </IconButton>
             </Box>
 
-            <Typography variant="h3" gutterBottom sx={{ mt: 3 }}>Choose Data Complexity</Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <Typography variant="h3" gutterBottom sx={{ mt: 4, fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>Choose Data Complexity</Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
               Select a preset configuration or customize your own settings
             </Typography>
             
             <Box sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-              gap: 1.5,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: 2,
               mb: 3,
             }}>
               {Object.entries(DATA_GENERATION_PRESETS).map(([key, preset]) => (
@@ -320,52 +370,131 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   key={key}
                   onClick={() => handlePresetChange(key)}
                   sx={{ 
-                    p: 2.5,
+                    p: 3,
                     cursor: 'pointer',
-                    border: selectedPreset === key ? '2px solid' : '1.5px solid',
+                    border: selectedPreset === key ? '2.5px solid' : '1.5px solid',
                     borderColor: selectedPreset === key ? 'primary.main' : 'divider',
-                    bgcolor: selectedPreset === key ? 'rgba(241, 248, 233, 1)' : 'background.default',
+                    background: selectedPreset === key 
+                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 1) 0%, rgba(143, 175, 60, 0.15) 100%)'
+                      : 'linear-gradient(135deg, #ffffff 0%, #f8faf9 100%)',
+                    borderRadius: 3,
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow: selectedPreset === key 
+                      ? '0 8px 24px rgba(107, 142, 35, 0.2)'
+                      : '0 2px 8px rgba(0, 0, 0, 0.04)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: '4px',
+                      background: 'linear-gradient(90deg, #6b8e23, #8faf3c)',
+                      opacity: selectedPreset === key ? 1 : 0,
+                      transition: 'opacity 0.3s ease',
+                    },
                     '&:hover': {
-                      boxShadow: 7,
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 12px 32px rgba(107, 142, 35, 0.18)',
+                      borderColor: 'primary.main',
+                      '&::before': {
+                        opacity: 1,
+                      }
                     },
                   }}
                 >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="h4" sx={{ fontSize: '0.9375rem' }}>{preset.name}</Typography>
-                    {selectedPreset === key && <CheckIcon sx={{ color: 'primary.main' }} />}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                    <Typography variant="h4" sx={{ fontSize: '1.0625rem', fontWeight: 700 }}>{preset.name}</Typography>
+                    {selectedPreset === key && (
+                      <Box sx={{ 
+                        bgcolor: 'primary.main', 
+                        color: 'white', 
+                        borderRadius: '50%', 
+                        width: 24, 
+                        height: 24, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(107, 142, 35, 0.3)',
+                      }}>
+                        <CheckIcon sx={{ fontSize: 16 }} />
+                      </Box>
+                    )}
                   </Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5, lineHeight: 1.6 }}>
                     {preset.description}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', fontSize: '0.75rem' }}>
-                    <Typography variant="caption">Visits: {preset.options.numberOfVisits}</Typography>
-                    <Typography variant="caption">Lab Tests: {preset.options.numberOfLabTests}</Typography>
-                    <Typography variant="caption">Complexity: {preset.options.complexity}</Typography>
+                  <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                    <Box sx={{ 
+                      px: 1.5, 
+                      py: 0.5, 
+                      bgcolor: 'rgba(107, 142, 35, 0.1)', 
+                      borderRadius: 1.5,
+                      border: '1px solid rgba(107, 142, 35, 0.2)',
+                    }}>
+                      <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                        Visits: {preset.options.numberOfVisits}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ 
+                      px: 1.5, 
+                      py: 0.5, 
+                      bgcolor: 'rgba(107, 142, 35, 0.1)', 
+                      borderRadius: 1.5,
+                      border: '1px solid rgba(107, 142, 35, 0.2)',
+                    }}>
+                      <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
+                        Tests: {preset.options.numberOfLabTests}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ 
+                      px: 1.5, 
+                      py: 0.5, 
+                      bgcolor: 'rgba(107, 142, 35, 0.1)', 
+                      borderRadius: 1.5,
+                      border: '1px solid rgba(107, 142, 35, 0.2)',
+                    }}>
+                      <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
+                        {preset.options.complexity}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Card>
               ))}
             </Box>
 
-            <Typography variant="h3" gutterBottom sx={{ mt: 3 }}>Custom Settings</Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <Typography variant="h3" gutterBottom sx={{ mt: 4, fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>Custom Settings</Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
               Fine-tune the generated data to meet your specific needs
             </Typography>
             
             <Box sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 2,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: 2.5,
             }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="body2" fontWeight={600} color="text.secondary">Medical Complexity</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                  Medical Complexity
+                </Typography>
                 <Select
                   value={customOptions.complexity}
                   onChange={(e: SelectChangeEvent) => setCustomOptions({...customOptions, complexity: e.target.value as 'low' | 'medium' | 'high'})}
                   fullWidth
                   sx={{
+                    borderRadius: 2,
                     '& .MuiSelect-select': {
                       display: 'flex',
                       alignItems: 'center',
+                      py: 1.5,
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderWidth: 1.5,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
                     }
                   }}
                 >
@@ -375,16 +504,26 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 </Select>
               </Box>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="body2" fontWeight={600} color="text.secondary">Number of Visits</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                  Number of Visits
+                </Typography>
                 <Select
                   value={customOptions.numberOfVisits}
                   onChange={(e: SelectChangeEvent<number>) => setCustomOptions({...customOptions, numberOfVisits: e.target.value as number})}
                   fullWidth
                   sx={{
+                    borderRadius: 2,
                     '& .MuiSelect-select': {
                       display: 'flex',
                       alignItems: 'center',
+                      py: 1.5,
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderWidth: 1.5,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
                     }
                   }}
                 >
@@ -396,16 +535,26 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 </Select>
               </Box>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="body2" fontWeight={600} color="text.secondary">Lab Tests</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                  Lab Tests
+                </Typography>
                 <Select
                   value={customOptions.numberOfLabTests}
                   onChange={(e: SelectChangeEvent<number>) => setCustomOptions({...customOptions, numberOfLabTests: e.target.value as number})}
                   fullWidth
                   sx={{
+                    borderRadius: 2,
                     '& .MuiSelect-select': {
                       display: 'flex',
                       alignItems: 'center',
+                      py: 1.5,
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderWidth: 1.5,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
                     }
                   }}
                 >
@@ -418,24 +567,36 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 </Select>
               </Box>
 
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="body2" fontWeight={600} color="text.secondary">Secondary Insurance</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                  Secondary Insurance
+                </Typography>
                 <FormControlLabel
                   control={
                     <Checkbox
+                      size="small"
                       checked={customOptions.includeSecondaryInsurance}
                       onChange={(e) => setCustomOptions({...customOptions, includeSecondaryInsurance: e.target.checked})}
                     />
                   }
                   label="Include"
                   sx={{
-                    border: '1.5px solid',
-                    borderColor: 'divider',
+                    border: '2px solid',
+                    borderColor: customOptions.includeSecondaryInsurance ? 'primary.main' : 'divider',
                     borderRadius: 2,
                     px: 2,
-                    py: 1,
+                    py: 0.5,
                     m: 0,
-                    bgcolor: customOptions.includeSecondaryInsurance ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                    minHeight: '40px',
+                    height: '40px',
+                    background: customOptions.includeSecondaryInsurance 
+                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
+                      : 'transparent',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
+                    }
                   }}
                 />
               </Box>
@@ -453,24 +614,46 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
           display: 'flex',
           justifyContent: 'center',
           gap: 2,
-          p: 2,
-          bgcolor: 'rgba(250, 245, 235, 0.85)',
-          backdropFilter: 'blur(10px)',
-          border: '1.5px solid rgba(141, 110, 99, 0.3)',
-          borderRadius: 2,
-          boxShadow: 5,
-          position: 'sticky',
+          p: 2.5,
+          background: 'linear-gradient(135deg, rgba(250, 248, 243, 0.95) 0%, rgba(245, 241, 232, 0.95) 100%)',
+          backdropFilter: 'blur(12px)',
+          border: '2px solid',
+          borderColor: 'rgba(107, 142, 35, 0.2)',
+          borderRadius: 3,
+          boxShadow: '0 8px 24px rgba(107, 142, 35, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
+          position: 'fixed',
           bottom: 24,
-          mx: 'auto',
-          maxWidth: 600,
+          left: '50%',
+          transform: 'translateX(-50%)',
           width: 'fit-content',
+          minWidth: { xs: 'calc(100% - 48px)', sm: 'auto' },
+          maxWidth: { xs: 'calc(100% - 48px)', sm: 600 },
+          zIndex: 1000,
         }}>
           <Button
             variant="contained"
             color="primary"
             onClick={handleGenerateData}
             disabled={isGenerating}
-            startIcon={isGenerating && <CircularProgress size={16} color="inherit" />}
+            startIcon={isGenerating && <CircularProgress size={18} color="inherit" />}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontSize: '1rem',
+              fontWeight: 700,
+              borderRadius: 2.5,
+              textTransform: 'none',
+              boxShadow: '0 4px 12px rgba(107, 142, 35, 0.3)',
+              background: 'linear-gradient(135deg, #6b8e23 0%, #8faf3c 100%)',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 20px rgba(107, 142, 35, 0.4)',
+              },
+              '&:disabled': {
+                background: 'linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%)',
+              }
+            }}
           >
             {isGenerating 
               ? (generationMethod === 'ai' ? 'Generating with AI...' : 'Generating...') 

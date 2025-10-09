@@ -3,7 +3,7 @@ import { Box, Typography, Tabs, Tab, Button, TextField, Select, MenuItem, FormCo
 import { ExpandMore as ExpandMoreIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
 import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
-import { StepContainer, SectionTitle, FormGrid, ActionButtons, ButtonGroup, TabContent, LoadingSpinner } from './SharedComponents';
+import { StepContainer, SectionTitle, FormGrid, TabContent, LoadingSpinner } from './SharedComponents';
 
 interface EditDataStepProps {
   generatedData: GeneratedData | null;
@@ -60,7 +60,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
   const [activeSection, setActiveSection] = useState<string>('patient');
   const [expandedLabReports, setExpandedLabReports] = useState<Set<LabTestType>>(new Set());
   const [expandedVisitReports, setExpandedVisitReports] = useState<Set<number>>(new Set());
-  const [expandedMedicalSections, setExpandedMedicalSections] = useState<Set<string>>(new Set(['allergies', 'conditions', 'currentMeds', 'discontinuedMeds', 'surgicalHistory', 'familyHistory']));
+  const [expandedMedicalSections, setExpandedMedicalSections] = useState<Set<string>>(new Set());
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
   useEffect(() => {
@@ -176,22 +176,46 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
 
   return (
     <StepContainer>
-      <Box sx={{ borderRadius: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ borderRadius: 2, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <Tabs
           value={activeSection}
           onChange={(_, newValue) => setActiveSection(newValue)}
           variant="scrollable"
           scrollButtons="auto"
           sx={{
-            borderBottom: '1.5px solid',
+            borderBottom: '2px solid',
             borderColor: 'divider',
-            bgcolor: 'background.default',
+            background: 'linear-gradient(180deg, rgba(250, 248, 243, 1) 0%, rgba(245, 241, 232, 0.9) 100%)',
             px: 2,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+            minHeight: 56,
             '& .MuiTab-root': {
-              minHeight: 64,
+              minHeight: 56,
               textTransform: 'none',
-              fontSize: '0.95rem',
-              fontWeight: 500,
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: 'text.secondary',
+              transition: 'all 0.2s ease',
+              borderRadius: '8px 8px 0 0',
+              mx: 0.25,
+              py: 1,
+              px: 2,
+              '&:hover': {
+                color: 'primary.main',
+                bgcolor: 'rgba(107, 142, 35, 0.05)',
+              },
+              '&.Mui-selected': {
+                color: 'primary.main',
+                bgcolor: 'rgba(241, 248, 233, 0.5)',
+              }
+            },
+            '& .MuiTabs-indicator': {
+              height: 3,
+              borderRadius: '3px 3px 0 0',
+              background: 'linear-gradient(90deg, #6b8e23, #8faf3c)',
+            },
+            '& .MuiSvgIcon-root': {
+              fontSize: '1.125rem',
             }
           }}
         >
@@ -264,7 +288,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               <>
                 {editedData.labReports.length > 0 ? (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
                       Laboratory Reports ({editedData.labReports.length} reports)
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -283,11 +307,11 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                               }
                               setExpandedLabReports(newExpanded);
                             }}
-                            sx={{ mb: 2 }}
+                            sx={{ mb: 1.5 }}
                           >
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                              <Typography sx={{ fontWeight: 500 }}>
-                                {labData.testName} ({labData.testType}) <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>- {labData.results.length} results</Typography>
+                              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+                                {labData.testName} ({labData.testType}) <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>- {labData.results.length} results</Typography>
                               </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
@@ -311,7 +335,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                   </Box>
                 ) : (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
                       Laboratory Report
                     </Typography>
                     <Typography variant="body1" color="warning.main">
@@ -327,7 +351,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               <>
                 {editedData.visitReports.length > 0 ? (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
                       Vital Signs ({editedData.visitReports.length} visits)
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -346,11 +370,11 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                               }
                               setExpandedVisitReports(newExpanded);
                             }}
-                            sx={{ mb: 2 }}
+                            sx={{ mb: 1.5 }}
                           >
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                              <Typography sx={{ fontWeight: 500 }}>
-                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>- {visitData.visit.type}</Typography>
+                              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>- {visitData.visit.type}</Typography>
                               </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
@@ -374,7 +398,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                   </Box>
                 ) : (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
                       Vital Signs
                     </Typography>
                     <Typography variant="body1" color="warning.main">
@@ -390,7 +414,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               <>
                 {editedData.visitReports.length > 0 ? (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
                       Visit Notes ({editedData.visitReports.length} visits)
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -409,11 +433,11 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                               }
                               setExpandedVisitReports(newExpanded);
                             }}
-                            sx={{ mb: 2 }}
+                            sx={{ mb: 1.5 }}
                           >
                             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                              <Typography sx={{ fontWeight: 500 }}>
-                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>- {visitData.visit.type}</Typography>
+                              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>- {visitData.visit.type}</Typography>
                               </Typography>
                             </AccordionSummary>
                             <AccordionDetails>
@@ -437,7 +461,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                   </Box>
                 ) : (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
                       Visit Notes
                     </Typography>
                     <Typography variant="body1" color="warning.main">
@@ -449,21 +473,70 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
             )}
         </TabContent>
 
-        <ActionButtons>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 2,
+          p: 2.5,
+          background: 'linear-gradient(135deg, rgba(250, 248, 243, 0.95) 0%, rgba(245, 241, 232, 0.95) 100%)',
+          backdropFilter: 'blur(12px)',
+          border: '2px solid',
+          borderColor: 'rgba(107, 142, 35, 0.2)',
+          borderRadius: 3,
+          boxShadow: '0 8px 24px rgba(107, 142, 35, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
+          position: 'fixed',
+          bottom: 24,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 'fit-content',
+          minWidth: { xs: 'calc(100% - 48px)', sm: 'auto' },
+          maxWidth: { xs: 'calc(100% - 48px)', sm: 'calc(100% - 48px)', md: 900 },
+          zIndex: 1000,
+        }}>
           <Button
             variant="outlined"
             onClick={onBack}
-            sx={{ minWidth: 160 }}
+            sx={{ 
+              minWidth: 140,
+              px: 3,
+              py: 1.25,
+              fontSize: '0.9375rem',
+              borderRadius: 2.5,
+              borderWidth: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                borderWidth: 2,
+                transform: 'translateX(-4px)',
+                boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
+              }
+            }}
           >
             ← Back to Generate
           </Button>
           
-          <ButtonGroup>
+          <Box sx={{ display: 'flex', gap: 2 }}>
             {hasChanges && (
               <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleSaveChanges}
+                sx={{
+                  px: 3,
+                  py: 1.25,
+                  fontSize: '0.9375rem',
+                  borderRadius: 2.5,
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  boxShadow: '0 4px 12px rgba(109, 76, 65, 0.3)',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 20px rgba(109, 76, 65, 0.4)',
+                  }
+                }}
               >
                 Save Changes
               </Button>
@@ -472,12 +545,27 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
             <Button
               variant="contained"
               onClick={handleNext}
-              sx={{ minWidth: 160 }}
+              sx={{ 
+                minWidth: 140,
+                px: 4,
+                py: 1.5,
+                fontSize: '1rem',
+                fontWeight: 700,
+                borderRadius: 2.5,
+                textTransform: 'none',
+                boxShadow: '0 4px 12px rgba(107, 142, 35, 0.3)',
+                background: 'linear-gradient(135deg, #6b8e23 0%, #8faf3c 100%)',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 20px rgba(107, 142, 35, 0.4)',
+                }
+              }}
             >
               Continue to Export →
             </Button>
-          </ButtonGroup>
-        </ActionButtons>
+          </Box>
+        </Box>
       </Box>
     </StepContainer>
   );
@@ -486,7 +574,33 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
 // Patient Info Section Component
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange }) => (
   <Box>
-    <SectionTitle>Patient Demographics</SectionTitle>
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 1.5, 
+      mb: 2.5,
+      pb: 1.5,
+      borderBottom: '2px solid',
+      borderColor: 'rgba(107, 142, 35, 0.12)',
+    }}>
+      <Box sx={{ 
+        p: 0.75, 
+        bgcolor: 'rgba(241, 248, 233, 1)', 
+        borderRadius: 1.5,
+        color: 'primary.main',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </Box>
+      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
+        Patient Demographics
+      </Typography>
+    </Box>
     
     <FormGrid>
       <TextField
@@ -494,6 +608,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.firstName}
         onChange={(e) => onChange('firstName', e.target.value)}
         fullWidth
+        size="small"
       />
 
       <TextField
@@ -501,6 +616,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.middleInitial || ''}
         onChange={(e) => onChange('middleInitial', e.target.value)}
         fullWidth
+        size="small"
         inputProps={{ maxLength: 1 }}
       />
 
@@ -509,6 +625,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.lastName}
         onChange={(e) => onChange('lastName', e.target.value)}
         fullWidth
+        size="small"
       />
             
       <TextField
@@ -517,6 +634,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         onChange={(e) => onChange('dateOfBirth', e.target.value)}
         placeholder="MM/DD/YYYY"
         fullWidth
+        size="small"
       />
             
       <TextField
@@ -524,6 +642,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.medicalRecordNumber}
         onChange={(e) => onChange('medicalRecordNumber', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -532,6 +651,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         onChange={(e) => onChange('ssn', e.target.value)}
         placeholder="XXX-XX-XXXX"
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -540,9 +660,10 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         onChange={(e) => onChange('accountNumber', e.target.value)}
         placeholder="Optional"
         fullWidth
+        size="small"
       />
       
-      <FormControl fullWidth>
+      <FormControl fullWidth size="small">
         <InputLabel>Gender</InputLabel>
         <Select
           value={data.gender}
@@ -560,6 +681,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.contact.phone}
         onChange={(e) => onChange('contact.phone', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -568,6 +690,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.contact.email}
         onChange={(e) => onChange('contact.email', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -576,17 +699,46 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         onChange={(e) => onChange('contact.emergencyContact', e.target.value)}
         placeholder="Name and phone number"
         fullWidth
+        size="small"
         sx={{ gridColumn: 'span 2' }}
       />
     </FormGrid>
 
-    <SectionTitle sx={{ mt: 4 }}>Address Information</SectionTitle>
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 1.5, 
+      mb: 2.5,
+      mt: 3,
+      pb: 1.5,
+      borderBottom: '2px solid',
+      borderColor: 'rgba(107, 142, 35, 0.12)',
+    }}>
+      <Box sx={{ 
+        p: 0.75, 
+        bgcolor: 'rgba(241, 248, 233, 1)', 
+        borderRadius: 1.5,
+        color: 'primary.main',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </Box>
+      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
+        Address Information
+      </Typography>
+    </Box>
     <FormGrid>
       <TextField
         label="Street Address"
         value={data.address.street}
         onChange={(e) => onChange('address.street', e.target.value)}
         fullWidth
+        size="small"
         sx={{ gridColumn: 'span 2' }}
       />
       
@@ -595,6 +747,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.address.city}
         onChange={(e) => onChange('address.city', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -603,6 +756,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         onChange={(e) => onChange('address.state', e.target.value)}
         inputProps={{ maxLength: 2 }}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -610,6 +764,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         value={data.address.zipCode}
         onChange={(e) => onChange('address.zipCode', e.target.value)}
         fullWidth
+        size="small"
       />
     </FormGrid>
   </Box>
@@ -634,16 +789,45 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 
   return (
     <Box>
-      <SectionTitle>Insurance Information</SectionTitle>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 1.5, 
+        mb: 2.5,
+        pb: 1.5,
+        borderBottom: '2px solid',
+        borderColor: 'rgba(107, 142, 35, 0.12)',
+      }}>
+        <Box sx={{ 
+          p: 0.75, 
+          bgcolor: 'rgba(241, 248, 233, 1)', 
+          borderRadius: 1.5,
+          color: 'primary.main',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        </Box>
+        <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
+          Insurance Information
+        </Typography>
+      </Box>
 
-      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Subscriber Information</SectionTitle>
-      <FormGrid sx={{ mb: 4 }}>
+      <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+        Subscriber Information
+      </Typography>
+      <FormGrid sx={{ mb: 3 }}>
         <TextField
           label="Subscriber Name"
           value={data.subscriberName || ''}
           onChange={(e) => onChange('subscriberName', e.target.value)}
           placeholder="If different from patient"
           fullWidth
+          size="small"
         />
         
         <TextField
@@ -652,9 +836,10 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           onChange={(e) => onChange('subscriberDOB', e.target.value)}
           placeholder="MM/DD/YYYY"
           fullWidth
+          size="small"
         />
         
-        <FormControl fullWidth>
+        <FormControl fullWidth size="small">
           <InputLabel>Subscriber Gender</InputLabel>
           <Select
             value={data.subscriberGender || ''}
@@ -669,7 +854,9 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
         </FormControl>
       </FormGrid>
 
-      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Primary Insurance</SectionTitle>
+      <Typography variant="subtitle2" sx={{ mb: 1.5, mt: 2.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+        Primary Insurance
+      </Typography>
       
       <FormGrid sx={{ mb: 3 }}>
         <TextField
@@ -677,6 +864,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           value={data.primaryInsurance.provider}
           onChange={(e) => onChange('primaryInsurance.provider', e.target.value)}
           fullWidth
+          size="small"
         />
         
         <TextField
@@ -684,6 +872,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           value={data.primaryInsurance.policyNumber}
           onChange={(e) => onChange('primaryInsurance.policyNumber', e.target.value)}
           fullWidth
+          size="small"
         />
         
         <TextField
@@ -691,6 +880,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           value={data.primaryInsurance.groupNumber ?? ''}
           onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
           fullWidth
+          size="small"
         />
         
         <TextField
@@ -698,6 +888,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           value={data.primaryInsurance.memberId ?? ''}
           onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
           fullWidth
+          size="small"
         />
         
         <TextField
@@ -706,6 +897,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           onChange={(e) => onChange('primaryInsurance.copay', e.target.value)}
           placeholder="$20"
           fullWidth
+          size="small"
         />
         
         <TextField
@@ -714,15 +906,22 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
           onChange={(e) => onChange('primaryInsurance.deductible', e.target.value)}
           placeholder="$1000"
           fullWidth
+          size="small"
         />
       </FormGrid>
 
-      <Box sx={{ mt: 3, mb: 3 }}>
+      <Box sx={{ mt: 2.5, mb: 2.5 }}>
         <Button 
           variant={data.secondaryInsurance ? "outlined" : "contained"}
           color="secondary"
           onClick={data.secondaryInsurance ? handleRemoveSecondaryInsurance : handleAddSecondaryInsurance}
           startIcon={data.secondaryInsurance ? <DeleteIcon /> : <AddIcon />}
+          size="small"
+          sx={{
+            textTransform: 'none',
+            fontWeight: 600,
+            borderRadius: 2,
+          }}
         >
           {data.secondaryInsurance ? 'Remove Secondary Insurance' : 'Add Secondary Insurance'}
         </Button>
@@ -730,13 +929,16 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 
       {data.secondaryInsurance && (
         <Box>
-          <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Secondary Insurance</SectionTitle>
+          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+            Secondary Insurance
+          </Typography>
           <FormGrid>
             <TextField
               label="Insurance Company"
               value={data.secondaryInsurance.provider}
               onChange={(e) => onChange('secondaryInsurance.provider', e.target.value)}
               fullWidth
+              size="small"
             />
             
             <TextField
@@ -744,6 +946,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
               value={data.secondaryInsurance.policyNumber}
               onChange={(e) => onChange('secondaryInsurance.policyNumber', e.target.value)}
               fullWidth
+              size="small"
             />
             
             <TextField
@@ -751,6 +954,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
               value={data.secondaryInsurance.groupNumber || ''}
               onChange={(e) => onChange('secondaryInsurance.groupNumber', e.target.value)}
               fullWidth
+              size="small"
             />
             
             <TextField
@@ -758,6 +962,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
               value={data.secondaryInsurance.memberId || ''}
               onChange={(e) => onChange('secondaryInsurance.memberId', e.target.value)}
               fullWidth
+              size="small"
             />
             
             <TextField
@@ -766,6 +971,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
               onChange={(e) => onChange('secondaryInsurance.effectiveDate', e.target.value)}
               placeholder="YYYY-MM-DD"
               fullWidth
+              size="small"
             />
             
             <TextField
@@ -774,6 +980,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
               onChange={(e) => onChange('secondaryInsurance.copay', e.target.value)}
               placeholder="$20"
               fullWidth
+              size="small"
             />
             
             <TextField
@@ -782,6 +989,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
               onChange={(e) => onChange('secondaryInsurance.deductible', e.target.value)}
               placeholder="$1000"
               fullWidth
+              size="small"
             />
           </FormGrid>
         </Box>
@@ -793,14 +1001,42 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 // Provider Section Component
 const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
   <Box>
-    <SectionTitle>Primary Care Provider</SectionTitle>
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: 1.5, 
+      mb: 2.5,
+      pb: 1.5,
+      borderBottom: '2px solid',
+      borderColor: 'rgba(107, 142, 35, 0.12)',
+    }}>
+      <Box sx={{ 
+        p: 0.75, 
+        bgcolor: 'rgba(241, 248, 233, 1)', 
+        borderRadius: 1.5,
+        color: 'primary.main',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+          <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+          <circle cx="20" cy="10" r="2"/>
+        </svg>
+      </Box>
+      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
+        Primary Care Provider
+      </Typography>
+    </Box>
     
-    <FormGrid sx={{ mb: 4 }}>
+    <FormGrid sx={{ mb: 3 }}>
       <TextField
         label="Provider Name"
         value={data.name}
         onChange={(e) => onChange('name', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -808,9 +1044,10 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         value={data.npi}
         onChange={(e) => onChange('npi', e.target.value)}
         fullWidth
+        size="small"
       />
       
-      <FormControl fullWidth>
+      <FormControl fullWidth size="small">
         <InputLabel>Specialty</InputLabel>
         <Select
           value={data.specialty}
@@ -830,6 +1067,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         value={data.phone}
         onChange={(e) => onChange('phone', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -838,9 +1076,10 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         onChange={(e) => onChange('taxId', e.target.value)}
         placeholder="Optional"
         fullWidth
+        size="small"
       />
       
-      <FormControl fullWidth>
+      <FormControl fullWidth size="small">
         <InputLabel>Tax ID Type</InputLabel>
         <Select
           value={data.taxIdType || ''}
@@ -854,13 +1093,16 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
       </FormControl>
     </FormGrid>
 
-    <SectionTitle sx={{ mt: 4 }}>Facility Information</SectionTitle>
-    <FormGrid sx={{ mb: 4 }}>
+    <Typography variant="subtitle2" sx={{ mb: 1.5, mt: 2.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+      Facility Information
+    </Typography>
+    <FormGrid sx={{ mb: 3 }}>
       <TextField
         label="Facility Name"
         value={data.facilityName || ''}
         onChange={(e) => onChange('facilityName', e.target.value)}
         fullWidth
+        size="small"
         sx={{ gridColumn: 'span 2' }}
       />
       
@@ -869,6 +1111,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         value={data.facilityPhone || ''}
         onChange={(e) => onChange('facilityPhone', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -876,6 +1119,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         value={data.facilityFax || ''}
         onChange={(e) => onChange('facilityFax', e.target.value)}
         fullWidth
+        size="small"
       />
       
       <TextField
@@ -883,6 +1127,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         value={data.facilityNPI || ''}
         onChange={(e) => onChange('facilityNPI', e.target.value)}
         fullWidth
+        size="small"
       />
     </FormGrid>
     
@@ -930,11 +1175,11 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('allergies')}
       onChange={() => onToggleSection('allergies')}
-      sx={{ mb: 2 }}
+      sx={{ mb: 1.5 }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 500 }}>
-          Allergies <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.allergies || []).length} items)</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+          Allergies <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.allergies || []).length} items)</Typography>
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -1003,11 +1248,11 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('conditions')}
       onChange={() => onToggleSection('conditions')}
-      sx={{ mb: 2 }}
+      sx={{ mb: 1.5 }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 500 }}>
-          Active Conditions <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.chronicConditions || []).length} items)</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+          Active Conditions <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.chronicConditions || []).length} items)</Typography>
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -1080,11 +1325,11 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('currentMeds')}
       onChange={() => onToggleSection('currentMeds')}
-      sx={{ mb: 2 }}
+      sx={{ mb: 1.5 }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 500 }}>
-          Current Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.medications.current || []).length} items)</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+          Current Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.medications.current || []).length} items)</Typography>
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -1185,11 +1430,11 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('discontinuedMeds')}
       onChange={() => onToggleSection('discontinuedMeds')}
-      sx={{ mb: 2 }}
+      sx={{ mb: 1.5 }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 500 }}>
-          Discontinued Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.medications.discontinued || []).length} items)</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+          Discontinued Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.medications.discontinued || []).length} items)</Typography>
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -1265,11 +1510,11 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('surgicalHistory')}
       onChange={() => onToggleSection('surgicalHistory')}
-      sx={{ mb: 2 }}
+      sx={{ mb: 1.5 }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 500 }}>
-          Surgical History <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.surgicalHistory || []).length} items)</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+          Surgical History <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.surgicalHistory || []).length} items)</Typography>
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
@@ -1348,11 +1593,11 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('familyHistory')}
       onChange={() => onToggleSection('familyHistory')}
-      sx={{ mb: 2 }}
+      sx={{ mb: 1.5 }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 500 }}>
-          Family History <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.familyHistory || []).length} items)</Typography>
+        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
+          Family History <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.familyHistory || []).length} items)</Typography>
         </Typography>
       </AccordionSummary>
       <AccordionDetails>

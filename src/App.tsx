@@ -6,6 +6,10 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import CheckIcon from '@mui/icons-material/Check';
 import theme from './theme';
 import styles from './App.module.css';
 
@@ -13,7 +17,7 @@ import styles from './App.module.css';
 import GenerateDataStep from './components/GenerateDataStep';
 import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
-import ProgressIndicator from './components/ProgressIndicator';
+
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
 import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDocument';
@@ -342,7 +346,96 @@ function App() {
           </Toolbar>
         </AppBar>
 
-        <ProgressIndicator currentStep={currentStep} />
+        {/* Progress Stepper */}
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            pt: { xs: 1.5, sm: 2 },
+            pb: 0,
+            px: { xs: 2, sm: 3 },
+            m: 0,
+            width: '100%',
+            bgcolor: 'rgba(250, 245, 235, 0.80)',
+          }}
+        >
+          <Stepper 
+            activeStep={currentStep - 1}
+            orientation="horizontal"
+            sx={{ 
+              width: '100%',
+              maxWidth: { xs: '100%', sm: 650, md: 800 },
+              '& .MuiStepConnector-root': {
+                top: 20,
+                left: 'calc(-50% + 20px)',
+                right: 'calc(50% + 20px)',
+              },
+              '& .MuiStepConnector-line': {
+                borderTopWidth: 2,
+              },
+              '& .MuiStep-root': {
+                px: { xs: 0.5, sm: 1 },
+              },
+            }}
+          >
+            {[
+              { label: 'Generate', description: 'Create sample medical records' },
+              { label: 'Edit', description: 'Review and customize' },
+              { label: 'Export', description: 'Generate PDF files' }
+            ].map((step, index) => (
+              <Step 
+                key={step.label}
+                completed={currentStep > index + 1}
+              >
+                <StepLabel
+                  StepIconProps={{
+                    icon: currentStep > index + 1 ? <CheckIcon /> : index + 1,
+                  }}
+                  sx={{
+                    flexDirection: 'row',
+                    '& .MuiStepLabel-iconContainer': {
+                      pr: { xs: 1, sm: 1.5 },
+                    },
+                    '& .MuiStepLabel-labelContainer': {
+                      textAlign: 'left',
+                    },
+                  }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontSize: { xs: '0.875rem', sm: '1rem', md: '1.0625rem' },
+                        fontWeight: currentStep === index + 1 ? 700 : 600,
+                        color: currentStep === index + 1 ? 'text.primary' : 'secondary.light',
+                        lineHeight: 1.3,
+                        letterSpacing: '-0.01em',
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      {step.label}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: { xs: '0.6875rem', sm: '0.75rem', md: '0.8125rem' },
+                        color: 'secondary.light',
+                        lineHeight: 1.3,
+                        fontWeight: 400,
+                        letterSpacing: '0.01em',
+                        transition: 'all 0.3s ease',
+                        display: { xs: 'none', sm: 'block' },
+                      }}
+                    >
+                      {step.description}
+                    </Typography>
+                  </Box>
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
 
         <Box component="main" sx={{ width: '100%', minHeight: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column', p: 0 }}>
           {renderCurrentStep()}
