@@ -180,6 +180,88 @@
   flex: 1;
   overflow: auto;
   padding: 1.5rem;
+  position: relative;
+}
+
+.preview-body.with-watermark::before,
+.preview-body.with-watermark::after {
+  content: 'Educational Use Only';
+  position: absolute;
+  font-size: 4rem;
+  font-weight: bold;
+  color: #999999;
+  opacity: 0.22;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  z-index: 10;
+}
+
+.preview-body.with-watermark::before {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.preview-body.with-watermark::after {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0.15;
+}
+
+/* Additional watermark overlays for better coverage */
+.preview-watermark-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.preview-watermark-text {
+  position: absolute;
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: #999999;
+  opacity: 0.18;
+  white-space: nowrap;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+.preview-watermark-text:nth-child(1) {
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.preview-watermark-text:nth-child(2) {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.preview-watermark-text:nth-child(3) {
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.preview-watermark-text:nth-child(4) {
+  top: 35%;
+  left: 25%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.15;
+}
+
+.preview-watermark-text:nth-child(5) {
+  top: 65%;
+  left: 75%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.15;
 }
 
 /* Hidden Report for PDF Export */

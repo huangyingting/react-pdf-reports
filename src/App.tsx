@@ -336,7 +336,16 @@ function App() {
                 ×
               </button>
             </div>
-            <div className="preview-body">
+            <div className={`preview-body${enableWatermark ? ' with-watermark' : ''}`}>
+              {enableWatermark && (
+                <div className="preview-watermark-overlay">
+                  <div className="preview-watermark-text">Educational Use Only</div>
+                  <div className="preview-watermark-text">Educational Use Only</div>
+                  <div className="preview-watermark-text">Educational Use Only</div>
+                  <div className="preview-watermark-text">Educational Use Only</div>
+                  <div className="preview-watermark-text">Educational Use Only</div>
+                </div>
+              )}
               {renderActiveReport()}
             </div>
           </div>
