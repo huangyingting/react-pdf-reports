@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^14.6.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.3",
+    "openai": "^6.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "web-vitals": "^5.1.0",
@@ -22,7 +23,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "generate:favicon": "node scripts/generate-favicon.js",
-    "test:ai": "tsx simple-test-ai.ts"
+    "test:ai": "tsx tests/aiDataGenerator.test.ts",
+    "test:ai:mock": "tsx tests/aiDataGenerator.mock.test.ts"
   },
   "browserslist": {
     "production": [

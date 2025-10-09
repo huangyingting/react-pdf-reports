@@ -7,7 +7,8 @@
  * clinically coherent medical data.
  */
 
-import { generateDataWithAI, AzureOpenAIConfig } from './azureOpenAI';
+import { AzureOpenAI } from 'openai';
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { 
   Patient,
   Provider,
@@ -37,6 +38,110 @@ import {
   getFromCache,
   saveToCache,
 } from './cache';
+
+// ============================================================================
+// Azure OpenAI Configuration and Helper Functions
+// ============================================================================
+
+export interface AzureOpenAIConfig {
+  endpoint: string;
+  apiKey: string;
+  deploymentName: string;
+  apiVersion?: string;
+}
+
+/**
+ * Create Azure OpenAI client
+ */
+function createAzureOpenAIClient(config: AzureOpenAIConfig): AzureOpenAI {
+  const apiVersion = config.apiVersion || '2024-02-15-preview';
+  
+  return new AzureOpenAI({
+    endpoint: config.endpoint,
+    apiKey: config.apiKey,
+    apiVersion: apiVersion,
+    deployment: config.deploymentName,
+  });
+}
+
+/**
+ * Call Azure OpenAI to generate data with retry logic
+ */
+async function generateDataWithAI(
+  config: AzureOpenAIConfig,
+  prompt: string,
+  systemPrompt: string,
+  retries: number = 3,
+  responseFormat?: any
+): Promise<any> {
+  console.log('[generateDataWithAI] Starting generation with', retries, 'max retries');
+  console.log('[generateDataWithAI] Prompt length:', prompt.length, 'characters');
+
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < retries; attempt++) {
+    console.log(`[generateDataWithAI] Attempt ${attempt + 1}/${retries}`);
+    try {
+      const client = createAzureOpenAIClient(config);
+      
+      const messages: ChatCompletionMessageParam[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: prompt }
+      ];
+
+      console.log('[Azure OpenAI] Sending request...');
+      const requestStartTime = Date.now();
+
+      const completion = await client.chat.completions.create({
+        model: config.deploymentName,
+        messages: messages,
+        max_completion_tokens: 32 * 1024,
+        temperature: 1.0,
+        response_format: responseFormat || { type: 'json_object' }
+      });
+
+      const requestDuration = Date.now() - requestStartTime;
+      console.log('[Azure OpenAI] Response received in', requestDuration, 'ms');
+
+      if (!completion.choices || completion.choices.length === 0) {
+        throw new Error('No response from Azure OpenAI');
+      }
+
+      const content = completion.choices[0].message.content;
+      if (!content || content.trim() === '') {
+        throw new Error('Empty response from Azure OpenAI');
+      }
+
+      console.log('[generateDataWithAI] Parsing JSON response...');
+      const parsedData = JSON.parse(content);
+
+      if (typeof parsedData !== 'object' || parsedData === null) {
+        throw new Error('Invalid JSON structure: expected object, got ' + typeof parsedData);
+      }
+
+      console.log('[generateDataWithAI] ✅ Generation successful!');
+      return parsedData;
+
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Unknown error');
+      
+      console.error(`[generateDataWithAI] ❌ Attempt ${attempt + 1}/${retries} failed:`, error);
+      
+      // Retry logic
+      if (attempt < retries - 1) {
+        const waitTime = 1000 * (attempt + 1);
+        console.warn(`[generateDataWithAI] Retrying in ${waitTime}ms...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        continue;
+      }
+      
+      console.error('[generateDataWithAI] All retry attempts exhausted');
+      break;
+    }
+  }
+
+  throw lastError || new Error('Failed to generate medical data after all retries');
+}
 
 // ============================================================================
 // AI-Powered Generator Functions (Compatible with dataGenerator.ts interface)
