@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import skilljarTheme from './theme';
 import './App.css';
 
 // Import components
@@ -301,8 +299,6 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={skilljarTheme}>
-      <CssBaseline />
       <div className="App">
         <header className="app-header">
           <div className="header-icon">
@@ -408,7 +404,6 @@ function App() {
           )}
       </div>
     </div>
-    </ThemeProvider>
   );
 }
 
