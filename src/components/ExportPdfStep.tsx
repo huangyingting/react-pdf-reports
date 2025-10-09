@@ -75,23 +75,38 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
     description: string;
     filename: string;
   }> = [
-    { type: 'CBC', title: 'CBC', description: 'Complete blood cell analysis with differential count', filename: 'cbc-report' },
-    { type: 'BMP', title: 'BMP', description: 'Basic metabolic panel with glucose and electrolytes', filename: 'bmp-report' },
-    { type: 'CMP', title: 'CMP', description: 'Comprehensive metabolic panel with liver function', filename: 'cmp-report' },
-    { type: 'Urinalysis', title: 'Urinalysis', description: 'Complete urine analysis with microscopic exam', filename: 'urinalysis-report' },
-    { type: 'Lipid', title: 'Lipid Profile', description: 'Cardiovascular risk assessment panel', filename: 'lipid-profile-report' },
-    { type: 'LFT', title: 'Liver Function', description: 'Comprehensive liver health assessment', filename: 'lft-report' },
-    { type: 'Thyroid', title: 'Thyroid Panel', description: 'Complete thyroid function assessment', filename: 'thyroid-function-report' },
-    { type: 'HbA1c', title: 'HbA1c', description: 'Diabetes monitoring and glucose control', filename: 'hba1c-report' },
-    { type: 'Coagulation', title: 'Coagulation', description: 'Blood clotting function panel', filename: 'coagulation-panel-report' },
-    { type: 'Microbiology', title: 'Microbiology', description: 'Culture and sensitivity testing', filename: 'microbiology-culture-report' },
-    { type: 'Pathology', title: 'Pathology', description: 'Tissue specimen analysis report', filename: 'pathology-report' },
-    { type: 'Hormone', title: 'Hormone Panel', description: 'Endocrine function testing', filename: 'hormone-panel-report' },
-    { type: 'Infectious', title: 'Infectious Disease', description: 'Serological testing panel', filename: 'infectious-disease-panel-report' }
-  ];
+      { type: 'CBC', title: 'CBC', description: 'Complete blood cell analysis with differential count', filename: 'cbc-report' },
+      { type: 'BMP', title: 'BMP', description: 'Basic metabolic panel with glucose and electrolytes', filename: 'bmp-report' },
+      { type: 'CMP', title: 'CMP', description: 'Comprehensive metabolic panel with liver function', filename: 'cmp-report' },
+      { type: 'Urinalysis', title: 'Urinalysis', description: 'Complete urine analysis with microscopic exam', filename: 'urinalysis-report' },
+      { type: 'Lipid', title: 'Lipid Profile', description: 'Cardiovascular risk assessment panel', filename: 'lipid-profile-report' },
+      { type: 'LFT', title: 'Liver Function', description: 'Comprehensive liver health assessment', filename: 'lft-report' },
+      { type: 'Thyroid', title: 'Thyroid Panel', description: 'Complete thyroid function assessment', filename: 'thyroid-function-report' },
+      { type: 'HbA1c', title: 'HbA1c', description: 'Diabetes monitoring and glucose control', filename: 'hba1c-report' },
+      { type: 'Coagulation', title: 'Coagulation', description: 'Blood clotting function panel', filename: 'coagulation-panel-report' },
+      { type: 'Microbiology', title: 'Microbiology', description: 'Culture and sensitivity testing', filename: 'microbiology-culture-report' },
+      { type: 'Pathology', title: 'Pathology', description: 'Tissue specimen analysis report', filename: 'pathology-report' },
+      { type: 'Hormone', title: 'Hormone Panel', description: 'Endocrine function testing', filename: 'hormone-panel-report' },
+      { type: 'Infectious', title: 'Infectious Disease', description: 'Serological testing panel', filename: 'infectious-disease-panel-report' }
+    ];
 
   // Filter to only show generated lab tests
   const availableLabTests = allLabTests.filter(test => generatedLabTypes.has(test.type));
+
+  // Generate filename suffix based on export format and quality level
+  const getFilenameSuffix = (): string => {
+    if (exportFormat === 'pdf') {
+      return '_v';
+    } else {
+      // canvas format
+      const qualityMap = {
+        'poor': 'p',
+        'standard': 's',
+        'high': 'h'
+      };
+      return `_c${qualityMap[qualityLevel]}`;
+    }
+  };
 
   return (
     <div className="step">
@@ -147,7 +162,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             </div>
 
             <div className="setting-group">
-                <label>Watermark</label>
+              <label>Watermark</label>
 
               <label className="checkbox-wrapper">
                 <input
@@ -181,7 +196,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="CMS-1500 Health Insurance Claim Form"
                 description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
                 onPreview={() => onPreview('cms1500')}
-                onGenerate={() => onExport('cms1500', 'cms-1500-claim-form')}
+                onGenerate={() => onExport('cms1500', `${generatedData?.patient?.id || 'patient'}_cms1500${getFilenameSuffix()}`)}
                 isLoading={isLoading}
                 iconType="insurance"
               />
@@ -190,7 +205,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Insurance Policy Certificate"
                 description="Professional insurance policy certificate document with coverage details, subscriber information, and benefits summary"
                 onPreview={() => onPreview('insurancePolicy')}
-                onGenerate={() => onExport('insurancePolicy', 'insurance-policy-certificate')}
+                onGenerate={() => onExport('insurancePolicy', `${generatedData?.patient?.id || 'patient'}_insurance_policy_certificate${getFilenameSuffix()}`)}
                 isLoading={isLoading}
                 iconType="insurance"
               />
@@ -212,7 +227,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Complete Medical Records Report"
                 description="Comprehensive medical records including patient demographics, medical history, medications, lab results, and visit notes"
                 onPreview={() => onPreview('medical')}
-                onGenerate={() => onExport('medical', 'medical-records-report')}
+                onGenerate={() => onExport('medical', `${generatedData?.patient?.id || 'patient'}_medical_records_report${getFilenameSuffix()}`)}
                 isLoading={isLoading}
                 iconType="medical"
               />
@@ -221,7 +236,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Visit Report"
                 description="Clinical visit summary with vital signs, chief complaint, assessment, and treatment plan - optimized for printed clinical records"
                 onPreview={() => onPreview('visitReport')}
-                onGenerate={() => onExport('visitReport', 'visit-report')}
+                onGenerate={() => onExport('visitReport', `${generatedData?.patient?.id || 'patient'}_visit_report${getFilenameSuffix()}`)}
                 isLoading={isLoading}
                 iconType="visit"
               />
@@ -230,7 +245,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Medication History"
                 description="Comprehensive medication history report with current medications, discontinued medications, and allergy information"
                 onPreview={() => onPreview('medicationHistory')}
-                onGenerate={() => onExport('medicationHistory', 'medication-history')}
+                onGenerate={() => onExport('medicationHistory', `${generatedData?.patient?.id || 'patient'}_medication_history${getFilenameSuffix()}`)}
                 isLoading={isLoading}
                 iconType="medication"
               />
@@ -256,7 +271,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                     title={test.title}
                     description={test.description}
                     onPreview={() => onPreview(test.type)}
-                    onGenerate={() => onExport(test.type, test.filename)}
+                    onGenerate={() => onExport(test.type, `${generatedData?.patient?.id || 'patient'}_${test.filename}${getFilenameSuffix()}`)}
                     isLoading={isLoading}
                     compact
                     iconType="lab"
