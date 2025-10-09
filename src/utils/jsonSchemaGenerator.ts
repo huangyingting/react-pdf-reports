@@ -20,7 +20,8 @@ import {
   VisitReportSchema,
   LabReportSchema,
   LabReportsSchema,
-  InsuranceInfoSchema
+  InsuranceInfoSchema,
+  ClaimSchema
 } from './zodSchemas';
 
 /**
@@ -148,6 +149,15 @@ export const ResponseFormats = {
     LabReportsSchema,
     'LaboratoryReportsDataResponse',
     { description: 'Multiple laboratory test reports', strict: true }
+  ),
+
+  /**
+   * CMS-1500 claim information only (without patient, insurance, provider)
+   */
+  ClaimInfo: zodToOpenAISchema(
+    ClaimSchema,
+    'ClaimInfoResponse',
+    { description: 'CMS-1500 claim information', strict: true }
   )
 };
 

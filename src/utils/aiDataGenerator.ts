@@ -21,7 +21,7 @@ import {
   PatientSchema,
   ProviderSchema,
   InsuranceInfoSchema,
-  CMS1500Schema,
+  ClaimSchema,
   LabReportSchema,
   VisitReportSchema,
   MedicalHistorySchema,
@@ -458,24 +458,31 @@ Generate realistic, compliant claims data. All data must be completely synthetic
       prompt,
       systemPrompt,
       3,
-      ResponseFormats.CMS1500
+      ResponseFormats.ClaimInfo
     );
     
-    // Validate with Zod schema
-    const validation = validateWithSchema(CMS1500Schema, data);
+    // Validate with Zod schema (validate only the claimInfo part)
+    const validation = validateWithSchema(ClaimSchema, data);
     
     if (!validation.success) {
       const errors = formatZodErrors(validation.errors);
-      throw new Error(`AI generated invalid CMS-1500 data: ${errors.join(', ')}`);
+      throw new Error(`AI generated invalid CMS-1500 claim data: ${errors.join(', ')}`);
     }
 
-    console.log('✅ CMS-1500 data validated successfully');
-    const validatedData = validation.data;
+    console.log('✅ CMS-1500 claim data validated successfully');
+    
+    // Construct the complete CMS1500 object using provided data
+    const cms1500: CMS1500 = {
+      patient,
+      insuranceInfo,
+      provider,
+      claimInfo: validation.data
+    };
     
     // Save to cache on success
-    saveToCache(cacheConfig, cacheKey, validatedData);
+    saveToCache(cacheConfig, cacheKey, cms1500);
     
-    return validatedData;
+    return cms1500;
   } catch (error) {
     console.error('Failed to generate CMS-1500 data with AI:', error);
     throw new Error(
