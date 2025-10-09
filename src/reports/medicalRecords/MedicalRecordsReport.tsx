@@ -25,7 +25,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
       id="medical-records-report"
       style={{ fontFamily: fontFamily }}
     >
-      {/* Page 1: Patient Demographics */}
+      {/* Page 1: Patient */}
       <PatientPage
         patient={patient}
         provider={provider}
