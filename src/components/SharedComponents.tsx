@@ -82,9 +82,16 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({ children, sx, ...pro
   );
 };
 
-export const SubsectionTitle: React.FC<SectionTitleProps> = ({ children, sx, ...props }) => {
+export const SubTitle: React.FC<SectionTitleProps> = ({ children, sx, ...props }) => {
   return (
-    <Typography variant="subtitle1" sx={[styles.subsectionTitle, ...(Array.isArray(sx) ? sx : [sx])]} {...props}>
+    <Typography 
+      variant="subtitle1" 
+      sx={[
+        { mb: 1.5, fontWeight: 600, color: 'text.primary', fontSize: '1rem' },
+        ...(Array.isArray(sx) ? sx : [sx])
+      ]} 
+      {...props}
+    >
       {children}
     </Typography>
   );
@@ -208,6 +215,30 @@ export const CategoryHeader: React.FC<CategoryHeaderProps> = ({ icon, title, sx,
       <Typography variant="h6" sx={styles.sectionTitle} mb={0}>
         {title}
       </Typography>
+    </Box>
+  );
+};
+
+// ==================== Floating Action Bar ====================
+
+interface FloatingActionBarProps extends BoxProps {
+  children: React.ReactNode;
+  variant?: 'centered' | 'spaced';
+}
+
+export const FloatingActionBar: React.FC<FloatingActionBarProps> = ({ 
+  children, 
+  variant = 'centered',
+  sx, 
+  ...props 
+}) => {
+  const baseStyle = variant === 'spaced' 
+    ? styles.floatingActionBarSpaced 
+    : styles.floatingActionBarCentered;
+  
+  return (
+    <Box sx={[baseStyle, ...(Array.isArray(sx) ? sx : [sx])]} {...props}>
+      {children}
     </Box>
   );
 };

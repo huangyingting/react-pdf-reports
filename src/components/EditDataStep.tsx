@@ -3,7 +3,7 @@ import { Box, Typography, Tabs, Tab, Button, TextField, Select, MenuItem, FormCo
 import { ExpandMore as ExpandMoreIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
 import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
-import { StepContainer, SectionTitle, FormGrid, TabContent, LoadingSpinner } from './SharedComponents';
+import { StepContainer, SectionTitle, FormGrid, TabContent, LoadingSpinner, FloatingActionBar, SubTitle } from './SharedComponents';
 
 interface EditDataStepProps {
   generatedData: GeneratedData | null;
@@ -177,58 +177,76 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
   return (
     <StepContainer>
       <Box sx={{ borderRadius: 2, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Tabs
-          value={activeSection}
-          onChange={(_, newValue) => setActiveSection(newValue)}
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{
-            borderBottom: '2px solid',
-            borderColor: 'divider',
-            background: 'linear-gradient(180deg, rgba(250, 248, 243, 1) 0%, rgba(245, 241, 232, 0.9) 100%)',
-            px: 2,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-            minHeight: 56,
-            '& .MuiTab-root': {
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          background: 'linear-gradient(180deg, rgba(250, 248, 243, 1) 0%, rgba(245, 241, 232, 0.95) 100%)',
+          m: 0,
+          p: 0,
+        }}>
+          <Tabs
+            value={activeSection}
+            onChange={(_, newValue) => setActiveSection(newValue)}
+            variant="scrollable"
+            scrollButtons="auto"
+            centered
+            sx={{
               minHeight: 56,
-              textTransform: 'none',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              color: 'text.secondary',
-              transition: 'all 0.2s ease',
-              borderRadius: '8px 8px 0 0',
-              mx: 0.25,
-              py: 1,
-              px: 2,
-              '&:hover': {
-                color: 'primary.main',
-                bgcolor: 'rgba(107, 142, 35, 0.05)',
+              maxWidth: 1200,
+              m: 0,
+              p: 0,
+              '& .MuiTab-root': {
+                minHeight: 56,
+                textTransform: 'none',
+                fontSize: { xs: '0.8125rem', sm: '0.875rem', md: '0.9375rem' },
+                fontWeight: 600,
+                minWidth: { xs: 100, sm: 120, md: 140 },
+                color: 'text.secondary',
+                transition: 'all 0.2s ease',
+                borderRadius: '8px 8px 0 0',
+                mx: 0,
+                py: 1.25,
+                px: { xs: 1.5, sm: 2, md: 2.5 },
+                '&:hover': {
+                  color: 'primary.main',
+                  bgcolor: 'rgba(107, 142, 35, 0.08)',
+                  transform: 'translateY(-2px)',
+                },
+                '&.Mui-selected': {
+                  color: 'primary.main',
+                  bgcolor: 'rgba(241, 248, 233, 0.9)',
+                  fontWeight: 700,
+                  boxShadow: '0 -2px 8px rgba(107, 142, 35, 0.12)',
+                }
               },
-              '&.Mui-selected': {
+              '& .MuiTabs-indicator': {
+                height: 3,
+                borderRadius: '3px 3px 0 0',
+                background: 'linear-gradient(90deg, #6b8e23, #8faf3c)',
+                boxShadow: '0 2px 4px rgba(107, 142, 35, 0.3)',
+              },
+              '& .MuiSvgIcon-root': {
+                fontSize: '1.125rem',
+              },
+              '& .MuiTabs-scrollButtons': {
                 color: 'primary.main',
-                bgcolor: 'rgba(241, 248, 233, 0.5)',
+                '&.Mui-disabled': {
+                  opacity: 0.3,
+                }
               }
-            },
-            '& .MuiTabs-indicator': {
-              height: 3,
-              borderRadius: '3px 3px 0 0',
-              background: 'linear-gradient(90deg, #6b8e23, #8faf3c)',
-            },
-            '& .MuiSvgIcon-root': {
-              fontSize: '1.125rem',
-            }
-          }}
-        >
-          {sections.map(section => (
-            <Tab
-              key={section.id}
-              value={section.id}
-              label={section.label}
-              icon={getIcon(section.icon)}
-              iconPosition="start"
-            />
-          ))}
-        </Tabs>
+            }}
+          >
+            {sections.map(section => (
+              <Tab
+                key={section.id}
+                value={section.id}
+                label={section.label}
+                icon={getIcon(section.icon)}
+                iconPosition="start"
+              />
+            ))}
+          </Tabs>
+        </Box>
 
         <TabContent key={activeSection}>
             {activeSection === 'patient' && (
@@ -288,9 +306,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               <>
                 {editedData.labReports.length > 0 ? (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
-                      Laboratory Reports ({editedData.labReports.length} reports)
-                    </Typography>
+                    <SectionTitle>Laboratory Reports ({editedData.labReports.length} reports)</SectionTitle>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.labReports.map((labData, index) => {
                         const isExpanded = expandedLabReports.has(labData.testType as LabTestType);
@@ -351,9 +367,9 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               <>
                 {editedData.visitReports.length > 0 ? (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
+                    <SectionTitle >
                       Vital Signs ({editedData.visitReports.length} visits)
-                    </Typography>
+                    </SectionTitle>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.visitReports.map((visitData, index) => {
                         const isExpanded = expandedVisitReports.has(index);
@@ -398,12 +414,12 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                   </Box>
                 ) : (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
+                    <SubTitle>
                       Vital Signs
-                    </Typography>
-                    <Typography variant="body1" color="warning.main">
+                    </SubTitle>
+                    <SubTitle variant="body1" color="warning.main">
                       ⚠️ No visit report data available. Please generate data first.
-                    </Typography>
+                    </SubTitle>
                   </Box>
                 )}
               </>
@@ -414,9 +430,9 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               <>
                 {editedData.visitReports.length > 0 ? (
                   <Box>
-                    <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
+                    <SectionTitle>
                       Visit Notes ({editedData.visitReports.length} visits)
-                    </Typography>
+                    </SectionTitle>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.visitReports.map((visitData, index) => {
                         const isExpanded = expandedVisitReports.has(index);
@@ -473,27 +489,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
             )}
         </TabContent>
 
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 2,
-          p: 2.5,
-          background: 'linear-gradient(135deg, rgba(250, 248, 243, 0.95) 0%, rgba(245, 241, 232, 0.95) 100%)',
-          backdropFilter: 'blur(12px)',
-          border: '2px solid',
-          borderColor: 'rgba(107, 142, 35, 0.2)',
-          borderRadius: 3,
-          boxShadow: '0 8px 24px rgba(107, 142, 35, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
-          position: 'fixed',
-          bottom: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'fit-content',
-          minWidth: { xs: 'calc(100% - 48px)', sm: 'auto' },
-          maxWidth: { xs: 'calc(100% - 48px)', sm: 'calc(100% - 48px)', md: 900 },
-          zIndex: 1000,
-        }}>
+        <FloatingActionBar variant="spaced">
           <Button
             variant="outlined"
             onClick={onBack}
@@ -565,7 +561,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               Continue to Export →
             </Button>
           </Box>
-        </Box>
+        </FloatingActionBar>
       </Box>
     </StepContainer>
   );
@@ -574,33 +570,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
 // Patient Info Section Component
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange }) => (
   <Box>
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 1.5, 
-      mb: 2.5,
-      pb: 1.5,
-      borderBottom: '2px solid',
-      borderColor: 'rgba(107, 142, 35, 0.12)',
-    }}>
-      <Box sx={{ 
-        p: 0.75, 
-        bgcolor: 'rgba(241, 248, 233, 1)', 
-        borderRadius: 1.5,
-        color: 'primary.main',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      </Box>
-      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
-        Patient Demographics
-      </Typography>
-    </Box>
+    <SectionTitle>Patient Demographics</SectionTitle>
     
     <FormGrid>
       <TextField
@@ -702,37 +672,7 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         size="small"
         sx={{ gridColumn: 'span 2' }}
       />
-    </FormGrid>
 
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 1.5, 
-      mb: 2.5,
-      mt: 3,
-      pb: 1.5,
-      borderBottom: '2px solid',
-      borderColor: 'rgba(107, 142, 35, 0.12)',
-    }}>
-      <Box sx={{ 
-        p: 0.75, 
-        bgcolor: 'rgba(241, 248, 233, 1)', 
-        borderRadius: 1.5,
-        color: 'primary.main',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-      </Box>
-      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
-        Address Information
-      </Typography>
-    </Box>
-    <FormGrid>
       <TextField
         label="Street Address"
         value={data.address.street}
@@ -789,37 +729,11 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 
   return (
     <Box>
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 1.5, 
-        mb: 2.5,
-        pb: 1.5,
-        borderBottom: '2px solid',
-        borderColor: 'rgba(107, 142, 35, 0.12)',
-      }}>
-        <Box sx={{ 
-          p: 0.75, 
-          bgcolor: 'rgba(241, 248, 233, 1)', 
-          borderRadius: 1.5,
-          color: 'primary.main',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-            <line x1="1" y1="10" x2="23" y2="10"/>
-          </svg>
-        </Box>
-        <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
-          Insurance Information
-        </Typography>
-      </Box>
+      <SectionTitle>Insurance Information</SectionTitle>
 
-      <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+      <SubTitle>
         Subscriber Information
-      </Typography>
+      </SubTitle>
       <FormGrid sx={{ mb: 3 }}>
         <TextField
           label="Subscriber Name"
@@ -854,9 +768,9 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
         </FormControl>
       </FormGrid>
 
-      <Typography variant="subtitle2" sx={{ mb: 1.5, mt: 2.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+      <SubTitle sx={{ mt: 2.5 }}>
         Primary Insurance
-      </Typography>
+      </SubTitle>
       
       <FormGrid sx={{ mb: 3 }}>
         <TextField
@@ -929,9 +843,9 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 
       {data.secondaryInsurance && (
         <Box>
-          <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
+          <SubTitle>
             Secondary Insurance
-          </Typography>
+          </SubTitle>
           <FormGrid>
             <TextField
               label="Insurance Company"
@@ -1001,34 +915,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 // Provider Section Component
 const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
   <Box>
-    <Box sx={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: 1.5, 
-      mb: 2.5,
-      pb: 1.5,
-      borderBottom: '2px solid',
-      borderColor: 'rgba(107, 142, 35, 0.12)',
-    }}>
-      <Box sx={{ 
-        p: 0.75, 
-        bgcolor: 'rgba(241, 248, 233, 1)', 
-        borderRadius: 1.5,
-        color: 'primary.main',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
-          <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
-          <circle cx="20" cy="10" r="2"/>
-        </svg>
-      </Box>
-      <Typography variant="h6" sx={{ fontSize: '1.125rem', fontWeight: 700, color: 'primary.main' }}>
-        Primary Care Provider
-      </Typography>
-    </Box>
+    <SectionTitle>Primary Care Provider</SectionTitle>
     
     <FormGrid sx={{ mb: 3 }}>
       <TextField
@@ -1093,9 +980,7 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
       </FormControl>
     </FormGrid>
 
-    <Typography variant="subtitle2" sx={{ mb: 1.5, mt: 2.5, fontWeight: 600, color: 'text.primary', fontSize: '0.9rem' }}>
-      Facility Information
-    </Typography>
+
     <FormGrid sx={{ mb: 3 }}>
       <TextField
         label="Facility Name"
@@ -1129,10 +1014,6 @@ const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => 
         fullWidth
         size="small"
       />
-    </FormGrid>
-    
-    <SectionTitle sx={{ mt: 4 }}>Provider Address</SectionTitle>
-    <FormGrid>
       <TextField
         label="Street Address"
         value={data.address.street}
@@ -1676,10 +1557,8 @@ const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange })
   };
 
   return (
-    <Box>
-      <SectionTitle>Laboratory Report - {data.testName}</SectionTitle>
-      
-      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Test Information</SectionTitle>
+    <Box>      
+      <SubTitle>Test Information</SubTitle>
       <FormGrid sx={{ mb: 4 }}>
         <TextField
           label="Test Name"
@@ -1718,8 +1597,8 @@ const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange })
           fullWidth
         />
       </FormGrid>
-      
-      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Test Results ({data.results.length})</SectionTitle>
+
+      <SubTitle>Test Results ({data.results.length})</SubTitle>
       {data.results.map((result, index) => (
         <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < data.results.length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
           <FormGrid>
@@ -1791,7 +1670,7 @@ const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange })
 
   return (
     <Box>
-      <SectionTitle>Vital Signs</SectionTitle>
+      <SubTitle>Vital Signs</SubTitle>
       <FormGrid>
         <TextField
           label="Blood Pressure"
@@ -1881,7 +1760,7 @@ const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange })
 
   return (
     <Box>
-      <SectionTitle>Visit Notes</SectionTitle>
+      <SubTitle>Visit Notes</SubTitle>
       <FormGrid>
         <TextField
           label="Visit Date"

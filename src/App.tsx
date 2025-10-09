@@ -352,7 +352,7 @@ function App() {
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'center',
-            pt: { xs: 1.5, sm: 2 },
+            pt: 0,
             pb: 0,
             px: { xs: 2, sm: 3 },
             m: 0,

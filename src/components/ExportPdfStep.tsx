@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, FormControlLabel, Checkbox, Button, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import DocumentCard from './DocumentCard';
-import { StepContainer, ContentContainer, DocumentGrid } from './SharedComponents';
+import { StepContainer, ContentContainer, DocumentGrid, FloatingActionBar } from './SharedComponents';
 import * as styles from '../styles/commonStyles';
 import { GeneratedData, LabTestType } from '../utils/zodSchemas';
 
@@ -408,26 +408,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
           )}
         </Box>
 
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 2,
-          p: 2.5,
-          background: 'linear-gradient(135deg, rgba(250, 248, 243, 0.95) 0%, rgba(245, 241, 232, 0.95) 100%)',
-          backdropFilter: 'blur(12px)',
-          border: '2px solid',
-          borderColor: 'rgba(107, 142, 35, 0.2)',
-          borderRadius: 3,
-          boxShadow: '0 8px 24px rgba(107, 142, 35, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
-          position: 'fixed',
-          bottom: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'fit-content',
-          minWidth: { xs: 'calc(100% - 48px)', sm: 'auto' },
-          maxWidth: { xs: 'calc(100% - 48px)', sm: 600 },
-          zIndex: 1000,
-        }}>
+        <FloatingActionBar variant="centered">
           <Button
             variant="outlined"
             onClick={onBack}
@@ -450,7 +431,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
           >
             ← Back to Edit
           </Button>
-        </Box>
+        </FloatingActionBar>
       </ContentContainer>
     </StepContainer>
   );

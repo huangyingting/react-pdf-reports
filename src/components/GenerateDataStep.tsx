@@ -19,7 +19,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
-import { StepContainer, ContentContainer, SectionCard } from './SharedComponents';
+import { StepContainer, ContentContainer, SectionCard, FloatingActionBar } from './SharedComponents';
 import { 
   GenerationOptions,
   GeneratedData,
@@ -217,7 +217,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
       <ContentContainer>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <SectionCard>
-            <Typography variant="h3" gutterBottom sx={{ fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>Generation Method</Typography>
+            <Typography variant="h3" gutterBottom >Generation Method</Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Choose how you want to generate your medical data
             </Typography>
@@ -354,7 +354,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               </IconButton>
             </Box>
 
-            <Typography variant="h3" gutterBottom sx={{ mt: 4, fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>Choose Data Complexity</Typography>
+            <Typography variant="h3" gutterBottom>Choose Data Complexity</Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
               Select a preset configuration or customize your own settings
             </Typography>
@@ -465,7 +465,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               ))}
             </Box>
 
-            <Typography variant="h3" gutterBottom sx={{ mt: 4, fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>Custom Settings</Typography>
+            <Typography variant="h3" gutterBottom>Custom Settings</Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
               Fine-tune the generated data to meet your specific needs
             </Typography>
@@ -610,26 +610,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
           )}
         </Box>
 
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: 2,
-          p: 2.5,
-          background: 'linear-gradient(135deg, rgba(250, 248, 243, 0.95) 0%, rgba(245, 241, 232, 0.95) 100%)',
-          backdropFilter: 'blur(12px)',
-          border: '2px solid',
-          borderColor: 'rgba(107, 142, 35, 0.2)',
-          borderRadius: 3,
-          boxShadow: '0 8px 24px rgba(107, 142, 35, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
-          position: 'fixed',
-          bottom: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: 'fit-content',
-          minWidth: { xs: 'calc(100% - 48px)', sm: 'auto' },
-          maxWidth: { xs: 'calc(100% - 48px)', sm: 600 },
-          zIndex: 1000,
-        }}>
+        <FloatingActionBar variant="centered">
           <Button
             variant="contained"
             color="primary"
@@ -659,7 +640,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               ? (generationMethod === 'ai' ? 'Generating with AI...' : 'Generating...') 
               : 'Generate & Continue →'}
           </Button>
-        </Box>
+        </FloatingActionBar>
       </ContentContainer>
 
       {/* Azure Config Modal */}

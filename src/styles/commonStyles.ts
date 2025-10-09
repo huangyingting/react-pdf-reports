@@ -13,11 +13,13 @@ export const pageContainer: SxProps<Theme> = {
   minHeight: 'calc(100vh - 200px)',
   display: 'flex',
   flexDirection: 'column',
+  px: { xs: 2, sm: 3, md: 4 },
+  py: 0,
 };
 
 export const contentContainer: SxProps<Theme> = {
   borderRadius: 0,
-  p: 2,
+  p: 0,
   flex: 1,
 };
 
@@ -299,6 +301,46 @@ export const documentGridThreeColumn: SxProps<Theme> = {
 export const tabContainer: SxProps<Theme> = {
   p: 2.5,
   flex: 1,
+  border: '2px solid',
+  borderColor: 'rgba(107, 142, 35, 0.15)',
+  borderRadius: 2,
+  bgcolor: 'background.paper',
+  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+};
+
+// ==================== Floating Action Bar ====================
+
+export const floatingActionBar: SxProps<Theme> = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 2,
+  p: 2.5,
+  background: 'linear-gradient(135deg, rgba(250, 248, 243, 0.95) 0%, rgba(245, 241, 232, 0.95) 100%)',
+  backdropFilter: 'blur(12px)',
+  border: '2px solid',
+  borderColor: 'rgba(107, 142, 35, 0.2)',
+  borderRadius: 3,
+  boxShadow: '0 8px 24px rgba(107, 142, 35, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)',
+  position: 'fixed',
+  bottom: 24,
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: 'fit-content',
+  minWidth: { xs: 'calc(100% - 48px)', sm: 'auto' },
+  zIndex: 1000,
+};
+
+export const floatingActionBarCentered: SxProps<Theme> = {
+  ...floatingActionBar,
+  justifyContent: 'center',
+  maxWidth: { xs: 'calc(100% - 48px)', sm: 600 },
+};
+
+export const floatingActionBarSpaced: SxProps<Theme> = {
+  ...floatingActionBar,
+  justifyContent: 'space-between',
+  maxWidth: { xs: 'calc(100% - 48px)', sm: 'calc(100% - 48px)', md: 900 },
 };
 
 // ==================== Helper Functions ====================
