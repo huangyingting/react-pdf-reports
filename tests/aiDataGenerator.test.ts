@@ -19,10 +19,10 @@ import {
   generateInsuranceInfoWithAI,
   generateCMS1500WithAI,
   generateLabReportsWithAI,
-  generateVisitReportWithAI,
+  generateVisitReportsWithAI,
   generateMedicalHistoryWithAI,
+  AzureOpenAIConfig,
 } from '../src/utils/aiDataGenerator';
-import { AzureOpenAIConfig } from '../src/utils/azureOpenAI';
 import { Patient, Provider, Complexity } from '../src/utils/zodSchemas';
 import { CacheConfig } from '../src/utils/cache';
 
@@ -120,25 +120,17 @@ async function testGeneratePatient() {
 
   // Test 1a: Basic patient generation
   const result1 = await runTest('Generate basic patient', async () => {
-    return await generatePatientWithAI(config, undefined, cacheConfig);
+    return await generatePatientWithAI(config, cacheConfig);
   });
 
-  // Test 1b: Patient with age range
-  const result2 = await runTest('Generate patient with age range (65-85)', async () => {
-    return await generatePatientWithAI(
-      config,
-      { ageRange: { min: 65, max: 85 } },
-      cacheConfig
-    );
+  // Test 1b: Second patient generation
+  const result2 = await runTest('Generate another patient', async () => {
+    return await generatePatientWithAI(config, cacheConfig);
   });
 
-  // Test 1c: Patient with specific gender
-  const result3 = await runTest('Generate male patient', async () => {
-    return await generatePatientWithAI(
-      config,
-      { gender: 'Male' },
-      cacheConfig
-    );
+  // Test 1c: Third patient generation
+  const result3 = await runTest('Generate third patient', async () => {
+    return await generatePatientWithAI(config, cacheConfig);
   });
 
   return {
@@ -155,25 +147,17 @@ async function testGenerateProvider() {
 
   // Test 2a: Basic provider generation
   const result1 = await runTest('Generate basic provider', async () => {
-    return await generateProviderWithAI(config, undefined, cacheConfig);
+    return await generateProviderWithAI(config, cacheConfig);
   });
 
-  // Test 2b: Provider with specialty
-  const result2 = await runTest('Generate cardiologist', async () => {
-    return await generateProviderWithAI(
-      config,
-      { specialty: 'Cardiology' },
-      cacheConfig
-    );
+  // Test 2b: Second provider generation
+  const result2 = await runTest('Generate another provider', async () => {
+    return await generateProviderWithAI(config, cacheConfig);
   });
 
-  // Test 2c: Provider with facility type
-  const result3 = await runTest('Generate provider with hospital', async () => {
-    return await generateProviderWithAI(
-      config,
-      { facilityType: 'Hospital' },
-      cacheConfig
-    );
+  // Test 2c: Third provider generation
+  const result3 = await runTest('Generate third provider', async () => {
+    return await generateProviderWithAI(config, cacheConfig);
   });
 
   return {
@@ -252,12 +236,8 @@ async function testGenerateLabReports(patient: Patient, provider: Provider) {
   const result1 = await runTest('Generate single lab report (CBC)', async () => {
     return await generateLabReportsWithAI(
       config,
-      patient,
-      provider,
       ['CBC'],
-      (testType, report, current, total) => {
-        console.log(`   Progress: ${current}/${total} - ${testType}`);
-      },
+      provider.name,
       cacheConfig
     );
   });
@@ -266,12 +246,8 @@ async function testGenerateLabReports(patient: Patient, provider: Provider) {
   const result2 = await runTest('Generate multiple lab reports (CBC, BMP, Lipid)', async () => {
     return await generateLabReportsWithAI(
       config,
-      patient,
-      provider,
       ['CBC', 'BMP', 'Lipid'],
-      (testType, report, current, total) => {
-        console.log(`   Progress: ${current}/${total} - ${testType}`);
-      },
+      provider.name,
       cacheConfig
     );
   });
@@ -280,12 +256,8 @@ async function testGenerateLabReports(patient: Patient, provider: Provider) {
   const result3 = await runTest('Generate comprehensive panel', async () => {
     return await generateLabReportsWithAI(
       config,
-      patient,
-      provider,
       ['CBC', 'CMP', 'Lipid', 'Thyroid', 'HbA1c'],
-      (testType, report, current, total) => {
-        console.log(`   Progress: ${current}/${total} - ${testType}`);
-      },
+      provider.name,
       cacheConfig
     );
   });
@@ -308,22 +280,20 @@ async function testGenerateVisitReport(patient: Patient, provider: Provider) {
 
   // Test 6a: Single visit report
   const result1 = await runTest('Generate single visit report', async () => {
-    return await generateVisitReportWithAI(
+    return await generateVisitReportsWithAI(
       config,
-      patient,
-      provider,
       1,
+      provider.name,
       cacheConfig
     );
   });
 
-  // Test 6b: Multiple visits (returns first)
-  const result2 = await runTest('Generate visit report (3 visits)', async () => {
-    return await generateVisitReportWithAI(
+  // Test 6b: Multiple visits
+  const result2 = await runTest('Generate multiple visit reports (3 visits)', async () => {
+    return await generateVisitReportsWithAI(
       config,
-      patient,
-      provider,
       3,
+      provider.name,
       cacheConfig
     );
   });
@@ -346,7 +316,6 @@ async function testGenerateMedicalHistory(patient: Patient) {
   const result1 = await runTest('Generate medical history (low complexity)', async () => {
     return await generateMedicalHistoryWithAI(
       config,
-      patient,
       'low' as Complexity,
       cacheConfig
     );
@@ -356,7 +325,6 @@ async function testGenerateMedicalHistory(patient: Patient) {
   const result2 = await runTest('Generate medical history (medium complexity)', async () => {
     return await generateMedicalHistoryWithAI(
       config,
-      patient,
       'medium' as Complexity,
       cacheConfig
     );
@@ -366,7 +334,6 @@ async function testGenerateMedicalHistory(patient: Patient) {
   const result3 = await runTest('Generate medical history (high complexity)', async () => {
     return await generateMedicalHistoryWithAI(
       config,
-      patient,
       'high' as Complexity,
       cacheConfig
     );
@@ -388,12 +355,12 @@ async function testCompleteIntegration() {
   try {
     // Step 1: Generate Patient
     console.log('Step 1/7: Generating patient...');
-    const patient = await generatePatientWithAI(config, undefined, cacheConfig);
+    const patient = await generatePatientWithAI(config, cacheConfig);
     console.log(`✅ Patient: ${patient.name}`);
 
     // Step 2: Generate Provider
     console.log('\nStep 2/7: Generating provider...');
-    const provider = await generateProviderWithAI(config, undefined, cacheConfig);
+    const provider = await generateProviderWithAI(config, cacheConfig);
     console.log(`✅ Provider: ${provider.name}`);
 
     // Step 3: Generate Insurance
@@ -403,24 +370,20 @@ async function testCompleteIntegration() {
 
     // Step 4: Generate Medical History
     console.log('\nStep 4/7: Generating medical history...');
-    const medicalHistory = await generateMedicalHistoryWithAI(config, patient, 'medium', cacheConfig);
+    const medicalHistory = await generateMedicalHistoryWithAI(config, 'medium', cacheConfig);
     console.log(`✅ Medical History: ${medicalHistory.medications.current.length} medications, ${medicalHistory.chronicConditions.length} conditions`);
 
-    // Step 5: Generate Visit Report
-    console.log('\nStep 5/7: Generating visit report...');
-    const visitReport = await generateVisitReportWithAI(config, patient, provider, 1, cacheConfig);
-    console.log(`✅ Visit Report: ${visitReport.visit.chiefComplaint}`);
+    // Step 5: Generate Visit Reports
+    console.log('\nStep 5/7: Generating visit reports...');
+    const visitReports = await generateVisitReportsWithAI(config, 1, provider.name, cacheConfig);
+    console.log(`✅ Visit Reports: ${visitReports[0]?.visit.chiefComplaint}`);
 
     // Step 6: Generate Lab Reports
     console.log('\nStep 6/7: Generating lab reports...');
     const labReports = await generateLabReportsWithAI(
       config,
-      patient,
-      provider,
       ['CBC', 'BMP'],
-      (testType, report, current, total) => {
-        console.log(`   Generating ${testType}... (${current}/${total})`);
-      },
+      provider.name,
       cacheConfig
     );
     console.log(`✅ Lab Reports: Generated ${labReports.length} reports`);

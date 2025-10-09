@@ -15,7 +15,7 @@ import {
   InsuranceInfo,
   CMS1500,
   LabReport,
-  VisitReport,
+  VisitReports,
   MedicalHistory,
   Complexity,
   PatientSchema,
@@ -24,7 +24,8 @@ import {
   CMS1500Schema,
   LabReportSchema,
   VisitReportSchema,
-  MedicalHistorySchema
+  MedicalHistorySchema,
+  VisitReport,
 } from './zodSchemas';
 import { 
   ResponseFormats, 
@@ -152,22 +153,16 @@ async function generateDataWithAI(
  * Creates realistic patient demographics using Azure OpenAI
  * 
  * @param config Azure OpenAI configuration
- * @param options Optional generation parameters
  * @param cacheConfig Cache configuration
  * @returns Patient object
  */
 export async function generatePatientWithAI(
   config: AzureOpenAIConfig,
-  options?: {
-    ageRange?: { min: number; max: number };
-    gender?: string;
-  },
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<Patient> {
-  const { ageRange = { min: 18, max: 85 }, gender } = options || {};
   
   // Generate cache key based on parameters
-  const cacheKey = generateCacheKey('generatePatient', ageRange, gender);
+  const cacheKey = generateCacheKey('generatePatient');
   
   // Try to get from cache first
   const cached = getFromCache<Patient>(cacheConfig, cacheKey);
@@ -182,8 +177,8 @@ export async function generatePatientWithAI(
 - Complete demographics with realistic US address, contact info
 - Medical Record Number (MRN), Social Security Number (SSN format: XXX-XX-XXXX)
 - Account number
-- Age between ${ageRange.min}-${ageRange.max} years
-${gender ? `- Gender: ${gender}` : '- Gender: randomly selected'}
+- Age
+- Gender, randomly selected from Male, Female and Other
 - All dates in MM/DD/YYYY format
 - Pharmacy information with name, address, and phone
 - All data must be completely synthetic and HIPAA-compliant
@@ -229,22 +224,16 @@ Generate realistic, clinically coherent data following US healthcare standards.`
  * Creates realistic provider and facility information using Azure OpenAI
  * 
  * @param config Azure OpenAI configuration
- * @param options Optional generation parameters
  * @param cacheConfig Cache configuration
  * @returns Provider object
  */
 export async function generateProviderWithAI(
   config: AzureOpenAIConfig,
-  options?: {
-    specialty?: string;
-    facilityType?: string;
-  },
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<Provider> {
-  const { specialty, facilityType = 'Medical Center' } = options || {};
   
   // Generate cache key based on parameters
-  const cacheKey = generateCacheKey('generateProvider', specialty, facilityType);
+  const cacheKey = generateCacheKey('generateProvider');
   
   // Try to get from cache first
   const cached = getFromCache<Provider>(cacheConfig, cacheKey);
@@ -258,12 +247,12 @@ export async function generateProviderWithAI(
 **Requirements:**
 - Provider: Full name with credentials (Dr. First Last, MD)
 - National Provider Identifier (NPI): 10 digits
-- Medical specialty${specialty ? `: ${specialty}` : ' (choose appropriate specialty)'}
+- Medical specialty, choose appropriate specialty
 - Provider phone, address (US format)
 - Tax ID (EIN or SSN format) with type
 - Provider signature (provider's name)
 - Facility information:
-  - Facility name (${facilityType})
+  - Facility name
   - Facility address (US format)
   - Facility phone and fax numbers
   - Facility NPI (10 digits)
@@ -500,19 +489,15 @@ Generate realistic, compliant claims data. All data must be completely synthetic
  * Creates multiple lab reports for different test types
  * 
  * @param config Azure OpenAI configuration
- * @param patient Patient object
- * @param provider Provider object
- * @param testTypes Array of test types to generate (defaults to common tests)
- * @param progressCallback Optional callback for progress updates
+ * @param testTypes Array of test types to generate
+ * @param orderingPhysician Name of the ordering physician
  * @param cacheConfig Cache configuration
  * @returns Array of LabReport objects
  */
 export async function generateLabReportsWithAI(
   config: AzureOpenAIConfig,
-  patient: Patient,
-  provider: Provider,
-  testTypes: string[] = ['CBC', 'BMP', 'Lipid'],
-  progressCallback?: (testType: string, report: any, current: number, total: number) => void,
+  testTypes: string[],
+  orderingPhysician: string,
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<LabReport[]> {
   const labReports: LabReport[] = [];
@@ -543,23 +528,20 @@ export async function generateLabReportsWithAI(
     const currentStep = i + 1;
 
     // Check cache for individual test type
-    const cacheKey = generateCacheKey('generateLabReport', patient.id, testType);
+    const cacheKey = generateCacheKey('generateLabReport', testType, orderingPhysician);
     const cached = getFromCache<LabReport>(cacheConfig, cacheKey);
     
     if (cached) {
       console.log(`  ✨ [${currentStep}/${totalTests}] ${testType}: Retrieved from cache`);
       labReports.push(cached);
-      progressCallback?.(testType, cached, currentStep, totalTests);
       continue;
     }
 
     // Generate prompt for this specific test type
     const testDetail = testTypeDetails[testType] || testType;
-    const prompt = `Generate a realistic laboratory test result for this patient:
+    const prompt = `Generate a realistic laboratory test result:
 
-Patient: ${patient.firstName} ${patient.lastName}
-Age: ${patient.age} years
-Provider: ${provider.name}
+Ordering Physician: ${orderingPhysician}
 
 Generate a ${testType} laboratory report: ${testDetail}
 
@@ -586,7 +568,6 @@ Make results clinically coherent with patient age and realistic for the test typ
       if (!validation.success) {
         const errors = formatZodErrors(validation.errors);
         console.error(`  ❌ [${currentStep}/${totalTests}] ${testType} validation failed:`, errors);
-        progressCallback?.(testType, null, currentStep, totalTests);
         continue;
       }
 
@@ -603,13 +584,9 @@ Make results clinically coherent with patient age and realistic for the test typ
       labReports.push(validatedReport);
       console.log(`  ✅ [${currentStep}/${totalTests}] ${testType} generated successfully`);
       
-      // Call progress callback
-      progressCallback?.(testType, validatedReport, currentStep, totalTests);
-      
     } catch (error) {
       console.error(`  ❌ [${currentStep}/${totalTests}] Failed to generate ${testType}:`, error);
       // Continue with other tests even if one fails
-      progressCallback?.(testType, null, currentStep, totalTests);
     }
   }
 
@@ -619,43 +596,51 @@ Make results clinically coherent with patient age and realistic for the test typ
 }
 
 /**
- * Generate a visit report using AI
- * Creates a medical visit report with vitals, examination, and plan
+ * Generate visit reports using AI
+ * Creates medical visit reports with vitals, examination, and plan
  * 
  * @param config Azure OpenAI configuration
- * @param patient Patient object
- * @param provider Provider object
- * @param numberOfVisits Number of visits to generate (default: 1, returns first)
+ * @param numberOfVisits Number of visits to generate
+ * @param providerName Name of the provider
  * @param cacheConfig Cache configuration
- * @returns VisitReport object
+ * @returns Array of VisitReport objects
  */
-export async function generateVisitReportWithAI(
+export async function generateVisitReportsWithAI(
   config: AzureOpenAIConfig,
-  patient: Patient,
-  provider: Provider,
   numberOfVisits: number = 1,
+  providerName: string,
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
-): Promise<VisitReport> {
-  // Generate cache key based on patient ID
-  const cacheKey = generateCacheKey('generateVisitReport', patient.id, numberOfVisits);
-  
-  // Try to get from cache first
-  const cached = getFromCache<VisitReport>(cacheConfig, cacheKey);
-  if (cached) {
-    console.log('✨ Visit report retrieved from cache');
-    return cached;
-  }
+): Promise<VisitReports> {
+  const visitReports: VisitReports = [];
 
-  const prompt = `Generate a realistic medical visit report for this patient:
+  console.log(`\n🏥 Generating ${numberOfVisits} visit reports...`);
 
-Patient: ${patient.firstName} ${patient.lastName}
-Age: ${patient.age} years
-Gender: ${patient.gender}
-Provider: ${provider.name}
+  for (let i = 0; i < numberOfVisits; i++) {
+    const visitIndex = i;
+    const currentStep = i + 1;
+
+    // Generate cache key for individual visit
+    const cacheKey = generateCacheKey('generateVisitReport', visitIndex, providerName);
+    
+    // Try to get from cache first
+    const cached = getFromCache<VisitReport>(cacheConfig, cacheKey);
+    if (cached) {
+      console.log(`  ✨ [${currentStep}/${numberOfVisits}] Visit ${visitIndex + 1}: Retrieved from cache`);
+      visitReports.push(cached);
+      continue;
+    }
+
+    const daysAgo = 30 + (visitIndex * 60); // Space visits ~60 days apart
+    const prompt = `Generate a realistic medical visit report:
+
+Provider: ${providerName}
+Visit Number: ${visitIndex + 1} of ${numberOfVisits}
+Visit Date: approximately ${daysAgo} days ago
 
 Include:
-- Visit date (within last 90 days)
-- Chief complaint (realistic for patient age/gender)
+- Visit date and time
+- Visit type (Office Visit, Follow-up, Annual Physical, etc.)
+- Chief complaint (realistic and age-appropriate)
 - History of present illness
 - Vital signs (BP, HR, Temp, RR, O2 Sat, Height, Weight, BMI)
 - Physical examination findings
@@ -663,41 +648,47 @@ Include:
 - Treatment plan
 - Follow-up instructions
 - Medications prescribed or refilled
+- Visit duration
 
-Make the visit clinically coherent and age-appropriate. All data must be completely synthetic.`;
+Make the visit clinically coherent. All data must be completely synthetic.`;
 
-  const systemPrompt = 'You are an experienced physician creating synthetic medical visit documentation for educational purposes. Generate realistic, clinically accurate visit reports.';
+    const systemPrompt = 'You are an experienced physician creating synthetic medical visit documentation for educational purposes. Generate realistic, clinically accurate visit reports.';
 
-  try {
-    const data = await generateDataWithAI(
-      config,
-      prompt,
-      systemPrompt,
-      3,
-      ResponseFormats.VisitReport
-    );
-    
-    // Validate with Zod schema
-    const validation = validateWithSchema(VisitReportSchema, data);
-    
-    if (!validation.success) {
-      const errors = formatZodErrors(validation.errors);
-      throw new Error(`AI generated invalid visit report: ${errors.join(', ')}`);
+    try {
+      console.log(`  🩺 [${currentStep}/${numberOfVisits}] Generating visit ${visitIndex + 1}...`);
+      const data = await generateDataWithAI(
+        config,
+        prompt,
+        systemPrompt,
+        3,
+        ResponseFormats.VisitReport
+      );
+      
+      // Validate with Zod schema
+      const validation = validateWithSchema(VisitReportSchema, data);
+      
+      if (!validation.success) {
+        const errors = formatZodErrors(validation.errors);
+        console.error(`  ❌ [${currentStep}/${numberOfVisits}] Visit ${visitIndex + 1} validation failed:`, errors);
+        continue;
+      }
+
+      console.log(`  ✅ [${currentStep}/${numberOfVisits}] Visit ${visitIndex + 1} generated successfully`);
+      const validatedData = validation.data;
+      
+      // Save to cache on success
+      saveToCache(cacheConfig, cacheKey, validatedData);
+      
+      visitReports.push(validatedData);
+    } catch (error) {
+      console.error(`  ❌ [${currentStep}/${numberOfVisits}] Failed to generate visit ${visitIndex + 1}:`, error);
+      // Continue with other visits even if one fails
     }
-
-    console.log('✅ Visit report validated successfully');
-    const validatedData = validation.data;
-    
-    // Save to cache on success
-    saveToCache(cacheConfig, cacheKey, validatedData);
-    
-    return validatedData;
-  } catch (error) {
-    console.error('Failed to generate visit report with AI:', error);
-    throw new Error(
-      `Visit report generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
   }
+
+  console.log(`✅ Generated ${visitReports.length}/${numberOfVisits} visit reports\n`);
+  
+  return visitReports;
 }
 
 /**
@@ -705,19 +696,17 @@ Make the visit clinically coherent and age-appropriate. All data must be complet
  * Creates a comprehensive patient medical history
  * 
  * @param config Azure OpenAI configuration
- * @param patient Patient object (used for age-appropriate conditions)
  * @param complexity Complexity level: 'low', 'medium', or 'high'
  * @param cacheConfig Cache configuration
  * @returns MedicalHistory object
  */
 export async function generateMedicalHistoryWithAI(
   config: AzureOpenAIConfig,
-  patient: Patient,
   complexity: Complexity = 'medium',
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<MedicalHistory> {
-  // Generate cache key based on patient ID and complexity
-  const cacheKey = generateCacheKey('generateMedicalHistory', patient.id, complexity);
+  // Generate cache key based on complexity
+  const cacheKey = generateCacheKey('generateMedicalHistory', complexity);
   
   // Try to get from cache first
   const cached = getFromCache<MedicalHistory>(cacheConfig, cacheKey);
@@ -732,11 +721,7 @@ export async function generateMedicalHistoryWithAI(
     high: '4+ chronic conditions, 7+ current medications, 3+ allergies, extensive history'
   };
 
-  const prompt = `Generate a comprehensive medical history for this patient:
-
-Patient: ${patient.firstName} ${patient.lastName}
-Age: ${patient.age} years
-Gender: ${patient.gender}
+  const prompt = `Generate a comprehensive medical history for a patient:
 
 **Complexity Level: ${complexity}** (${complexityDetails[complexity]})
 
@@ -750,7 +735,7 @@ Include:
 - Social history (smoking, alcohol, exercise, occupation)
 - Immunizations (vaccines with dates)
 
-Make all conditions and medications clinically appropriate for patient's age and gender.
+Make all conditions and medications clinically appropriate.
 Ensure internal consistency across all medical history elements.
 All data must be completely synthetic.`;
 
