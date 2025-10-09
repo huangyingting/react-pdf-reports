@@ -14,7 +14,7 @@ const AzureConfigModal: React.FC<AzureConfigModalProps> = ({ onSave, onCancel, i
     endpoint: initialConfig?.endpoint || '',
     apiKey: initialConfig?.apiKey || '',
     deploymentName: initialConfig?.deploymentName || '',
-    apiVersion: initialConfig?.apiVersion || '2024-02-15-preview'
+    apiVersion: initialConfig?.apiVersion || '2025-04-01-preview'
   });
   const [error, setError] = useState<string>('');
   const [showApiKey, setShowApiKey] = useState<boolean>(false);
@@ -62,7 +62,7 @@ const AzureConfigModal: React.FC<AzureConfigModalProps> = ({ onSave, onCancel, i
         endpoint: '',
         apiKey: '',
         deploymentName: '',
-        apiVersion: '2024-02-15-preview'
+        apiVersion: '2025-04-01-preview'
       });
       setHasSavedConfig(false);
       setError('');
@@ -164,11 +164,11 @@ const AzureConfigModal: React.FC<AzureConfigModalProps> = ({ onSave, onCancel, i
               <input
                 id="apiVersion"
                 type="text"
-                placeholder="2024-02-15-preview"
+                placeholder="2025-04-01-preview"
                 value={config.apiVersion}
                 onChange={(e) => setConfig({ ...config, apiVersion: e.target.value })}
               />
-              <small>Azure OpenAI API version (default: 2024-02-15-preview)</small>
+              <small>Azure OpenAI API version (default: 2025-04-01-preview)</small>
             </div>
           </div>
 

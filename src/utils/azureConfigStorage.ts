@@ -3,7 +3,7 @@
  * Handles saving and loading Azure OpenAI configuration from browser's localStorage
  */
 
-import { AzureOpenAIConfig } from './azureOpenAI';
+import { AzureOpenAIConfig } from './aiDataGenerator';
 
 const STORAGE_KEY = 'azureOpenAIConfig';
 
@@ -41,7 +41,7 @@ export function loadAzureConfig(): AzureOpenAIConfig | null {
     console.log('[Azure Config Storage] Configuration loaded successfully');
     console.log('[Azure Config Storage] Endpoint:', config.endpoint);
     console.log('[Azure Config Storage] Deployment:', config.deploymentName);
-    console.log('[Azure Config Storage] API Version:', config.apiVersion || '2024-02-15-preview');
+    console.log('[Azure Config Storage] API Version:', config.apiVersion || '2025-04-01-preview');
     
     return config;
   } catch (error) {
