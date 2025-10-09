@@ -1,5 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  Box, 
+  Typography, 
+  Card, 
+  Radio, 
+  RadioGroup, 
+  FormControlLabel, 
+  Button, 
+  Checkbox,
+  CircularProgress,
+  Alert,
+  IconButton
+} from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CheckIcon from '@mui/icons-material/Check';
+import { StepContainer, ContentContainer, SectionCard } from './SharedComponents';
+import { 
   GenerationOptions,
   GeneratedData,
   LabTestType
@@ -28,8 +46,6 @@ import { loadAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
 import { clearCache, DEFAULT_CACHE_CONFIG } from '../utils/cache';
 import CustomSelect from './CustomSelect';
 import AzureConfigModal from './AzureConfigModal';
-
-import './GenerateDataStep.css';
 
 interface GenerateDataStepProps {
   onDataGenerated: (
@@ -195,134 +211,151 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
   };
 
   return (
-    <div className="step">
-      <div className="step-content">
+    <StepContainer>
+      <ContentContainer>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <SectionCard>
+            <Typography variant="h3" gutterBottom>Generation Method</Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              mb: 3,
+            }}>
+              <RadioGroup
+                row
+                value={generationMethod}
+                onChange={(e) => {
+                  const value = e.target.value as GenerationMethod;
+                  if (value === 'ai' && !azureConfig) {
+                    return;
+                  }
+                  setGenerationMethod(value);
+                }}
+                sx={{ display: 'flex', gap: 2 }}
+              >
+                <FormControlLabel
+                  value="faker"
+                  control={<Radio />}
+                  label="Faker.js"
+                  sx={{
+                    border: '1.5px solid',
+                    borderColor: generationMethod === 'faker' ? 'primary.main' : 'divider',
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1,
+                    m: 0,
+                    bgcolor: generationMethod === 'faker' ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                  }}
+                />
+                <FormControlLabel
+                  value="ai"
+                  control={<Radio disabled={!azureConfig} />}
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <span>AI-Powered</span>
+                      {azureConfig && <CheckIcon sx={{ fontSize: 16, color: 'success.main' }} />}
+                    </Box>
+                  }
+                  sx={{
+                    border: '1.5px solid',
+                    borderColor: generationMethod === 'ai' ? 'primary.main' : 'divider',
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1,
+                    m: 0,
+                    bgcolor: generationMethod === 'ai' ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                    opacity: !azureConfig ? 0.6 : 1,
+                  }}
+                />
+              </RadioGroup>
 
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SettingsIcon />}
+                onClick={() => setShowConfigModal(true)}
+                title={azureConfig ? 'Update Azure OpenAI settings' : 'Configure Azure OpenAI'}
+              >
+                {azureConfig ? 'Update' : 'Configure'}
+              </Button>
 
-        <div className="data-generation-options">
-          <div className="section">
-            <h3>Generation Method</h3>
-            <div className="generation-method-compact">
-              <div className="method-options-inline">
-                <div 
-                  className={`method-option-radio ${generationMethod === 'faker' ? 'selected' : ''}`}
-                  onClick={() => setGenerationMethod('faker')}
+              {azureConfig && (
+                <IconButton
+                  size="small"
+                  onClick={handleClearConfig}
+                  title="Reset Azure OpenAI configuration"
+                  sx={{ border: '1px solid', borderColor: 'divider' }}
                 >
-                  <input
-                    type="radio"
-                    name="generationMethod"
-                    value="faker"
-                    checked={generationMethod === 'faker'}
-                    onChange={() => setGenerationMethod('faker')}
-                  />
-                  <span className="method-name">Faker.js</span>
-                </div>
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
+              )}
 
-                <div 
-                  className={`method-option-radio ${generationMethod === 'ai' ? 'selected' : ''} ${!azureConfig ? 'disabled' : ''}`}
-                  onClick={() => {
-                    if (azureConfig) {
-                      setGenerationMethod('ai');
-                    }
+              <IconButton
+                size="small"
+                onClick={handleClearCache}
+                title="Clear cached AI-generated data"
+                sx={{ border: '1px solid', borderColor: 'divider' }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
+
+            <Typography variant="h3" gutterBottom sx={{ mt: 3 }}>Choose Data Complexity</Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              Select a preset configuration or customize your own settings
+            </Typography>
+            
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: 1.5,
+              mb: 3,
+            }}>
+              {Object.entries(DATA_GENERATION_PRESETS).map(([key, preset]) => (
+                <Card 
+                  key={key}
+                  onClick={() => handlePresetChange(key)}
+                  sx={{ 
+                    p: 2.5,
+                    cursor: 'pointer',
+                    border: selectedPreset === key ? '2px solid' : '1.5px solid',
+                    borderColor: selectedPreset === key ? 'primary.main' : 'divider',
+                    bgcolor: selectedPreset === key ? 'rgba(241, 248, 233, 1)' : 'background.default',
+                    '&:hover': {
+                      boxShadow: 7,
+                    },
                   }}
                 >
-                  <input
-                    type="radio"
-                    name="generationMethod"
-                    value="ai"
-                    checked={generationMethod === 'ai'}
-                    onChange={() => {
-                      if (azureConfig) {
-                        setGenerationMethod('ai');
-                      }
-                    }}
-                    disabled={!azureConfig}
-                  />
-                  <span className="method-name">AI-Powered</span>
-                  {azureConfig && <span className="status-badge configured">✓</span>}
-                </div>
-
-                <button
-                  type="button"
-                  className="btn-config-inline"
-                  onClick={() => setShowConfigModal(true)}
-                  title={azureConfig ? 'Update Azure OpenAI settings' : 'Configure Azure OpenAI'}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M12 1v6m0 6v6"/>
-                  </svg>
-                  {azureConfig ? 'Update' : 'Configure'}
-                </button>
-
-                {azureConfig && (
-                  <button
-                    type="button"
-                    className="btn-reset-inline"
-                    onClick={handleClearConfig}
-                    title="Reset Azure OpenAI configuration"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="1 4 1 10 7 10"/>
-                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-                    </svg>
-                    Reset
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  className="btn-cache-inline"
-                  onClick={handleClearCache}
-                  title="Clear cached AI-generated data"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    <line x1="10" y1="11" x2="10" y2="17"/>
-                    <line x1="14" y1="11" x2="14" y2="17"/>
-                  </svg>
-                  Clear Cache
-                </button>
-              </div>
-            </div>
-
-            <h3>Choose Data Complexity</h3>
-            <p>Select a preset configuration or customize your own settings</p>
-            
-            <div className="preset-cards">
-              {Object.entries(DATA_GENERATION_PRESETS).map(([key, preset]) => (
-                <div 
-                  key={key}
-                  className={`preset-card ${selectedPreset === key ? 'selected' : ''}`}
-                  onClick={() => handlePresetChange(key)}
-                >
-                  <div className="preset-header">
-                    <h4>{preset.name}</h4>
-                    <div className="preset-indicator">
-                      {selectedPreset === key && (
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-                  <p>{preset.description}</p>
-                  <div className="preset-details">
-                    <span>Visits: {preset.options.numberOfVisits}</span>
-                    <span>Lab Tests: {preset.options.numberOfLabTests}</span>
-                    <span>Complexity: {preset.options.complexity}</span>
-                  </div>
-                </div>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="h4" sx={{ fontSize: '0.9375rem' }}>{preset.name}</Typography>
+                    {selectedPreset === key && <CheckIcon sx={{ color: 'primary.main' }} />}
+                  </Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    {preset.description}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', fontSize: '0.75rem' }}>
+                    <Typography variant="caption">Visits: {preset.options.numberOfVisits}</Typography>
+                    <Typography variant="caption">Lab Tests: {preset.options.numberOfLabTests}</Typography>
+                    <Typography variant="caption">Complexity: {preset.options.complexity}</Typography>
+                  </Box>
+                </Card>
               ))}
-            </div>
+            </Box>
 
-            <h3>Custom Settings</h3>
-            <p>Fine-tune the generated data to meet your specific needs</p>
+            <Typography variant="h3" gutterBottom sx={{ mt: 3 }}>Custom Settings</Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              Fine-tune the generated data to meet your specific needs
+            </Typography>
             
-            <div className="custom-options">
-              <div className="option-group">
-                <label>Medical Complexity</label>
+            <Box sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: 2,
+            }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="body2" fontWeight={600} color="text.secondary">Medical Complexity</Typography>
                 <CustomSelect
                   value={customOptions.complexity}
                   onChange={(value) => setCustomOptions({...customOptions, complexity: value as 'low' | 'medium' | 'high'})}
@@ -332,10 +365,10 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     { value: 'high', label: 'Complex (6+ conditions)' }
                   ]}
                 />
-              </div>
+              </Box>
 
-              <div className="option-group">
-                <label>Number of Visits</label>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="body2" fontWeight={600} color="text.secondary">Number of Visits</Typography>
                 <CustomSelect
                   value={customOptions.numberOfVisits}
                   onChange={(value) => setCustomOptions({...customOptions, numberOfVisits: value as number})}
@@ -347,10 +380,10 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     { value: 7, label: '7 Visits' }
                   ]}
                 />
-              </div>
+              </Box>
 
-              <div className="option-group">
-                <label>Lab Tests</label>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="body2" fontWeight={600} color="text.secondary">Lab Tests</Typography>
                 <CustomSelect
                   value={customOptions.numberOfLabTests}
                   onChange={(value) => setCustomOptions({...customOptions, numberOfLabTests: value as number})}
@@ -363,47 +396,68 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     { value: 10, label: '10 Tests' }
                   ]}
                 />
-              </div>
+              </Box>
 
-              <div className="option-group">
-                <label>Secondary Insurance</label>
-                <label className="checkbox-wrapper">
-                  <input
-                    type="checkbox"
-                    checked={customOptions.includeSecondaryInsurance}
-                    onChange={(e) => setCustomOptions({...customOptions, includeSecondaryInsurance: e.target.checked})}
-                  />
-                  <span>Include</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="body2" fontWeight={600} color="text.secondary">Secondary Insurance</Typography>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={customOptions.includeSecondaryInsurance}
+                      onChange={(e) => setCustomOptions({...customOptions, includeSecondaryInsurance: e.target.checked})}
+                    />
+                  }
+                  label="Include"
+                  sx={{
+                    border: '1.5px solid',
+                    borderColor: 'divider',
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1,
+                    m: 0,
+                    bgcolor: customOptions.includeSecondaryInsurance ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                  }}
+                />
+              </Box>
+            </Box>
+          </SectionCard>
 
           {error && (
-            <div className="error-message">
+            <Alert severity="error" sx={{ my: 2 }}>
               {error}
-            </div>
+            </Alert>
           )}
+        </Box>
 
-                    <div className="step-actions">
-            <button
-              className="btn btn-primary"
-              onClick={handleGenerateData}
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  <div className="spinner"></div>
-                  <span>{generationMethod === 'ai' ? 'Generating with AI...' : 'Generating...'}</span>
-                </>
-              ) : (
-                <span>Generate & Continue →</span>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 2,
+          p: 2,
+          bgcolor: 'rgba(250, 245, 235, 0.85)',
+          backdropFilter: 'blur(10px)',
+          border: '1.5px solid rgba(141, 110, 99, 0.3)',
+          borderRadius: 2,
+          boxShadow: 5,
+          position: 'sticky',
+          bottom: 24,
+          mx: 'auto',
+          maxWidth: 600,
+          width: 'fit-content',
+        }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleGenerateData}
+            disabled={isGenerating}
+            startIcon={isGenerating && <CircularProgress size={16} color="inherit" />}
+          >
+            {isGenerating 
+              ? (generationMethod === 'ai' ? 'Generating with AI...' : 'Generating...') 
+              : 'Generate & Continue →'}
+          </Button>
+        </Box>
+      </ContentContainer>
 
       {/* Azure Config Modal */}
       {showConfigModal && (
@@ -413,7 +467,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
           initialConfig={azureConfig || undefined}
         />
       )}
-    </div>
+    </StepContainer>
   );
 };
 

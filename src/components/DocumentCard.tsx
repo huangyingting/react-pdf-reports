@@ -1,5 +1,7 @@
 import React from 'react';
-import './DocumentCard.css';
+import { Card, Box, Typography, Button, CircularProgress } from '@mui/material';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import DownloadIcon from '@mui/icons-material/Download';
 
 interface DocumentCardProps {
   title: string;
@@ -70,53 +72,84 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
   iconType = 'medical'
 }) => {
   return (
-    <div className={`document-card${compact ? ' compact' : ''}`}>
-      <div className="document-header">
-        <div className="document-icon">
+    <Card 
+      sx={{ 
+        p: compact ? 2 : 3,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        minWidth: 0,
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5, width: '100%' }}>
+        <Box 
+          sx={{ 
+            color: 'primary.main',
+            p: compact ? 0.5 : 0.75,
+            bgcolor: 'rgba(241, 248, 233, 1)',
+            borderRadius: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
           {getIcon(iconType)}
-        </div>
-        <h3 className="document-title">{title}</h3>
-      </div>
-      <div className="document-content">
-        <p className="document-description">{description}</p>
-      </div>
-      <div className="document-actions">
-        <button 
-          className="btn btn-outline"
+        </Box>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            flex: 1,
+            fontSize: compact ? '15px' : '16px',
+            fontWeight: 700,
+            color: 'text.primary',
+            lineHeight: compact ? 1.3 : 1.4,
+            letterSpacing: '-0.01em',
+            textAlign: 'left',
+          }}
+        >
+          {title}
+        </Typography>
+      </Box>
+      
+      <Box sx={{ mb: 1.5, textAlign: 'center' }}>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            fontSize: '13px',
+            color: 'text.secondary',
+            lineHeight: 1.5,
+          }}
+        >
+          {description}
+        </Typography>
+      </Box>
+      
+      <Box sx={{ display: 'flex', gap: 1.5, mt: 'auto', width: '100%' }}>
+        <Button 
+          variant="outlined"
           onClick={onPreview}
           disabled={isLoading}
+          startIcon={<VisibilityOutlinedIcon />}
+          sx={{ flex: 1 }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          <span>Preview</span>
-        </button>
-        <button 
-          className="btn btn-primary"
+          Preview
+        </Button>
+        <Button 
+          variant="contained"
+          color="primary"
           onClick={onGenerate}
           disabled={isLoading}
+          startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
+          sx={{ flex: 1 }}
         >
-          {isLoading ? (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="spin-animation">
-                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-              </svg>
-              <span>Generating...</span>
-            </>
-          ) : (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              <span>Generate</span>
-            </>
-          )}
-        </button>
-      </div>
-    </div>
+          {isLoading ? 'Generating...' : 'Generate'}
+        </Button>
+      </Box>
+    </Card>
   );
 };
 

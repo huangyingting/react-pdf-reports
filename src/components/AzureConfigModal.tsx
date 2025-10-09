@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  IconButton,
+  Alert,
+  Box,
+  Typography,
+  InputAdornment,
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { AzureOpenAIConfig, validateAzureConfig } from '../utils/aiDataGenerator';
 import { loadAzureConfig, saveAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
-import './AzureConfigModal.css';
 
 interface AzureConfigModalProps {
   onSave: (config: AzureOpenAIConfig) => void;
@@ -71,132 +86,113 @@ const AzureConfigModal: React.FC<AzureConfigModalProps> = ({ onSave, onCancel, i
   };
 
   return (
-    <div className="azure-config-modal-overlay">
-      <div className="azure-config-modal">
-        <div className="modal-header">
-          <h2>Azure OpenAI Configuration</h2>
-          <button className="close-button" onClick={onCancel} type="button">×</button>
-        </div>
+    <Dialog open={true} onClose={onCancel} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
+        <Typography variant="h3" sx={{ fontSize: '1.25rem' }}>Azure OpenAI Configuration</Typography>
+        <IconButton onClick={onCancel} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            {hasSavedConfig && !error && (
-              <div className="info-banner">
-                ✓ Saved configuration loaded from browser storage
-              </div>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          {hasSavedConfig && !error && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              ✓ Saved configuration loaded from browser storage
+            </Alert>
+          )}
+          
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          <TextField
+            fullWidth
+            label="Azure OpenAI Endpoint"
+            type="url"
+            placeholder="https://your-resource.openai.azure.com"
+            value={config.endpoint}
+            onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
+            required
+            margin="normal"
+            helperText="Your Azure OpenAI resource endpoint URL"
+          />
+
+          <TextField
+            fullWidth
+            label="API Key"
+            type={showApiKey ? 'text' : 'password'}
+            placeholder="Enter your Azure OpenAI API key"
+            value={config.apiKey}
+            onChange={(e) => setConfig({ ...config, apiKey: e.target.value })}
+            required
+            margin="normal"
+            helperText="Your Azure OpenAI API key (found in Azure Portal)"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    edge="end"
+                    aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+                  >
+                    {showApiKey ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Deployment Name"
+            type="text"
+            placeholder="gpt-5-mini"
+            value={config.deploymentName}
+            onChange={(e) => setConfig({ ...config, deploymentName: e.target.value })}
+            required
+            margin="normal"
+            helperText="The name of your deployed model (e.g., gpt-4, gpt-35-turbo)"
+          />
+
+          <TextField
+            fullWidth
+            label="API Version"
+            type="text"
+            placeholder="2025-04-01-preview"
+            value={config.apiVersion}
+            onChange={(e) => setConfig({ ...config, apiVersion: e.target.value })}
+            margin="normal"
+            helperText="Azure OpenAI API version (default: 2025-04-01-preview)"
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'space-between' }}>
+          <Box>
+            {hasSavedConfig && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleClearConfig}
+                title="Clear saved configuration from browser storage"
+              >
+                Clear Saved Config
+              </Button>
             )}
-            
-            {error && (
-              <div className="error-banner">
-                {error}
-              </div>
-            )}
-
-            <div className="form-group">
-              <label htmlFor="endpoint">
-                Azure OpenAI Endpoint <span className="required">*</span>
-              </label>
-              <input
-                id="endpoint"
-                type="url"
-                placeholder="https://your-resource.openai.azure.com"
-                value={config.endpoint}
-                onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
-                required
-              />
-              <small>Your Azure OpenAI resource endpoint URL</small>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="apiKey">
-                API Key <span className="required">*</span>
-              </label>
-              <div className="password-input-wrapper">
-                <input
-                  id="apiKey"
-                  type={showApiKey ? 'text' : 'password'}
-                  placeholder="Enter your Azure OpenAI API key"
-                  value={config.apiKey}
-                  onChange={(e) => setConfig({ ...config, apiKey: e.target.value })}
-                  required
-                />
-                <button
-                  type="button"
-                  className="toggle-visibility"
-                  onClick={() => setShowApiKey(!showApiKey)}
-                  aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
-                >
-                  {showApiKey ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                      <line x1="1" y1="1" x2="23" y2="23"/>
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-              <small>Your Azure OpenAI API key (found in Azure Portal)</small>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="deploymentName">
-                Deployment Name <span className="required">*</span>
-              </label>
-              <input
-                id="deploymentName"
-                type="text"
-                placeholder="gpt-5-mini"
-                value={config.deploymentName}
-                onChange={(e) => setConfig({ ...config, deploymentName: e.target.value })}
-                required
-              />
-              <small>The name of your deployed model (e.g., gpt-4, gpt-35-turbo)</small>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="apiVersion">
-                API Version
-              </label>
-              <input
-                id="apiVersion"
-                type="text"
-                placeholder="2025-04-01-preview"
-                value={config.apiVersion}
-                onChange={(e) => setConfig({ ...config, apiVersion: e.target.value })}
-              />
-              <small>Azure OpenAI API version (default: 2025-04-01-preview)</small>
-            </div>
-          </div>
-
-          <div className="modal-footer">
-            <div className="footer-left">
-              {hasSavedConfig && (
-                <button 
-                  type="button" 
-                  className="btn btn-danger" 
-                  onClick={handleClearConfig}
-                  title="Clear saved configuration from browser storage"
-                >
-                  Clear Saved Config
-                </button>
-              )}
-            </div>
-            <div className="footer-right">
-              <button type="button" className="btn btn-secondary" onClick={onCancel}>
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary">
-                Save Configuration
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              Save Configuration
+            </Button>
+          </Box>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import './EditDataStep.css';
+import { Box, Typography, Tabs, Tab, Button, TextField, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
 import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
+import { StepContainer, SectionTitle, FormGrid, ActionButtons, ButtonGroup, TabContent, LoadingSpinner } from './SharedComponents';
 
 interface EditDataStepProps {
   generatedData: GeneratedData | null;
@@ -103,14 +105,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
   };
 
   if (!editedData) {
-    return (
-      <div className="step">
-        <div className="loading-state">
-          <div className="spinner"></div>
-          <p>Loading data for editing...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   const sections: Section[] = [
@@ -123,76 +118,95 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
     { id: 'visits', label: 'Visit Notes', icon: 'clipboard' }
   ];
 
-  const handleSectionChange = (sectionId: string, event: React.MouseEvent<HTMLButtonElement>) => {
-    setActiveSection(sectionId);
-    // Smooth scroll the clicked tab into view
-    event.currentTarget.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center'
-    });
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'user':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        );
+      case 'card':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+            <line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        );
+      case 'stethoscope':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
+            <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
+            <circle cx="20" cy="10" r="2"/>
+          </svg>
+        );
+      case 'activity':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        );
+      case 'flask':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/>
+            <path d="M8.5 2h7"/>
+            <path d="M7 16h10"/>
+          </svg>
+        );
+      case 'heart':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          </svg>
+        );
+      case 'clipboard':
+        return (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+          </svg>
+        );
+      default:
+        return <></>;
+    }
   };
 
   return (
-    <div className="step">
-      <div className="step-content">
+    <StepContainer>
+      <Box sx={{ borderRadius: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Tabs
+          value={activeSection}
+          onChange={(_, newValue) => setActiveSection(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            borderBottom: '1.5px solid',
+            borderColor: 'divider',
+            bgcolor: 'background.default',
+            px: 2,
+            '& .MuiTab-root': {
+              minHeight: 64,
+              textTransform: 'none',
+              fontSize: '0.95rem',
+              fontWeight: 500,
+            }
+          }}
+        >
+          {sections.map(section => (
+            <Tab
+              key={section.id}
+              value={section.id}
+              label={section.label}
+              icon={getIcon(section.icon)}
+              iconPosition="start"
+            />
+          ))}
+        </Tabs>
 
-        <div className="edit-interface">
-          <div className="section-nav">
-            {sections.map(section => (
-              <button
-                key={section.id}
-                className={`section-tab ${activeSection === section.id ? 'active' : ''}`}
-                onClick={(e) => handleSectionChange(section.id, e)}
-              >
-                {section.icon === 'user' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                )}
-                {section.icon === 'card' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                    <line x1="1" y1="10" x2="23" y2="10"/>
-                  </svg>
-                )}
-                {section.icon === 'stethoscope' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/>
-                    <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/>
-                    <circle cx="20" cy="10" r="2"/>
-                  </svg>
-                )}
-                {section.icon === 'activity' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                  </svg>
-                )}
-                {section.icon === 'flask' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/>
-                    <path d="M8.5 2h7"/>
-                    <path d="M7 16h10"/>
-                  </svg>
-                )}
-                {section.icon === 'heart' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                  </svg>
-                )}
-                {section.icon === 'clipboard' && (
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                  </svg>
-                )}
-                <span className="section-label">{section.label}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="edit-content" key={activeSection}>
+        <TabContent key={activeSection}>
             {activeSection === 'patient' && (
               <PatientInfoSection 
                 data={editedData.patient} 
@@ -249,55 +263,61 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
             {activeSection === 'labs' && (
               <>
                 {editedData.labReports.length > 0 ? (
-                  <div className="section">
-                    <h3>Laboratory Reports ({editedData.labReports.length} reports)</h3>
-                    <div className="lab-reports-accordion">
+                  <Box>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                      Laboratory Reports ({editedData.labReports.length} reports)
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.labReports.map((labData, index) => {
                         const isExpanded = expandedLabReports.has(labData.testType as LabTestType);
                         return (
-                          <div key={labData.testType} className="accordion-item">
-                            <div 
-                              className="accordion-header"
-                              onClick={() => {
-                                const newExpanded = new Set(expandedLabReports);
-                                if (isExpanded) {
-                                  newExpanded.delete(labData.testType as LabTestType);
-                                } else {
-                                  newExpanded.add(labData.testType as LabTestType);
-                                }
-                                setExpandedLabReports(newExpanded);
-                              }}
-                            >
-                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
-                              <span className="accordion-title">{labData.testName} ({labData.testType})</span>
-                              <span className="accordion-meta">{labData.results.length} results</span>
-                            </div>
-                            {isExpanded && (
-                              <div className="accordion-content">
-                                <LabResultsSection
-                                  data={labData}
-                                  onChange={(updated) => {
-                                    setEditedData(prev => {
-                                      if (!prev) return prev;
-                                      const newData = JSON.parse(JSON.stringify(prev));
-                                      newData.labReports[index] = updated;
-                                      setHasChanges(true);
-                                      return newData;
-                                    });
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
+                          <Accordion 
+                            key={labData.testType}
+                            expanded={isExpanded}
+                            onChange={() => {
+                              const newExpanded = new Set(expandedLabReports);
+                              if (isExpanded) {
+                                newExpanded.delete(labData.testType as LabTestType);
+                              } else {
+                                newExpanded.add(labData.testType as LabTestType);
+                              }
+                              setExpandedLabReports(newExpanded);
+                            }}
+                            sx={{ mb: 2 }}
+                          >
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                              <Typography sx={{ fontWeight: 500 }}>
+                                {labData.testName} ({labData.testType}) <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>- {labData.results.length} results</Typography>
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <LabResultsSection
+                                data={labData}
+                                onChange={(updated) => {
+                                  setEditedData(prev => {
+                                    if (!prev) return prev;
+                                    const newData = JSON.parse(JSON.stringify(prev));
+                                    newData.labReports[index] = updated;
+                                    setHasChanges(true);
+                                    return newData;
+                                  });
+                                }}
+                              />
+                            </AccordionDetails>
+                          </Accordion>
                         );
                       })}
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 ) : (
-                  <div className="section">
-                    <h3>Laboratory Report</h3>
-                    <p className="info-message">⚠️ No laboratory report data available. Please generate data first.</p>
-                  </div>
+                  <Box>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                      Laboratory Report
+                    </Typography>
+                    <Typography variant="body1" color="warning.main">
+                      ⚠️ No laboratory report data available. Please generate data first.
+                    </Typography>
+                  </Box>
                 )}
               </>
             )}
@@ -306,55 +326,61 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
             {activeSection === 'vitals' && (
               <>
                 {editedData.visitReports.length > 0 ? (
-                  <div className="section">
-                    <h3>Vital Signs ({editedData.visitReports.length} visits)</h3>
-                    <div className="lab-reports-accordion">
+                  <Box>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                      Vital Signs ({editedData.visitReports.length} visits)
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.visitReports.map((visitData, index) => {
                         const isExpanded = expandedVisitReports.has(index);
                         return (
-                          <div key={index} className="accordion-item">
-                            <div 
-                              className="accordion-header"
-                              onClick={() => {
-                                const newExpanded = new Set(expandedVisitReports);
-                                if (isExpanded) {
-                                  newExpanded.delete(index);
-                                } else {
-                                  newExpanded.add(index);
-                                }
-                                setExpandedVisitReports(newExpanded);
-                              }}
-                            >
-                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
-                              <span className="accordion-title">Visit {index + 1} - {visitData.visit.date}</span>
-                              <span className="accordion-meta">{visitData.visit.type}</span>
-                            </div>
-                            {isExpanded && (
-                              <div className="accordion-content">
-                                <VitalSignsSection
-                                  data={visitData}
-                                  onChange={(updated) => {
-                                    setEditedData(prev => {
-                                      if (!prev) return prev;
-                                      const newData = JSON.parse(JSON.stringify(prev));
-                                      newData.visitReports[index] = updated;
-                                      setHasChanges(true);
-                                      return newData;
-                                    });
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
+                          <Accordion 
+                            key={index}
+                            expanded={isExpanded}
+                            onChange={() => {
+                              const newExpanded = new Set(expandedVisitReports);
+                              if (isExpanded) {
+                                newExpanded.delete(index);
+                              } else {
+                                newExpanded.add(index);
+                              }
+                              setExpandedVisitReports(newExpanded);
+                            }}
+                            sx={{ mb: 2 }}
+                          >
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                              <Typography sx={{ fontWeight: 500 }}>
+                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>- {visitData.visit.type}</Typography>
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <VitalSignsSection
+                                data={visitData}
+                                onChange={(updated) => {
+                                  setEditedData(prev => {
+                                    if (!prev) return prev;
+                                    const newData = JSON.parse(JSON.stringify(prev));
+                                    newData.visitReports[index] = updated;
+                                    setHasChanges(true);
+                                    return newData;
+                                  });
+                                }}
+                              />
+                            </AccordionDetails>
+                          </Accordion>
                         );
                       })}
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 ) : (
-                  <div className="section">
-                    <h3>Vital Signs</h3>
-                    <p className="info-message">⚠️ No visit report data available. Please generate data first.</p>
-                  </div>
+                  <Box>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                      Vital Signs
+                    </Typography>
+                    <Typography variant="body1" color="warning.main">
+                      ⚠️ No visit report data available. Please generate data first.
+                    </Typography>
+                  </Box>
                 )}
               </>
             )}
@@ -363,252 +389,230 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
             {activeSection === 'visits' && (
               <>
                 {editedData.visitReports.length > 0 ? (
-                  <div className="section">
-                    <h3>Visit Notes ({editedData.visitReports.length} visits)</h3>
-                    <div className="lab-reports-accordion">
+                  <Box>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 3, color: 'primary.main', fontWeight: 600 }}>
+                      Visit Notes ({editedData.visitReports.length} visits)
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.visitReports.map((visitData, index) => {
                         const isExpanded = expandedVisitReports.has(index);
                         return (
-                          <div key={index} className="accordion-item">
-                            <div 
-                              className="accordion-header"
-                              onClick={() => {
-                                const newExpanded = new Set(expandedVisitReports);
-                                if (isExpanded) {
-                                  newExpanded.delete(index);
-                                } else {
-                                  newExpanded.add(index);
-                                }
-                                setExpandedVisitReports(newExpanded);
-                              }}
-                            >
-                              <span className="accordion-icon">{isExpanded ? '▼' : '▶'}</span>
-                              <span className="accordion-title">Visit {index + 1} - {visitData.visit.date}</span>
-                              <span className="accordion-meta">{visitData.visit.type}</span>
-                            </div>
-                            {isExpanded && (
-                              <div className="accordion-content">
-                                <VisitNotesSection
-                                  data={visitData}
-                                  onChange={(updated) => {
-                                    setEditedData(prev => {
-                                      if (!prev) return prev;
-                                      const newData = JSON.parse(JSON.stringify(prev));
-                                      newData.visitReports[index] = updated;
-                                      setHasChanges(true);
-                                      return newData;
-                                    });
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
+                          <Accordion 
+                            key={index}
+                            expanded={isExpanded}
+                            onChange={() => {
+                              const newExpanded = new Set(expandedVisitReports);
+                              if (isExpanded) {
+                                newExpanded.delete(index);
+                              } else {
+                                newExpanded.add(index);
+                              }
+                              setExpandedVisitReports(newExpanded);
+                            }}
+                            sx={{ mb: 2 }}
+                          >
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                              <Typography sx={{ fontWeight: 500 }}>
+                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>- {visitData.visit.type}</Typography>
+                              </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                              <VisitNotesSection
+                                data={visitData}
+                                onChange={(updated) => {
+                                  setEditedData(prev => {
+                                    if (!prev) return prev;
+                                    const newData = JSON.parse(JSON.stringify(prev));
+                                    newData.visitReports[index] = updated;
+                                    setHasChanges(true);
+                                    return newData;
+                                  });
+                                }}
+                              />
+                            </AccordionDetails>
+                          </Accordion>
                         );
                       })}
-                    </div>
-                  </div>
+                    </Box>
+                  </Box>
                 ) : (
-                  <div className="section">
-                    <h3>Visit Notes</h3>
-                    <p className="info-message">⚠️ No visit report data available. Please generate data first.</p>
-                  </div>
+                  <Box>
+                    <Typography variant="h5" gutterBottom sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}>
+                      Visit Notes
+                    </Typography>
+                    <Typography variant="body1" color="warning.main">
+                      ⚠️ No visit report data available. Please generate data first.
+                    </Typography>
+                  </Box>
                 )}
               </>
             )}
-          </div>
-        </div>
+        </TabContent>
 
-        <div className="step-actions">
-          <div className="action-buttons-group">
-            <button className="btn btn-outline" onClick={onBack}>
-              ← Back to Generate
-            </button>
-            
+        <ActionButtons>
+          <Button
+            variant="outlined"
+            onClick={onBack}
+            sx={{ minWidth: 160 }}
+          >
+            ← Back to Generate
+          </Button>
+          
+          <ButtonGroup>
             {hasChanges && (
-              <button className="btn btn-secondary" onClick={handleSaveChanges}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleSaveChanges}
+              >
                 Save Changes
-              </button>
+              </Button>
             )}
             
-            <button className="btn btn-primary" onClick={handleNext}>
+            <Button
+              variant="contained"
+              onClick={handleNext}
+              sx={{ minWidth: 160 }}
+            >
               Continue to Export →
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Button>
+          </ButtonGroup>
+        </ActionButtons>
+      </Box>
+    </StepContainer>
   );
 };
 
 // Patient Info Section Component
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Patient Demographics</h3>
+  <Box>
+    <SectionTitle>Patient Demographics</SectionTitle>
     
-    <div className="form-grid">
-      <div className="form-group">
-        <label>First Name</label>
-        <input
-          type="text"
-          value={data.firstName}
-          onChange={(e) => onChange('firstName', e.target.value)}
-          className="form-input"
-        />
-      </div>
+    <FormGrid>
+      <TextField
+        label="First Name"
+        value={data.firstName}
+        onChange={(e) => onChange('firstName', e.target.value)}
+        fullWidth
+      />
 
-      <div className="form-group">
-        <label>Middle Initial</label>
-        <input
-          type="text"
-          value={data.middleInitial || ''}
-          onChange={(e) => onChange('middleInitial', e.target.value)}
-          className="form-input"
-          maxLength={1}
-        />
-      </div>
+      <TextField
+        label="Middle Initial"
+        value={data.middleInitial || ''}
+        onChange={(e) => onChange('middleInitial', e.target.value)}
+        fullWidth
+        inputProps={{ maxLength: 1 }}
+      />
 
-      <div className="form-group">
-        <label>Last Name</label>
-        <input
-          type="text"
-          value={data.lastName}
-          onChange={(e) => onChange('lastName', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Last Name"
+        value={data.lastName}
+        onChange={(e) => onChange('lastName', e.target.value)}
+        fullWidth
+      />
             
-      <div className="form-group">
-        <label>Date of Birth</label>
-        <input
-          type="text"
-          value={data.dateOfBirth}
-          onChange={(e) => onChange('dateOfBirth', e.target.value)}
-          className="form-input"
-          placeholder="MM/DD/YYYY"
-        />
-      </div>
+      <TextField
+        label="Date of Birth"
+        value={data.dateOfBirth}
+        onChange={(e) => onChange('dateOfBirth', e.target.value)}
+        placeholder="MM/DD/YYYY"
+        fullWidth
+      />
             
-      <div className="form-group">
-        <label>Medical Record Number</label>
-        <input
-          type="text"
-          value={data.medicalRecordNumber}
-          onChange={(e) => onChange('medicalRecordNumber', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Medical Record Number"
+        value={data.medicalRecordNumber}
+        onChange={(e) => onChange('medicalRecordNumber', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>SSN</label>
-        <input
-          type="text"
-          value={data.ssn}
-          onChange={(e) => onChange('ssn', e.target.value)}
-          className="form-input"
-          placeholder="XXX-XX-XXXX"
-        />
-      </div>
+      <TextField
+        label="SSN"
+        value={data.ssn}
+        onChange={(e) => onChange('ssn', e.target.value)}
+        placeholder="XXX-XX-XXXX"
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Account Number</label>
-        <input
-          type="text"
-          value={data.accountNumber || ''}
-          onChange={(e) => onChange('accountNumber', e.target.value)}
-          className="form-input"
-          placeholder="Optional"
-        />
-      </div>
+      <TextField
+        label="Account Number"
+        value={data.accountNumber || ''}
+        onChange={(e) => onChange('accountNumber', e.target.value)}
+        placeholder="Optional"
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Gender</label>
-        <select
+      <FormControl fullWidth>
+        <InputLabel>Gender</InputLabel>
+        <Select
           value={data.gender}
           onChange={(e) => onChange('gender', e.target.value)}
-          className="form-select"
+          label="Gender"
         >
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
+          <MenuItem value="Male">Male</MenuItem>
+          <MenuItem value="Female">Female</MenuItem>
+          <MenuItem value="Other">Other</MenuItem>
+        </Select>
+      </FormControl>
 
-      <div className="form-group">
-        <label>Phone Number</label>
-        <input
-          type="text"
-          value={data.contact.phone}
-          onChange={(e) => onChange('contact.phone', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Phone Number"
+        value={data.contact.phone}
+        onChange={(e) => onChange('contact.phone', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Email</label>
-        <input
-          type="email"
-          value={data.contact.email}
-          onChange={(e) => onChange('contact.email', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Email"
+        type="email"
+        value={data.contact.email}
+        onChange={(e) => onChange('contact.email', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Emergency Contact</label>
-        <input
-          type="text"
-          value={data.contact.emergencyContact}
-          onChange={(e) => onChange('contact.emergencyContact', e.target.value)}
-          className="form-input"
-          placeholder="Name and phone number"
-        />
-      </div>
-    </div>
+      <TextField
+        label="Emergency Contact"
+        value={data.contact.emergencyContact}
+        onChange={(e) => onChange('contact.emergencyContact', e.target.value)}
+        placeholder="Name and phone number"
+        fullWidth
+        sx={{ gridColumn: 'span 2' }}
+      />
+    </FormGrid>
 
-    <h4>Address Information</h4>
-    <div className="form-grid">
-      <div className="form-group">
-        <label>Street Address</label>
-        <input
-          type="text"
-          value={data.address.street}
-          onChange={(e) => onChange('address.street', e.target.value)}
-          className="form-input"
-        />
-      </div>
+    <SectionTitle sx={{ mt: 4 }}>Address Information</SectionTitle>
+    <FormGrid>
+      <TextField
+        label="Street Address"
+        value={data.address.street}
+        onChange={(e) => onChange('address.street', e.target.value)}
+        fullWidth
+        sx={{ gridColumn: 'span 2' }}
+      />
       
-      <div className="form-group">
-        <label>City</label>
-        <input
-          type="text"
-          value={data.address.city}
-          onChange={(e) => onChange('address.city', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="City"
+        value={data.address.city}
+        onChange={(e) => onChange('address.city', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>State</label>
-        <input
-          type="text"
-          value={data.address.state}
-          onChange={(e) => onChange('address.state', e.target.value)}
-          className="form-input"
-          maxLength={2}
-        />
-      </div>
+      <TextField
+        label="State"
+        value={data.address.state}
+        onChange={(e) => onChange('address.state', e.target.value)}
+        inputProps={{ maxLength: 2 }}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>ZIP Code</label>
-        <input
-          type="text"
-          value={data.address.zipCode}
-          onChange={(e) => onChange('address.zipCode', e.target.value)}
-          className="form-input"
-        />
-      </div>
-    </div>
-  </div>
+      <TextField
+        label="ZIP Code"
+        value={data.address.zipCode}
+        onChange={(e) => onChange('address.zipCode', e.target.value)}
+        fullWidth
+      />
+    </FormGrid>
+  </Box>
 );
 
 // Insurance Section Component
@@ -629,976 +633,785 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
   };
 
   return (
-    <div className="section">
-    <h3>Insurance</h3>
+    <Box>
+      <SectionTitle>Insurance Information</SectionTitle>
 
-      <h4>Subscriber Information</h4>
-      <div className="form-grid">
-        <div className="form-group">
-          <label>Subscriber Name</label>
-          <input
-            type="text"
-            value={data.subscriberName || ''}
-            onChange={(e) => onChange('subscriberName', e.target.value)}
-            className="form-input"
-            placeholder="If different from patient"
-          />
-        </div>
+      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Subscriber Information</SectionTitle>
+      <FormGrid sx={{ mb: 4 }}>
+        <TextField
+          label="Subscriber Name"
+          value={data.subscriberName || ''}
+          onChange={(e) => onChange('subscriberName', e.target.value)}
+          placeholder="If different from patient"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Subscriber DOB</label>
-          <input
-            type="text"
-            value={data.subscriberDOB || ''}
-            onChange={(e) => onChange('subscriberDOB', e.target.value)}
-            className="form-input"
-            placeholder="MM/DD/YYYY"
-          />
-        </div>
+        <TextField
+          label="Subscriber DOB"
+          value={data.subscriberDOB || ''}
+          onChange={(e) => onChange('subscriberDOB', e.target.value)}
+          placeholder="MM/DD/YYYY"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Subscriber Gender</label>
-          <select
+        <FormControl fullWidth>
+          <InputLabel>Subscriber Gender</InputLabel>
+          <Select
             value={data.subscriberGender || ''}
             onChange={(e) => onChange('subscriberGender', e.target.value)}
-            className="form-select"
+            label="Subscriber Gender"
           >
-            <option value="">Select...</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
+            <MenuItem value="">Select...</MenuItem>
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+            <MenuItem value="Other">Other</MenuItem>
+          </Select>
+        </FormControl>
+      </FormGrid>
 
-      <h4>Primary Insurance</h4>
+      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Primary Insurance</SectionTitle>
       
-      <div className="form-grid">
-        <div className="form-group">
-          <label>Insurance Company</label>
-          <input
-            type="text"
-            value={data.primaryInsurance.provider}
-            onChange={(e) => onChange('primaryInsurance.provider', e.target.value)}
-            className="form-input"
-          />
-        </div>
+      <FormGrid sx={{ mb: 3 }}>
+        <TextField
+          label="Insurance Company"
+          value={data.primaryInsurance.provider}
+          onChange={(e) => onChange('primaryInsurance.provider', e.target.value)}
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Policy Number</label>
-          <input
-            type="text"
-            value={data.primaryInsurance.policyNumber}
-            onChange={(e) => onChange('primaryInsurance.policyNumber', e.target.value)}
-            className="form-input"
-          />
-        </div>
+        <TextField
+          label="Policy Number"
+          value={data.primaryInsurance.policyNumber}
+          onChange={(e) => onChange('primaryInsurance.policyNumber', e.target.value)}
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Group Number</label>
-          <input
-            type="text"
-            value={data.primaryInsurance.groupNumber ?? ''}
-            onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
-            className="form-input"
-          />
-        </div>
+        <TextField
+          label="Group Number"
+          value={data.primaryInsurance.groupNumber ?? ''}
+          onChange={(e) => onChange('primaryInsurance.groupNumber', e.target.value)}
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Member ID</label>
-          <input
-            type="text"
-            value={data.primaryInsurance.memberId ?? ''}
-            onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
-            className="form-input"
-          />
-        </div>
+        <TextField
+          label="Member ID"
+          value={data.primaryInsurance.memberId ?? ''}
+          onChange={(e) => onChange('primaryInsurance.memberId', e.target.value)}
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Copay</label>
-          <input
-            type="text"
-            value={data.primaryInsurance.copay || ''}
-            onChange={(e) => onChange('primaryInsurance.copay', e.target.value)}
-            className="form-input"
-            placeholder="$20"
-          />
-        </div>
+        <TextField
+          label="Copay"
+          value={data.primaryInsurance.copay || ''}
+          onChange={(e) => onChange('primaryInsurance.copay', e.target.value)}
+          placeholder="$20"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Deductible</label>
-          <input
-            type="text"
-            value={data.primaryInsurance.deductible || ''}
-            onChange={(e) => onChange('primaryInsurance.deductible', e.target.value)}
-            className="form-input"
-            placeholder="$1000"
-          />
-        </div>
-      </div>
+        <TextField
+          label="Deductible"
+          value={data.primaryInsurance.deductible || ''}
+          onChange={(e) => onChange('primaryInsurance.deductible', e.target.value)}
+          placeholder="$1000"
+          fullWidth
+        />
+      </FormGrid>
 
-
-
-      <div style={{ marginTop: '20px' }}>
-        <button 
-          type="button"
-          className={data.secondaryInsurance ? "btn btn-outline" : "btn btn-secondary"}
+      <Box sx={{ mt: 3, mb: 3 }}>
+        <Button 
+          variant={data.secondaryInsurance ? "outlined" : "contained"}
+          color="secondary"
           onClick={data.secondaryInsurance ? handleRemoveSecondaryInsurance : handleAddSecondaryInsurance}
+          startIcon={data.secondaryInsurance ? <DeleteIcon /> : <AddIcon />}
         >
-          {data.secondaryInsurance ? '− Remove Secondary Insurance' : '+ Add Secondary Insurance'}
-        </button>
-      </div>
+          {data.secondaryInsurance ? 'Remove Secondary Insurance' : 'Add Secondary Insurance'}
+        </Button>
+      </Box>
 
       {data.secondaryInsurance && (
-        <>
-          <h4>Secondary Insurance</h4>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Insurance Company</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.provider}
-                onChange={(e) => onChange('secondaryInsurance.provider', e.target.value)}
-                className="form-input"
-              />
-            </div>
+        <Box>
+          <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Secondary Insurance</SectionTitle>
+          <FormGrid>
+            <TextField
+              label="Insurance Company"
+              value={data.secondaryInsurance.provider}
+              onChange={(e) => onChange('secondaryInsurance.provider', e.target.value)}
+              fullWidth
+            />
             
-            <div className="form-group">
-              <label>Policy Number</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.policyNumber}
-                onChange={(e) => onChange('secondaryInsurance.policyNumber', e.target.value)}
-                className="form-input"
-              />
-            </div>
+            <TextField
+              label="Policy Number"
+              value={data.secondaryInsurance.policyNumber}
+              onChange={(e) => onChange('secondaryInsurance.policyNumber', e.target.value)}
+              fullWidth
+            />
             
-            <div className="form-group">
-              <label>Group Number</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.groupNumber || ''}
-                onChange={(e) => onChange('secondaryInsurance.groupNumber', e.target.value)}
-                className="form-input"
-              />
-            </div>
+            <TextField
+              label="Group Number"
+              value={data.secondaryInsurance.groupNumber || ''}
+              onChange={(e) => onChange('secondaryInsurance.groupNumber', e.target.value)}
+              fullWidth
+            />
             
-            <div className="form-group">
-              <label>Member ID</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.memberId || ''}
-                onChange={(e) => onChange('secondaryInsurance.memberId', e.target.value)}
-                className="form-input"
-              />
-            </div>
+            <TextField
+              label="Member ID"
+              value={data.secondaryInsurance.memberId || ''}
+              onChange={(e) => onChange('secondaryInsurance.memberId', e.target.value)}
+              fullWidth
+            />
             
-            <div className="form-group">
-              <label>Effective Date</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.effectiveDate || ''}
-                onChange={(e) => onChange('secondaryInsurance.effectiveDate', e.target.value)}
-                className="form-input"
-                placeholder="YYYY-MM-DD"
-              />
-            </div>
+            <TextField
+              label="Effective Date"
+              value={data.secondaryInsurance.effectiveDate || ''}
+              onChange={(e) => onChange('secondaryInsurance.effectiveDate', e.target.value)}
+              placeholder="YYYY-MM-DD"
+              fullWidth
+            />
             
-            <div className="form-group">
-              <label>Copay</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.copay || ''}
-                onChange={(e) => onChange('secondaryInsurance.copay', e.target.value)}
-                className="form-input"
-                placeholder="$20"
-              />
-            </div>
+            <TextField
+              label="Copay"
+              value={data.secondaryInsurance.copay || ''}
+              onChange={(e) => onChange('secondaryInsurance.copay', e.target.value)}
+              placeholder="$20"
+              fullWidth
+            />
             
-            <div className="form-group">
-              <label>Deductible</label>
-              <input
-                type="text"
-                value={data.secondaryInsurance.deductible || ''}
-                onChange={(e) => onChange('secondaryInsurance.deductible', e.target.value)}
-                className="form-input"
-                placeholder="$1000"
-              />
-            </div>
-          </div>
-        </>
+            <TextField
+              label="Deductible"
+              value={data.secondaryInsurance.deductible || ''}
+              onChange={(e) => onChange('secondaryInsurance.deductible', e.target.value)}
+              placeholder="$1000"
+              fullWidth
+            />
+          </FormGrid>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 
 // Provider Section Component
 const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
-  <div className="section">
-    <h3>Primary Care Provider</h3>
+  <Box>
+    <SectionTitle>Primary Care Provider</SectionTitle>
     
-    <div className="form-grid">
-      <div className="form-group">
-        <label>Provider Name</label>
-        <input
-          type="text"
-          value={data.name}
-          onChange={(e) => onChange('name', e.target.value)}
-          className="form-input"
-        />
-      </div>
+    <FormGrid sx={{ mb: 4 }}>
+      <TextField
+        label="Provider Name"
+        value={data.name}
+        onChange={(e) => onChange('name', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>NPI Number</label>
-        <input
-          type="text"
-          value={data.npi}
-          onChange={(e) => onChange('npi', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="NPI Number"
+        value={data.npi}
+        onChange={(e) => onChange('npi', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Specialty</label>
-        <select
+      <FormControl fullWidth>
+        <InputLabel>Specialty</InputLabel>
+        <Select
           value={data.specialty}
           onChange={(e) => onChange('specialty', e.target.value)}
-          className="form-select"
+          label="Specialty"
         >
           {MEDICAL_SPECIALTIES.map(specialty => (
-            <option key={specialty} value={specialty}>
+            <MenuItem key={specialty} value={specialty}>
               {specialty}
-            </option>
+            </MenuItem>
           ))}
-        </select>
-      </div>
+        </Select>
+      </FormControl>
       
-      <div className="form-group">
-        <label>Phone</label>
-        <input
-          type="text"
-          value={data.phone}
-          onChange={(e) => onChange('phone', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Phone"
+        value={data.phone}
+        onChange={(e) => onChange('phone', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Tax ID</label>
-        <input
-          type="text"
-          value={data.taxId || ''}
-          onChange={(e) => onChange('taxId', e.target.value)}
-          className="form-input"
-          placeholder="Optional"
-        />
-      </div>
+      <TextField
+        label="Tax ID"
+        value={data.taxId || ''}
+        onChange={(e) => onChange('taxId', e.target.value)}
+        placeholder="Optional"
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Tax ID Type</label>
-        <select
+      <FormControl fullWidth>
+        <InputLabel>Tax ID Type</InputLabel>
+        <Select
           value={data.taxIdType || ''}
           onChange={(e) => onChange('taxIdType', e.target.value as 'SSN' | 'EIN')}
-          className="form-select"
+          label="Tax ID Type"
         >
-          <option value="">Select...</option>
-          <option value="SSN">SSN</option>
-          <option value="EIN">EIN</option>
-        </select>
-      </div>
-    </div>
+          <MenuItem value="">Select...</MenuItem>
+          <MenuItem value="SSN">SSN</MenuItem>
+          <MenuItem value="EIN">EIN</MenuItem>
+        </Select>
+      </FormControl>
+    </FormGrid>
 
-    <h4>Facility Information</h4>
-    <div className="form-grid">
-      <div className="form-group form-group-full">
-        <label>Facility Name</label>
-        <input
-          type="text"
-          value={data.facilityName || ''}
-          onChange={(e) => onChange('facilityName', e.target.value)}
-          className="form-input"
-        />
-      </div>
+    <SectionTitle sx={{ mt: 4 }}>Facility Information</SectionTitle>
+    <FormGrid sx={{ mb: 4 }}>
+      <TextField
+        label="Facility Name"
+        value={data.facilityName || ''}
+        onChange={(e) => onChange('facilityName', e.target.value)}
+        fullWidth
+        sx={{ gridColumn: 'span 2' }}
+      />
       
-      <div className="form-group">
-        <label>Facility Phone</label>
-        <input
-          type="text"
-          value={data.facilityPhone || ''}
-          onChange={(e) => onChange('facilityPhone', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Facility Phone"
+        value={data.facilityPhone || ''}
+        onChange={(e) => onChange('facilityPhone', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Facility Fax</label>
-        <input
-          type="text"
-          value={data.facilityFax || ''}
-          onChange={(e) => onChange('facilityFax', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="Facility Fax"
+        value={data.facilityFax || ''}
+        onChange={(e) => onChange('facilityFax', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>Facility NPI</label>
-        <input
-          type="text"
-          value={data.facilityNPI || ''}
-          onChange={(e) => onChange('facilityNPI', e.target.value)}
-          className="form-input"
-        />
-      </div>
-    </div>
+      <TextField
+        label="Facility NPI"
+        value={data.facilityNPI || ''}
+        onChange={(e) => onChange('facilityNPI', e.target.value)}
+        fullWidth
+      />
+    </FormGrid>
     
-    <h4>Provider Address</h4>
-    <div className="form-grid">
-      <div className="form-group form-group-full">
-        <label>Street Address</label>
-        <input
-          type="text"
-          value={data.address.street}
-          onChange={(e) => onChange('address.street', e.target.value)}
-          className="form-input"
-        />
-      </div>
+    <SectionTitle sx={{ mt: 4 }}>Provider Address</SectionTitle>
+    <FormGrid>
+      <TextField
+        label="Street Address"
+        value={data.address.street}
+        onChange={(e) => onChange('address.street', e.target.value)}
+        fullWidth
+        sx={{ gridColumn: 'span 2' }}
+      />
       
-      <div className="form-group">
-        <label>City</label>
-        <input
-          type="text"
-          value={data.address.city}
-          onChange={(e) => onChange('address.city', e.target.value)}
-          className="form-input"
-        />
-      </div>
+      <TextField
+        label="City"
+        value={data.address.city}
+        onChange={(e) => onChange('address.city', e.target.value)}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>State</label>
-        <input
-          type="text"
-          value={data.address.state}
-          onChange={(e) => onChange('address.state', e.target.value)}
-          className="form-input"
-          maxLength={2}
-        />
-      </div>
+      <TextField
+        label="State"
+        value={data.address.state}
+        onChange={(e) => onChange('address.state', e.target.value)}
+        inputProps={{ maxLength: 2 }}
+        fullWidth
+      />
       
-      <div className="form-group">
-        <label>ZIP Code</label>
-        <input
-          type="text"
-          value={data.address.zipCode}
-          onChange={(e) => onChange('address.zipCode', e.target.value)}
-          className="form-input"
-        />
-      </div>
-    </div>
-  </div>
+      <TextField
+        label="ZIP Code"
+        value={data.address.zipCode}
+        onChange={(e) => onChange('address.zipCode', e.target.value)}
+        fullWidth
+      />
+    </FormGrid>
+  </Box>
 );
 
 // Medical History Section Component
 const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onChange, expandedSections, onToggleSection }) => (
-  <div className="section">
-    <h3>Medical History</h3>
-    <div className="lab-reports-accordion">
-      {/* Allergies Accordion */}
-      <div className="accordion-item">
-        <div 
-          className="accordion-header"
-          onClick={() => onToggleSection('allergies')}
-        >
-          <span className="accordion-icon">{expandedSections.has('allergies') ? '▼' : '▶'}</span>
-          <span className="accordion-title">Allergies</span>
-          <span className="accordion-meta">{(data.allergies || []).length} items</span>
-        </div>
-        {expandedSections.has('allergies') && (
-          <div className="accordion-content">
-            <div className="allergies-list">
-      {(data.allergies || []).map((allergy, index) => (
-        <div key={index} className="allergy-item">
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Allergen</label>
-              <input
-                type="text"
+  <Box>
+    <SectionTitle>Medical History</SectionTitle>
+    
+    {/* Allergies Accordion */}
+    <Accordion 
+      expanded={expandedSections.has('allergies')}
+      onChange={() => onToggleSection('allergies')}
+      sx={{ mb: 2 }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ fontWeight: 500 }}>
+          Allergies <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.allergies || []).length} items)</Typography>
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(data.allergies || []).map((allergy, index) => (
+          <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.allergies || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+            <FormGrid>
+              <TextField
+                label="Allergen"
                 value={allergy.allergen}
                 onChange={(e) => {
                   const updated = [...(data.allergies || [])];
                   updated[index].allergen = e.target.value;
                   onChange('allergies', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Penicillin"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Reaction</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Reaction"
                 value={allergy.reaction}
                 onChange={(e) => {
                   const updated = [...(data.allergies || [])];
                   updated[index].reaction = e.target.value;
                   onChange('allergies', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Rash, Hives"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Severity</label>
-              <select
-                value={allergy.severity}
-                onChange={(e) => {
-                  const updated = [...(data.allergies || [])];
-                  updated[index].severity = e.target.value;
-                  onChange('allergies', updated);
-                }}
-                className="form-select"
-              >
-                <option value="Mild">Mild</option>
-                <option value="Moderate">Moderate</option>
-                <option value="Severe">Severe</option>
-              </select>
-            </div>
-            
-            <div className="form-group">
-              <label>Date Identified</label>
-              <input
-                type="text"
+              
+              <FormControl fullWidth>
+                <InputLabel>Severity</InputLabel>
+                <Select
+                  value={allergy.severity}
+                  onChange={(e) => {
+                    const updated = [...(data.allergies || [])];
+                    updated[index].severity = e.target.value;
+                    onChange('allergies', updated);
+                  }}
+                  label="Severity"
+                >
+                  <MenuItem value="Mild">Mild</MenuItem>
+                  <MenuItem value="Moderate">Moderate</MenuItem>
+                  <MenuItem value="Severe">Severe</MenuItem>
+                </Select>
+              </FormControl>
+              
+              <TextField
+                label="Date Identified"
                 value={allergy.dateIdentified}
                 onChange={(e) => {
                   const updated = [...(data.allergies || [])];
                   updated[index].dateIdentified = e.target.value;
                   onChange('allergies', updated);
                 }}
-                className="form-input"
                 placeholder="MM/DD/YYYY or Unknown"
+                fullWidth
               />
-            </div>
-          </div>
-        </div>
-      ))}
-            </div>
-          </div>
-        )}
-      </div>
+            </FormGrid>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
 
-      {/* Active Conditions Accordion */}
-      <div className="accordion-item">
-        <div 
-          className="accordion-header"
-          onClick={() => onToggleSection('conditions')}
-        >
-          <span className="accordion-icon">{expandedSections.has('conditions') ? '▼' : '▶'}</span>
-          <span className="accordion-title">Active Conditions</span>
-          <span className="accordion-meta">{(data.chronicConditions || []).length} items</span>
-        </div>
-        {expandedSections.has('conditions') && (
-          <div className="accordion-content">
-    <div className="conditions-list">
-      {(data.chronicConditions || []).map((condition: ChronicCondition, index: number) => (
-        <div key={index} className="condition-item">
-          <div className="condition-header">
-            <span className="condition-number">#{index + 1}</span>
-            <span className={`condition-status-badge status-${condition.status.toLowerCase().replace(/\s+/g, '-')}`}>
-              {condition.status}
-            </span>
-          </div>
-          <div className="condition-body">
-            <div className="form-group">
-              <label>Condition Name</label>
-              <input
-                type="text"
+    {/* Active Conditions Accordion */}
+    <Accordion 
+      expanded={expandedSections.has('conditions')}
+      onChange={() => onToggleSection('conditions')}
+      sx={{ mb: 2 }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ fontWeight: 500 }}>
+          Active Conditions <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.chronicConditions || []).length} items)</Typography>
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(data.chronicConditions || []).map((condition: ChronicCondition, index: number) => (
+          <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.chronicConditions || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+            <FormGrid>
+              <TextField
+                label="Condition Name"
                 value={condition.condition}
                 onChange={(e) => {
                   const updated = [...(data.chronicConditions || [])];
                   updated[index].condition = e.target.value;
                   onChange('chronicConditions', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Type 2 Diabetes"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Diagnosed Date</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Diagnosed Date"
                 value={condition.diagnosedDate}
                 onChange={(e) => {
                   const updated = [...(data.chronicConditions || [])];
                   updated[index].diagnosedDate = e.target.value;
                   onChange('chronicConditions', updated);
                 }}
-                className="form-input"
                 placeholder="MM/DD/YYYY"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Status</label>
-              <select
-                value={condition.status}
-                onChange={(e) => {
-                  const updated = [...(data.chronicConditions || [])];
-                  updated[index].status = e.target.value;
-                  onChange('chronicConditions', updated);
-                }}
-                className="form-select"
-              >
-                <option value="Active">Active</option>
-                <option value="Stable">Stable</option>
-                <option value="Improving">Improving</option>
-                <option value="Monitoring">Monitoring</option>
-              </select>
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Notes</label>
-              <textarea
+              
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={condition.status}
+                  onChange={(e) => {
+                    const updated = [...(data.chronicConditions || [])];
+                    updated[index].status = e.target.value;
+                    onChange('chronicConditions', updated);
+                  }}
+                  label="Status"
+                >
+                  <MenuItem value="Active">Active</MenuItem>
+                  <MenuItem value="Stable">Stable</MenuItem>
+                  <MenuItem value="Improving">Improving</MenuItem>
+                  <MenuItem value="Monitoring">Monitoring</MenuItem>
+                </Select>
+              </FormControl>
+              
+              <TextField
+                label="Notes"
                 value={condition.notes}
                 onChange={(e) => {
                   const updated = [...(data.chronicConditions || [])];
                   updated[index].notes = e.target.value;
                   onChange('chronicConditions', updated);
                 }}
-                className="form-input"
-                rows={2}
                 placeholder="Additional information..."
+                multiline
+                rows={2}
+                fullWidth
+                sx={{ gridColumn: 'span 2' }}
               />
-            </div>
-          </div>
-        </div>
-      ))}
-            </div>
-          </div>
-        )}
-      </div>
+            </FormGrid>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
 
-      {/* Current Medications Accordion */}
-      <div className="accordion-item">
-        <div 
-          className="accordion-header"
-          onClick={() => onToggleSection('currentMeds')}
-        >
-          <span className="accordion-icon">{expandedSections.has('currentMeds') ? '▼' : '▶'}</span>
-          <span className="accordion-title">Current Medications</span>
-          <span className="accordion-meta">{(data.medications.current || []).length} items</span>
-        </div>
-        {expandedSections.has('currentMeds') && (
-          <div className="accordion-content">
-    <div className="medications-list">
-      {(data.medications.current || []).map((med, index) => (
-        <div key={index} className="medication-item">
-          <div className="medication-header">
-            <span className="medication-number">💊 #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Medication Name</label>
-              <input
-                type="text"
+    {/* Current Medications Accordion */}
+    <Accordion 
+      expanded={expandedSections.has('currentMeds')}
+      onChange={() => onToggleSection('currentMeds')}
+      sx={{ mb: 2 }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ fontWeight: 500 }}>
+          Current Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.medications.current || []).length} items)</Typography>
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(data.medications.current || []).map((med, index) => (
+          <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.medications.current || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+            <FormGrid>
+              <TextField
+                label="Medication Name"
                 value={med.name}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].name = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Lisinopril"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Strength</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Strength"
                 value={med.strength}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].strength = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., 10mg"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Dosage</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Dosage"
                 value={med.dosage}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].dosage = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Once daily"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Purpose</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Purpose"
                 value={med.purpose}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].purpose = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Blood pressure control"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Prescribed By</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Prescribed By"
                 value={med.prescribedBy}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].prescribedBy = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="Provider name"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Start Date</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Start Date"
                 value={med.startDate}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].startDate = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="MM/DD/YYYY"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Instructions</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Instructions"
                 value={med.instructions}
                 onChange={(e) => {
                   const updated = [...(data.medications.current || [])];
                   updated[index].instructions = e.target.value;
                   onChange('medications.current', updated);
                 }}
-                className="form-input"
                 placeholder="Special instructions"
+                fullWidth
+                sx={{ gridColumn: 'span 2' }}
               />
-            </div>
-          </div>
-        </div>
-      ))}
-            </div>
-          </div>
-        )}
-      </div>
+            </FormGrid>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
 
-      {/* Discontinued Medications Accordion */}
-      <div className="accordion-item">
-        <div 
-          className="accordion-header"
-          onClick={() => onToggleSection('discontinuedMeds')}
-        >
-          <span className="accordion-icon">{expandedSections.has('discontinuedMeds') ? '▼' : '▶'}</span>
-          <span className="accordion-title">Discontinued Medications</span>
-          <span className="accordion-meta">{(data.medications.discontinued || []).length} items</span>
-        </div>
-        {expandedSections.has('discontinuedMeds') && (
-          <div className="accordion-content">
-    <div className="medications-list">
-      {(data.medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
-        <div key={index} className="medication-item discontinued">
-          <div className="medication-header">
-            <span className="medication-number">🚫 #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Medication Name</label>
-              <input
-                type="text"
+    {/* Discontinued Medications Accordion */}
+    <Accordion 
+      expanded={expandedSections.has('discontinuedMeds')}
+      onChange={() => onToggleSection('discontinuedMeds')}
+      sx={{ mb: 2 }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ fontWeight: 500 }}>
+          Discontinued Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.medications.discontinued || []).length} items)</Typography>
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(data.medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
+          <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.medications.discontinued || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+            <FormGrid>
+              <TextField
+                label="Medication Name"
                 value={med.name}
                 onChange={(e) => {
                   const updated = [...(data.medications.discontinued || [])];
                   updated[index].name = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Metformin"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Strength</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Strength"
                 value={med.strength}
                 onChange={(e) => {
                   const updated = [...(data.medications.discontinued || [])];
                   updated[index].strength = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., 500mg"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Reason for Discontinuation</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Reason for Discontinuation"
                 value={med.reason}
                 onChange={(e) => {
                   const updated = [...(data.medications.discontinued || [])];
                   updated[index].reason = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Side effects"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Discontinued Date</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Discontinued Date"
                 value={med.discontinuedDate}
                 onChange={(e) => {
                   const updated = [...(data.medications.discontinued || [])];
                   updated[index].discontinuedDate = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
-                className="form-input"
                 placeholder="MM/DD/YYYY"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Prescribed By</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Prescribed By"
                 value={med.prescribedBy}
                 onChange={(e) => {
                   const updated = [...(data.medications.discontinued || [])];
                   updated[index].prescribedBy = e.target.value;
                   onChange('medications.discontinued', updated);
                 }}
-                className="form-input"
                 placeholder="Provider name"
+                fullWidth
               />
-            </div>
-          </div>
-        </div>
-      ))}
-            </div>
-          </div>
-        )}
-      </div>
+            </FormGrid>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
 
-      {/* Surgical History Accordion */}
-      <div className="accordion-item">
-        <div 
-          className="accordion-header"
-          onClick={() => onToggleSection('surgicalHistory')}
-        >
-          <span className="accordion-icon">{expandedSections.has('surgicalHistory') ? '▼' : '▶'}</span>
-          <span className="accordion-title">Surgical History</span>
-          <span className="accordion-meta">{(data.surgicalHistory || []).length} items</span>
-        </div>
-        {expandedSections.has('surgicalHistory') && (
-          <div className="accordion-content">
-    <div className="surgical-list">
-      {(data.surgicalHistory || []).map((surgery: SurgicalHistory, index: number) => (
-        <div key={index} className="surgery-item">
-          <div className="surgery-header">
-            <span className="surgery-number">🏥 #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Procedure</label>
-              <input
-                type="text"
+    {/* Surgical History Accordion */}
+    <Accordion 
+      expanded={expandedSections.has('surgicalHistory')}
+      onChange={() => onToggleSection('surgicalHistory')}
+      sx={{ mb: 2 }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ fontWeight: 500 }}>
+          Surgical History <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.surgicalHistory || []).length} items)</Typography>
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(data.surgicalHistory || []).map((surgery: SurgicalHistory, index: number) => (
+          <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.surgicalHistory || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+            <FormGrid>
+              <TextField
+                label="Procedure"
                 value={surgery.procedure}
                 onChange={(e) => {
                   const updated = [...(data.surgicalHistory || [])];
                   updated[index].procedure = e.target.value;
                   onChange('surgicalHistory', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Appendectomy"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Date</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Date"
                 value={surgery.date}
                 onChange={(e) => {
                   const updated = [...(data.surgicalHistory || [])];
                   updated[index].date = e.target.value;
                   onChange('surgicalHistory', updated);
                 }}
-                className="form-input"
                 placeholder="MM/DD/YYYY"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Hospital</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Hospital"
                 value={surgery.hospital}
                 onChange={(e) => {
                   const updated = [...(data.surgicalHistory || [])];
                   updated[index].hospital = e.target.value;
                   onChange('surgicalHistory', updated);
                 }}
-                className="form-input"
                 placeholder="Hospital name"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Surgeon</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Surgeon"
                 value={surgery.surgeon}
                 onChange={(e) => {
                   const updated = [...(data.surgicalHistory || [])];
                   updated[index].surgeon = e.target.value;
                   onChange('surgicalHistory', updated);
                 }}
-                className="form-input"
                 placeholder="Surgeon name"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group form-group-full">
-              <label>Complications</label>
-              <textarea
+              
+              <TextField
+                label="Complications"
                 value={surgery.complications}
                 onChange={(e) => {
                   const updated = [...(data.surgicalHistory || [])];
                   updated[index].complications = e.target.value;
                   onChange('surgicalHistory', updated);
                 }}
-                className="form-input"
-                rows={2}
                 placeholder="Any complications or notes..."
+                multiline
+                rows={2}
+                fullWidth
+                sx={{ gridColumn: 'span 2' }}
               />
-            </div>
-          </div>
-        </div>
-      ))}
-            </div>
-          </div>
-        )}
-      </div>
+            </FormGrid>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
 
-      {/* Family History Accordion */}
-      <div className="accordion-item">
-        <div 
-          className="accordion-header"
-          onClick={() => onToggleSection('familyHistory')}
-        >
-          <span className="accordion-icon">{expandedSections.has('familyHistory') ? '▼' : '▶'}</span>
-          <span className="accordion-title">Family History</span>
-          <span className="accordion-meta">{(data.familyHistory || []).length} items</span>
-        </div>
-        {expandedSections.has('familyHistory') && (
-          <div className="accordion-content">
-    <div className="family-history-list">
-      {(data.familyHistory || []).map((family: FamilyHistory, index: number) => (
-        <div key={index} className="family-item">
-          <div className="family-header">
-            <span className="family-number">👨‍👩‍👧‍👦 #{index + 1}</span>
-          </div>
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Relation</label>
-              <input
-                type="text"
+    {/* Family History Accordion */}
+    <Accordion 
+      expanded={expandedSections.has('familyHistory')}
+      onChange={() => onToggleSection('familyHistory')}
+      sx={{ mb: 2 }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography sx={{ fontWeight: 500 }}>
+          Family History <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({(data.familyHistory || []).length} items)</Typography>
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        {(data.familyHistory || []).map((family: FamilyHistory, index: number) => (
+          <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.familyHistory || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+            <FormGrid>
+              <TextField
+                label="Relation"
                 value={family.relation}
                 onChange={(e) => {
                   const updated = [...(data.familyHistory || [])];
                   updated[index].relation = e.target.value;
                   onChange('familyHistory', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Father, Mother"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Conditions (comma-separated)</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Conditions (comma-separated)"
                 value={family.conditions.join(', ')}
                 onChange={(e) => {
                   const updated = [...(data.familyHistory || [])];
                   updated[index].conditions = e.target.value.split(',').map(c => c.trim()).filter(c => c);
                   onChange('familyHistory', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Diabetes, Heart Disease"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Age at Death</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Age at Death"
                 value={family.ageAtDeath}
                 onChange={(e) => {
                   const updated = [...(data.familyHistory || [])];
                   updated[index].ageAtDeath = e.target.value;
                   onChange('familyHistory', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., 75 or Living"
+                fullWidth
               />
-            </div>
-            
-            <div className="form-group">
-              <label>Cause of Death</label>
-              <input
-                type="text"
+              
+              <TextField
+                label="Cause of Death"
                 value={family.causeOfDeath}
                 onChange={(e) => {
                   const updated = [...(data.familyHistory || [])];
                   updated[index].causeOfDeath = e.target.value;
                   onChange('familyHistory', updated);
                 }}
-                className="form-input"
                 placeholder="e.g., Heart Attack or N/A"
+                fullWidth
               />
-            </div>
-          </div>
-        </div>
-      ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
+            </FormGrid>
+          </Box>
+        ))}
+      </AccordionDetails>
+    </Accordion>
+  </Box>
 );
 
 // Lab Results Section Component - Updated to use LaboratoryReportData
@@ -1618,133 +1431,104 @@ const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange })
   };
 
   return (
-    <div className="section">
-      <h3>Laboratory Report - {data.testName}</h3>
+    <Box>
+      <SectionTitle>Laboratory Report - {data.testName}</SectionTitle>
       
-      <h4>Test Information</h4>
-      <div className="form-grid">
-        <div className="form-group">
-          <label>Test Name</label>
-          <input
-            type="text"
-            value={data.testName}
-            onChange={(e) => handleFieldChange('testName', e.target.value)}
-            className="form-input"
-          />
-        </div>
+      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Test Information</SectionTitle>
+      <FormGrid sx={{ mb: 4 }}>
+        <TextField
+          label="Test Name"
+          value={data.testName}
+          onChange={(e) => handleFieldChange('testName', e.target.value)}
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Specimen Type</label>
-          <input
-            type="text"
-            value={data.specimenType}
-            onChange={(e) => handleFieldChange('specimenType', e.target.value)}
-            className="form-input"
-          />
-        </div>
+        <TextField
+          label="Specimen Type"
+          value={data.specimenType}
+          onChange={(e) => handleFieldChange('specimenType', e.target.value)}
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Collection Date</label>
-          <input
-            type="text"
-            value={data.specimenCollectionDate}
-            onChange={(e) => handleFieldChange('specimenCollectionDate', e.target.value)}
-            className="form-input"
-            placeholder="MM/DD/YYYY"
-          />
-        </div>
+        <TextField
+          label="Collection Date"
+          value={data.specimenCollectionDate}
+          onChange={(e) => handleFieldChange('specimenCollectionDate', e.target.value)}
+          placeholder="MM/DD/YYYY"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Report Date</label>
-          <input
-            type="text"
-            value={data.reportDate}
-            onChange={(e) => handleFieldChange('reportDate', e.target.value)}
-            className="form-input"
-            placeholder="MM/DD/YYYY"
-          />
-        </div>
+        <TextField
+          label="Report Date"
+          value={data.reportDate}
+          onChange={(e) => handleFieldChange('reportDate', e.target.value)}
+          placeholder="MM/DD/YYYY"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Ordering Physician</label>
-          <input
-            type="text"
-            value={data.orderingPhysician}
-            onChange={(e) => handleFieldChange('orderingPhysician', e.target.value)}
-            className="form-input"
-          />
-        </div>
-      </div>
+        <TextField
+          label="Ordering Physician"
+          value={data.orderingPhysician}
+          onChange={(e) => handleFieldChange('orderingPhysician', e.target.value)}
+          fullWidth
+        />
+      </FormGrid>
       
-      <h4>Test Results ({data.results.length})</h4>
-      <div className="lab-results-list">
-        {data.results.map((result, index) => (
-          <div key={index} className="lab-result-item">
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Parameter</label>
-                <input
-                  type="text"
-                  value={result.parameter}
-                  onChange={(e) => handleResultChange(index, 'parameter', e.target.value)}
-                  className="form-input"
-                  placeholder="e.g., WBC"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Value</label>
-                <input
-                  type="text"
-                  value={result.value}
-                  onChange={(e) => handleResultChange(index, 'value', e.target.value)}
-                  className="form-input"
-                  placeholder="e.g., 7.5"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Unit</label>
-                <input
-                  type="text"
-                  value={result.unit}
-                  onChange={(e) => handleResultChange(index, 'unit', e.target.value)}
-                  className="form-input"
-                  placeholder="e.g., K/uL"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Reference Range</label>
-                <input
-                  type="text"
-                  value={result.referenceRange}
-                  onChange={(e) => handleResultChange(index, 'referenceRange', e.target.value)}
-                  className="form-input"
-                  placeholder="e.g., 4.5-11.0"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label>Flag</label>
-                <select
-                  value={result.flag}
-                  onChange={(e) => handleResultChange(index, 'flag', e.target.value)}
-                  className="form-select"
-                >
-                  <option value="">None</option>
-                  <option value="Normal">Normal</option>
-                  <option value="High">High</option>
-                  <option value="Low">Low</option>
-                  <option value="Critical">Critical</option>
-                  <option value="Abnormal">Abnormal</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      <SectionTitle sx={{ mt: 0, mb: 2, fontSize: '1.1rem' }}>Test Results ({data.results.length})</SectionTitle>
+      {data.results.map((result, index) => (
+        <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < data.results.length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
+          <FormGrid>
+            <TextField
+              label="Parameter"
+              value={result.parameter}
+              onChange={(e) => handleResultChange(index, 'parameter', e.target.value)}
+              placeholder="e.g., WBC"
+              fullWidth
+            />
+            
+            <TextField
+              label="Value"
+              value={result.value}
+              onChange={(e) => handleResultChange(index, 'value', e.target.value)}
+              placeholder="e.g., 7.5"
+              fullWidth
+            />
+            
+            <TextField
+              label="Unit"
+              value={result.unit}
+              onChange={(e) => handleResultChange(index, 'unit', e.target.value)}
+              placeholder="e.g., K/uL"
+              fullWidth
+            />
+            
+            <TextField
+              label="Reference Range"
+              value={result.referenceRange}
+              onChange={(e) => handleResultChange(index, 'referenceRange', e.target.value)}
+              placeholder="e.g., 4.5-11.0"
+              fullWidth
+            />
+            
+            <FormControl fullWidth>
+              <InputLabel>Flag</InputLabel>
+              <Select
+                value={result.flag}
+                onChange={(e) => handleResultChange(index, 'flag', e.target.value)}
+                label="Flag"
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="Normal">Normal</MenuItem>
+                <MenuItem value="High">High</MenuItem>
+                <MenuItem value="Low">Low</MenuItem>
+                <MenuItem value="Critical">Critical</MenuItem>
+                <MenuItem value="Abnormal">Abnormal</MenuItem>
+              </Select>
+            </FormControl>
+          </FormGrid>
+        </Box>
+      ))}
+    </Box>
   );
 };
 
@@ -1761,98 +1545,74 @@ const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange })
   const vitals = data.vitalSigns;
 
   return (
-    <div className="section">
-      <h3>Vital Signs</h3>
-      <div className="form-grid">
-        <div className="form-group">
-          <label>Blood Pressure</label>
-          <input
-            type="text"
-            value={vitals.bloodPressure}
-            onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
-            className="form-input"
-            placeholder="120/80"
-          />
-        </div>
+    <Box>
+      <SectionTitle>Vital Signs</SectionTitle>
+      <FormGrid>
+        <TextField
+          label="Blood Pressure"
+          value={vitals.bloodPressure}
+          onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
+          placeholder="120/80"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Heart Rate (bpm)</label>
-          <input
-            type="text"
-            value={vitals.heartRate}
-            onChange={(e) => handleVitalChange('heartRate', e.target.value)}
-            className="form-input"
-            placeholder="72"
-          />
-        </div>
+        <TextField
+          label="Heart Rate (bpm)"
+          value={vitals.heartRate}
+          onChange={(e) => handleVitalChange('heartRate', e.target.value)}
+          placeholder="72"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Temperature (°F)</label>
-          <input
-            type="text"
-            value={vitals.temperature}
-            onChange={(e) => handleVitalChange('temperature', e.target.value)}
-            className="form-input"
-            placeholder="98.6"
-          />
-        </div>
+        <TextField
+          label="Temperature (°F)"
+          value={vitals.temperature}
+          onChange={(e) => handleVitalChange('temperature', e.target.value)}
+          placeholder="98.6"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Weight (lbs)</label>
-          <input
-            type="text"
-            value={vitals.weight}
-            onChange={(e) => handleVitalChange('weight', e.target.value)}
-            className="form-input"
-            placeholder="150"
-          />
-        </div>
+        <TextField
+          label="Weight (lbs)"
+          value={vitals.weight}
+          onChange={(e) => handleVitalChange('weight', e.target.value)}
+          placeholder="150"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Height</label>
-          <input
-            type="text"
-            value={vitals.height}
-            onChange={(e) => handleVitalChange('height', e.target.value)}
-            className="form-input"
-            placeholder="5'8&quot;"
-          />
-        </div>
+        <TextField
+          label="Height"
+          value={vitals.height}
+          onChange={(e) => handleVitalChange('height', e.target.value)}
+          placeholder="5'8&quot;"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>BMI</label>
-          <input
-            type="text"
-            value={vitals.bmi}
-            onChange={(e) => handleVitalChange('bmi', e.target.value)}
-            className="form-input"
-            placeholder="22.8"
-          />
-        </div>
+        <TextField
+          label="BMI"
+          value={vitals.bmi}
+          onChange={(e) => handleVitalChange('bmi', e.target.value)}
+          placeholder="22.8"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Oxygen Saturation (%)</label>
-          <input
-            type="text"
-            value={vitals.oxygenSaturation}
-            onChange={(e) => handleVitalChange('oxygenSaturation', e.target.value)}
-            className="form-input"
-            placeholder="98"
-          />
-        </div>
+        <TextField
+          label="Oxygen Saturation (%)"
+          value={vitals.oxygenSaturation}
+          onChange={(e) => handleVitalChange('oxygenSaturation', e.target.value)}
+          placeholder="98"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Respiratory Rate (breaths/min)</label>
-          <input
-            type="text"
-            value={vitals.respiratoryRate}
-            onChange={(e) => handleVitalChange('respiratoryRate', e.target.value)}
-            className="form-input"
-            placeholder="16"
-          />
-        </div>
-      </div>
-    </div>
+        <TextField
+          label="Respiratory Rate (breaths/min)"
+          value={vitals.respiratoryRate}
+          onChange={(e) => handleVitalChange('respiratoryRate', e.target.value)}
+          placeholder="16"
+          fullWidth
+        />
+      </FormGrid>
+    </Box>
   );
 };
 
@@ -1875,157 +1635,131 @@ const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange })
   const visit = data.visit;
 
   return (
-    <div className="section">
-      <h3>Visit Notes</h3>
-      <div className="form-grid">
-        <div className="form-group">
-          <label>Visit Date</label>
-          <input
-            type="text"
-            value={visit.date}
-                onChange={(e) => handleVisitChange('date', e.target.value)}
-            className="form-input"
-            placeholder="MM/DD/YYYY"
-          />
-        </div>
+    <Box>
+      <SectionTitle>Visit Notes</SectionTitle>
+      <FormGrid>
+        <TextField
+          label="Visit Date"
+          value={visit.date}
+          onChange={(e) => handleVisitChange('date', e.target.value)}
+          placeholder="MM/DD/YYYY"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Visit Type</label>
-          <input
-            type="text"
-            value={visit.type}
-            onChange={(e) => handleVisitChange('type', e.target.value)}
-            className="form-input"
-            placeholder="e.g., Follow-up, Annual Physical"
-          />
-        </div>
+        <TextField
+          label="Visit Type"
+          value={visit.type}
+          onChange={(e) => handleVisitChange('type', e.target.value)}
+          placeholder="e.g., Follow-up, Annual Physical"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Duration</label>
-          <input
-            type="text"
-            value={visit.duration}
-            onChange={(e) => handleVisitChange('duration', e.target.value)}
-            className="form-input"
-            placeholder="e.g., 30 minutes"
-          />
-        </div>
+        <TextField
+          label="Duration"
+          value={visit.duration}
+          onChange={(e) => handleVisitChange('duration', e.target.value)}
+          placeholder="e.g., 30 minutes"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Provider</label>
-          <input
-            type="text"
-            value={visit.provider}
-            onChange={(e) => handleVisitChange('provider', e.target.value)}
-            className="form-input"
-            placeholder="Provider name"
-          />
-        </div>
+        <TextField
+          label="Provider"
+          value={visit.provider}
+          onChange={(e) => handleVisitChange('provider', e.target.value)}
+          placeholder="Provider name"
+          fullWidth
+        />
         
-        <div className="form-group form-group-full">
-          <label>Chief Complaint</label>
-          <textarea
-            value={visit.chiefComplaint}
-            onChange={(e) => handleVisitChange('chiefComplaint', e.target.value)}
-            className="form-input"
-            rows={2}
-            placeholder="Patient's main concern..."
-          />
-        </div>
+        <TextField
+          label="Chief Complaint"
+          value={visit.chiefComplaint}
+          onChange={(e) => handleVisitChange('chiefComplaint', e.target.value)}
+          placeholder="Patient's main concern..."
+          multiline
+          rows={2}
+          fullWidth
+          sx={{ gridColumn: 'span 2' }}
+        />
         
-        <div className="form-group form-group-full">
-          <label>Assessment (comma-separated)</label>
-          <textarea
-            value={visit.assessment.join(', ')}
-            onChange={(e) => handleVisitChange('assessment', e.target.value.split(',').map(a => a.trim()).filter(a => a))}
-            className="form-input"
-            rows={2}
-            placeholder="Diagnoses and findings..."
-          />
-        </div>
+        <TextField
+          label="Assessment (comma-separated)"
+          value={visit.assessment.join(', ')}
+          onChange={(e) => handleVisitChange('assessment', e.target.value.split(',').map(a => a.trim()).filter(a => a))}
+          placeholder="Diagnoses and findings..."
+          multiline
+          rows={2}
+          fullWidth
+          sx={{ gridColumn: 'span 2' }}
+        />
         
-        <div className="form-group form-group-full">
-          <label>Plan (comma-separated)</label>
-          <textarea
-            value={visit.plan.join(', ')}
-            onChange={(e) => handleVisitChange('plan', e.target.value.split(',').map(p => p.trim()).filter(p => p))}
-            className="form-input"
-            rows={2}
-            placeholder="Treatment plan and next steps..."
-          />
-        </div>
-      </div>
+        <TextField
+          label="Plan (comma-separated)"
+          value={visit.plan.join(', ')}
+          onChange={(e) => handleVisitChange('plan', e.target.value.split(',').map(p => p.trim()).filter(p => p))}
+          placeholder="Treatment plan and next steps..."
+          multiline
+          rows={2}
+          fullWidth
+          sx={{ gridColumn: 'span 2' }}
+        />
+      </FormGrid>
       
-      <h5>Vitals</h5>
-      <div className="form-grid">
-        <div className="form-group">
-          <label>Blood Pressure</label>
-          <input
-            type="text"
-            value={data.vitalSigns.bloodPressure}
-            onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
-            className="form-input"
-            placeholder="120/80"
-          />
-        </div>
+      <SectionTitle sx={{ mt: 4, mb: 2, fontSize: '1.1rem' }}>Vitals</SectionTitle>
+      <FormGrid>
+        <TextField
+          label="Blood Pressure"
+          value={data.vitalSigns.bloodPressure}
+          onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
+          placeholder="120/80"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Heart Rate</label>
-          <input
-            type="number"
-            value={data.vitalSigns.heartRate}
-            onChange={(e) => handleVitalChange('heartRate', parseInt(e.target.value) || 0)}
-            className="form-input"
-            placeholder="72"
-          />
-        </div>
+        <TextField
+          label="Heart Rate"
+          type="number"
+          value={data.vitalSigns.heartRate}
+          onChange={(e) => handleVitalChange('heartRate', parseInt(e.target.value) || 0)}
+          placeholder="72"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Temperature (°F)</label>
-          <input
-            type="number"
-            step="0.1"
-            value={data.vitalSigns.temperature}
-            onChange={(e) => handleVitalChange('temperature', parseFloat(e.target.value) || 0)}
-            className="form-input"
-            placeholder="98.6"
-          />
-        </div>
+        <TextField
+          label="Temperature (°F)"
+          type="number"
+          value={data.vitalSigns.temperature}
+          onChange={(e) => handleVitalChange('temperature', parseFloat(e.target.value) || 0)}
+          placeholder="98.6"
+          fullWidth
+          inputProps={{ step: 0.1 }}
+        />
         
-        <div className="form-group">
-          <label>Weight (lbs)</label>
-          <input
-            type="number"
-            value={data.vitalSigns.weight}
-            onChange={(e) => handleVitalChange('weight', parseInt(e.target.value) || 0)}
-            className="form-input"
-            placeholder="150"
-          />
-        </div>
+        <TextField
+          label="Weight (lbs)"
+          type="number"
+          value={data.vitalSigns.weight}
+          onChange={(e) => handleVitalChange('weight', parseInt(e.target.value) || 0)}
+          placeholder="150"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Height</label>
-          <input
-            type="text"
-            value={data.vitalSigns.height}
-            onChange={(e) => handleVitalChange('height', e.target.value)}
-            className="form-input"
-            placeholder="5'8&quot;"
-          />
-        </div>
+        <TextField
+          label="Height"
+          value={data.vitalSigns.height}
+          onChange={(e) => handleVitalChange('height', e.target.value)}
+          placeholder="5'8&quot;"
+          fullWidth
+        />
         
-        <div className="form-group">
-          <label>Oxygen Saturation (%)</label>
-          <input
-            type="number"
-            value={data.vitalSigns.oxygenSaturation}
-            onChange={(e) => handleVitalChange('oxygenSaturation', parseInt(e.target.value) || 0)}
-            className="form-input"
-            placeholder="98"
-          />
-        </div>
-      </div>
-    </div>
+        <TextField
+          label="Oxygen Saturation (%)"
+          type="number"
+          value={data.vitalSigns.oxygenSaturation}
+          onChange={(e) => handleVitalChange('oxygenSaturation', parseInt(e.target.value) || 0)}
+          placeholder="98"
+          fullWidth
+        />
+      </FormGrid>
+    </Box>
   );
 };
 

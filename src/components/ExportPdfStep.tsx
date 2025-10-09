@@ -1,7 +1,9 @@
 import React from 'react';
+import { Box, Typography, FormControlLabel, Checkbox, Button } from '@mui/material';
 import DocumentCard from './DocumentCard';
 import CustomSelect from './CustomSelect';
-import './ExportPdfStep.css';
+import { StepContainer, ContentContainer, SectionCard, CategoryHeader, DocumentGrid } from './SharedComponents';
+import * as styles from '../styles/commonStyles';
 import { GeneratedData, LabTestType } from '../utils/zodSchemas';
 
 type ExportFormat = 'pdf' | 'canvas';
@@ -49,17 +51,17 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
 }) => {
   if (!generatedData) {
     return (
-      <div className="edit-data-step">
-        <div className="step-content">
-          <div className="no-data-message">
-            <h2>No Data Available</h2>
-            <p>Please go back and generate medical data first.</p>
-            <button className="btn btn-primary" onClick={onBack}>
-              ← Go Back to Generate Data
-            </button>
-          </div>
-        </div>
-      </div>
+      <StepContainer>
+        <Box sx={styles.emptyStateContainer}>
+          <Typography variant="h2" gutterBottom>No Data Available</Typography>
+          <Typography variant="body1" color="text.secondary" paragraph>
+            Please go back and generate medical data first.
+          </Typography>
+          <Button variant="contained" color="primary" onClick={onBack}>
+            ← Go Back to Generate Data
+          </Button>
+        </Box>
+      </StepContainer>
     );
   }
 
@@ -109,17 +111,16 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   };
 
   return (
-    <div className="step">
-      <div className="step-content">
+    <StepContainer>
+      <ContentContainer>
+        <SectionCard title="Export Settings">
+          <Typography variant="body1" color="text.secondary" paragraph>
+            Configure how all reports will be generated
+          </Typography>
 
-
-        <div className="section">
-          <h3>Export Settings</h3>
-          <p>Configure how all reports will be generated</p>
-
-          <div className="settings-grid">
-            <div className="setting-group">
-              <label>Export Format</label>
+          <Box sx={styles.flexWrapResponsive}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography variant="body2" fontWeight={600} color="text.secondary">Export Format</Typography>
               <CustomSelect
                 value={exportFormat === 'canvas' ? `canvas-${qualityLevel}` : exportFormat}
                 onChange={(value) => {
@@ -138,16 +139,16 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                   { value: 'canvas-high', label: 'Canvas High Quality (Best, Large File)' }
                 ]}
               />
-              <p className="setting-note">
+              <Typography variant="caption" color="text.secondary">
                 {exportFormat === 'pdf' && 'Vector-based PDF with selectable text and smaller file size'}
                 {exportFormat === 'canvas' && qualityLevel === 'poor' && 'Scale: 1x, Quality: 50% - Fastest generation, smallest file'}
                 {exportFormat === 'canvas' && qualityLevel === 'standard' && 'Scale: 2x, Quality: 85% - Good balance of quality and size'}
                 {exportFormat === 'canvas' && qualityLevel === 'high' && 'Scale: 4x, Quality: 95% - Best quality, largest file size'}
-              </p>
-            </div>
+              </Typography>
+            </Box>
 
-            <div className="setting-group">
-              <label>Font Family</label>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography variant="body2" fontWeight={600} color="text.secondary">Font Family</Typography>
               <CustomSelect
                 value={fontFamily}
                 onChange={(value) => setFontFamily(value as string)}
@@ -156,42 +157,51 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                   label: font.label
                 }))}
               />
-              <p className="setting-note">
+              <Typography variant="caption" color="text.secondary">
                 Choose font family for all document text
-              </p>
-            </div>
+              </Typography>
+            </Box>
 
-            <div className="setting-group">
-              <label>Watermark</label>
-
-              <label className="checkbox-wrapper">
-                <input
-                  type="checkbox"
-                  checked={enableWatermark}
-                  onChange={(e) => setEnableWatermark(e.target.checked)}
-                  className="setting-checkbox"
-                />
-                <span>Enabled</span>
-              </label>
-              <p className="setting-note">
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography variant="body2" fontWeight={600} color="text.secondary">Watermark</Typography>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={enableWatermark}
+                    onChange={(e) => setEnableWatermark(e.target.checked)}
+                  />
+                }
+                label="Enabled"
+                sx={{
+                  border: '1.5px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  px: 2,
+                  py: 1,
+                  m: 0,
+                  bgcolor: enableWatermark ? 'rgba(241, 248, 233, 0.3)' : 'transparent',
+                }}
+              />
+              <Typography variant="caption" color="text.secondary">
                 {enableWatermark ? 'Adds repeating "Educational Use Only" watermarks to every page' : 'No watermark will be added'}
-              </p>
-            </div>
-          </div>
-        </div>
+              </Typography>
+            </Box>
+          </Box>
+        </SectionCard>
 
-        <div className="document-grid">
-          <div className="document-category">
-            <div className="category-header">
-              <div className="category-icon">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {/* Insurance Forms */}
+          <Box>
+            <CategoryHeader 
+              title="Insurance Forms" 
+              icon={
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-              </div>
-              <h3>Insurance Forms</h3>
-            </div>
+              }
+            />
 
-            <div className="document-cards-row">
+            <DocumentGrid columns="two">
               <DocumentCard
                 title="CMS-1500 Health Insurance Claim Form"
                 description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
@@ -209,20 +219,21 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 isLoading={isLoading}
                 iconType="insurance"
               />
-            </div>
-          </div>
+            </DocumentGrid>
+          </Box>
 
-          <div className="document-category">
-            <div className="category-header">
-              <div className="category-icon">
+          {/* Clinical Reports */}
+          <Box>
+            <CategoryHeader 
+              title="Clinical Reports" 
+              icon={
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-              </div>
-              <h3>Clinical Reports</h3>
-            </div>
+              }
+            />
 
-            <div className="document-cards-row">
+            <DocumentGrid columns="three">
               <DocumentCard
                 title="Complete Medical Records Report"
                 description="Comprehensive medical records including patient demographics, medical history, medications, lab results, and visit notes"
@@ -249,22 +260,23 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 isLoading={isLoading}
                 iconType="medication"
               />
-            </div>
-          </div>
+            </DocumentGrid>
+          </Box>
 
+          {/* Laboratory Reports */}
           {availableLabTests.length > 0 && (
-            <div className="document-category">
-              <div className="category-header">
-                <div className="category-icon">
+            <Box>
+              <CategoryHeader 
+                title="Laboratory Reports" 
+                icon={
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M9 2v1m6-1v1M4 8h16M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
                     <path d="M9 11h.01M9 14h.01M12 11h.01M12 14h.01M15 11h.01M15 14h.01" />
                   </svg>
-                </div>
-                <h3>Laboratory Reports</h3>
-              </div>
+                }
+              />
 
-              <div className="laboratory-cards-grid">
+              <Box sx={styles.responsiveGrid}>
                 {availableLabTests.map((test) => (
                   <DocumentCard
                     key={test.type}
@@ -277,20 +289,23 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                     iconType="lab"
                   />
                 ))}
-              </div>
-            </div>
+              </Box>
+            </Box>
           )}
-        </div>
+        </Box>
 
-        <div className="step-actions">
-          <div className="action-buttons-group">
-            <button className="btn btn-outline" onClick={onBack}>
-              ← Back to Edit
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+        <Box sx={styles.sectionDivider} />
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            onClick={onBack}
+            sx={{ minWidth: 140 }}
+          >
+            ← Back to Edit
+          </Button>
+        </Box>
+      </ContentContainer>
+    </StepContainer>
   );
 };
 

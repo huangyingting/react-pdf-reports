@@ -1,5 +1,6 @@
 import React from 'react';
-import './ProgressIndicator.css';
+import { Box, Stepper, Step, StepLabel, Typography } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 
 interface ProgressIndicatorProps {
   currentStep: number;
@@ -7,36 +8,82 @@ interface ProgressIndicatorProps {
 
 const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ currentStep }) => {
   const steps = [
-    { number: 1, label: 'Generate', description: 'Create sample medical records' },
-    { number: 2, label: 'Edit', description: 'Review and customize' },
-    { number: 3, label: 'Export', description: 'Generate PDF files' }
+    { label: 'Generate', description: 'Create sample medical records' },
+    { label: 'Edit', description: 'Review and customize' },
+    { label: 'Export', description: 'Generate PDF files' }
   ];
 
   return (
-    <div className="progress-indicator">
-      <div className="progress-steps">
-        {steps.map((step) => (
-          <div 
-            key={step.number}
-            className={`progress-step ${currentStep === step.number ? 'active' : ''} ${currentStep > step.number ? 'completed' : ''}`}
+    <Box 
+      sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        pt: 2,
+        m: 0,
+        width: '100%',
+        bgcolor: 'rgba(250, 245, 235, 0.80)',
+      }}
+    >
+      <Stepper 
+        activeStep={currentStep - 1} 
+        sx={{ 
+          gap: 6,
+          position: 'relative',
+        }}
+      >
+        {steps.map((step, index) => (
+          <Step 
+            key={step.label}
+            completed={currentStep > index + 1}
           >
-            <div className="step-circle">
-              {currentStep > step.number ? (
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                  <path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ) : (
-                <span>{step.number}</span>
-              )}
-            </div>
-            <div className="step-info">
-              <div className="step-label">{step.label}</div>
-              <div className="step-description">{step.description}</div>
-            </div>
-          </div>
+            <StepLabel
+              StepIconProps={{
+                icon: currentStep > index + 1 ? <CheckIcon /> : index + 1,
+              }}
+              sx={{
+                '& .MuiStepLabel-labelContainer': {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0.375,
+                  textAlign: 'left',
+                },
+              }}
+            >
+              <Typography
+                variant="body1"
+                sx={{
+                  fontSize: '1.125rem',
+                  fontWeight: currentStep === index + 1 ? 700 : 600,
+                  color: currentStep === index + 1 ? 'text.primary' : 'secondary.light',
+                  lineHeight: 1.4,
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '-0.01em',
+                  transition: 'all 0.3s ease',
+                  transform: currentStep === index + 1 ? 'translateY(-1px)' : 'none',
+                }}
+              >
+                {step.label}
+              </Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontSize: '0.8125rem',
+                  color: 'secondary.light',
+                  lineHeight: 1.4,
+                  fontWeight: 400,
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '0.01em',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {step.description}
+              </Typography>
+            </StepLabel>
+          </Step>
         ))}
-      </div>
-    </div>
+      </Stepper>
+    </Box>
   );
 };
 

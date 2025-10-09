@@ -1,0 +1,168 @@
+.previewModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.previewContent {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.previewHeader h3 {
+  margin: 0;
+  color: #3e2723;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.closePreview {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #8d6e63;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closePreview:hover {
+  background: #f5f1e8;
+  color: #3e2723;
+}
+
+.previewBody {
+  flex: 1;
+  overflow: auto;
+  padding: 1.5rem;
+  position: relative;
+}
+
+/* Watermark styles */
+.previewBody.withWatermark::before,
+.previewBody.withWatermark::after {
+  content: 'Educational Use Only';
+  position: absolute;
+  font-size: 4rem;
+  font-weight: bold;
+  color: #999999;
+  opacity: 0.22;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  z-index: 10;
+}
+
+.previewBody.withWatermark::before {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.previewBody.withWatermark::after {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  opacity: 0.15;
+}
+
+.previewWatermarkOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.previewWatermarkText {
+  position: absolute;
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: #999999;
+  opacity: 0.18;
+  white-space: nowrap;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+.previewWatermarkText:nth-child(1) {
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.previewWatermarkText:nth-child(2) {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.previewWatermarkText:nth-child(3) {
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.previewWatermarkText:nth-child(4) {
+  top: 35%;
+  left: 25%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.15;
+}
+
+.previewWatermarkText:nth-child(5) {
+  top: 65%;
+  left: 75%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.15;
+}
+
+.reportDisplay {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
+}
