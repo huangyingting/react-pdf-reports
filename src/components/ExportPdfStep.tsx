@@ -96,7 +96,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   // Generate filename suffix based on export format and quality level
   const getFilenameSuffix = (): string => {
     if (exportFormat === 'pdf') {
-      return '_v';
+      return '-v';
     } else {
       // canvas format
       const qualityMap = {
@@ -104,7 +104,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
         'standard': 's',
         'high': 'h'
       };
-      return `_c${qualityMap[qualityLevel]}`;
+      return `-c${qualityMap[qualityLevel]}`;
     }
   };
 
@@ -196,7 +196,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="CMS-1500 Health Insurance Claim Form"
                 description="Standard health insurance claim form (HCFA-1500) with patient information, diagnosis codes, and service line items"
                 onPreview={() => onPreview('cms1500')}
-                onGenerate={() => onExport('cms1500', `${generatedData?.patient?.id || 'patient'}_cms1500${getFilenameSuffix()}`)}
+                onGenerate={() => onExport('cms1500', `${generatedData?.patient?.id || 'patient'}-CMS1500${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="insurance"
               />
@@ -205,7 +205,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Insurance Policy Certificate"
                 description="Professional insurance policy certificate document with coverage details, subscriber information, and benefits summary"
                 onPreview={() => onPreview('insurancePolicy')}
-                onGenerate={() => onExport('insurancePolicy', `${generatedData?.patient?.id || 'patient'}_insurance_policy_certificate${getFilenameSuffix()}`)}
+                onGenerate={() => onExport('insurancePolicy', `${generatedData?.patient?.id || 'patient'}-POLICY-CERTIFICATE${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="insurance"
               />
@@ -227,7 +227,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Complete Medical Records Report"
                 description="Comprehensive medical records including patient demographics, medical history, medications, lab results, and visit notes"
                 onPreview={() => onPreview('medical')}
-                onGenerate={() => onExport('medical', `${generatedData?.patient?.id || 'patient'}_medical_records_report${getFilenameSuffix()}`)}
+                onGenerate={() => onExport('medical', `${generatedData?.patient?.id || 'patient'}-MEDICAL-RECORDS${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="medical"
               />
@@ -236,7 +236,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Visit Report"
                 description="Clinical visit summary with vital signs, chief complaint, assessment, and treatment plan - optimized for printed clinical records"
                 onPreview={() => onPreview('visitReport')}
-                onGenerate={() => onExport('visitReport', `${generatedData?.patient?.id || 'patient'}_visit_report${getFilenameSuffix()}`)}
+                onGenerate={() => onExport('visitReport', `${generatedData?.patient?.id || 'patient'}-VISIT-REPORT${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="visit"
               />
@@ -245,7 +245,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 title="Medication History"
                 description="Comprehensive medication history report with current medications, discontinued medications, and allergy information"
                 onPreview={() => onPreview('medicationHistory')}
-                onGenerate={() => onExport('medicationHistory', `${generatedData?.patient?.id || 'patient'}_medication_history${getFilenameSuffix()}`)}
+                onGenerate={() => onExport('medicationHistory', `${generatedData?.patient?.id || 'patient'}-MEDICATION-HISTORY${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="medication"
               />
@@ -271,7 +271,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                     title={test.title}
                     description={test.description}
                     onPreview={() => onPreview(test.type)}
-                    onGenerate={() => onExport(test.type, `${generatedData?.patient?.id || 'patient'}_${test.filename}${getFilenameSuffix()}`)}
+                    onGenerate={() => onExport(test.type, `${generatedData?.patient?.id || 'patient'}_${test.filename}${getFilenameSuffix()}`.toUpperCase())}
                     isLoading={isLoading}
                     compact
                     iconType="lab"
