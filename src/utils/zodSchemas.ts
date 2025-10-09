@@ -13,6 +13,8 @@ import { z } from 'zod';
 // Basic Building Blocks
 // ============================================================================
 
+export const GenderSchema = z.enum(['Male', 'Female', 'Other']).describe('Gender');
+
 export const AddressSchema = z.object({
   street: z.string().describe('Street address'),
   city: z.string().describe('City name'),
@@ -43,6 +45,20 @@ export const PharmacySchema = z.object({
   phone: z.string().describe('Pharmacy phone number')
 });
 
+export const InsuredSchema = z.object({
+  name: z.string().describe('Insured person full name (LastName, FirstName format)'),
+  policyNumber: z.string().describe('Insurance policy number'),
+  planName: z.string().describe('Insurance plan name')
+});
+
+export const SubscriberSchema = z.object({
+  name: z.string().describe('Subscriber full name'),
+  dateOfBirth: z.string().describe('Subscriber date of birth'),
+  gender: GenderSchema,
+  address: AddressSchema,
+  phone: z.string().describe('Subscriber phone number')
+});
+
 // ============================================================================
 // Patient
 // ============================================================================
@@ -55,7 +71,7 @@ export const PatientSchema = z.object({
   middleInitial: z.string().nullable().describe('Middle initial'),
   dateOfBirth: z.string().describe('Date of birth in MM/DD/YYYY format'),
   age: z.number().int().min(1).describe('Age in years'),
-  gender: z.string().describe('Gender'),
+  gender: GenderSchema,
   address: AddressSchema,
   contact: ContactSchema,
   pharmacy: PharmacySchema,
@@ -73,16 +89,12 @@ export const InsuranceInfoSchema = z.object({
   secondaryInsurance: InsuranceSchema.nullable(),
   subscriberName: z.string().describe('Subscribername if different from patient'),
   subscriberDOB: z.string().describe('Subscriber date of birth'),
-  subscriberGender: z.string().describe('Subscriber gender'),
+  subscriberGender: GenderSchema,
   type: z.string().describe('Insurance type'),
   picaCode: z.string().nullable().describe('PICA code'),
   phone: z.string().describe('Subscriber phone'),
   address: AddressSchema.describe("Subscriber address"),
-  secondaryInsured: z.object({
-    name: z.string(),
-    policyNumber: z.string(),
-    planName: z.string()
-  }).nullable().describe('Secondary insured information')
+  secondaryInsured: InsuredSchema.nullable().describe('Secondary insured information')
 });
 
 // ============================================================================
@@ -372,6 +384,7 @@ export const DataPresetSchema = z.object({
 // TypeScript Type Exports (inferred from Zod schemas)
 // ============================================================================
 
+export type Gender = z.infer<typeof GenderSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type Contact = z.infer<typeof ContactSchema>;
 export type Pharmacy = z.infer<typeof PharmacySchema>;
@@ -384,9 +397,10 @@ export type ClaimInfo = z.infer<typeof ClaimSchema>;
 export type VisitVitals = z.infer<typeof VisitVitalsSchema>;
 export type VitalSigns = z.infer<typeof VitalSignsSchema>;
 export type VisitNote = z.infer<typeof VisitNoteSchema>;
+export type Insured = z.infer<typeof InsuredSchema>;
+export type Subscriber = z.infer<typeof SubscriberSchema>;
 
-
-// Composite document types
+// Composite Document types
 export type CMS1500 = z.infer<typeof CMS1500Schema>;
 export type InsurancePolicy = z.infer<typeof InsurancePolicySchema>;
 export type VisitReport = z.infer<typeof VisitReportSchema>;

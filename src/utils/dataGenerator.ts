@@ -23,7 +23,9 @@ import {
   VisitReport,
   VisitNote,
   InsurancePolicy,
-  CMS1500
+  CMS1500,
+  Insured,
+  Subscriber
 } from './zodSchemas';
 
 import { DataPreset } from './zodSchemas';
@@ -472,6 +474,51 @@ export const DIAGNOSIS_CODES: string[] = [
 ];
 
 // ============================================================================
+// GENERATOR FUNCTIONS - BASIC BUILDING BLOCKS
+// ============================================================================
+
+/**
+ * Generate an address
+ */
+export const generateAddress = (country: string | null = 'USA'): Address => {
+  return {
+    street: faker.location.streetAddress(),
+    city: faker.location.city(),
+    state: faker.location.state({ abbreviated: true }),
+    zipCode: faker.location.zipCode('#####'),
+    country
+  };
+};
+
+/**
+ * Generate contact information
+ */
+export const generateContact = () => {
+  return {
+    phone: `(${faker.string.numeric(3)}) ${faker.string.numeric(3)}-${faker.string.numeric(4)}`,
+    email: faker.internet.email(),
+    emergencyContact: `${faker.person.fullName()} - (${faker.string.numeric(3)}) ${faker.string.numeric(3)}-${faker.string.numeric(4)}`
+  };
+};
+
+/**
+ * Generate pharmacy information
+ */
+export const generatePharmacy = () => {
+  const cityName = faker.location.city();
+  const pharmacyName = faker.helpers.arrayElement(PHARMACY_NAMES);
+  const fullPharmacyName = pharmacyName.includes('Pharmacy')
+    ? `${cityName} ${pharmacyName}`
+    : `${cityName} ${pharmacyName} Pharmacy`;
+
+  return {
+    name: fullPharmacyName,
+    address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state({ abbreviated: true })} ${faker.location.zipCode()}`,
+    phone: `(${faker.string.numeric(3)}) ${faker.string.numeric(3)}-${faker.string.numeric(4)}`
+  };
+};
+
+// ============================================================================
 // GENERATOR FUNCTIONS - PATIENT AND PROVIDER
 // ============================================================================
 
@@ -483,7 +530,7 @@ export const generatePatient = (): Patient => {
   const lastName = faker.person.lastName();
   const middleInitial = faker.string.alpha({ length: 1, casing: 'upper' });
   const dateOfBirth = faker.date.birthdate({ min: 18, max: 85, mode: 'age' });
-  const gender = faker.person.sex();
+  const gender = faker.helpers.arrayElement(['Male', 'Female', 'Other'] as const);
 
   // Calculate accurate age
   const today = new Date();
@@ -497,13 +544,6 @@ export const generatePatient = (): Patient => {
   const patientId = `PAT-${faker.string.numeric(6)}`;
   const mrn = `MRN-${faker.string.numeric(8)}`;
 
-  // Generate pharmacy information
-  const cityName = faker.location.city();
-  const pharmacyName = faker.helpers.arrayElement(PHARMACY_NAMES);
-  const fullPharmacyName = pharmacyName.includes('Pharmacy')
-    ? `${cityName} ${pharmacyName}`
-    : `${cityName} ${pharmacyName} Pharmacy`;
-
   return {
     id: patientId,
     name: `${lastName}, ${firstName} ${middleInitial}`,
@@ -512,24 +552,10 @@ export const generatePatient = (): Patient => {
     middleInitial,
     dateOfBirth: dateOfBirth.toLocaleDateString('en-US'),
     age,
-    gender: gender.charAt(0).toUpperCase() + gender.slice(1),
-    address: {
-      street: faker.location.streetAddress(),
-      city: faker.location.city(),
-      state: faker.location.state({ abbreviated: true }),
-      zipCode: faker.location.zipCode('#####'),
-      country: 'USA'
-    },
-    contact: {
-      phone: faker.phone.number(),
-      email: faker.internet.email({ firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase() }),
-      emergencyContact: `${faker.person.fullName()} (${faker.helpers.arrayElement(['Spouse', 'Child', 'Parent', 'Sibling', 'Friend'])}) - ${faker.phone.number()}`
-    },
-    pharmacy: {
-      name: fullPharmacyName,
-      address: faker.location.streetAddress(),
-      phone: faker.phone.number()
-    },
+    gender: gender,
+    address: generateAddress(),
+    contact: generateContact(),
+    pharmacy: generatePharmacy(),
     medicalRecordNumber: mrn,
     ssn: faker.helpers.replaceSymbols('###-##-####'),
     accountNumber: patientId
@@ -549,23 +575,11 @@ export const generateProvider = (): Provider => {
   // Generate consistent facility information
   const facilityName = faker.helpers.arrayElement(FACILITY_NAMES);
 
-  const facilityAddress = {
-    street: faker.location.streetAddress(),
-    city: faker.location.city(),
-    state: faker.location.state({ abbreviated: true }),
-    zipCode: faker.location.zipCode('#####'),
-    country: 'USA'
-  };
+  const facilityAddress = generateAddress();
 
   const providerAddress = faker.datatype.boolean(0.7)
     ? facilityAddress // 70% chance provider works at the facility
-    : {
-      street: faker.location.streetAddress(),
-      city: facilityAddress.city, // Same city but different address
-      state: facilityAddress.state,
-      zipCode: faker.location.zipCode('#####'),
-      country: 'USA'
-    };
+    : generateAddress();
 
   const facilityPhone = faker.phone.number();
   const taxId = faker.helpers.replaceSymbols('##-#######');
@@ -632,7 +646,7 @@ export const generateInsurance = (excludeProvider?: string): Insurance => {
 export const generateInsured = (
   policyNumber?: string,
   insuranceProvider?: string
-): { name: string; policyNumber: string; planName: string } => {
+): Insured => {
   const provider = insuranceProvider || faker.helpers.arrayElement(INSURANCE_COMPANIES);
   const policy = policyNumber || faker.string.alphanumeric({ length: 12, casing: 'upper' });
 
@@ -644,37 +658,43 @@ export const generateInsured = (
 };
 
 /**
+ * Generate subscriber information
+ * Used for insurance subscriber details (can be different from patient)
+ */
+export const generateSubscriber = (): Subscriber => {
+  const gender = faker.helpers.arrayElement(['Male', 'Female', 'Other'] as const);
+
+  return {
+    name: `${faker.person.lastName()}, ${faker.person.firstName()} ${faker.string.alpha({ length: 1, casing: 'upper' })}`,
+    dateOfBirth: faker.date.birthdate({ min: 18, max: 85, mode: 'age' }).toLocaleDateString('en-US'),
+    gender,
+    address: {
+      street: faker.location.streetAddress(),
+      city: faker.location.city(),
+      state: faker.location.state({ abbreviated: true }),
+      zipCode: faker.location.zipCode('#####'),
+      country: 'USA'
+    },
+    phone: faker.phone.number()
+  };
+};
+
+/**
  * Generate complete insurance information with subscriber details
  * Uses the new modular generateInsurance() and generateInsured() functions
  */
 export const generateInsuranceInfo = (
-  includeSecondary: boolean = false,
-  subscriberInfo?: {
-    name: string;
-    dateOfBirth: string;
-    gender: string;
-    address: Address;
-    phone: string;
-  }
+  includeSecondary: boolean = false
 ): InsuranceInfo => {
   // Generate primary insurance using the modular function
   const primaryInsurance: Insurance = generateInsurance();
 
   // Generate subscriber information (defaults to random if not provided)
-  const subscriberName = subscriberInfo?.name || `${faker.person.lastName()}, ${faker.person.firstName()} ${faker.string.alpha({ length: 1, casing: 'upper' })}`;
-  const subscriberDOB = subscriberInfo?.dateOfBirth || faker.date.birthdate({ min: 18, max: 85, mode: 'age' }).toLocaleDateString('en-US');
-  const subscriberGender = subscriberInfo?.gender || faker.person.sex().charAt(0).toUpperCase();
-  const subscriberAddress = subscriberInfo?.address || {
-    street: faker.location.streetAddress(),
-    city: faker.location.city(),
-    state: faker.location.state({ abbreviated: true }),
-    zipCode: faker.location.zipCode('#####'),
-    country: 'USA'
-  };
-  const subscriberPhone = subscriberInfo?.phone || faker.phone.number();
+  const subscriber = generateSubscriber();
+
 
   let secondaryInsurance: Insurance | null = null;
-  let secondaryInsured: { name: string; policyNumber: string; planName: string } | null = null;
+  let secondaryInsured: Insured | null = null;
 
   // Generate secondary insurance if requested
   if (includeSecondary) {
@@ -688,13 +708,13 @@ export const generateInsuranceInfo = (
   const result: InsuranceInfo = {
     primaryInsurance,
     secondaryInsurance,
-    subscriberName,
-    subscriberDOB,
-    subscriberGender,
+    subscriberName: subscriber.name,
+    subscriberDOB: subscriber.dateOfBirth,
+    subscriberGender: subscriber.gender,
     type: faker.helpers.arrayElement(['group', 'individual', 'medicare', 'medicaid']),
     picaCode: faker.datatype.boolean(0.3) ? faker.string.alphanumeric({ length: 2, casing: 'upper' }) : '',
-    phone: subscriberPhone,
-    address: subscriberAddress,
+    phone: subscriber.phone,
+    address: subscriber.address,
     secondaryInsured
   };
 
@@ -704,6 +724,47 @@ export const generateInsuranceInfo = (
 // ============================================================================
 // GENERATOR FUNCTIONS - CLAIMS AND BILLING
 // ============================================================================
+
+/**
+ * Generate a service line for CMS-1500
+ */
+export const generateServiceLine = (
+  serviceDate: string,
+  placeOfService: string,
+  diagnosisCodes: string[],
+  renderingProviderNPI: string
+) => {
+  const diagnosisPointers = diagnosisCodes.slice(0, 4).map((_, i) =>
+    String.fromCharCode(65 + i) // A, B, C, D
+  ).join('');
+
+  // Select appropriate CPT code
+  const procedures = [
+    { code: '99214', charges: '200.00', description: 'Office visit level 4' },
+    { code: '99213', charges: '150.00', description: 'Office visit level 3' },
+    { code: '99215', charges: '250.00', description: 'Office visit level 5' },
+    { code: '93000', charges: '45.00', description: 'ECG' },
+    { code: '80053', charges: '85.00', description: 'Comprehensive metabolic panel' },
+    { code: '85025', charges: '35.00', description: 'Complete blood count' },
+  ];
+
+  const selectedProcedure = faker.helpers.arrayElement(procedures);
+
+  return {
+    dateFrom: serviceDate,
+    dateTo: serviceDate,
+    placeOfService,
+    emg: '',
+    procedureCode: selectedProcedure.code,
+    modifier: '',
+    diagnosisPointer: diagnosisPointers.charAt(0) || 'A',
+    charges: selectedProcedure.charges,
+    units: '1',
+    epsdt: '',
+    idQual: '1B',
+    renderingProviderNPI
+  };
+};
 
 /**
  * Generate claim information for CMS-1500 forms
@@ -1507,6 +1568,97 @@ export const generateLabReport = (
 // GENERATOR FUNCTIONS - MEDICAL HISTORY AND MEDICATIONS
 // ============================================================================
 
+// ============================================================================
+// GENERATOR FUNCTIONS - MEDICAL HISTORY COMPONENTS
+// ============================================================================
+
+/**
+ * Generate a single allergy
+ */
+export const generateAllergy = (): Allergy => {
+  const allergy = faker.helpers.arrayElement(ALLERGY_NAMES);
+  return {
+    allergen: allergy.name,
+    reaction: allergy.reaction,
+    severity: allergy.severity,
+    dateIdentified: faker.date.past({ years: 10 }).toLocaleDateString('en-US')
+  };
+};
+
+/**
+ * Generate a chronic condition
+ */
+export const generateChronicCondition = (): ChronicCondition => {
+  const condition = faker.helpers.arrayElement(MEDICAL_CONDITIONS);
+  return {
+    condition,
+    diagnosedDate: faker.date.past({ years: 5 }).toLocaleDateString('en-US'),
+    status: faker.helpers.arrayElement(CONDITION_STATUSES),
+    notes: faker.helpers.arrayElement(CONDITION_NOTES)
+  };
+};
+
+/**
+ * Generate surgical history entry
+ */
+export const generateSurgicalHistory = (): SurgicalHistory => {
+  return {
+    procedure: faker.helpers.arrayElement(SURGICAL_PROCEDURES),
+    date: faker.date.past({ years: 10 }).toLocaleDateString('en-US'),
+    hospital: faker.helpers.arrayElement(HOSPITALS),
+    surgeon: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
+    complications: faker.helpers.arrayElement(SURGICAL_COMPLICATIONS)
+  };
+};
+
+/**
+ * Generate family history entry
+ */
+export const generateFamilyHistory = (relation: string = ''): FamilyHistory => {
+  const selectedRelation = relation || faker.helpers.arrayElement(['Mother', 'Father', 'Sibling', 'Grandparent']);
+  const isDeceased = faker.datatype.boolean(0.3);
+
+  return {
+    relation: selectedRelation,
+    conditions: faker.helpers.arrayElements(FAMILY_CONDITIONS, faker.number.int({ min: 0, max: 3 })),
+    ageAtDeath: isDeceased ? faker.number.int({ min: 60, max: 90 }).toString() : 'Living',
+    causeOfDeath: isDeceased ? faker.helpers.arrayElement(CAUSES_OF_DEATH) : 'N/A'
+  };
+};
+
+/**
+ * Generate a current medication
+ */
+export const generateCurrentMedication = (purpose?: string): CurrentMedication => {
+  const med = purpose
+    ? faker.helpers.arrayElement(GENERAL_MEDICATIONS)
+    : faker.helpers.arrayElement(GENERAL_MEDICATIONS);
+
+  return {
+    name: med.name,
+    strength: med.strength,
+    dosage: med.dosage,
+    purpose: purpose || med.purpose,
+    prescribedBy: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
+    startDate: faker.date.past({ years: 1 }).toLocaleDateString('en-US'),
+    instructions: faker.helpers.arrayElement(MEDICATION_INSTRUCTIONS)
+  };
+};
+
+/**
+ * Generate a discontinued medication
+ */
+export const generateDiscontinuedMedication = (): DiscontinuedMedication => {
+  const med = faker.helpers.arrayElement(MEDICATIONS);
+  return {
+    name: med.split(' ')[0],
+    strength: med.includes('mg') ? med.split(' ')[1] : 'As directed',
+    reason: faker.helpers.arrayElement(DISCONTINUATION_REASONS),
+    discontinuedDate: faker.date.past({ years: 2 }).toLocaleDateString('en-US'),
+    prescribedBy: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`
+  };
+};
+
 /**
  * Generate medications list that correlate with chronic conditions
  */
@@ -1671,6 +1823,62 @@ export const generateLabReports = (
 // ============================================================================
 // GENERATOR FUNCTIONS - VISIT REPORTS
 // ============================================================================
+
+/**
+ * Generate visit vitals
+ */
+export const generateVisitVitals = () => {
+  return {
+    bloodPressure: `${faker.number.int({ min: 110, max: 145 })}/${faker.number.int({ min: 70, max: 95 })}`,
+    heartRate: faker.number.int({ min: 60, max: 100 }),
+    temperature: parseFloat(faker.number.float({ min: 97.0, max: 99.5, fractionDigits: 1 }).toFixed(1)),
+    weight: faker.number.int({ min: 120, max: 250 }),
+    height: `${faker.number.int({ min: 60, max: 75 })}"`,
+    oxygenSaturation: faker.number.int({ min: 95, max: 100 })
+  };
+};
+
+/**
+ * Generate vital signs with full details
+ */
+export const generateVitalSigns = (visitDate: string = new Date().toLocaleDateString('en-US')) => {
+  const vitals = generateVisitVitals();
+
+  return {
+    date: visitDate,
+    time: faker.date.recent({ days: 1 }).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    bloodPressure: vitals.bloodPressure,
+    heartRate: vitals.heartRate.toString(),
+    temperature: `${vitals.temperature}°F`,
+    weight: `${vitals.weight} lbs`,
+    height: vitals.height,
+    bmi: calculateBMI(vitals.weight, vitals.height),
+    oxygenSaturation: `${vitals.oxygenSaturation}%`,
+    respiratoryRate: `${faker.number.int({ min: 12, max: 20 })} breaths/min`
+  };
+};
+
+/**
+ * Generate a visit note
+ */
+export const generateVisitNote = (providerName: string, visitDate?: Date): VisitNote => {
+  const visitTypes = ['Office Visit', 'Follow-up Visit', 'Annual Physical', 'Sick Visit', 'Consultation', 'Initial Visit'];
+  const visitType = faker.helpers.arrayElement(visitTypes);
+  const date = visitDate || faker.date.recent({ days: 30 });
+  const selectedAssessment = faker.helpers.arrayElement(VISIT_ASSESSMENTS);
+  const selectedPlan = faker.helpers.arrayElement(VISIT_PLANS);
+
+  return {
+    date: date.toLocaleDateString('en-US'),
+    type: visitType,
+    chiefComplaint: faker.helpers.arrayElement(CHIEF_COMPLAINTS),
+    assessment: selectedAssessment,
+    plan: selectedPlan,
+    provider: providerName,
+    duration: `${faker.number.int({ min: 15, max: 60 })} minutes`,
+    vitals: generateVisitVitals()
+  };
+};
 
 export const generateVisitsReport = (numberOfVisits: number = 1, providerName: string): VisitReport[] => {
   const visitReports: VisitReport[] = [];

@@ -10,6 +10,9 @@ interface CMS1500FormProps {
 const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
   const { patient, insuranceInfo, provider, claimInfo } = data;
 
+  {
+    console.log('Rendering CMS1500Form with data:', data);
+  }
   return (
     <div
       className="cms1500-report"
@@ -84,10 +87,12 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <div className="field-value">{patient?.dateOfBirth}</div>
               <div className="sex-group">
                 <label>SEX</label>
-                <input type="checkbox" checked={patient?.gender === 'M'} readOnly />
+                <input type="checkbox" checked={patient?.gender === 'Male'} readOnly />
                 <label>M</label>
-                <input type="checkbox" checked={patient?.gender === 'F'} readOnly />
+                <input type="checkbox" checked={patient?.gender === 'Female'} readOnly />
                 <label>F</label>
+                <input type="checkbox" checked={patient?.gender === 'Other'} readOnly />
+                <label>Other</label>
               </div>
             </div>
           </div>
@@ -192,10 +197,12 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
                 <div className="field-value">{insuranceInfo?.subscriberDOB || ''}</div>
                 <div className="sex-group">
                   <label>SEX</label>
-                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'M'} readOnly />
+                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Male'} readOnly />
                   <label>M</label>
-                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'F'} readOnly />
+                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Female'} readOnly />
                   <label>F</label>
+                  <input type="checkbox" checked={patient?.gender === 'Other'} readOnly />
+                  <label>Other</label>
                 </div>
               </div>
               <div className="subfield">
@@ -500,9 +507,9 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <label>32. SERVICE FACILITY LOCATION INFORMATION</label>
               <div className="field-value">{provider?.facilityName || ''}</div>
               <div className="field-value">
-                {provider?.facilityAddress 
-                  ? typeof provider.facilityAddress === 'string' 
-                    ? provider.facilityAddress 
+                {provider?.facilityAddress
+                  ? typeof provider.facilityAddress === 'string'
+                    ? provider.facilityAddress
                     : `${provider.facilityAddress.street}, ${provider.facilityAddress.city}, ${provider.facilityAddress.state} ${provider.facilityAddress.zipCode}`
                   : ''}
               </div>
@@ -538,9 +545,9 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             <p>NUCC Instruction Manual available at: www.nucc.org</p>
             <p>PLEASE PRINT OR TYPE</p>
           </div>
-          {/* <div className="form-info">
+          <div className="form-info">
             <p>APPROVED OMB-0938-1197 FORM 1500 (02-12)</p>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
