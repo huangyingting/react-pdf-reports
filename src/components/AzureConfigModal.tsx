@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AzureOpenAIConfig, validateAzureConfig } from '../utils/azureOpenAI';
+import { AzureOpenAIConfig, validateAzureConfig } from '../utils/aiDataGenerator';
 import { loadAzureConfig, saveAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
 import './AzureConfigModal.css';
 

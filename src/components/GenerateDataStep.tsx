@@ -14,7 +14,16 @@ import {
   generateLabReports,
   generateCMS1500
 } from '../utils/dataGenerator';
-import { AzureOpenAIConfig } from '../utils/azureOpenAI';
+import { 
+  AzureOpenAIConfig, 
+  generatePatientWithAI,
+  generateProviderWithAI,
+  generateInsuranceInfoWithAI,
+  generateMedicalHistoryWithAI,
+  generateVisitReportsWithAI,
+  generateLabReportsWithAI,
+  generateCMS1500WithAI
+} from '../utils/aiDataGenerator';
 import { loadAzureConfig } from '../utils/azureConfigStorage';
 import CustomSelect from './CustomSelect';
 import AzureConfigModal from './AzureConfigModal';
@@ -73,18 +82,16 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
       let generatedData: GeneratedData;
       
       if (generationMethod === 'ai' && azureConfig) {
-        // TODO: AI-powered generation
-        // Placeholder - will be implemented with AI data generator
-        console.log('[GenerateDataStep] AI generation not yet implemented, falling back to Faker.js');
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // AI-powered generation using Azure OpenAI
+        console.log('[GenerateDataStep] Using AI generation with Azure OpenAI');
         
-        // Generate using Faker.js functions for now
-        const patient = generatePatient();
-        const provider = generateProvider();
-        const insuranceInfo = generateInsuranceInfo(customOptions.includeSecondaryInsurance);
-        const medicalHistory = generateMedicalHistory(customOptions.complexity);
-        const visitReports = generateVisitsReport(customOptions.numberOfVisits, provider.name);
-        
+        // Generate using AI functions
+        const patient = await generatePatientWithAI(azureConfig);
+        const provider = await generateProviderWithAI(azureConfig);
+        const insuranceInfo = await generateInsuranceInfoWithAI(azureConfig, patient, customOptions.includeSecondaryInsurance);
+        const medicalHistory = await generateMedicalHistoryWithAI(azureConfig, customOptions.complexity);
+        const visitReports = await generateVisitReportsWithAI(azureConfig, customOptions.numberOfVisits, provider.name);
+
         // Generate lab reports - randomly select from available tests
         const availableLabTests: LabTestType[] = [
           'CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 
@@ -94,9 +101,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         // Shuffle and select random lab tests
         const shuffled = [...availableLabTests].sort(() => Math.random() - 0.5);
         const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
-        const labReports = generateLabReports(selectedLabTests, provider.name);
+        const labReports = await generateLabReportsWithAI(azureConfig, selectedLabTests, provider.name);
         
-        const cms1500 = generateCMS1500(patient, insuranceInfo, provider);
+        const cms1500 = await generateCMS1500WithAI(azureConfig, patient, insuranceInfo, provider);
         
         generatedData = {
           patient,
@@ -113,7 +120,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         
         const patient = generatePatient();
         const provider = generateProvider();
-        const insuranceInfo = generateInsuranceInfo(customOptions.includeSecondaryInsurance);
+        const insuranceInfo = generateInsuranceInfo(patient,customOptions.includeSecondaryInsurance);
         const medicalHistory = generateMedicalHistory(customOptions.complexity);
         const visitReports = generateVisitsReport(customOptions.numberOfVisits, provider.name);
         
@@ -188,7 +195,6 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     checked={generationMethod === 'faker'}
                     onChange={() => setGenerationMethod('faker')}
                   />
-                  <span className="method-icon">⚡</span>
                   <span className="method-name">Faker.js</span>
                 </div>
 
@@ -212,7 +218,6 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     }}
                     disabled={!azureConfig}
                   />
-                  <span className="method-icon">🤖</span>
                   <span className="method-name">AI-Powered</span>
                   {azureConfig && <span className="status-badge configured">✓</span>}
                 </div>

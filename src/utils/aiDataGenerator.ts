@@ -52,10 +52,36 @@ export interface AzureOpenAIConfig {
 }
 
 /**
+ * Validate Azure OpenAI configuration
+ */
+export function validateAzureConfig(config: AzureOpenAIConfig): { valid: boolean; error?: string } {
+  if (!config.endpoint || !config.endpoint.trim()) {
+    return { valid: false, error: 'Endpoint is required' };
+  }
+  
+  if (!config.apiKey || !config.apiKey.trim()) {
+    return { valid: false, error: 'API Key is required' };
+  }
+  
+  if (!config.deploymentName || !config.deploymentName.trim()) {
+    return { valid: false, error: 'Deployment Name is required' };
+  }
+  
+  // Validate endpoint format
+  try {
+    new URL(config.endpoint);
+  } catch {
+    return { valid: false, error: 'Invalid endpoint URL format' };
+  }
+  
+  return { valid: true };
+}
+
+/**
  * Create Azure OpenAI client
  */
 function createAzureOpenAIClient(config: AzureOpenAIConfig): AzureOpenAI {
-  const apiVersion = config.apiVersion || '2024-02-15-preview';
+  const apiVersion = config.apiVersion || '2025-04-01-preview';
   
   return new AzureOpenAI({
     endpoint: config.endpoint,
