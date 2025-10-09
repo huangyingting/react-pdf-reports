@@ -26,30 +26,34 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="header-left">
             <div className="pica-checkbox">
               <div className="checkbox-group">
+                <label>Type</label>
+              </div>
+              <div className="checkbox-group">
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Medicare'} readOnly />
                 <label>MEDICARE</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insuranceInfo?.type === 'medicaid'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Medicaid'} readOnly />
                 <label>MEDICAID</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insuranceInfo?.type === 'tricare'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'TRICARE'} readOnly />
                 <label>TRICARE</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insuranceInfo?.type === 'champva'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'CHAMPVA'} readOnly />
                 <label>CHAMPVA</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insuranceInfo?.type === 'group'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Group'} readOnly />
                 <label>GROUP HEALTH PLAN</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insuranceInfo?.type === 'feca'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'FECA'} readOnly />
                 <label>FECA BLK LUNG</label>
               </div>
               <div className="checkbox-group">
-                <input type="checkbox" checked={insuranceInfo?.type === 'other'} readOnly />
+                <input type="checkbox" checked={insuranceInfo?.insuranceType === 'Other'} readOnly />
                 <label>OTHER</label>
               </div>
             </div>
@@ -201,7 +205,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
                   <label>M</label>
                   <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Female'} readOnly />
                   <label>F</label>
-                  <input type="checkbox" checked={patient?.gender === 'Other'} readOnly />
+                  <input type="checkbox" checked={insuranceInfo?.subscriberGender === 'Other'} readOnly />
                   <label>Other</label>
                 </div>
               </div>
@@ -284,7 +288,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
               <div className="field-value">{provider?.referringProvider?.name || ''}</div>
               <div className="npi-field">
                 <label>17a.</label>
-                <div className="field-value">{provider?.referringProvider?.npi || ''}</div>
+                <div className="field-value">{provider?.referringProvider?.qualifier || ''}</div>
               </div>
               <div className="qualifier-field">
                 <label>17b. NPI</label>

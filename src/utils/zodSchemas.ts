@@ -29,6 +29,7 @@ export const ContactSchema = z.object({
   emergencyContact: z.string().describe('Emergency contact name and phone')
 });
 
+
 export const InsuranceSchema = z.object({
   provider: z.string().describe('Insurance provider name'),
   policyNumber: z.string().describe('Policy number'),
@@ -83,6 +84,17 @@ export const PatientSchema = z.object({
 // ============================================================================
 // Insurance Information
 // ============================================================================
+export const InsuranceTypeSchema = z.enum([
+  'Medicare',
+  'Medicaid',
+  'TRICARE',
+  'CHAMPVA',
+  'Group',
+  'FECA',
+  'Other'
+]).describe('Type of insurance coverage, e.g., Medicare, Medicaid, TRICARE, CHAMPVA, Group, FECA, Other');
+
+export type InsuranceType = z.infer<typeof InsuranceTypeSchema>;
 
 export const InsuranceInfoSchema = z.object({
   primaryInsurance: InsuranceSchema,
@@ -90,7 +102,7 @@ export const InsuranceInfoSchema = z.object({
   subscriberName: z.string().describe('Subscribername if different from patient'),
   subscriberDOB: z.string().describe('Subscriber date of birth'),
   subscriberGender: GenderSchema,
-  type: z.string().describe('Insurance type'),
+  insuranceType: InsuranceTypeSchema,
   picaCode: z.string().nullable().describe('PICA code'),
   phone: z.string().describe('Subscriber phone'),
   address: AddressSchema.describe("Subscriber address"),
@@ -100,6 +112,12 @@ export const InsuranceInfoSchema = z.object({
 // ============================================================================
 // Provider Information
 // ============================================================================
+
+export const ReferringProviderSchema = z.object({
+  name: z.string().describe('Referring provider full name'),
+  qualifier: z.enum(['DN', 'DK', 'DQ']).describe('Qualifier code (DN: Doctor of Nursing, DK: Doctor of Kinesiology, DQ: Doctor of Osteopathy)'),
+  npi: z.string().describe('Referring provider NPI')
+});
 
 export const ProviderSchema = z.object({
   name: z.string().describe('Provider full name (e.g., Dr. John Smith)'),
@@ -119,11 +137,7 @@ export const ProviderSchema = z.object({
   billingAddress: z.string().describe('Billing address'),
   billingPhone: z.string().describe('Billing phone number'),
   billingNPI: z.string().describe('Billing NPI'),
-  // Legacy field for backward compatibility
-  referringProvider: z.object({
-    name: z.string(),
-    npi: z.string()
-  }).nullable().describe('Referring provider information')
+  referringProvider: ReferringProviderSchema.nullable().describe('Referring provider information')
 });
 
 // ============================================================================
@@ -391,6 +405,7 @@ export type Pharmacy = z.infer<typeof PharmacySchema>;
 export type Patient = z.infer<typeof PatientSchema>;
 export type Insurance = z.infer<typeof InsuranceSchema>;
 export type InsuranceInfo = z.infer<typeof InsuranceInfoSchema>;
+export type ReferringProvider = z.infer<typeof ReferringProviderSchema>;
 export type Provider = z.infer<typeof ProviderSchema>;
 export type ServiceLine = z.infer<typeof ServiceLineSchema>;
 export type ClaimInfo = z.infer<typeof ClaimSchema>;
@@ -444,3 +459,5 @@ export const GeneratedDataSchema = z.object({
 });
 
 export type GeneratedData = z.infer<typeof GeneratedDataSchema>;
+
+

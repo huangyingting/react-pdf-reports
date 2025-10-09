@@ -88,6 +88,7 @@ function createAzureOpenAIClient(config: AzureOpenAIConfig): AzureOpenAI {
     apiKey: config.apiKey,
     apiVersion: apiVersion,
     deployment: config.deploymentName,
+    dangerouslyAllowBrowser: true
   });
 }
 

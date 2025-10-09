@@ -311,15 +311,15 @@
   height: 16px;
 }
 
-.btn-clear-inline {
+.btn-reset-inline {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
   padding: 0.625rem 1rem;
   background: white;
-  border: 1.5px solid #d32f2f;
+  border: 1.5px solid #f57c00;
   border-radius: 6px;
-  color: #c62828;
+  color: #e65100;
   font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
@@ -328,14 +328,43 @@
   white-space: nowrap;
 }
 
-.btn-clear-inline:hover {
-  background: #d32f2f;
+.btn-reset-inline:hover {
+  background: #f57c00;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+  box-shadow: 0 2px 8px rgba(245, 124, 0, 0.3);
 }
 
-.btn-clear-inline svg {
+.btn-reset-inline svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-cache-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1rem;
+  background: white;
+  border: 1.5px solid #7b1fa2;
+  border-radius: 6px;
+  color: #6a1b9a;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-cache-inline:hover {
+  background: #7b1fa2;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(123, 31, 162, 0.3);
+}
+
+.btn-cache-inline svg {
   width: 16px;
   height: 16px;
 }

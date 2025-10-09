@@ -72,7 +72,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
           </div>
           <div className="info-row">
             <div className="info-label">Plan Type:</div>
-            <div className="info-value">{insuranceInfo.type?.toUpperCase() || 'GROUP'} HEALTH PLAN</div>
+            <div className="info-value">{insuranceInfo.insuranceType?.toUpperCase() || 'GROUP'} HEALTH PLAN</div>
           </div>
         </div>
 

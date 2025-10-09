@@ -25,7 +25,8 @@ import {
   InsurancePolicy,
   CMS1500,
   Insured,
-  Subscriber
+  Subscriber,
+  InsuranceTypeSchema
 } from './zodSchemas';
 
 import { DataPreset } from './zodSchemas';
@@ -145,6 +146,7 @@ export const INSURANCE_PLAN_TYPES = [
 ] as const;
 
 export type InsurancePlanType = typeof INSURANCE_PLAN_TYPES[number];
+
 
 export const COPAY_AMOUNTS = [
   '$0',
@@ -604,6 +606,7 @@ export const generateProvider = (): Provider => {
     billingNPI: facilityNPI,
     referringProvider: faker.datatype.boolean(0.3) ? {
       name: `Dr. ${faker.person.firstName()} ${faker.person.lastName()}`,
+      qualifier: faker.helpers.arrayElement(['DN', 'DK', 'DQ'] as const),
       npi: faker.string.numeric(10)
     } : null
   };
@@ -712,7 +715,7 @@ export const generateInsuranceInfo = (
     subscriberName: subscriber.name,
     subscriberDOB: subscriber.dateOfBirth,
     subscriberGender: subscriber.gender,
-    type: faker.helpers.arrayElement(['group', 'individual', 'medicare', 'medicaid']),
+    insuranceType: faker.helpers.arrayElement(InsuranceTypeSchema.options),
     picaCode: faker.datatype.boolean(0.3) ? faker.string.alphanumeric({ length: 2, casing: 'upper' }) : '',
     phone: subscriber.phone,
     address: subscriber.address,

@@ -25,6 +25,7 @@ import {
   generateCMS1500WithAI
 } from '../utils/aiDataGenerator';
 import { loadAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
+import { clearCache, DEFAULT_CACHE_CONFIG } from '../utils/cache';
 import CustomSelect from './CustomSelect';
 import AzureConfigModal from './AzureConfigModal';
 
@@ -168,18 +169,28 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
   const handleConfigSave = (config: AzureOpenAIConfig) => {
     setAzureConfig(config);
     setShowConfigModal(false);
-    // Automatically trigger generation after config is saved
-    setTimeout(() => {
-      handleGenerateData();
-    }, 100);
+    console.log('[GenerateDataStep] Azure configuration saved successfully');
   };
 
   const handleClearConfig = () => {
-    if (window.confirm('Are you sure you want to clear the Azure OpenAI configuration? This will remove all saved settings from browser storage.')) {
+    if (window.confirm('Are you sure you want to reset the Azure OpenAI configuration? This will remove all saved settings from browser storage.')) {
       clearAzureConfig();
       setAzureConfig(null);
       setGenerationMethod('faker');
       console.log('[GenerateDataStep] Azure configuration cleared');
+    }
+  };
+
+  const handleClearCache = () => {
+    if (window.confirm('Are you sure you want to clear the cache? This will remove all cached AI-generated data from browser storage.')) {
+      try {
+        clearCache(DEFAULT_CACHE_CONFIG);
+        console.log('[GenerateDataStep] Cache cleared successfully');
+        alert('Cache cleared successfully!');
+      } catch (error) {
+        console.error('[GenerateDataStep] Failed to clear cache:', error);
+        alert('Failed to clear cache. Please check the console for details.');
+      }
     }
   };
 
@@ -247,17 +258,32 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 {azureConfig && (
                   <button
                     type="button"
-                    className="btn-clear-inline"
+                    className="btn-reset-inline"
                     onClick={handleClearConfig}
-                    title="Clear Azure OpenAI configuration and local storage"
+                    title="Reset Azure OpenAI configuration"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="3 6 5 6 21 6"/>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      <polyline points="1 4 1 10 7 10"/>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
                     </svg>
-                    Clear
+                    Reset
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  className="btn-cache-inline"
+                  onClick={handleClearCache}
+                  title="Clear cached AI-generated data"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <line x1="10" y1="11" x2="10" y2="17"/>
+                    <line x1="14" y1="11" x2="14" y2="17"/>
+                  </svg>
+                  Clear Cache
+                </button>
               </div>
             </div>
 
