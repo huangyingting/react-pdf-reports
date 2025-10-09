@@ -684,28 +684,29 @@ export const generateSubscriber = (): Subscriber => {
  * Uses the new modular generateInsurance() and generateInsured() functions
  */
 export const generateInsuranceInfo = (
+  patient: Patient,
   includeSecondary: boolean = false
 ): InsuranceInfo => {
-  // Generate primary insurance using the modular function
-  const primaryInsurance: Insurance = generateInsurance();
+  const primaryInsurance = generateInsurance();
 
-  // Generate subscriber information (defaults to random if not provided)
-  const subscriber = generateSubscriber();
-
-
-  let secondaryInsurance: Insurance | null = null;
-  let secondaryInsured: Insured | null = null;
+  // 70% chance to use patient as subscriber
+  const subscriber = faker.datatype.boolean(0.7) 
+    ? {
+        name: patient.name,
+        dateOfBirth: patient.dateOfBirth,
+        gender: patient.gender,
+        address: patient.address,
+        phone: patient.contact.phone
+      }
+    : generateSubscriber();
 
   // Generate secondary insurance if requested
-  if (includeSecondary) {
-    secondaryInsurance = generateInsurance(primaryInsurance.provider);
-    secondaryInsured = generateInsured(
-      secondaryInsurance.policyNumber,
-      secondaryInsurance.provider
-    );
-  }
+  const secondaryInsurance = includeSecondary ? generateInsurance(primaryInsurance.provider) : null;
+  const secondaryInsured = includeSecondary 
+    ? generateInsured(secondaryInsurance!.policyNumber, secondaryInsurance!.provider) 
+    : null;
 
-  const result: InsuranceInfo = {
+  return {
     primaryInsurance,
     secondaryInsurance,
     subscriberName: subscriber.name,
@@ -717,8 +718,6 @@ export const generateInsuranceInfo = (
     address: subscriber.address,
     secondaryInsured
   };
-
-  return result;
 };
 
 // ============================================================================
