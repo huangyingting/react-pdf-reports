@@ -18,6 +18,7 @@ A modern React.js application that generates realistic medical documents and rep
   3. Export PDF - Download high-quality PDF documents
 - **Professional PDF Export**: Uses jsPDF with html2canvas for high-quality PDF generation
 - **Customizable Settings**: Adjust data complexity, font families, quality levels, and watermarks
+- **Analytics Integration**: Google Analytics 4 support for tracking user behavior and app usage
 - **Responsive Design**: Works on desktop and mobile devices
 - **TypeScript & Zod Validation**: Type-safe data structures with runtime validation
 - **GitHub Pages Deployment**: Automated deployment workflow included
@@ -216,6 +217,17 @@ Azure OpenAI configuration can be customized:
 - **Model Parameters**: Temperature, max tokens, etc. in `aiDataGenerator.ts`
 - **Caching**: Configure cache TTL and storage in `cache.ts`
 - **Complexity Levels**: Adjust prompts for different complexity levels
+
+### Setting Up Analytics
+
+To track user behavior and app usage with Google Analytics 4:
+
+1. Follow the detailed setup guide in `ANALYTICS_SETUP.md`
+2. Get your GA4 Measurement ID from Google Analytics
+3. Update `public/index.html` with your Measurement ID (replace `G-XXXXXXXXXX`)
+4. Deploy your app to start collecting analytics
+
+See `ANALYTICS_USAGE.md` for examples of adding custom tracking events.
 
 ### Modifying PDF Options
 

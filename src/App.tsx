@@ -18,6 +18,9 @@ import GenerateDataStep from './components/GenerateDataStep';
 import EditDataStep from './components/EditDataStep';
 import ExportPdfStep from './components/ExportPdfStep';
 
+// Import analytics
+import { trackEvent, AnalyticsEvents } from './utils/analytics';
+
 import MedicalRecordsReport from './reports/medicalRecords/MedicalRecordsReport';
 import CMS1500Form from './reports/cms1500/CMS1500Form';
 import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDocument';
@@ -101,6 +104,14 @@ function App() {
   ) => {
     setGeneratedData(data);
     setGenerationOptions(options);
+    
+    // Track data generation
+    trackEvent(AnalyticsEvents.GENERATE_DATA_COMPLETED, {
+      complexity: options.complexity,
+      numberOfVisits: options.numberOfVisits,
+      numberOfLabTests: options.numberOfLabTests,
+      includeSecondaryInsurance: options.includeSecondaryInsurance,
+    });
   };
 
   const handleDataUpdated = (updatedData: GeneratedData) => {
@@ -110,6 +121,12 @@ function App() {
   const handleNextStep = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
+      
+      // Track step completion
+      trackEvent(AnalyticsEvents.STEP_COMPLETED, {
+        step: currentStep,
+        nextStep: currentStep + 1,
+      });
     }
   };
 
@@ -126,6 +143,15 @@ function App() {
     }
 
     setIsLoading(true);
+    
+    // Track export start
+    trackEvent(AnalyticsEvents.EXPORT_PDF_STARTED, {
+      reportType,
+      format: exportFormat,
+      quality: qualityLevel,
+      watermark: enableWatermark,
+    });
+    
     try {
       // Check if it's a lab test type
       const labTestTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
@@ -147,9 +173,24 @@ function App() {
         await exportToPDF(elementId, filename, {}, enableWatermark);
         alert(`${filename}.pdf has been downloaded successfully!`);
       }
+      
+      // Track successful export
+      trackEvent(AnalyticsEvents.EXPORT_PDF_COMPLETED, {
+        reportType,
+        format: exportFormat,
+        quality: qualityLevel,
+        watermark: enableWatermark,
+      });
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to export PDF. Please try again.');
+      
+      // Track export failure
+      trackEvent(AnalyticsEvents.EXPORT_PDF_FAILED, {
+        reportType,
+        format: exportFormat,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -161,6 +202,11 @@ function App() {
       return;
     }
     setActiveReportType(reportType);
+    
+    // Track report type change
+    trackEvent(AnalyticsEvents.REPORT_TYPE_CHANGED, {
+      reportType,
+    });
     setShowPreview(true);
   };
 
