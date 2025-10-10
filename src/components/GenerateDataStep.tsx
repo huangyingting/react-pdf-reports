@@ -268,43 +268,21 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 />
               </RadioGroup>
 
-              <Button
-                variant="outlined"
+              <IconButton
                 size="small"
-                startIcon={<SettingsIcon />}
                 onClick={() => setShowConfigModal(true)}
                 title={azureConfig ? 'Update Azure OpenAI settings' : 'Configure Azure OpenAI'}
-                sx={{
-                  borderRadius: 2,
-                  borderWidth: 1.5,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  px: 2,
-                  '&:hover': {
-                    borderWidth: 1.5,
-                    transform: 'scale(1.05)',
-                  }
-                }}
+                sx={styles.iconButton}
               >
-                {azureConfig ? 'Update' : 'Configure'}
-              </Button>
+                <SettingsIcon fontSize="small" />
+              </IconButton>
 
               {azureConfig && (
                 <IconButton
                   size="small"
                   onClick={handleClearConfig}
                   title="Reset Azure OpenAI configuration"
-                  sx={{ 
-                    border: '1.5px solid', 
-                    borderColor: 'divider',
-                    borderRadius: 2,
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      borderColor: 'error.main',
-                      color: 'error.main',
-                      transform: 'rotate(90deg)',
-                    }
-                  }}
+                  sx={styles.iconButtonError}
                 >
                   <RefreshIcon fontSize="small" />
                 </IconButton>

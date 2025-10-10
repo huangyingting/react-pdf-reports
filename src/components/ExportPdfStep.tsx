@@ -114,7 +114,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
       <ContentContainer>
         <Box sx={commonStyles.settingsCard}>
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h3" sx={{ fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>
+            <Typography variant="h3">
               Export Settings
             </Typography>
             <Typography variant="body2" color="text.secondary">

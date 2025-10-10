@@ -11,7 +11,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import CheckIcon from '@mui/icons-material/Check';
 import theme from './theme';
-import styles from './App.module.css';
+import * as commonStyles from './styles/commonStyles';
 
 // Import components
 import GenerateDataStep from './components/GenerateDataStep';
@@ -24,7 +24,7 @@ import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDo
 import VisitReportDocument from './reports/visitReport/VisitReportDocument';
 import MedicationHistoryDocument from './reports/medicationHistory/MedicationHistoryDocument';
 import LaboratoryReportDocument from './reports/labReport/LabReportDocument';
-import { 
+import {
   InsurancePolicy,
   VisitReport,
   LabReport,
@@ -34,8 +34,8 @@ import {
 } from './utils/zodSchemas';
 
 // Import utilities
-import { 
-  exportToPDF, 
+import {
+  exportToPDF,
   exportToPDFAsImage,
 } from './utils/pdfExport';
 
@@ -59,11 +59,11 @@ function App() {
     numberOfLabTests: 5,
     includeSecondaryInsurance: true
   });
-  
+
   // Keep generationOptions for future use (e.g., regenerating data)
   console.log('Current generation options:', generationOptions);
   const [activeReportType, setActiveReportType] = useState<ReportType>('medical');
-  
+
   // Export settings
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
@@ -130,14 +130,14 @@ function App() {
       // Check if it's a lab test type
       const labTestTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
       const isLabTest = labTestTypes.includes(reportType as LabTestType);
-      
-      const elementId = reportType === 'cms1500' ? 'cms1500-report' 
+
+      const elementId = reportType === 'cms1500' ? 'cms1500-report'
         : reportType === 'insurancePolicy' ? 'insurance-policy-report'
-        : reportType === 'visitReport' ? 'visit-report-document'
-        : reportType === 'medicationHistory' ? 'medication-history-document'
-        : isLabTest ? `laboratory-report-${(reportType as string).toLowerCase()}`
-        : 'medical-records-report';
-      
+          : reportType === 'visitReport' ? 'visit-report-document'
+            : reportType === 'medicationHistory' ? 'medication-history-document'
+              : isLabTest ? `laboratory-report-${(reportType as string).toLowerCase()}`
+                : 'medical-records-report';
+
       if (exportFormat === 'canvas') {
         await exportToPDFAsImage(elementId, `${filename}-canvas`, {
           qualityLevel: qualityLevel
@@ -171,32 +171,32 @@ function App() {
 
     const selectedFont = fontFamilies.find(font => font.value === fontFamily);
     const fontFamilyStyle = selectedFont ? selectedFont.css : "'Arial', sans-serif";
-    
+
     if (activeReportType === 'cms1500') {
       return (
-        <CMS1500Form 
-          data={generatedData.cms1500} 
+        <CMS1500Form
+          data={generatedData.cms1500}
           fontFamily={fontFamilyStyle}
         />
       );
     }
-    
+
     if (activeReportType === 'insurancePolicy') {
       const insurancePolicy: InsurancePolicy = {
         patient: generatedData.patient,
         insuranceInfo: generatedData.insuranceInfo
       };
       return (
-        <InsurancePolicyDocument 
+        <InsurancePolicyDocument
           data={insurancePolicy}
           fontFamily={fontFamilyStyle}
         />
       );
     }
-    
+
     if (activeReportType === 'visitReport') {
       return generatedData.visitReports.length > 0 ? (
-        <VisitReportDocument 
+        <VisitReportDocument
           patient={generatedData.patient}
           provider={generatedData.provider}
           visitReport={generatedData.visitReports[0]}
@@ -204,10 +204,10 @@ function App() {
         />
       ) : null;
     }
-    
+
     if (activeReportType === 'medicationHistory') {
       return (
-        <MedicationHistoryDocument 
+        <MedicationHistoryDocument
           patient={generatedData.patient}
           provider={generatedData.provider}
           medicalHistory={generatedData.medicalHistory}
@@ -215,22 +215,22 @@ function App() {
         />
       );
     }
-    
+
     // Check if it's a laboratory report type
     const labTestTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
     if (labTestTypes.includes(activeReportType as LabTestType)) {
       const labData = generatedData.labReports.find(report => report.testType === activeReportType);
       return labData ? (
-        <LaboratoryReportDocument 
+        <LaboratoryReportDocument
           patient={generatedData.patient}
           labReport={labData}
           fontFamily={fontFamilyStyle}
         />
       ) : null;
     }
-    
+
     return (
-      <MedicalRecordsReport 
+      <MedicalRecordsReport
         patient={generatedData.patient}
         provider={generatedData.provider}
         insuranceInfo={generatedData.insuranceInfo}
@@ -301,7 +301,7 @@ function App() {
       'Hormone': 'Hormone Panel',
       'Infectious': 'Infectious Disease Panel'
     };
-    
+
     if (reportType === 'cms1500') return 'CMS-1500 Form';
     if (reportType === 'insurancePolicy') return 'Insurance Policy Document';
     if (reportType === 'visitReport') return 'Visit Report';
@@ -314,10 +314,10 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <AppBar position="static" elevation={0}>
+        <AppBar position="static" elevation={0} sx={{ border: 'none', boxShadow: 'none' }}>
           <Toolbar sx={{ gap: 2, py: 1.5 }}>
-            <Box 
-              sx={{ 
+            <Box
+              sx={{
                 color: 'primary.main',
                 bgcolor: 'rgba(241, 248, 233, 1)',
                 p: 1.5,
@@ -328,11 +328,11 @@ function App() {
               }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10,9 9,9 8,9"/>
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                <polyline points="14,2 14,8 20,8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10,9 9,9 8,9" />
               </svg>
             </Box>
             <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -347,10 +347,10 @@ function App() {
         </AppBar>
 
         {/* Progress Stepper */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
             alignItems: 'center',
             pt: 0,
             pb: 0,
@@ -360,10 +360,10 @@ function App() {
             bgcolor: 'rgba(250, 245, 235, 0.80)',
           }}
         >
-          <Stepper 
+          <Stepper
             activeStep={currentStep - 1}
             orientation="horizontal"
-            sx={{ 
+            sx={{
               width: '100%',
               maxWidth: { xs: '100%', sm: 650, md: 800 },
               '& .MuiStepConnector-root': {
@@ -384,7 +384,7 @@ function App() {
               { label: 'Edit', description: 'Review and customize' },
               { label: 'Export', description: 'Generate PDF files' }
             ].map((step, index) => (
-              <Step 
+              <Step
                 key={step.label}
                 completed={currentStep > index + 1}
               >
@@ -442,84 +442,103 @@ function App() {
         </Box>
 
         {showPreview && (
-          <div className={styles.previewModal}>
-            <div className={styles.previewContent}>
-              <div className={styles.previewHeader}>
+          <Box sx={commonStyles.previewModal}>
+            <Box sx={commonStyles.previewContent}>
+              <Box sx={commonStyles.previewHeader}>
                 <h3>Preview - {getReportTitle(activeReportType)}</h3>
-                <button 
-                  className={styles.closePreview}
+                <Box
+                  component="button"
+                  sx={commonStyles.closePreview}
                   onClick={() => setShowPreview(false)}
                 >
                   ×
-                </button>
-              </div>
-              <div className={`${styles.previewBody}${enableWatermark ? ` ${styles.withWatermark}` : ''}`}>
+                </Box>
+              </Box>
+              <Box sx={enableWatermark ? commonStyles.previewBodyWithWatermark : commonStyles.previewBody}>
                 {enableWatermark && (
-                  <div className={styles.previewWatermarkOverlay}>
-                    <div className={styles.previewWatermarkText}>Educational Use Only</div>
-                    <div className={styles.previewWatermarkText}>Educational Use Only</div>
-                    <div className={styles.previewWatermarkText}>Educational Use Only</div>
-                    <div className={styles.previewWatermarkText}>Educational Use Only</div>
-                    <div className={styles.previewWatermarkText}>Educational Use Only</div>
-                  </div>
+                  <Box sx={commonStyles.previewWatermarkOverlay}>
+                    <Box sx={commonStyles.previewWatermarkText}>Educational Use Only</Box>
+                    <Box sx={commonStyles.previewWatermarkText}>Educational Use Only</Box>
+                    <Box sx={commonStyles.previewWatermarkText}>Educational Use Only</Box>
+                    <Box sx={commonStyles.previewWatermarkText}>Educational Use Only</Box>
+                    <Box sx={commonStyles.previewWatermarkText}>Educational Use Only</Box>
+                  </Box>
                 )}
                 {renderActiveReport()}
-              </div>
-            </div>
-          </div>
+              </Box>
+            </Box>
+          </Box>
         )}
 
         {/* Hidden reports for PDF export */}
-        <div className={styles.reportDisplay}>
-            {generatedData && (
-              <>
-                <MedicalRecordsReport 
+        <Box sx={commonStyles.reportDisplay}>
+          {generatedData && (
+            <>
+              <MedicalRecordsReport
+                patient={generatedData.patient}
+                provider={generatedData.provider}
+                insuranceInfo={generatedData.insuranceInfo}
+                labReports={generatedData.labReports}
+                visitReports={generatedData.visitReports}
+                medicalHistory={generatedData.medicalHistory}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              <CMS1500Form
+                data={generatedData.cms1500}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              <InsurancePolicyDocument
+                data={{
+                  patient: generatedData.patient,
+                  insuranceInfo: generatedData.insuranceInfo
+                }}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              {generatedData.visitReports.map((visitData: VisitReport, index: number) => (
+                <VisitReportDocument
+                  key={index}
                   patient={generatedData.patient}
                   provider={generatedData.provider}
-                  insuranceInfo={generatedData.insuranceInfo}
-                  labReports={generatedData.labReports}
-                  visitReports={generatedData.visitReports}
-                  medicalHistory={generatedData.medicalHistory}
+                  visitReport={visitData}
                   fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
                 />
-                <CMS1500Form 
-                  data={generatedData.cms1500} 
-                  fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-                />
-                <InsurancePolicyDocument 
-                  data={{
-                    patient: generatedData.patient,
-                    insuranceInfo: generatedData.insuranceInfo
-                  }}
-                  fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-                />
-                {generatedData.visitReports.map((visitData: VisitReport, index: number) => (
-                  <VisitReportDocument 
-                    key={index}
-                    patient={generatedData.patient}
-                    provider={generatedData.provider}
-                    visitReport={visitData}
-                    fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-                  />
-                ))}
-                <MedicationHistoryDocument 
+              ))}
+              <MedicationHistoryDocument
+                patient={generatedData.patient}
+                provider={generatedData.provider}
+                medicalHistory={generatedData.medicalHistory}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              {/* Laboratory Reports */}
+              {generatedData.labReports.map((labReport: LabReport) => (
+                <LaboratoryReportDocument
+                  key={labReport.testType}
                   patient={generatedData.patient}
-                  provider={generatedData.provider}
-                  medicalHistory={generatedData.medicalHistory}
+                  labReport={labReport}
                   fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
                 />
-                {/* Laboratory Reports */}
-                {generatedData.labReports.map((labReport: LabReport) => (
-                  <LaboratoryReportDocument 
-                    key={labReport.testType}
-                    patient={generatedData.patient}
-                    labReport={labReport}
-                    fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
-                  />
-                ))}
-              </>
-            )}
-        </div>
+              ))}
+            </>
+          )}
+        </Box>
+
+        {/* Footer */}
+        <Box
+          component="footer"
+          sx={{
+            mt: 'auto',
+            py: 2,
+            px: 3,
+            bgcolor: 'background.paper',
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            textAlign: 'center'
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            © {new Date().getFullYear()} Yingting Huang. All rights reserved. | Educational Use Only
+          </Typography>
+        </Box>
       </Box>
     </ThemeProvider>
   );

@@ -701,18 +701,20 @@ export const formControlCheckboxActive: SxProps<Theme> = {
 // ==================== Radio Button Styles ====================
 
 export const radioButtonCard: SxProps<Theme> = {
-  border: '2px solid',
+  border: '1.5px solid',
   borderColor: 'divider',
-  borderRadius: 2.5,
-  px: 2.5,
-  py: 1.25,
+  borderRadius: 2,
+  px: 1.5,
   m: 0,
   background: 'transparent',
   transition: 'all 0.2s ease',
+  '& .MuiFormControlLabel-label': {
+    fontSize: '0.875rem',
+  },
   '&:hover': {
     borderColor: 'primary.main',
-    boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-    transform: 'translateY(-2px)',
+    boxShadow: '0 2px 8px rgba(107, 142, 35, 0.12)',
+    transform: 'translateY(-1px)',
   },
 };
 
@@ -720,6 +722,32 @@ export const radioButtonCardActive: SxProps<Theme> = {
   ...radioButtonCard,
   borderColor: 'primary.main',
   background: 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)',
+};
+
+// ==================== Icon Button Styles ====================
+
+export const iconButton: SxProps<Theme> = {
+  border: '1.5px solid',
+  borderColor: 'divider',
+  borderRadius: 2,
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    borderColor: 'primary.main',
+    color: 'primary.main',
+    transform: 'scale(1.1)',
+  }
+};
+
+export const iconButtonError: SxProps<Theme> = {
+  border: '1.5px solid',
+  borderColor: 'divider',
+  borderRadius: 2,
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    borderColor: 'error.main',
+    color: 'error.main',
+    transform: 'rotate(90deg)',
+  }
 };
 
 // ==================== Preset/Option Card Styles ====================
@@ -862,6 +890,168 @@ export const sectionIconBox: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+};
+
+// ==================== Preview Modal Styles ====================
+
+export const previewModal: SxProps<Theme> = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: 'rgba(0, 0, 0, 0.6)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 10000,
+  padding: '1rem',
+};
+
+export const previewContent: SxProps<Theme> = {
+  background: 'white',
+  borderRadius: '12px',
+  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+  maxWidth: '90vw',
+  maxHeight: '80vh',
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+  animation: 'modalSlideIn 0.3s ease',
+  '@keyframes modalSlideIn': {
+    from: {
+      opacity: 0,
+      transform: 'translateY(-20px)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  },
+};
+
+export const previewHeader: SxProps<Theme> = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '1rem 1.25rem',
+  borderBottom: '1px solid #e0e0e0',
+  '& h3': {
+    margin: 0,
+    color: '#3e2723',
+    fontSize: '1.25rem',
+    fontWeight: 600,
+  },
+};
+
+export const closePreview: SxProps<Theme> = {
+  background: 'none',
+  border: 'none',
+  fontSize: '2rem',
+  color: '#8d6e63',
+  cursor: 'pointer',
+  padding: 0,
+  width: '32px',
+  height: '32px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '50%',
+  transition: 'all 0.2s ease',
+  '&:hover': {
+    background: '#f5f1e8',
+    color: '#3e2723',
+  },
+};
+
+export const previewBody: SxProps<Theme> = {
+  flex: 1,
+  overflow: 'auto',
+  padding: '1.5rem',
+  position: 'relative',
+};
+
+export const previewBodyWithWatermark: SxProps<Theme> = {
+  ...previewBody,
+  '&::before, &::after': {
+    content: '"Educational Use Only"',
+    position: 'absolute',
+    fontSize: '4rem',
+    fontWeight: 'bold',
+    color: '#999999',
+    opacity: 0.22,
+    pointerEvents: 'none',
+    whiteSpace: 'nowrap',
+    fontFamily: "'Helvetica', 'Arial', sans-serif",
+    zIndex: 10,
+  },
+  '&::before': {
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(-45deg)',
+  },
+  '&::after': {
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(45deg)',
+    opacity: 0.15,
+  },
+};
+
+export const previewWatermarkOverlay: SxProps<Theme> = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  pointerEvents: 'none',
+  overflow: 'hidden',
+  zIndex: 5,
+};
+
+export const previewWatermarkText: SxProps<Theme> = {
+  position: 'absolute',
+  fontSize: '3.5rem',
+  fontWeight: 'bold',
+  color: '#999999',
+  opacity: 0.18,
+  whiteSpace: 'nowrap',
+  fontFamily: "'Helvetica', 'Arial', sans-serif",
+  '&:nth-of-type(1)': {
+    top: '20%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(-45deg)',
+  },
+  '&:nth-of-type(2)': {
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(-45deg)',
+  },
+  '&:nth-of-type(3)': {
+    top: '80%',
+    left: '50%',
+    transform: 'translate(-50%, -50%) rotate(-45deg)',
+  },
+  '&:nth-of-type(4)': {
+    top: '35%',
+    left: '25%',
+    transform: 'translate(-50%, -50%) rotate(-45deg)',
+    opacity: 0.15,
+  },
+  '&:nth-of-type(5)': {
+    top: '65%',
+    left: '75%',
+    transform: 'translate(-50%, -50%) rotate(-45deg)',
+    opacity: 0.15,
+  },
+};
+
+export const reportDisplay: SxProps<Theme> = {
+  position: 'absolute',
+  left: '-9999px',
+  top: '-9999px',
+  opacity: 0,
+  pointerEvents: 'none',
 };
 
 // ==================== Helper Functions ====================
