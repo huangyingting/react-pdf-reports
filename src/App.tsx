@@ -536,7 +536,7 @@ function App() {
           }}
         >
           <Typography variant="body2" color="text.secondary">
-            © {new Date().getFullYear()} Yingting Huang. All rights reserved. | Educational Use Only
+            © {new Date().getFullYear()} Yingting Huang, All rights reserved. | Educational Use Only
           </Typography>
         </Box>
       </Box>

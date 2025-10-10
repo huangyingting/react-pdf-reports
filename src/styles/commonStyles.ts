@@ -390,14 +390,20 @@ export const documentGrid: SxProps<Theme> = {
   display: 'flex',
   flexWrap: 'wrap',
   gap: 2,
-  '& > *': { flex: '1 1 calc(50% - 16px)', minWidth: '300px' },
+  '& > *': { 
+    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 16px)' }, 
+    minWidth: { xs: '100%', sm: '280px' },
+  },
 };
 
 export const documentGridThreeColumn: SxProps<Theme> = {
   display: 'flex',
   flexWrap: 'wrap',
   gap: 2,
-  '& > *': { flex: '1 1 calc(33.333% - 16px)', minWidth: '280px' },
+  '& > *': { 
+    flex: { xs: '1 1 100%', sm: '1 1 calc(50% - 16px)', md: '1 1 calc(33.333% - 16px)' }, 
+    minWidth: { xs: '100%', sm: '280px' },
+  },
 };
 
 // ==================== Tab Container ====================
