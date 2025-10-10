@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, FormControlLabel, Checkbox, Button, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 import DocumentCard from './DocumentCard';
 import { StepContainer, ContentContainer, DocumentGrid, FloatingActionBar } from './SharedComponents';
-import * as styles from '../styles/commonStyles';
+import * as commonStyles from '../styles/commonStyles';
 import { GeneratedData, LabTestType } from '../utils/zodSchemas';
 
 type ExportFormat = 'pdf' | 'canvas';
@@ -51,7 +51,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   if (!generatedData) {
     return (
       <StepContainer>
-        <Box sx={styles.emptyStateContainer}>
+        <Box sx={commonStyles.emptyStateContainer}>
           <Typography variant="h2" gutterBottom>No Data Available</Typography>
           <Typography variant="body1" color="text.secondary" paragraph>
             Please go back and generate medical data first.
@@ -112,15 +112,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
   return (
     <StepContainer>
       <ContentContainer>
-        <Box sx={{ 
-          p: 3.5, 
-          borderRadius: 3, 
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8faf9 100%)',
-          border: '2px solid',
-          borderColor: 'rgba(107, 142, 35, 0.12)',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)',
-          mb: 3,
-        }}>
+        <Box sx={commonStyles.settingsCard}>
           <Box sx={{ mb: 3 }}>
             <Typography variant="h3" sx={{ fontSize: '1.5rem', fontWeight: 700, mb: 1 }}>
               Export Settings
@@ -136,7 +128,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             gap: 3,
           }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+              <Typography variant="body2" sx={commonStyles.fieldLabel}>
                 Export Format
               </Typography>
               <Select
@@ -151,20 +143,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                   }
                 }}
                 fullWidth
-                sx={{
-                  borderRadius: 2,
-                  '& .MuiSelect-select': {
-                    display: 'flex',
-                    alignItems: 'center',
-                    py: 1.5,
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderWidth: 1.5,
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main',
-                  }
-                }}
+                sx={commonStyles.formControlSelect}
               >
                 <MenuItem value="pdf">Vector PDF (Selectable Text)</MenuItem>
                 <MenuItem value="canvas-poor">Canvas Poor Quality (Fast, Small File)</MenuItem>
@@ -180,27 +159,14 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+              <Typography variant="body2" sx={commonStyles.fieldLabel}>
                 Font Family
               </Typography>
               <Select
                 value={fontFamily}
                 onChange={(e: SelectChangeEvent) => setFontFamily(e.target.value)}
                 fullWidth
-                sx={{
-                  borderRadius: 2,
-                  '& .MuiSelect-select': {
-                    display: 'flex',
-                    alignItems: 'center',
-                    py: 1.5,
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderWidth: 1.5,
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main',
-                  }
-                }}
+                sx={commonStyles.formControlSelect}
               >
                 {fontFamilies.map(font => (
                   <MenuItem key={font.value} value={font.value}>
@@ -214,7 +180,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+              <Typography variant="body2" sx={commonStyles.fieldLabel}>
                 Watermark
               </Typography>
               <FormControlLabel
@@ -226,24 +192,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                   />
                 }
                 label="Enabled"
-                sx={{
-                  border: '2px solid',
-                  borderColor: enableWatermark ? 'primary.main' : 'divider',
-                  borderRadius: 2,
-                  px: 2,
-                  py: 0.5,
-                  m: 0,
-                  minHeight: '40px',
-                  height: '40px',
-                  background: enableWatermark 
-                    ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
-                    : 'transparent',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-                  }
-                }}
+                sx={enableWatermark ? commonStyles.formControlCheckboxActive : commonStyles.formControlCheckbox}
               />
             </Box>
           </Box>
@@ -252,24 +201,8 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* Insurance Forms */}
           <Box>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1.5, 
-              mb: 3, 
-              pb: 1.5, 
-              borderBottom: '2px solid',
-              borderColor: 'rgba(107, 142, 35, 0.15)',
-            }}>
-              <Box sx={{ 
-                p: 1, 
-                bgcolor: 'rgba(241, 248, 233, 1)', 
-                borderRadius: 2,
-                color: 'primary.main',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
+            <Box sx={commonStyles.sectionHeaderWithIcon}>
+              <Box sx={commonStyles.sectionIconBox}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -302,24 +235,8 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
 
           {/* Clinical Reports */}
           <Box>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1.5, 
-              mb: 3, 
-              pb: 1.5, 
-              borderBottom: '2px solid',
-              borderColor: 'rgba(107, 142, 35, 0.15)',
-            }}>
-              <Box sx={{ 
-                p: 1, 
-                bgcolor: 'rgba(241, 248, 233, 1)', 
-                borderRadius: 2,
-                color: 'primary.main',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
+            <Box sx={commonStyles.sectionHeaderWithIcon}>
+              <Box sx={commonStyles.sectionIconBox}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
@@ -362,24 +279,8 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
           {/* Laboratory Reports */}
           {availableLabTests.length > 0 && (
             <Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1.5, 
-                mb: 3, 
-                pb: 1.5, 
-                borderBottom: '2px solid',
-                borderColor: 'rgba(107, 142, 35, 0.15)',
-              }}>
-                <Box sx={{ 
-                  p: 1, 
-                  bgcolor: 'rgba(241, 248, 233, 1)', 
-                  borderRadius: 2,
-                  color: 'primary.main',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
+              <Box sx={commonStyles.sectionHeaderWithIcon}>
+                <Box sx={commonStyles.sectionIconBox}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M9 2v1m6-1v1M4 8h16M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z" />
                     <path d="M9 11h.01M9 14h.01M12 11h.01M12 14h.01M15 11h.01M15 14h.01" />
@@ -390,7 +291,7 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 </Typography>
               </Box>
 
-              <Box sx={styles.responsiveGrid}>
+              <Box sx={commonStyles.responsiveGrid}>
                 {availableLabTests.map((test) => (
                   <DocumentCard
                     key={test.type}
@@ -413,20 +314,8 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
             variant="outlined"
             onClick={onBack}
             sx={{ 
+              ...commonStyles.floatingActionButtonOutlined,
               minWidth: 160,
-              px: 4,
-              py: 1.5,
-              fontSize: '1rem',
-              borderRadius: 2.5,
-              borderWidth: 2,
-              textTransform: 'none',
-              fontWeight: 700,
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                borderWidth: 2,
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-              }
             }}
           >
             ← Back to Edit

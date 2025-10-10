@@ -4,6 +4,93 @@ import { ExpandMore as ExpandMoreIcon, Add as AddIcon, Delete as DeleteIcon } fr
 import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
 import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
 import { StepContainer, SectionTitle, FormGrid, TabContent, LoadingSpinner, FloatingActionBar, SubTitle } from './SharedComponents';
+import * as styles from '../styles/commonStyles';
+
+// Accordion icon helper function
+const getAccordionIcon = (iconName: string) => {
+  const iconProps = {
+    width: "20",
+    height: "20",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  switch (iconName) {
+    case 'allergies':
+      return (
+        <svg {...iconProps}>
+          <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      );
+    case 'conditions':
+      return (
+        <svg {...iconProps}>
+          <rect x="3" y="8" width="18" height="12" rx="2"/>
+          <path d="M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/>
+          <circle cx="12" cy="14" r="2"/>
+        </svg>
+      );
+    case 'medications':
+      return (
+        <svg {...iconProps}>
+          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/>
+          <path d="m8.5 8.5 7 7"/>
+        </svg>
+      );
+    case 'discontinued':
+      return (
+        <svg {...iconProps}>
+          <circle cx="12" cy="12" r="10"/>
+          <path d="m4.9 4.9 14.2 14.2"/>
+        </svg>
+      );
+    case 'surgical':
+      return (
+        <svg {...iconProps}>
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      );
+    case 'family':
+      return (
+        <svg {...iconProps}>
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      );
+    case 'lab':
+      return (
+        <svg {...iconProps}>
+          <path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/>
+          <path d="M8.5 2h7"/>
+          <path d="M7 16h10"/>
+        </svg>
+      );
+    case 'vitals':
+      return (
+        <svg {...iconProps}>
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+        </svg>
+      );
+    case 'visits':
+      return (
+        <svg {...iconProps}>
+          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+          <path d="M9 12h6"/>
+          <path d="M9 16h6"/>
+        </svg>
+      );
+    default:
+      return <></>;
+  }
+};
 
 interface EditDataStepProps {
   generatedData: GeneratedData | null;
@@ -43,11 +130,6 @@ interface MedicalHistorySectionProps {
 interface LabResultsSectionProps {
   data: LabReport;
   onChange: (updatedData: LabReport) => void;
-}
-
-interface VitalSignsSectionProps {
-  data: VisitReport;
-  onChange: (updatedData: VisitReport) => void;
 }
 
 interface VisitNotesSectionProps {
@@ -114,8 +196,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
     { id: 'provider', label: 'Provider', icon: 'stethoscope' },
     { id: 'medical', label: 'Medical History', icon: 'activity' },
     { id: 'labs', label: 'Lab Reports', icon: 'flask' },
-    { id: 'vitals', label: 'Vital Signs', icon: 'heart' },
-    { id: 'visits', label: 'Visit Notes', icon: 'clipboard' }
+    { id: 'visits', label: 'Visit Records', icon: 'clipboard' }
   ];
 
   const getIcon = (iconName: string) => {
@@ -177,64 +258,14 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
   return (
     <StepContainer>
       <Box sx={{ borderRadius: 2, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Box sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          background: 'linear-gradient(180deg, rgba(250, 248, 243, 1) 0%, rgba(245, 241, 232, 0.95) 100%)',
-          m: 0,
-          p: 0,
-        }}>
+        <Box sx={styles.tabsContainer}>
           <Tabs
             value={activeSection}
             onChange={(_, newValue) => setActiveSection(newValue)}
             variant="scrollable"
             scrollButtons="auto"
             centered
-            sx={{
-              minHeight: 56,
-              maxWidth: 1200,
-              m: 0,
-              p: 0,
-              '& .MuiTab-root': {
-                minHeight: 56,
-                textTransform: 'none',
-                fontSize: { xs: '0.8125rem', sm: '0.875rem', md: '0.9375rem' },
-                fontWeight: 600,
-                minWidth: { xs: 100, sm: 120, md: 140 },
-                color: 'text.secondary',
-                transition: 'all 0.2s ease',
-                borderRadius: '8px 8px 0 0',
-                mx: 0,
-                py: 1.25,
-                px: { xs: 1.5, sm: 2, md: 2.5 },
-                '&:hover': {
-                  color: 'primary.main',
-                  bgcolor: 'rgba(107, 142, 35, 0.08)',
-                  transform: 'translateY(-2px)',
-                },
-                '&.Mui-selected': {
-                  color: 'primary.main',
-                  bgcolor: 'rgba(241, 248, 233, 0.9)',
-                  fontWeight: 700,
-                  boxShadow: '0 -2px 8px rgba(107, 142, 35, 0.12)',
-                }
-              },
-              '& .MuiTabs-indicator': {
-                height: 3,
-                borderRadius: '3px 3px 0 0',
-                background: 'linear-gradient(90deg, #6b8e23, #8faf3c)',
-                boxShadow: '0 2px 4px rgba(107, 142, 35, 0.3)',
-              },
-              '& .MuiSvgIcon-root': {
-                fontSize: '1.125rem',
-              },
-              '& .MuiTabs-scrollButtons': {
-                color: 'primary.main',
-                '&.Mui-disabled': {
-                  opacity: 0.3,
-                }
-              }
-            }}
+            sx={styles.customTabs}
           >
             {sections.map(section => (
               <Tab
@@ -323,14 +354,20 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                               }
                               setExpandedLabReports(newExpanded);
                             }}
-                            sx={{ mb: 1.5 }}
+                            sx={styles.enhancedAccordion}
                           >
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-                                {labData.testName} ({labData.testType}) <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>- {labData.results.length} results</Typography>
+                            <AccordionSummary 
+                              expandIcon={<ExpandMoreIcon />}
+                              sx={styles.enhancedAccordionSummary}
+                            >
+                              <Typography sx={styles.accordionTitle}>
+                                {getAccordionIcon('lab')} {labData.testName} ({labData.testType})
+                                <Box component="span" sx={styles.accordionBadge}>
+                                  {labData.results.length}
+                                </Box>
                               </Typography>
                             </AccordionSummary>
-                            <AccordionDetails>
+                            <AccordionDetails sx={styles.enhancedAccordionDetails}>
                               <LabResultsSection
                                 data={labData}
                                 onChange={(updated) => {
@@ -362,76 +399,13 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               </>
             )}
             
-            {/* Vital Signs section: Data now managed via VisitReport[] */}
-            {activeSection === 'vitals' && (
-              <>
-                {editedData.visitReports.length > 0 ? (
-                  <Box>
-                    <SectionTitle >
-                      Vital Signs ({editedData.visitReports.length} visits)
-                    </SectionTitle>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      {editedData.visitReports.map((visitData, index) => {
-                        const isExpanded = expandedVisitReports.has(index);
-                        return (
-                          <Accordion 
-                            key={index}
-                            expanded={isExpanded}
-                            onChange={() => {
-                              const newExpanded = new Set(expandedVisitReports);
-                              if (isExpanded) {
-                                newExpanded.delete(index);
-                              } else {
-                                newExpanded.add(index);
-                              }
-                              setExpandedVisitReports(newExpanded);
-                            }}
-                            sx={{ mb: 1.5 }}
-                          >
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>- {visitData.visit.type}</Typography>
-                              </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              <VitalSignsSection
-                                data={visitData}
-                                onChange={(updated) => {
-                                  setEditedData(prev => {
-                                    if (!prev) return prev;
-                                    const newData = JSON.parse(JSON.stringify(prev));
-                                    newData.visitReports[index] = updated;
-                                    setHasChanges(true);
-                                    return newData;
-                                  });
-                                }}
-                              />
-                            </AccordionDetails>
-                          </Accordion>
-                        );
-                      })}
-                    </Box>
-                  </Box>
-                ) : (
-                  <Box>
-                    <SubTitle>
-                      Vital Signs
-                    </SubTitle>
-                    <SubTitle variant="body1" color="warning.main">
-                      ⚠️ No visit report data available. Please generate data first.
-                    </SubTitle>
-                  </Box>
-                )}
-              </>
-            )}
-            
-            {/* Visit Notes section: Data now managed via VisitReport[] */}
+            {/* Visit Records section: Combined Vital Signs and Visit Notes */}
             {activeSection === 'visits' && (
               <>
                 {editedData.visitReports.length > 0 ? (
                   <Box>
                     <SectionTitle>
-                      Visit Notes ({editedData.visitReports.length} visits)
+                      Visit Records ({editedData.visitReports.length} visits)
                     </SectionTitle>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       {editedData.visitReports.map((visitData, index) => {
@@ -449,15 +423,21 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                               }
                               setExpandedVisitReports(newExpanded);
                             }}
-                            sx={{ mb: 1.5 }}
+                            sx={styles.enhancedAccordion}
                           >
-                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                              <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-                                Visit {index + 1} - {visitData.visit.date} <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>- {visitData.visit.type}</Typography>
+                            <AccordionSummary 
+                              expandIcon={<ExpandMoreIcon />}
+                              sx={styles.enhancedAccordionSummary}
+                            >
+                              <Typography sx={styles.accordionTitle}>
+                                {getAccordionIcon('visits')} Visit {index + 1} - {visitData.visit.date}
+                                <Typography component="span" sx={styles.accordionSubtext}>
+                                  {visitData.visit.type}
+                                </Typography>
                               </Typography>
                             </AccordionSummary>
-                            <AccordionDetails>
-                              <VisitNotesSection
+                            <AccordionDetails sx={styles.enhancedAccordionDetails}>
+                              <VisitRecordSection
                                 data={visitData}
                                 onChange={(updated) => {
                                   setEditedData(prev => {
@@ -478,7 +458,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
                 ) : (
                   <Box>
                     <Typography variant="h5" gutterBottom sx={{ mb: 2.5, color: 'primary.main', fontWeight: 600, fontSize: '1.25rem' }}>
-                      Visit Notes
+                      Visit Records
                     </Typography>
                     <Typography variant="body1" color="warning.main">
                       ⚠️ No visit report data available. Please generate data first.
@@ -493,45 +473,20 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
           <Button
             variant="outlined"
             onClick={onBack}
-            sx={{ 
-              minWidth: 140,
-              px: 3,
-              py: 1.25,
-              fontSize: '0.9375rem',
-              borderRadius: 2.5,
-              borderWidth: 2,
-              textTransform: 'none',
-              fontWeight: 600,
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                borderWidth: 2,
-                transform: 'translateX(-4px)',
-                boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-              }
-            }}
+            sx={styles.floatingActionButtonBack}
           >
             ← Back to Generate
           </Button>
           
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             {hasChanges && (
               <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleSaveChanges}
                 sx={{
-                  px: 3,
-                  py: 1.25,
+                  ...styles.floatingActionButtonSecondary,
                   fontSize: '0.9375rem',
-                  borderRadius: 2.5,
-                  textTransform: 'none',
-                  fontWeight: 700,
-                  boxShadow: '0 4px 12px rgba(109, 76, 65, 0.3)',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 8px 20px rgba(109, 76, 65, 0.4)',
-                  }
                 }}
               >
                 Save Changes
@@ -542,20 +497,8 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
               variant="contained"
               onClick={handleNext}
               sx={{ 
+                ...styles.floatingActionButtonPrimary,
                 minWidth: 140,
-                px: 4,
-                py: 1.5,
-                fontSize: '1rem',
-                fontWeight: 700,
-                borderRadius: 2.5,
-                textTransform: 'none',
-                boxShadow: '0 4px 12px rgba(107, 142, 35, 0.3)',
-                background: 'linear-gradient(135deg, #6b8e23 0%, #8faf3c 100%)',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 8px 20px rgba(107, 142, 35, 0.4)',
-                }
               }}
             >
               Continue to Export →
@@ -570,7 +513,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
 // Patient Info Section Component
 const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange }) => (
   <Box>
-    <SectionTitle>Patient Demographics</SectionTitle>
+    <SectionTitle>Patient Information</SectionTitle>
     
     <FormGrid>
       <TextField
@@ -915,7 +858,7 @@ const InsuranceSection: React.FC<InsuranceSectionProps> = ({ data, onChange }) =
 // Provider Section Component
 const ProviderSection: React.FC<ProviderSectionProps> = ({ data, onChange }) => (
   <Box>
-    <SectionTitle>Primary Care Provider</SectionTitle>
+    <SectionTitle>Care Provider Information</SectionTitle>
     
     <FormGrid sx={{ mb: 3 }}>
       <TextField
@@ -1056,14 +999,20 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('allergies')}
       onChange={() => onToggleSection('allergies')}
-      sx={{ mb: 1.5 }}
+      sx={styles.enhancedAccordion}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-          Allergies <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.allergies || []).length} items)</Typography>
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={styles.enhancedAccordionSummary}
+      >
+        <Typography sx={styles.accordionTitle}>
+          {getAccordionIcon('allergies')} Allergies
+          <Box component="span" sx={styles.accordionBadge}>
+            {(data.allergies || []).length}
+          </Box>
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={styles.enhancedAccordionDetails}>
         {(data.allergies || []).map((allergy, index) => (
           <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.allergies || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
             <FormGrid>
@@ -1129,14 +1078,20 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('conditions')}
       onChange={() => onToggleSection('conditions')}
-      sx={{ mb: 1.5 }}
+      sx={styles.enhancedAccordion}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-          Active Conditions <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.chronicConditions || []).length} items)</Typography>
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={styles.enhancedAccordionSummary}
+      >
+        <Typography sx={styles.accordionTitle}>
+          {getAccordionIcon('conditions')} Active Conditions
+          <Box component="span" sx={styles.accordionBadge}>
+            {(data.chronicConditions || []).length}
+          </Box>
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={styles.enhancedAccordionDetails}>
         {(data.chronicConditions || []).map((condition: ChronicCondition, index: number) => (
           <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.chronicConditions || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
             <FormGrid>
@@ -1206,14 +1161,20 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('currentMeds')}
       onChange={() => onToggleSection('currentMeds')}
-      sx={{ mb: 1.5 }}
+      sx={styles.enhancedAccordion}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-          Current Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.medications.current || []).length} items)</Typography>
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={styles.enhancedAccordionSummary}
+      >
+        <Typography sx={styles.accordionTitle}>
+          {getAccordionIcon('medications')} Current Medications
+          <Box component="span" sx={styles.accordionBadge}>
+            {(data.medications.current || []).length}
+          </Box>
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={styles.enhancedAccordionDetails}>
         {(data.medications.current || []).map((med, index) => (
           <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.medications.current || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
             <FormGrid>
@@ -1311,14 +1272,20 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('discontinuedMeds')}
       onChange={() => onToggleSection('discontinuedMeds')}
-      sx={{ mb: 1.5 }}
+      sx={styles.enhancedAccordion}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-          Discontinued Medications <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.medications.discontinued || []).length} items)</Typography>
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={styles.enhancedAccordionSummary}
+      >
+        <Typography sx={styles.accordionTitle}>
+          {getAccordionIcon('discontinued')} Discontinued Medications
+          <Box component="span" sx={styles.accordionBadge}>
+            {(data.medications.discontinued || []).length}
+          </Box>
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={styles.enhancedAccordionDetails}>
         {(data.medications.discontinued || []).map((med: DiscontinuedMedication, index: number) => (
           <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.medications.discontinued || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
             <FormGrid>
@@ -1391,14 +1358,20 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('surgicalHistory')}
       onChange={() => onToggleSection('surgicalHistory')}
-      sx={{ mb: 1.5 }}
+      sx={styles.enhancedAccordion}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-          Surgical History <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.surgicalHistory || []).length} items)</Typography>
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={styles.enhancedAccordionSummary}
+      >
+        <Typography sx={styles.accordionTitle}>
+          {getAccordionIcon('surgical')} Surgical History
+          <Box component="span" sx={styles.accordionBadge}>
+            {(data.surgicalHistory || []).length}
+          </Box>
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={styles.enhancedAccordionDetails}>
         {(data.surgicalHistory || []).map((surgery: SurgicalHistory, index: number) => (
           <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.surgicalHistory || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
             <FormGrid>
@@ -1474,14 +1447,20 @@ const MedicalHistorySection: React.FC<MedicalHistorySectionProps> = ({ data, onC
     <Accordion 
       expanded={expandedSections.has('familyHistory')}
       onChange={() => onToggleSection('familyHistory')}
-      sx={{ mb: 1.5 }}
+      sx={styles.enhancedAccordion}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 600, fontSize: '0.9375rem' }}>
-          Family History <Typography component="span" sx={{ ml: 1, color: 'text.secondary', fontSize: '0.875rem' }}>({(data.familyHistory || []).length} items)</Typography>
+      <AccordionSummary 
+        expandIcon={<ExpandMoreIcon />}
+        sx={styles.enhancedAccordionSummary}
+      >
+        <Typography sx={styles.accordionTitle}>
+          {getAccordionIcon('family')} Family History
+          <Box component="span" sx={styles.accordionBadge}>
+            {(data.familyHistory || []).length}
+          </Box>
         </Typography>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={styles.enhancedAccordionDetails}>
         {(data.familyHistory || []).map((family: FamilyHistory, index: number) => (
           <Box key={index} sx={{ mb: 3, pb: 3, borderBottom: index < (data.familyHistory || []).length - 1 ? '1px solid' : 'none', borderColor: 'divider' }}>
             <FormGrid>
@@ -1656,92 +1635,8 @@ const LabResultsSection: React.FC<LabResultsSectionProps> = ({ data, onChange })
   );
 };
 
-// Vital Signs Section Component - Updated to use VisitReportData
-const VitalSignsSection: React.FC<VitalSignsSectionProps> = ({ data, onChange }) => {
-  if (!data || !data.vitalSigns) return null;
-
-  const handleVitalChange = (field: string, value: any) => {
-    const updated = { ...data };
-    updated.vitalSigns = { ...data.vitalSigns, [field]: value };
-    onChange(updated);
-  };
-
-  const vitals = data.vitalSigns;
-
-  return (
-    <Box>
-      <SubTitle>Vital Signs</SubTitle>
-      <FormGrid>
-        <TextField
-          label="Blood Pressure"
-          value={vitals.bloodPressure}
-          onChange={(e) => handleVitalChange('bloodPressure', e.target.value)}
-          placeholder="120/80"
-          fullWidth
-        />
-        
-        <TextField
-          label="Heart Rate (bpm)"
-          value={vitals.heartRate}
-          onChange={(e) => handleVitalChange('heartRate', e.target.value)}
-          placeholder="72"
-          fullWidth
-        />
-        
-        <TextField
-          label="Temperature (°F)"
-          value={vitals.temperature}
-          onChange={(e) => handleVitalChange('temperature', e.target.value)}
-          placeholder="98.6"
-          fullWidth
-        />
-        
-        <TextField
-          label="Weight (lbs)"
-          value={vitals.weight}
-          onChange={(e) => handleVitalChange('weight', e.target.value)}
-          placeholder="150"
-          fullWidth
-        />
-        
-        <TextField
-          label="Height"
-          value={vitals.height}
-          onChange={(e) => handleVitalChange('height', e.target.value)}
-          placeholder="5'8&quot;"
-          fullWidth
-        />
-        
-        <TextField
-          label="BMI"
-          value={vitals.bmi}
-          onChange={(e) => handleVitalChange('bmi', e.target.value)}
-          placeholder="22.8"
-          fullWidth
-        />
-        
-        <TextField
-          label="Oxygen Saturation (%)"
-          value={vitals.oxygenSaturation}
-          onChange={(e) => handleVitalChange('oxygenSaturation', e.target.value)}
-          placeholder="98"
-          fullWidth
-        />
-        
-        <TextField
-          label="Respiratory Rate (breaths/min)"
-          value={vitals.respiratoryRate}
-          onChange={(e) => handleVitalChange('respiratoryRate', e.target.value)}
-          placeholder="16"
-          fullWidth
-        />
-      </FormGrid>
-    </Box>
-  );
-};
-
-// Visit Notes Section Component - Updated to use VisitReportData
-const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => {
+// Visit Record Section Component - Combined Visit Notes and Vital Signs
+const VisitRecordSection: React.FC<VisitNotesSectionProps> = ({ data, onChange }) => {
   if (!data || !data.visit) return null;
 
   const handleVisitChange = (field: string, value: any) => {
@@ -1760,8 +1655,8 @@ const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange })
 
   return (
     <Box>
-      <SubTitle>Visit Notes</SubTitle>
-      <FormGrid>
+      <SubTitle>Visit Information</SubTitle>
+      <FormGrid sx={{ mb: 4 }}>
         <TextField
           label="Visit Date"
           value={visit.date}
@@ -1828,7 +1723,7 @@ const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange })
         />
       </FormGrid>
       
-      <SectionTitle sx={{ mt: 4, mb: 2, fontSize: '1.1rem' }}>Vitals</SectionTitle>
+      <SubTitle>Vital Signs</SubTitle>
       <FormGrid>
         <TextField
           label="Blood Pressure"
@@ -1839,7 +1734,7 @@ const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange })
         />
         
         <TextField
-          label="Heart Rate"
+          label="Heart Rate (bpm)"
           type="number"
           value={data.vitalSigns.heartRate}
           onChange={(e) => handleVitalChange('heartRate', parseInt(e.target.value) || 0)}
@@ -1875,11 +1770,28 @@ const VisitNotesSection: React.FC<VisitNotesSectionProps> = ({ data, onChange })
         />
         
         <TextField
+          label="BMI"
+          value={data.vitalSigns.bmi}
+          onChange={(e) => handleVitalChange('bmi', e.target.value)}
+          placeholder="22.8"
+          fullWidth
+        />
+        
+        <TextField
           label="Oxygen Saturation (%)"
           type="number"
           value={data.vitalSigns.oxygenSaturation}
           onChange={(e) => handleVitalChange('oxygenSaturation', parseInt(e.target.value) || 0)}
           placeholder="98"
+          fullWidth
+        />
+        
+        <TextField
+          label="Respiratory Rate (breaths/min)"
+          type="number"
+          value={data.vitalSigns.respiratoryRate}
+          onChange={(e) => handleVitalChange('respiratoryRate', parseInt(e.target.value) || 0)}
+          placeholder="16"
           fullWidth
         />
       </FormGrid>

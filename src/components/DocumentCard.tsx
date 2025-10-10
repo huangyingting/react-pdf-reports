@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, Box, Typography, Button, CircularProgress } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
+import * as styles from '../styles/commonStyles';
 
 interface DocumentCardProps {
   title: string;
@@ -73,59 +74,20 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
 }) => {
   return (
     <Card 
-      sx={{ 
+      sx={{
+        ...styles.enhancedCard,
         p: compact ? 2.5 : 3.5,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-        minWidth: 0,
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8faf9 100%)',
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'rgba(107, 142, 35, 0.08)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06)',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 12px 28px rgba(107, 142, 35, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08)',
-          borderColor: 'rgba(107, 142, 35, 0.2)',
-          '& .card-icon': {
-            transform: 'scale(1.1) rotate(5deg)',
-          }
+        '&:hover .card-icon': {
+          transform: 'scale(1.1) rotate(5deg)',
         },
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          background: 'linear-gradient(90deg, #6b8e23, #8faf3c, #6b8e23)',
-          opacity: 0,
-          transition: 'opacity 0.3s ease',
-        },
-        '&:hover::before': {
-          opacity: 1,
-        }
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2, width: '100%' }}>
         <Box 
           className="card-icon"
-          sx={{ 
-            color: 'primary.main',
+          sx={{
+            ...styles.animatedIconBox,
             p: compact ? 1 : 1.25,
-            background: 'linear-gradient(135deg, rgba(241, 248, 233, 1) 0%, rgba(143, 175, 60, 0.15) 100%)',
-            borderRadius: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 2px 8px rgba(107, 142, 35, 0.15)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
           {getIcon(iconType)}
@@ -166,19 +128,8 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           disabled={isLoading}
           startIcon={<VisibilityOutlinedIcon />}
           sx={{ 
+            ...styles.outlinedButton,
             flex: 1,
-            borderRadius: 2,
-            borderWidth: 1.5,
-            textTransform: 'none',
-            fontWeight: 600,
-            fontSize: '14px',
-            py: 1,
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              borderWidth: 1.5,
-              transform: 'scale(1.02)',
-              boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-            }
           }}
         >
           Preview
@@ -190,19 +141,8 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
           sx={{ 
+            ...styles.primaryButton,
             flex: 1,
-            borderRadius: 2,
-            textTransform: 'none',
-            fontWeight: 600,
-            fontSize: '14px',
-            py: 1,
-            boxShadow: '0 2px 8px rgba(107, 142, 35, 0.25)',
-            background: 'linear-gradient(135deg, #6b8e23 0%, #8faf3c 100%)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              transform: 'scale(1.02)',
-              boxShadow: '0 6px 16px rgba(107, 142, 35, 0.35)',
-            }
           }}
         >
           {isLoading ? 'Generating...' : 'Generate'}

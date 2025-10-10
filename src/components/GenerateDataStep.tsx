@@ -20,6 +20,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckIcon from '@mui/icons-material/Check';
 import { StepContainer, ContentContainer, SectionCard, FloatingActionBar } from './SharedComponents';
+import * as styles from '../styles/commonStyles';
 import { 
   GenerationOptions,
   GeneratedData,
@@ -244,23 +245,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                   value="faker"
                   control={<Radio />}
                   label="Faker.js"
-                  sx={{
-                    border: '2px solid',
-                    borderColor: generationMethod === 'faker' ? 'primary.main' : 'divider',
-                    borderRadius: 2.5,
-                    px: 2.5,
-                    py: 1.25,
-                    m: 0,
-                    background: generationMethod === 'faker' 
-                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
-                      : 'transparent',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-                      transform: 'translateY(-2px)',
-                    }
-                  }}
+                  sx={generationMethod === 'faker' ? styles.radioButtonCardActive : styles.radioButtonCard}
                 />
                 <FormControlLabel
                   value="ai"
@@ -272,22 +257,13 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     </Box>
                   }
                   sx={{
-                    border: '2px solid',
-                    borderColor: generationMethod === 'ai' ? 'primary.main' : 'divider',
-                    borderRadius: 2.5,
-                    px: 2.5,
-                    py: 1.25,
-                    m: 0,
-                    background: generationMethod === 'ai' 
-                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
-                      : 'transparent',
+                    ...(generationMethod === 'ai' ? styles.radioButtonCardActive : styles.radioButtonCard),
                     opacity: !azureConfig ? 0.6 : 1,
-                    transition: 'all 0.2s ease',
                     '&:hover': {
                       borderColor: !azureConfig ? 'divider' : 'primary.main',
                       boxShadow: !azureConfig ? 'none' : '0 4px 12px rgba(107, 142, 35, 0.15)',
                       transform: !azureConfig ? 'none' : 'translateY(-2px)',
-                    }
+                    },
                   }}
                 />
               </RadioGroup>
@@ -369,21 +345,11 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                 <Card 
                   key={key}
                   onClick={() => handlePresetChange(key)}
-                  sx={{ 
+                  sx={{
+                    ...(selectedPreset === key ? styles.presetCardActive : styles.presetCard),
                     p: 3,
-                    cursor: 'pointer',
-                    border: selectedPreset === key ? '2.5px solid' : '1.5px solid',
-                    borderColor: selectedPreset === key ? 'primary.main' : 'divider',
-                    background: selectedPreset === key 
-                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 1) 0%, rgba(143, 175, 60, 0.15) 100%)'
-                      : 'linear-gradient(135deg, #ffffff 0%, #f8faf9 100%)',
-                    borderRadius: 3,
                     position: 'relative',
                     overflow: 'hidden',
-                    boxShadow: selectedPreset === key 
-                      ? '0 8px 24px rgba(107, 142, 35, 0.2)'
-                      : '0 2px 8px rgba(0, 0, 0, 0.04)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&::before': {
                       content: '""',
                       position: 'absolute',
@@ -395,30 +361,15 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                       opacity: selectedPreset === key ? 1 : 0,
                       transition: 'opacity 0.3s ease',
                     },
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 12px 32px rgba(107, 142, 35, 0.18)',
-                      borderColor: 'primary.main',
-                      '&::before': {
-                        opacity: 1,
-                      }
+                    '&:hover::before': {
+                      opacity: 1,
                     },
                   }}
                 >
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                     <Typography variant="h4" sx={{ fontSize: '1.0625rem', fontWeight: 700 }}>{preset.name}</Typography>
                     {selectedPreset === key && (
-                      <Box sx={{ 
-                        bgcolor: 'primary.main', 
-                        color: 'white', 
-                        borderRadius: '50%', 
-                        width: 24, 
-                        height: 24, 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        boxShadow: '0 2px 8px rgba(107, 142, 35, 0.3)',
-                      }}>
+                      <Box sx={styles.badgeIndicator}>
                         <CheckIcon sx={{ fontSize: 16 }} />
                       </Box>
                     )}
@@ -427,35 +378,17 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     {preset.description}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                    <Box sx={{ 
-                      px: 1.5, 
-                      py: 0.5, 
-                      bgcolor: 'rgba(107, 142, 35, 0.1)', 
-                      borderRadius: 1.5,
-                      border: '1px solid rgba(107, 142, 35, 0.2)',
-                    }}>
+                    <Box sx={styles.badgeSmall}>
                       <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
                         Visits: {preset.options.numberOfVisits}
                       </Typography>
                     </Box>
-                    <Box sx={{ 
-                      px: 1.5, 
-                      py: 0.5, 
-                      bgcolor: 'rgba(107, 142, 35, 0.1)', 
-                      borderRadius: 1.5,
-                      border: '1px solid rgba(107, 142, 35, 0.2)',
-                    }}>
+                    <Box sx={styles.badgeSmall}>
                       <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
                         Tests: {preset.options.numberOfLabTests}
                       </Typography>
                     </Box>
-                    <Box sx={{ 
-                      px: 1.5, 
-                      py: 0.5, 
-                      bgcolor: 'rgba(107, 142, 35, 0.1)', 
-                      borderRadius: 1.5,
-                      border: '1px solid rgba(107, 142, 35, 0.2)',
-                    }}>
+                    <Box sx={styles.badgeSmall}>
                       <Typography variant="caption" sx={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' }}>
                         {preset.options.complexity}
                       </Typography>
@@ -476,27 +409,14 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               gap: 2.5,
             }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                <Typography variant="body2" sx={styles.fieldLabel}>
                   Medical Complexity
                 </Typography>
                 <Select
                   value={customOptions.complexity}
                   onChange={(e: SelectChangeEvent) => setCustomOptions({...customOptions, complexity: e.target.value as 'low' | 'medium' | 'high'})}
                   fullWidth
-                  sx={{
-                    borderRadius: 2,
-                    '& .MuiSelect-select': {
-                      display: 'flex',
-                      alignItems: 'center',
-                      py: 1.5,
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderWidth: 1.5,
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'primary.main',
-                    }
-                  }}
+                  sx={styles.formControlSelect}
                 >
                   <MenuItem value="low">Basic (2-3 conditions)</MenuItem>
                   <MenuItem value="medium">Moderate (4-5 conditions)</MenuItem>
@@ -505,27 +425,14 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                <Typography variant="body2" sx={styles.fieldLabel}>
                   Number of Visits
                 </Typography>
                 <Select
                   value={customOptions.numberOfVisits}
                   onChange={(e: SelectChangeEvent<number>) => setCustomOptions({...customOptions, numberOfVisits: e.target.value as number})}
                   fullWidth
-                  sx={{
-                    borderRadius: 2,
-                    '& .MuiSelect-select': {
-                      display: 'flex',
-                      alignItems: 'center',
-                      py: 1.5,
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderWidth: 1.5,
-                    },
-                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                      borderColor: 'primary.main',
-                    }
-                  }}
+                  sx={styles.formControlSelect}
                 >
                   <MenuItem value={1}>1 Visit</MenuItem>
                   <MenuItem value={2}>2 Visits</MenuItem>
@@ -568,7 +475,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
               </Box>
 
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="body2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.9rem' }}>
+                <Typography variant="body2" sx={styles.fieldLabel}>
                   Secondary Insurance
                 </Typography>
                 <FormControlLabel
@@ -580,24 +487,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
                     />
                   }
                   label="Include"
-                  sx={{
-                    border: '2px solid',
-                    borderColor: customOptions.includeSecondaryInsurance ? 'primary.main' : 'divider',
-                    borderRadius: 2,
-                    px: 2,
-                    py: 0.5,
-                    m: 0,
-                    minHeight: '40px',
-                    height: '40px',
-                    background: customOptions.includeSecondaryInsurance 
-                      ? 'linear-gradient(135deg, rgba(241, 248, 233, 0.6) 0%, rgba(143, 175, 60, 0.1) 100%)'
-                      : 'transparent',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 4px 12px rgba(107, 142, 35, 0.15)',
-                    }
-                  }}
+                  sx={customOptions.includeSecondaryInsurance ? styles.formControlCheckboxActive : styles.formControlCheckbox}
                 />
               </Box>
             </Box>
@@ -617,24 +507,7 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
             onClick={handleGenerateData}
             disabled={isGenerating}
             startIcon={isGenerating && <CircularProgress size={18} color="inherit" />}
-            sx={{
-              px: 4,
-              py: 1.5,
-              fontSize: '1rem',
-              fontWeight: 700,
-              borderRadius: 2.5,
-              textTransform: 'none',
-              boxShadow: '0 4px 12px rgba(107, 142, 35, 0.3)',
-              background: 'linear-gradient(135deg, #6b8e23 0%, #8faf3c 100%)',
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 8px 20px rgba(107, 142, 35, 0.4)',
-              },
-              '&:disabled': {
-                background: 'linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%)',
-              }
-            }}
+            sx={styles.floatingActionButtonPrimary}
           >
             {isGenerating 
               ? (generationMethod === 'ai' ? 'Generating with AI...' : 'Generating...') 
