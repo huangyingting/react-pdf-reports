@@ -26,6 +26,10 @@ import {
   VisitReportSchema,
   MedicalHistorySchema,
   VisitReport,
+  W2,
+  W2Schema,
+  Passport,
+  PassportSchema,
 } from './zodSchemas';
 import { 
   ResponseFormats, 
@@ -806,6 +810,171 @@ All data must be completely synthetic.`;
     console.error('Failed to generate medical history with AI:', error);
     throw new Error(
       `Medical history generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Generate W-2 form using AI
+ * Creates realistic W-2 wage and tax statement using Azure OpenAI
+ * 
+ * @param config Azure OpenAI configuration
+ * @param individual Individual data with employer information
+ * @param cacheConfig Cache configuration
+ * @returns W2 object
+ */
+export async function generateW2WithAI(
+  config: AzureOpenAIConfig,
+  individual: Individual,
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
+): Promise<W2> {
+  // Generate cache key based on parameters
+  const cacheKey = generateCacheKey('generateW2', individual.id);
+  
+  // Try to get from cache first
+  const cached = getFromCache<W2>(cacheConfig, cacheKey);
+  if (cached) {
+    console.log('✨ W-2 data retrieved from cache');
+    return cached;
+  }
+
+  const prompt = `Generate a complete W-2 wage and tax statement for an employee.
+
+**Employee Information:**
+- Name: ${individual.firstName} ${individual.lastName}
+- SSN: ${individual.ssn}
+- Address: ${individual.address.street}, ${individual.address.city}, ${individual.address.state} ${individual.address.zipCode}
+
+**Employer Information:**
+- Company: ${individual.companyName}
+- EIN: ${individual.employerEIN}
+- Address: ${individual.employerAddress.street}, ${individual.employerAddress.city}, ${individual.employerAddress.state} ${individual.employerAddress.zipCode}
+
+**Requirements:**
+- Annual wages: $30,000 - $150,000 (realistic amount)
+- Calculate realistic tax withholdings (federal ~15%, Social Security 6.2%, Medicare 1.45%, state ~5%)
+- Include realistic Box 12 codes (e.g., D for 401k, DD for health coverage)
+- All amounts formatted as decimal strings (e.g., "12345.67")
+- Tax year: current year minus 1
+- Include all wage and tax information
+- All data must be consistent and realistic
+
+Generate a complete, realistic W-2 statement.`;
+
+  const systemPrompt = 'You are an expert tax document generator creating synthetic W-2 forms for educational purposes. Generate completely fictional yet realistic tax data that follows IRS W-2 format requirements.';
+
+  try {
+    const data = await generateDataWithAI(
+      config,
+      prompt,
+      systemPrompt,
+      3,
+      ResponseFormats.W2
+    );
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(W2Schema, data);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      throw new Error(`AI generated invalid W-2 data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ W-2 data validated successfully');
+    const validatedData = validation.data;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData;
+  } catch (error) {
+    console.error('Failed to generate W-2 data with AI:', error);
+    throw new Error(
+      `W-2 data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+    );
+  }
+}
+
+/**
+ * Generate Passport using AI
+ * Creates realistic US passport data using Azure OpenAI
+ * 
+ * @param config Azure OpenAI configuration
+ * @param individual Individual data for passport holder
+ * @param cacheConfig Cache configuration
+ * @returns Passport object
+ */
+export async function generatePassportWithAI(
+  config: AzureOpenAIConfig,
+  individual: Individual,
+  cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
+): Promise<Passport> {
+  // Generate cache key based on parameters
+  const cacheKey = generateCacheKey('generatePassport', individual.id);
+  
+  // Try to get from cache first
+  const cached = getFromCache<Passport>(cacheConfig, cacheKey);
+  if (cached) {
+    console.log('✨ Passport data retrieved from cache');
+    return cached;
+  }
+
+  const prompt = `Generate a complete US Passport document for an individual.
+
+**Passport Holder Information:**
+- Full Name: ${individual.firstName} ${individual.lastName}
+- Date of Birth: ${individual.dateOfBirth}
+- Gender: ${individual.gender}
+- Address: ${individual.address.street}, ${individual.address.city}, ${individual.address.state} ${individual.address.zipCode}
+
+**Requirements:**
+- Passport Number: 9 digits starting with 5-6
+- Issue Date: Within the last 10 years (ISO 8601 format: YYYY-MM-DD)
+- Expiry Date: 10 years after issue date (ISO 8601 format: YYYY-MM-DD)
+- Authority: "United States Department of State"
+- Machine Readable Zone (MRZ) Line 1: Format P<USA + last name (padded with <) + first name (padded with <)
+- Machine Readable Zone (MRZ) Line 2: Passport number + check digit + country code + birth date + gender + expiry date + check digit
+- All dates in ISO 8601 format (YYYY-MM-DD)
+- Endorsements: null or specific text if applicable
+
+Generate realistic, properly formatted passport data.`;
+
+  const systemPrompt = 'You are an expert passport document generator creating synthetic US passport data for educational purposes. Generate completely fictional yet realistic passport documents following US State Department standards.';
+
+  try {
+    const data = await generateDataWithAI(
+      config,
+      prompt,
+      systemPrompt,
+      3,
+      ResponseFormats.Passport
+    );
+    
+    // Add individual reference
+    const passportData = {
+      ...data,
+      individual
+    };
+    
+    // Validate with Zod schema
+    const validation = validateWithSchema(PassportSchema, passportData);
+    
+    if (!validation.success) {
+      const errors = formatZodErrors(validation.errors);
+      throw new Error(`AI generated invalid passport data: ${errors.join(', ')}`);
+    }
+
+    console.log('✅ Passport data validated successfully');
+    const validatedData = validation.data;
+    
+    // Save to cache on success
+    saveToCache(cacheConfig, cacheKey, validatedData);
+    
+    return validatedData;
+  } catch (error) {
+    console.error('Failed to generate passport data with AI:', error);
+    throw new Error(
+      `Passport data generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
     );
   }
 }

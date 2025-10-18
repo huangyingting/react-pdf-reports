@@ -46,7 +46,9 @@ import {
   generateMedicalHistoryWithAI,
   generateVisitReportsWithAI,
   generateLabReportsWithAI,
-  generateCMS1500WithAI
+  generateCMS1500WithAI,
+  generateW2WithAI,
+  generatePassportWithAI
 } from '../utils/aiDataGenerator';
 import { loadAzureConfig, clearAzureConfig } from '../utils/azureConfigStorage';
 import { clearCache, DEFAULT_CACHE_CONFIG } from '../utils/cache';
@@ -127,11 +129,11 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         
         const cms1500 = await generateCMS1500WithAI(azureConfig, individual, insuranceInfo, provider);
         
-        // Generate W-2 (employer info is now part of individual)
-        const w2 = generateW2(individual);
+        // Generate W-2 with AI (employer info is now part of individual)
+        const w2 = await generateW2WithAI(azureConfig, individual);
         
-        // Generate Passport
-        const passport = generatePassport(individual);
+        // Generate Passport with AI
+        const passport = await generatePassportWithAI(azureConfig, individual);
         
         generatedData = {
           individual,

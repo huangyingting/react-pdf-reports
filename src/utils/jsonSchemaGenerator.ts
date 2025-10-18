@@ -21,7 +21,9 @@ import {
   LabReportSchema,
   LabReportsSchema,
   InsuranceInfoSchema,
-  ClaimSchema
+  ClaimSchema,
+  W2Schema,
+  PassportSchema
 } from './zodSchemas';
 
 /**
@@ -158,6 +160,24 @@ export const ResponseFormats = {
     ClaimSchema,
     'ClaimInfoResponse',
     { description: 'CMS-1500 claim information', strict: true }
+  ),
+
+  /**
+   * W-2 wage and tax statement
+   */
+  W2: zodToOpenAISchema(
+    W2Schema,
+    'W2Response',
+    { description: 'W-2 wage and tax statement', strict: true }
+  ),
+
+  /**
+   * US Passport document
+   */
+  Passport: zodToOpenAISchema(
+    PassportSchema,
+    'PassportResponse',
+    { description: 'US Passport document', strict: true }
   )
 };
 
