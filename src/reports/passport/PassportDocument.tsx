@@ -66,16 +66,12 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
             {/* Vertical Text */}
             <div className="vertical-labels">
               <div className="vertical-text">PASSPORT</div>
-              <div className="vertical-text">PASSPORT</div>
+              <div className="vertical-text">PASSEPORT</div>
               <div className="vertical-text">PASAPORTE</div>
             </div>
 
-            {/* USA Seal */}
-            <div className="usa-seal">
-              <div className="seal-outer">
-                <div className="seal-inner">USA</div>
-              </div>
-            </div>
+            {/* USA Text */}
+            <div className="usa-text">USA</div>
 
             {/* Photo */}
             <div className="photo-wrapper">
@@ -83,8 +79,8 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
             </div>
           </div>
 
-          {/* Center Section */}
-          <div className="passport-center">
+          {/* Right Section - Main Data */}
+          <div className="passport-right-section">
             {/* Header */}
             <div className="passport-header">
               <div className="usa-title">UNITED STATES OF AMERICA</div>
@@ -97,83 +93,86 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
                 <div className="header-value">P</div>
               </div>
               <div className="header-field">
-                <div className="header-label">Code / Code</div>
+                <div className="header-label">Code / Code / Código</div>
                 <div className="header-value">USA</div>
               </div>
               <div className="header-field-wide">
-                <div className="header-label">Passport No. / Nº de passport / No. de Pasaporte</div>
+                <div className="header-label">Passport No. / Nº de passeport / No. de Pasaporte</div>
                 <div className="header-value-large">{passportNumber}</div>
               </div>
             </div>
 
-            {/* Surname */}
-            <div className="data-field">
-              <div className="data-label">Surname / Nom / Apellidos</div>
-              <div className="data-value">{data.lastName.toUpperCase()}</div>
-            </div>
+            {/* Data Fields Grid */}
+            <div className="data-fields-container">
+              <div className="data-fields-left">
+                {/* Surname */}
+                <div className="data-field">
+                  <div className="data-label">Surname / Nom / Apellidos</div>
+                  <div className="data-value">{data.lastName.toUpperCase()}</div>
+                </div>
 
-            {/* Given Names */}
-            <div className="data-field">
-              <div className="data-label">Given Names / Prénoms / Nombres</div>
-              <div className="data-value">
-                {data.firstName.toUpperCase()} {data.middleInitial?.toUpperCase() || ''}
+                {/* Given Names */}
+                <div className="data-field">
+                  <div className="data-label">Given Names / Prénoms / Nombres</div>
+                  <div className="data-value">
+                    {data.firstName.toUpperCase()} {data.middleInitial?.toUpperCase() || ''}
+                  </div>
+                </div>
+
+                {/* Nationality */}
+                <div className="data-field">
+                  <div className="data-label">Nationality / Nationalité / Nacionalidad</div>
+                  <div className="data-value">UNITED STATES OF AMERICA</div>
+                </div>
+
+                {/* Date of Birth */}
+                <div className="data-field">
+                  <div className="data-label">Date of birth / Date de naissance / Fecha de nacimiento</div>
+                  <div className="data-value">{formatDateForPassport(data.dateOfBirth)}</div>
+                </div>
+
+                {/* Place of Birth */}
+                <div className="data-field">
+                  <div className="data-label">Place of birth / Lieu de naissance / Lugar de nacimiento</div>
+                  <div className="data-value">{address.city?.toUpperCase() || 'INDIANAPOLIS'}</div>
+                </div>
+
+                {/* Date of Issue */}
+                <div className="data-field">
+                  <div className="data-label">Date of issue / Date de délivrance / Fecha de expedición</div>
+                  <div className="data-value">{formatDateForPassport(issuanceDate.toISOString())}</div>
+                </div>
+
+                {/* Date of Expiry */}
+                <div className="data-field">
+                  <div className="data-label">Date of expiration / Date d'expiration / Fecha de caducidad</div>
+                  <div className="data-value">{formatDateForPassport(expiryDate.toISOString())}</div>
+                </div>
+
+                {/* Endorsements */}
+                <div className="data-field">
+                  <div className="data-label">Endorsements / Mentions Spéciales / Anotaciones</div>
+                  <div className="data-value-endorsement">SEE PAGE 27</div>
+                </div>
+              </div>
+
+              <div className="data-fields-right">
+                {/* Sex */}
+                <div className="data-field-right">
+                  <div className="data-label">Sex / Sexe / Sexo</div>
+                  <div className="data-value">{data.gender === 'Female' ? 'F' : 'M'}</div>
+                </div>
+
+                {/* Authority */}
+                <div className="data-field-right authority-field">
+                  <div className="data-label">Authority / Autorité / Autoridad</div>
+                  <div className="data-value-small">United States<br />Department of State</div>
+                </div>
+
+                {/* USA Large */}
+                <div className="usa-large">USA</div>
               </div>
             </div>
-
-            {/* Nationality */}
-            <div className="data-field">
-              <div className="data-label">Nationality / Nationalité / Nacionalidad</div>
-              <div className="data-value">UNITED STATES OF AMERICA</div>
-            </div>
-
-            {/* Date of Birth */}
-            <div className="data-field">
-              <div className="data-label">Date of birth / Date de naissance / Fecha de nacimiento</div>
-              <div className="data-value">{formatDateForPassport(data.dateOfBirth)}</div>
-            </div>
-
-            {/* Place of Birth and Sex */}
-            <div className="data-field-row">
-              <div className="data-field-flex">
-                <div className="data-label">Place of birth / Lieu de naissance / Lugar de nacimiento</div>
-                <div className="data-value">{address.state?.toUpperCase() || 'WASHINGTON'} U.S.A.</div>
-              </div>
-              <div className="data-field-small">
-                <div className="data-label">Sex / Sexe / Sexo</div>
-                <div className="data-value">{data.gender === 'Female' ? 'F' : 'M'}</div>
-              </div>
-            </div>
-
-            {/* Date of Issue and Authority */}
-            <div className="data-field-row">
-              <div className="data-field-flex">
-                <div className="data-label">Date of issue / Date de délivrance / Fecha de expedición</div>
-                <div className="data-value">{formatDateForPassport(issuanceDate.toISOString())}</div>
-              </div>
-              <div className="data-field-flex">
-                <div className="data-label">Authority / Autorité / Autoridad</div>
-                <div className="data-value-small">United States<br />Department of State</div>
-              </div>
-            </div>
-
-            {/* Date of Expiry and Endorsements */}
-            <div className="data-field-row">
-              <div className="data-field-flex">
-                <div className="data-label">Date of expiry / Date d'expiration / Fecha de caducidad</div>
-                <div className="data-value">{formatDateForPassport(expiryDate.toISOString())}</div>
-              </div>
-              <div className="data-field-flex">
-                <div className="data-label">Endorsements / Mentions Spéciales / Anotaciones</div>
-                <div className="data-value-endorsement">SEE PAGE 27</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section */}
-          <div className="passport-right">
-            <div className="dept-text-label">UNITED STATES</div>
-            <div className="dept-text-label">DEPARTMENT OF STATE</div>
-            <div className="usa-large">USA</div>
           </div>
         </div>
 

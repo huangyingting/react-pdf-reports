@@ -3,13 +3,14 @@
 .passport-document {
   background: #ffffff;
   color: #000;
-  font-size: 9px;
-  line-height: 1.1;
+  font-size: 8px;
+  line-height: 1.15;
   padding: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  font-family: 'Arial', 'Helvetica', sans-serif;
 }
 
 .passport-document * {
@@ -34,13 +35,13 @@
   margin-bottom: 0;
 }
 
-/* Passport Card */
+/* Passport Card - Standard passport book size */
 .passport-card {
   width: 125mm;
   height: 88mm;
-  padding: 4mm;
+  padding: 3mm;
   background: white;
-  border: 1px solid #000;
+  border: 2px solid #000;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -59,12 +60,12 @@
 
 .passport-content {
   display: grid;
-  grid-template-columns: 28mm 1fr 20mm;
+  grid-template-columns: 32mm 1fr;
   gap: 2mm;
   position: relative;
   z-index: 1;
   flex: 1;
-  margin-bottom: 12mm;
+  margin-bottom: 14mm;
 }
 
 /* Left Section */
@@ -72,99 +73,102 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding-top: 1mm;
-  padding-left: 1mm;
+  justify-content: flex-start;
+  padding-top: 2mm;
   height: 100%;
-  gap: 2mm;
+  gap: 3mm;
   position: relative;
 }
 
 .vertical-labels {
   display: flex;
-  flex-direction: row;
-  gap: 1mm;
+  flex-direction: column;
+  gap: 0.5mm;
   order: -2;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
 }
 
 .vertical-text {
-  font-weight: bold;
-  color: #001f5c;
-  font-size: 5px;
-  letter-spacing: 0.5px;
-  line-height: 1;
+  font-weight: 700;
+  color: #003087;
+  font-size: 7px;
+  letter-spacing: 0.3px;
+  line-height: 1.1;
+  font-family: 'Arial', 'Helvetica', sans-serif;
 }
 
 .usa-seal {
-  width: 22mm;
-  height: 10mm;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  order: -1;
-  background: #001f5c;
-  border: 1px solid #000;
-  border-radius: 5mm;
-  position: relative;
+  display: none;
 }
 
 .seal-outer {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  position: relative;
-  z-index: 1;
+  display: none;
 }
 
 .seal-inner {
-  font-weight: bold;
-  font-size: 9px;
-  color: #ffffff;
+  display: none;
+}
+
+.usa-text {
+  font-weight: 900;
+  font-size: 14px;
+  color: #003087;
   letter-spacing: 1.5px;
+  text-align: center;
+  font-family: 'Arial Black', 'Arial', sans-serif;
 }
 
 .photo-wrapper {
-  width: 24mm;
-  height: 30mm;
+  width: 28mm;
+  height: 35mm;
 }
 
 .passport-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border: 1.5px solid #000;
+  border: 2px solid #000;
   display: block;
 }
 
-/* Center Section */
+/* Right Section - Main Data Area */
+.passport-right-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+  padding: 0;
+}
+
+/* Center Section (legacy) */
 .passport-center {
   display: flex;
   flex-direction: column;
-  gap: 0.8mm;
-  padding: 0 1mm;
+  gap: 1mm;
+  padding: 0;
 }
 
 .passport-header {
   margin-bottom: 0.5mm;
+  padding-bottom: 0.5mm;
 }
 
 .usa-title {
-  font-size: 8px;
-  font-weight: bold;
+  font-size: 10px;
+  font-weight: 700;
   color: #000;
-  letter-spacing: 0.2px;
+  letter-spacing: 1px;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  text-transform: uppercase;
 }
 
 .header-fields {
   display: grid;
-  grid-template-columns: 8mm 10mm 1fr;
+  grid-template-columns: 8mm 12mm 1fr;
   gap: 2mm;
   margin-bottom: 1mm;
   padding-bottom: 0.5mm;
-  border-bottom: 0.5px solid #000;
 }
 
 .header-field {
@@ -180,54 +184,94 @@
 }
 
 .header-label {
-  font-size: 5px;
-  color: #666;
-  line-height: 1;
+  font-size: 4.5px;
+  color: #555;
+  line-height: 1.1;
+  font-weight: normal;
 }
 
 .header-value {
-  font-size: 7px;
-  font-weight: bold;
+  font-size: 9px;
+  font-weight: 700;
   color: #000;
+  line-height: 1.1;
 }
 
 .header-value-large {
-  font-size: 10px;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 700;
   color: #000;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.8px;
+  line-height: 1.1;
+}
+
+/* Data Fields Container */
+.data-fields-container {
+  display: grid;
+  grid-template-columns: 1fr 25mm;
+  gap: 2mm;
+}
+
+.data-fields-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+}
+
+.data-fields-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2mm;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding-top: 15mm;
+}
+
+.data-field-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5mm;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.authority-field {
+  margin-top: 8mm;
 }
 
 /* Data Fields */
 .data-field {
   display: flex;
   flex-direction: column;
-  gap: 0.3mm;
-  padding: 0.5mm 0;
-  border-bottom: 0.5px solid #ccc;
+  gap: 0.5mm;
+  padding: 0.8mm 0;
+  border-bottom: 0.5px solid #999;
 }
 
 .data-label {
-  font-size: 5px;
-  color: #666;
+  font-size: 4.5px;
+  color: #555;
   font-weight: normal;
-  line-height: 1;
+  line-height: 1.2;
+  text-transform: none;
 }
 
 .data-value {
-  font-size: 7px;
-  font-weight: bold;
+  font-size: 9px;
+  font-weight: 700;
   color: #000;
   letter-spacing: 0.1px;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 /* Row Fields */
 .data-field-row {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 2mm;
-  border-bottom: 0.5px solid #ccc;
-  padding: 0.5mm 0;
+  gap: 3mm;
+  border-bottom: 0.5px solid #999;
+  padding: 0.8mm 0;
 }
 
 .data-field-flex {
@@ -243,77 +287,48 @@
 }
 
 .data-value-small {
-  font-size: 6px;
+  font-size: 7px;
   font-weight: 600;
   color: #000;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .data-value-endorsement {
-  font-size: 7px;
-  font-weight: bold;
+  font-size: 9px;
+  font-weight: 700;
   color: #000;
+  text-transform: uppercase;
 }
 
-/* Right Section */
+/* Right Section (old - now integrated) */
 .passport-right {
-  position: absolute;
-  bottom: 18mm;
-  right: 5mm;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5mm;
-  z-index: 2;
+  display: none;
 }
 
 .right-seal {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1mm;
-  order: 2;
+  display: none;
 }
 
 .dept-seal {
-  width: 18mm;
-  height: 18mm;
-  border: 1.5px solid #001f5c;
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: white;
+  display: none;
 }
 
 .dept-text {
-  font-size: 4px;
-  font-weight: bold;
-  color: #001f5c;
-  text-align: center;
-  line-height: 1.2;
-  letter-spacing: 0.1px;
+  display: none;
 }
 
 .dept-text-label {
-  font-size: 4.5px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  line-height: 1.1;
-  letter-spacing: 0.05px;
-  order: 1;
+  display: none;
 }
 
 .usa-large {
-  font-size: 14px;
-  font-weight: bold;
-  color: #ccc;
-  letter-spacing: 1px;
-  order: 3;
+  font-size: 20px;
+  font-weight: 900;
+  color: #B8860B;
+  letter-spacing: 3px;
+  margin-top: auto;
+  padding-top: 3mm;
+  font-family: 'Arial Black', 'Arial', sans-serif;
 }
 
 /* Machine Readable Zone */
@@ -322,24 +337,24 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
-  border-top: 1px solid #999;
-  padding: 3mm 2mm 1.5mm 2mm;
+  background: #f5f5f5;
+  border-top: 2px solid #000;
+  padding: 2mm 3mm 2mm 3mm;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
 .mrz-line {
-  font-family: 'Courier New', 'OCR-B', monospace;
-  font-size: 6px;
-  font-weight: bold;
+  font-family: 'Courier New', 'OCR-B', 'Courier', monospace;
+  font-size: 8px;
+  font-weight: 700;
   letter-spacing: 0.5px;
-  line-height: 1.4;
+  line-height: 1.25;
   color: #000;
-  text-align: center;
+  text-align: left;
   width: 100%;
 }
 
