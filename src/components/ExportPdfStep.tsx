@@ -7,7 +7,7 @@ import { GeneratedData, LabTestType } from '../utils/zodSchemas';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
-type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | LabTestType;
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | 'passport' | LabTestType;
 
 interface FontFamily {
   value: string;
@@ -227,6 +227,15 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 description="Professional insurance policy certificate document with coverage details, subscriber information, and benefits summary"
                 onPreview={() => onPreview('insurancePolicy')}
                 onGenerate={() => onExport('insurancePolicy', `${generatedData?.patient?.id || 'patient'}-POLICY-CERTIFICATE${getFilenameSuffix()}`.toUpperCase())}
+                isLoading={isLoading}
+                iconType="insurance"
+              />
+
+              <DocumentCard
+                title="U.S. Passport"
+                description="Authentic-looking U.S. passport document with biographical data, machine readable zone (MRZ), and official seals - complete with passport photo"
+                onPreview={() => onPreview('passport')}
+                onGenerate={() => onExport('passport', `${generatedData?.patient?.id || 'patient'}-PASSPORT${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="insurance"
               />

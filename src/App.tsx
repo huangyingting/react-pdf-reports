@@ -27,6 +27,7 @@ import InsurancePolicyDocument from './reports/insurancePolicy/InsurancePolicyDo
 import VisitReportDocument from './reports/visitReport/VisitReportDocument';
 import MedicationHistoryDocument from './reports/medicationHistory/MedicationHistoryDocument';
 import LaboratoryReportDocument from './reports/labReport/LabReportDocument';
+import PassportDocument from './reports/passport/PassportDocument';
 import {
   InsurancePolicy,
   VisitReport,
@@ -50,7 +51,7 @@ interface FontFamily {
 
 type QualityLevel = 'poor' | 'standard' | 'high';
 type ExportFormat = 'pdf' | 'canvas';
-type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | LabTestType;
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | 'passport' | LabTestType;
 
 function App() {
   // Workflow state management
@@ -161,8 +162,9 @@ function App() {
         : reportType === 'insurancePolicy' ? 'insurance-policy-report'
           : reportType === 'visitReport' ? 'visit-report-document'
             : reportType === 'medicationHistory' ? 'medication-history-document'
-              : isLabTest ? `laboratory-report-${(reportType as string).toLowerCase()}`
-                : 'medical-records-report';
+              : reportType === 'passport' ? 'passport-report'
+                : isLabTest ? `laboratory-report-${(reportType as string).toLowerCase()}`
+                  : 'medical-records-report';
 
       if (exportFormat === 'canvas') {
         await exportToPDFAsImage(elementId, `${filename}-canvas`, {
@@ -257,6 +259,15 @@ function App() {
           patient={generatedData.patient}
           provider={generatedData.provider}
           medicalHistory={generatedData.medicalHistory}
+          fontFamily={fontFamilyStyle}
+        />
+      );
+    }
+
+    if (activeReportType === 'passport') {
+      return (
+        <PassportDocument
+          data={generatedData.patient}
           fontFamily={fontFamilyStyle}
         />
       );
@@ -553,6 +564,10 @@ function App() {
                 patient={generatedData.patient}
                 provider={generatedData.provider}
                 medicalHistory={generatedData.medicalHistory}
+                fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
+              />
+              <PassportDocument
+                data={generatedData.patient}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               {/* Laboratory Reports */}

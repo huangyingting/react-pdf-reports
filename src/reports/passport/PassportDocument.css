@@ -1,0 +1,361 @@
+/* Passport Document Styles - Realistic U.S. Passport */
+
+.passport-document {
+  background: #ffffff;
+  color: #000;
+  font-size: 9px;
+  line-height: 1.1;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.passport-document * {
+  box-sizing: border-box;
+}
+
+/* Page Structure */
+.passport-page {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 0 15px 0;
+  background: white;
+  border: 1px solid #ddd;
+  page-break-after: always;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.passport-page:last-child {
+  margin-bottom: 0;
+}
+
+/* Passport Card */
+.passport-card {
+  width: 125mm;
+  height: 88mm;
+  padding: 4mm;
+  background: white;
+  border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Background - Removed for simplicity */
+.passport-bg-gradient {
+  display: none;
+}
+
+/* Watermark - Removed for simplicity */
+.passport-watermark {
+  display: none;
+}
+
+.passport-content {
+  display: grid;
+  grid-template-columns: 28mm 1fr 20mm;
+  gap: 2mm;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  margin-bottom: 12mm;
+}
+
+/* Left Section */
+.passport-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1mm;
+  padding-left: 1mm;
+  height: 100%;
+  gap: 2mm;
+  position: relative;
+}
+
+.vertical-labels {
+  display: flex;
+  flex-direction: row;
+  gap: 1mm;
+  order: -2;
+}
+
+.vertical-text {
+  font-weight: bold;
+  color: #001f5c;
+  font-size: 5px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.usa-seal {
+  width: 22mm;
+  height: 10mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  order: -1;
+  background: #001f5c;
+  border: 1px solid #000;
+  border-radius: 5mm;
+  position: relative;
+}
+
+.seal-outer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.seal-inner {
+  font-weight: bold;
+  font-size: 9px;
+  color: #ffffff;
+  letter-spacing: 1.5px;
+}
+
+.photo-wrapper {
+  width: 24mm;
+  height: 30mm;
+}
+
+.passport-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1.5px solid #000;
+  display: block;
+}
+
+/* Center Section */
+.passport-center {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+  padding: 0 1mm;
+}
+
+.passport-header {
+  margin-bottom: 0.5mm;
+}
+
+.usa-title {
+  font-size: 8px;
+  font-weight: bold;
+  color: #000;
+  letter-spacing: 0.2px;
+}
+
+.header-fields {
+  display: grid;
+  grid-template-columns: 8mm 10mm 1fr;
+  gap: 2mm;
+  margin-bottom: 1mm;
+  padding-bottom: 0.5mm;
+  border-bottom: 0.5px solid #000;
+}
+
+.header-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3mm;
+}
+
+.header-field-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3mm;
+}
+
+.header-label {
+  font-size: 5px;
+  color: #666;
+  line-height: 1;
+}
+
+.header-value {
+  font-size: 7px;
+  font-weight: bold;
+  color: #000;
+}
+
+.header-value-large {
+  font-size: 10px;
+  font-weight: bold;
+  color: #000;
+  letter-spacing: 0.3px;
+}
+
+/* Data Fields */
+.data-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3mm;
+  padding: 0.5mm 0;
+  border-bottom: 0.5px solid #ccc;
+}
+
+.data-label {
+  font-size: 5px;
+  color: #666;
+  font-weight: normal;
+  line-height: 1;
+}
+
+.data-value {
+  font-size: 7px;
+  font-weight: bold;
+  color: #000;
+  letter-spacing: 0.1px;
+}
+
+/* Row Fields */
+.data-field-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2mm;
+  border-bottom: 0.5px solid #ccc;
+  padding: 0.5mm 0;
+}
+
+.data-field-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3mm;
+}
+
+.data-field-small {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3mm;
+}
+
+.data-value-small {
+  font-size: 6px;
+  font-weight: 600;
+  color: #000;
+  line-height: 1.2;
+}
+
+.data-value-endorsement {
+  font-size: 7px;
+  font-weight: bold;
+  color: #000;
+}
+
+/* Right Section */
+.passport-right {
+  position: absolute;
+  bottom: 18mm;
+  right: 5mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5mm;
+  z-index: 2;
+}
+
+.right-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
+  order: 2;
+}
+
+.dept-seal {
+  width: 18mm;
+  height: 18mm;
+  border: 1.5px solid #001f5c;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.dept-text {
+  font-size: 4px;
+  font-weight: bold;
+  color: #001f5c;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+}
+
+.dept-text-label {
+  font-size: 4.5px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  line-height: 1.1;
+  letter-spacing: 0.05px;
+  order: 1;
+}
+
+.usa-large {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ccc;
+  letter-spacing: 1px;
+  order: 3;
+}
+
+/* Machine Readable Zone */
+.mrz {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #999;
+  padding: 3mm 2mm 1.5mm 2mm;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.mrz-line {
+  font-family: 'Courier New', 'OCR-B', monospace;
+  font-size: 6px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  color: #000;
+  text-align: center;
+  width: 100%;
+}
+
+/* Print Styles */
+@media print {
+  .passport-document {
+    background: white;
+    width: 100%;
+  }
+
+  .passport-page {
+    margin: 0;
+    border: none;
+    page-break-inside: avoid;
+    width: 210mm;
+    height: 297mm;
+  }
+}
+
