@@ -8,7 +8,7 @@ interface CMS1500FormProps {
 }
 
 const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', sans-serif" }) => {
-  const { patient, insuranceInfo, provider, claimInfo } = data;
+  const { individual, insuranceInfo, provider, claimInfo } = data;
 
   {
     console.log('Rendering CMS1500Form with data:', data);
@@ -84,18 +84,18 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-2">
               <label>2. PATIENT'S NAME (Last Name, First Name, Middle Initial)</label>
-              <div className="field-value">{patient?.lastName}, {patient?.firstName} {patient?.middleInitial || ''}</div>
+              <div className="field-value">{individual?.lastName}, {individual?.firstName} {individual?.middleInitial || ''}</div>
             </div>
             <div className="form-field field-3">
               <label>3. PATIENT'S BIRTH DATE</label>
-              <div className="field-value">{patient?.dateOfBirth}</div>
+              <div className="field-value">{individual?.dateOfBirth}</div>
               <div className="sex-group">
                 <label>SEX</label>
-                <input type="checkbox" checked={patient?.gender === 'Male'} readOnly />
+                <input type="checkbox" checked={individual?.gender === 'Male'} readOnly />
                 <label>M</label>
-                <input type="checkbox" checked={patient?.gender === 'Female'} readOnly />
+                <input type="checkbox" checked={individual?.gender === 'Female'} readOnly />
                 <label>F</label>
-                <input type="checkbox" checked={patient?.gender === 'Other'} readOnly />
+                <input type="checkbox" checked={individual?.gender === 'Other'} readOnly />
                 <label>Other</label>
               </div>
             </div>
@@ -104,29 +104,29 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
           <div className="form-row">
             <div className="form-field field-4">
               <label>4. INSURED'S NAME (Last Name, First Name, Middle Initial)</label>
-              <div className="field-value">{insuranceInfo?.subscriberName || patient?.name}</div>
+              <div className="field-value">{insuranceInfo?.subscriberName || individual?.name}</div>
             </div>
             <div className="form-field field-5">
               <label>5. PATIENT'S ADDRESS (No., Street)</label>
-              <div className="field-value">{patient?.address?.street || ''}</div>
+              <div className="field-value">{individual?.address?.street || ''}</div>
               <div className="address-line2">
                 <div className="field-city">
                   <label>CITY</label>
-                  <div className="field-value">{patient?.address?.city || ''}</div>
+                  <div className="field-value">{individual?.address?.city || ''}</div>
                 </div>
                 <div className="field-state">
                   <label>STATE</label>
-                  <div className="field-value">{patient?.address?.state || ''}</div>
+                  <div className="field-value">{individual?.address?.state || ''}</div>
                 </div>
               </div>
               <div className="address-line3">
                 <div className="field-zip">
                   <label>ZIP CODE</label>
-                  <div className="field-value">{patient?.address?.zipCode || ''}</div>
+                  <div className="field-value">{individual?.address?.zipCode || ''}</div>
                 </div>
                 <div className="field-telephone">
                   <label>TELEPHONE (Include Area Code)</label>
-                  <div className="field-value">{patient?.contact?.phone || ''}</div>
+                  <div className="field-value">{individual?.contact?.phone || ''}</div>
                 </div>
               </div>
             </div>
@@ -354,8 +354,8 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             <p style={{ margin: '2mm 0 0 0', fontSize: '9px' }}>Page 2 - Service Details</p>
           </div>
           <div className="header-right">
-            <p style={{ margin: 0, fontSize: '9px' }}>Patient: {patient?.name}</p>
-            <p style={{ margin: '1mm 0 0 0', fontSize: '9px' }}>Account #: {patient?.accountNumber}</p>
+            <p style={{ margin: 0, fontSize: '9px' }}>Patient: {individual?.name}</p>
+            <p style={{ margin: '1mm 0 0 0', fontSize: '9px' }}>Account #: {individual?.accountNumber}</p>
           </div>
         </div>
 
@@ -468,7 +468,7 @@ const CMS1500Form: React.FC<CMS1500FormProps> = ({ data, fontFamily = "'Arial', 
             </div>
             <div className="form-field field-26">
               <label>26. PATIENT'S ACCOUNT NO.</label>
-              <div className="field-value">{patient?.accountNumber || ''}</div>
+              <div className="field-value">{individual?.accountNumber || ''}</div>
             </div>
             <div className="form-field field-27">
               <label>27. ACCEPT ASSIGNMENT?</label>

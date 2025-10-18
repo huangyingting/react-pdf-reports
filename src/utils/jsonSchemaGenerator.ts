@@ -13,7 +13,7 @@
 
 import { z } from 'zod';
 import {
-  PatientSchema,
+  IndividualSchema,
   ProviderSchema,
   MedicalHistorySchema,
   CMS1500Schema,
@@ -80,12 +80,12 @@ export function createResponseFormat(schemaName: string, schema: any) {
  */
 export const ResponseFormats = {
   /**
-   * Standalone patient data generation
+   * Standalone individual data generation
    */
   Patient: zodToOpenAISchema(
-    PatientSchema,
-    'PatientResponse',
-    { description: 'Healthcare patient data', strict: true }
+    IndividualSchema,
+    'IndividualResponse',
+    { description: 'Healthcare individual data', strict: true }
   ),
 
   /**

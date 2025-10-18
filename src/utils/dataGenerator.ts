@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import {
-  Patient,
+  Individual,
   InsuranceInfo,
   Provider,
   Address,
@@ -27,7 +27,8 @@ import {
   Insured,
   Subscriber,
   InsuranceTypeSchema,
-  W2
+  W2,
+  Passport
 } from './zodSchemas';
 
 import { DataPreset } from './zodSchemas';
@@ -184,6 +185,41 @@ export const DEDUCTIBLE_AMOUNTS = [
 ] as const;
 
 export type DeductibleAmount = typeof DEDUCTIBLE_AMOUNTS[number];
+
+export const INDUSTRIES = [
+  'Technology',
+  'Healthcare',
+  'Finance',
+  'Retail',
+  'Manufacturing',
+  'Education',
+  'Construction',
+  'Transportation',
+  'Energy',
+  'Telecommunications',
+  'Media & Entertainment',
+  'Real Estate',
+  'Professional Services',
+  'Hospitality',
+  'Pharmaceuticals',
+  'Aerospace & Defense',
+  'Automotive',
+  'Agriculture',
+  'Legal Services',
+  'Human Resources',
+  'Marketing & Advertising',
+  'Consulting',
+  'Software Development',
+  'Financial Services',
+  'Insurance',
+  'Utilities',
+  'Logistics',
+  'Food & Beverage',
+  'Fashion & Retail',
+  'Publishing'
+] as const;
+
+export type Industry = typeof INDUSTRIES[number];
 
 // Data generation presets
 export const DATA_GENERATION_PRESETS: Record<string, DataPreset> = {
@@ -522,13 +558,13 @@ export const generatePharmacy = () => {
 };
 
 // ============================================================================
-// GENERATOR FUNCTIONS - PATIENT AND PROVIDER
+// GENERATOR FUNCTIONS - INDIVIDUAL AND PROVIDER
 // ============================================================================
 
 /**
- * Generate patient demographics
+ * Generate individual demographics
  */
-export const generatePatient = (): Patient => {
+export const generateIndividual = (): Individual => {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const middleInitial = faker.string.alpha({ length: 1, casing: 'upper' });
@@ -547,6 +583,13 @@ export const generatePatient = (): Patient => {
   const patientId = `PAT-${faker.string.numeric(6)}`;
   const mrn = `MRN-${faker.string.numeric(8)}`;
 
+  // Generate employer information
+  const companyName = faker.company.name();
+  const industry = faker.helpers.arrayElement(INDUSTRIES);
+  const employerEIN = `${faker.number.int({ min: 10, max: 99 })}-${faker.number.int({ min: 1000000, max: 9999999 })}`;
+  const employerAddress = generateAddress();
+  const employerPhone = faker.phone.number();
+
   return {
     id: patientId,
     name: `${lastName}, ${firstName} ${middleInitial}`,
@@ -561,7 +604,13 @@ export const generatePatient = (): Patient => {
     pharmacy: generatePharmacy(),
     medicalRecordNumber: mrn,
     ssn: faker.helpers.replaceSymbols('###-##-####'),
-    accountNumber: patientId
+    accountNumber: patientId,
+    // Employer Information
+    companyName,
+    employerEIN,
+    employerAddress,
+    employerIndustry: industry,
+    employerPhone
   };
 };
 
@@ -688,19 +737,19 @@ export const generateSubscriber = (): Subscriber => {
  * Uses the new modular generateInsurance() and generateInsured() functions
  */
 export const generateInsuranceInfo = (
-  patient: Patient,
+  individual: Individual,
   includeSecondary: boolean = false
 ): InsuranceInfo => {
   const primaryInsurance = generateInsurance();
 
-  // 70% chance to use patient as subscriber
+  // 70% chance to use individual as subscriber
   const subscriber = faker.datatype.boolean(0.7) 
     ? {
-        name: patient.name,
-        dateOfBirth: patient.dateOfBirth,
-        gender: patient.gender,
-        address: patient.address,
-        phone: patient.contact.phone
+        name: individual.name,
+        dateOfBirth: individual.dateOfBirth,
+        gender: individual.gender,
+        address: individual.address,
+        phone: individual.contact.phone
       }
     : generateSubscriber();
 
@@ -1954,21 +2003,21 @@ function calculateBMI(weight: number, height: string): string {
 // GENERATOR FUNCTIONS - DOCUMENT ASSEMBLY
 // ============================================================================
 
-export const generateInsurancePolicy = (patient: Patient, insuranceInfo: InsuranceInfo): InsurancePolicy => {
+export const generateInsurancePolicy = (individual: Individual, insuranceInfo: InsuranceInfo): InsurancePolicy => {
   return {
-    patient: patient,
+    individual: individual,
     insuranceInfo: insuranceInfo
   };
 }
 
-export const generateCMS1500 = (patient: Patient, insuranceInfo: InsuranceInfo, provider: Provider): CMS1500 => {
+export const generateCMS1500 = (individual: Individual, insuranceInfo: InsuranceInfo, provider: Provider): CMS1500 => {
 
   const result: CMS1500 = {
-    patient: patient,
+    individual: individual,
     insuranceInfo: insuranceInfo,
     provider: provider,
     claimInfo: generateClaimInfo(
-      `${patient.firstName} ${patient.lastName}`,
+      `${individual.firstName} ${individual.lastName}`,
       insuranceInfo.subscriberName,
       provider.npi
     )
@@ -1977,7 +2026,7 @@ export const generateCMS1500 = (patient: Patient, insuranceInfo: InsuranceInfo, 
   return result;
 };
 
-export const generateW2 = (patient: Patient, provider: Provider): W2 => {
+export const generateW2 = (individual: Individual): W2 => {
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
   
@@ -2016,14 +2065,14 @@ export const generateW2 = (patient: Patient, provider: Provider): W2 => {
   
   return {
     // Employee Information
-    employeeSSN: patient.ssn,
-    employeeName: `${patient.firstName} ${patient.lastName}`,
-    employeeAddress: patient.address,
+    employeeSSN: individual.ssn,
+    employeeName: `${individual.firstName} ${individual.lastName}`,
+    employeeAddress: individual.address,
     
-    // Employer Information (using provider's facility as employer)
-    employerEIN: `${faker.number.int({ min: 10, max: 99 })}-${faker.number.int({ min: 1000000, max: 9999999 })}`,
-    employerName: provider.facilityName || faker.company.name(),
-    employerAddress: provider.facilityAddress || provider.address,
+    // Employer Information (extracted from individual)
+    employerEIN: individual.employerEIN,
+    employerName: individual.companyName,
+    employerAddress: individual.employerAddress,
     
     // Wage and Tax Information
     taxYear: previousYear.toString(),
@@ -2051,5 +2100,53 @@ export const generateW2 = (patient: Patient, provider: Provider): W2 => {
     
     // Control Number
     controlNumber: faker.string.alphanumeric(10).toUpperCase()
+  };
+};
+
+/**
+ * Generate a US Passport document
+ * Creates realistic passport data with number, dates, and Machine Readable Zone
+ * @param individual Individual data for passport holder
+ * @returns Passport object
+ */
+export const generatePassport = (individual: Individual): Passport => {
+  // Generate a realistic passport number (9 digits starting with 5-6)
+  const passportNumber = (Math.floor(Math.random() * 2) + 5).toString() + 
+    Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+
+  // Generate issuance date (random within last 10 years)
+  const issuanceDate = new Date();
+  const yearsAgo = faker.number.int({ min: 0, max: 10 });
+  issuanceDate.setFullYear(issuanceDate.getFullYear() - yearsAgo);
+  issuanceDate.setMonth(faker.number.int({ min: 0, max: 11 }));
+  issuanceDate.setDate(faker.number.int({ min: 1, max: 28 }));
+
+  // Expiry date is 10 years after issuance
+  const expiryDate = new Date(issuanceDate);
+  expiryDate.setFullYear(expiryDate.getFullYear() + 10);
+
+  // Format dates as ISO strings
+  const issuanceDateISO = issuanceDate.toISOString().split('T')[0];
+  const expiryDateISO = expiryDate.toISOString().split('T')[0];
+
+  // Generate Machine Readable Zone (MRZ) lines
+  const lastName = individual.lastName.substring(0, 33).toUpperCase().padEnd(33, '<');
+  const firstName = individual.firstName.substring(0, 14).toUpperCase().padEnd(14, '<');
+  const mrzLine1 = `P<USA${lastName}<<${firstName}`;
+  
+  const birthDate = individual.dateOfBirth.replace(/-/g, '').substring(2, 8);
+  const expiryDateMrz = expiryDateISO.replace(/-/g, '').substring(2, 8);
+  const checkDigits = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+  const mrzLine2 = `${passportNumber}7USA${birthDate}${individual.gender === 'Female' ? 'F' : 'M'}${expiryDateMrz}${checkDigits}<<<<<<<<`;
+
+  return {
+    individual,
+    passportNumber,
+    issuanceDate: issuanceDateISO,
+    expiryDate: expiryDateISO,
+    authority: 'United States Department of State',
+    mrzLine1,
+    mrzLine2,
+    endorsements: null
   };
 };

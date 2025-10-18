@@ -1,5 +1,5 @@
 import React from 'react';
-import { Patient, Provider, InsuranceInfo, LabReport, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
+import { Individual, Provider, InsuranceInfo, LabReport, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
 import PatientPage from './PatientPage';
 import MedicalHistoryPage from './MedicalHistoryPage';
 import MedicationsPage from './MedicationsPage';
@@ -8,7 +8,7 @@ import VisitNotesPage from './VisitNotesPage';
 import './MedicalRecordsReport.css';
 
 interface MedicalRecordsReportProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
   insuranceInfo: InsuranceInfo;
   labReports?: LabReport[];
@@ -18,7 +18,7 @@ interface MedicalRecordsReportProps {
   fontFamily?: string;
 }
 
-const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, provider, insuranceInfo, labReports, visitReports, medicalHistory, fontFamily = "'Arial', sans-serif" }) => {
+const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ individual, provider, insuranceInfo, labReports, visitReports, medicalHistory, fontFamily = "'Arial', sans-serif" }) => {
   return (
     <div
       className="medical-records-report"
@@ -27,7 +27,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
     >
       {/* Page 1: Patient */}
       <PatientPage
-        patient={patient}
+        individual={individual}
         provider={provider}
         insuranceInfo={insuranceInfo}
         labReports={labReports}
@@ -40,7 +40,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
       {/* Page 2: Medical History */}
       {medicalHistory && (
         <MedicalHistoryPage
-          patient={patient}
+          individual={individual}
           provider={provider}
           medicalHistory={medicalHistory}
         />
@@ -51,7 +51,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
 
       {/* Page 3: Medications */}
       <MedicationsPage
-        patient={patient}
+        individual={individual}
         provider={provider}
         medicalHistory={medicalHistory}
       />
@@ -61,7 +61,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
 
       {/* Page 4: Lab Results */}
       <LabReportsPage
-        patient={patient}
+        individual={individual}
         provider={provider}
         labReports={labReports}
         visitReport={(visitReports && visitReports.length > 0 ? visitReports[0] : undefined)}
@@ -72,7 +72,7 @@ const MedicalRecordsReport: React.FC<MedicalRecordsReportProps> = ({ patient, pr
 
       {/* Page 5: Visit Notes */}
       <VisitNotesPage
-        patient={patient}
+        individual={individual}
         provider={provider}
         visitReport={(visitReports && visitReports.length > 0 ? visitReports[0] : undefined)}
         medicalHistory={medicalHistory}

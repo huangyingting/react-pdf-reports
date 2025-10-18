@@ -233,7 +233,7 @@ function App() {
 
     if (activeReportType === 'insurancePolicy') {
       const insurancePolicy: InsurancePolicy = {
-        patient: generatedData.patient,
+        individual: generatedData.individual,
         insuranceInfo: generatedData.insuranceInfo
       };
       return (
@@ -247,7 +247,7 @@ function App() {
     if (activeReportType === 'visitReport') {
       return generatedData.visitReports.length > 0 ? (
         <VisitReportDocument
-          patient={generatedData.patient}
+          individual={generatedData.individual}
           provider={generatedData.provider}
           visitReport={generatedData.visitReports[0]}
           fontFamily={fontFamilyStyle}
@@ -258,7 +258,7 @@ function App() {
     if (activeReportType === 'medicationHistory') {
       return (
         <MedicationHistoryDocument
-          patient={generatedData.patient}
+          individual={generatedData.individual}
           provider={generatedData.provider}
           medicalHistory={generatedData.medicalHistory}
           fontFamily={fontFamilyStyle}
@@ -269,7 +269,7 @@ function App() {
     if (activeReportType === 'passport') {
       return (
         <PassportDocument
-          data={generatedData.patient}
+          data={generatedData.passport}
           fontFamily={fontFamilyStyle}
         />
       );
@@ -290,7 +290,7 @@ function App() {
       const labData = generatedData.labReports.find(report => report.testType === activeReportType);
       return labData ? (
         <LaboratoryReportDocument
-          patient={generatedData.patient}
+          individual={generatedData.individual}
           labReport={labData}
           fontFamily={fontFamilyStyle}
         />
@@ -299,7 +299,7 @@ function App() {
 
     return (
       <MedicalRecordsReport
-        patient={generatedData.patient}
+        individual={generatedData.individual}
         provider={generatedData.provider}
         insuranceInfo={generatedData.insuranceInfo}
         labReports={generatedData.labReports}
@@ -544,7 +544,7 @@ function App() {
           {generatedData && (
             <>
               <MedicalRecordsReport
-                patient={generatedData.patient}
+                individual={generatedData.individual}
                 provider={generatedData.provider}
                 insuranceInfo={generatedData.insuranceInfo}
                 labReports={generatedData.labReports}
@@ -558,7 +558,7 @@ function App() {
               />
               <InsurancePolicyDocument
                 data={{
-                  patient: generatedData.patient,
+                  individual: generatedData.individual,
                   insuranceInfo: generatedData.insuranceInfo
                 }}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
@@ -566,27 +566,27 @@ function App() {
               {generatedData.visitReports.map((visitData: VisitReport, index: number) => (
                 <VisitReportDocument
                   key={index}
-                  patient={generatedData.patient}
+                  individual={generatedData.individual}
                   provider={generatedData.provider}
                   visitReport={visitData}
                   fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
                 />
               ))}
               <MedicationHistoryDocument
-                patient={generatedData.patient}
+                individual={generatedData.individual}
                 provider={generatedData.provider}
                 medicalHistory={generatedData.medicalHistory}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               <PassportDocument
-                data={generatedData.patient}
+                data={generatedData.passport}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               {/* Laboratory Reports */}
               {generatedData.labReports.map((labReport: LabReport) => (
                 <LaboratoryReportDocument
                   key={labReport.testType}
-                  patient={generatedData.patient}
+                  individual={generatedData.individual}
                   labReport={labReport}
                   fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
                 />

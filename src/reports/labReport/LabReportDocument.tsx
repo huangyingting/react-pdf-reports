@@ -1,16 +1,16 @@
 import React from 'react';
 import { faker } from '@faker-js/faker';
 import './LabReportDocument.css';
-import { LabReport, Patient } from '../../utils/zodSchemas';
+import { Individual, LabReport } from '../../utils/zodSchemas';
 
 interface LabReportProps {
-  patient: Patient;
+  individual: Individual;
   labReport: LabReport;
   fontFamily?: string;
 }
 
 const LabReportDocument: React.FC<LabReportProps> = ({
-  patient,
+  individual,
   labReport,
   fontFamily = "'Arial', sans-serif"
 }) => {
@@ -64,27 +64,27 @@ const LabReportDocument: React.FC<LabReportProps> = ({
             <div className="info-grid-2col">
               <div className="info-item">
                 <span className="info-label">Patient Name:</span>
-                <span className="info-value strong">{patient.firstName} {patient.lastName}</span>
+                <span className="info-value strong">{individual.firstName} {individual.lastName}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">MRN:</span>
-                <span className="info-value strong">{patient.id}</span>
+                <span className="info-value strong">{individual.id}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Date of Birth:</span>
-                <span className="info-value">{patient.dateOfBirth}</span>
+                <span className="info-value">{individual.dateOfBirth}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Age/Gender:</span>
-                <span className="info-value">{patient.age} years / {patient.gender}</span>
+                <span className="info-value">{individual.age} years / {individual.gender}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Patient ID:</span>
-                <span className="info-value">{patient.id}</span>
+                <span className="info-value">{individual.id}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Account:</span>
-                <span className="info-value">{patient.accountNumber}</span>
+                <span className="info-value">{individual.accountNumber}</span>
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@ const LabReportDocument: React.FC<LabReportProps> = ({
         {/* Footer */}
         <div className="lab-footer">
           <div className="footer-info">
-            <span>MRN: {patient.id}</span>
+            <span>MRN: {individual.id}</span>
             <span>Accession: {faker.string.alphanumeric({ length: 10, casing: 'upper' })}</span>
             <span>Page 1 of 2</span>
             <span>Printed: {currentDate}</span>
@@ -282,7 +282,7 @@ const LabReportDocument: React.FC<LabReportProps> = ({
         {/* Footer */}
         <div className="lab-footer">
           <div className="footer-info">
-            <span>MRN: {patient.id}</span>
+            <span>MRN: {individual.id}</span>
             <span>Accession: {faker.string.alphanumeric({ length: 10, casing: 'upper' })}</span>
             <span>Page 2 of 2</span>
             <span>Printed: {currentDate}</span>

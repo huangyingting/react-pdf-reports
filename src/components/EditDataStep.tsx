@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Tabs, Tab, Button, TextField, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { GeneratedData, Patient, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
+import { GeneratedData, Individual, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
 import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
 import { StepContainer, SectionTitle, FormGrid, TabContent, LoadingSpinner, FloatingActionBar, SubTitle } from './SharedComponents';
 import * as styles from '../styles/commonStyles';
@@ -106,7 +106,7 @@ interface Section {
 }
 
 interface PatientInfoSectionProps {
-  data: Patient;
+  data: Individual;
   onChange: (field: string, value: any) => void;
 }
 
@@ -191,7 +191,7 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
   }
 
   const sections: Section[] = [
-    { id: 'patient', label: 'Patient', icon: 'user' },
+    { id: 'patient', label: 'Individual', icon: 'user' },
     { id: 'insurance', label: 'Insurance', icon: 'card' },
     { id: 'provider', label: 'Provider', icon: 'stethoscope' },
     { id: 'medical', label: 'Medical History', icon: 'activity' },
@@ -282,8 +282,8 @@ const EditDataStep: React.FC<EditDataStepProps> = ({ generatedData, onDataUpdate
         <TabContent key={activeSection}>
             {activeSection === 'patient' && (
               <PatientInfoSection 
-                data={editedData.patient} 
-                onChange={(field, value) => updateData('patient', field, value)}
+                data={editedData.individual} 
+                onChange={(field, value) => updateData('individual', field, value)}
               />
             )}
             

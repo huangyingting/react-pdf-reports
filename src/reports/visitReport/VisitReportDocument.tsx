@@ -1,16 +1,16 @@
 import React from 'react';
 import './VisitReportDocument.css';
-import { Patient, Provider, VisitReport } from '../../utils/zodSchemas';
+import { Individual, VisitReport, Provider } from '../../utils/zodSchemas';
 
 interface VisitReportDocumentProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
   visitReport: VisitReport;
   fontFamily?: string;
 }
 
 const VisitReportDocument: React.FC<VisitReportDocumentProps> = ({
-  patient,
+  individual,
   provider,
   visitReport,
   fontFamily = "'Arial', sans-serif"
@@ -58,27 +58,27 @@ const VisitReportDocument: React.FC<VisitReportDocumentProps> = ({
             <div className="info-grid">
               <div className="info-row">
                 <span className="info-label">Patient Name:</span>
-                <span className="info-value strong">{patient.name}</span>
+                <span className="info-value strong">{individual.name}</span>
               </div>
               <div className="info-row">
                 <span className="info-label">MRN:</span>
-                <span className="info-value strong">{patient.medicalRecordNumber}</span>
+                <span className="info-value strong">{individual.id}</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Date of Birth:</span>
-                <span className="info-value">{patient.dateOfBirth}</span>
+                <span className="info-value">{individual.dateOfBirth}</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Age:</span>
-                <span className="info-value">{patient.age} years</span>
+                <span className="info-value">{individual.age} years</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Gender:</span>
-                <span className="info-value">{patient.gender}</span>
+                <span className="info-value">{individual.gender}</span>
               </div>
               <div className="info-row">
                 <span className="info-label">Phone:</span>
-                <span className="info-value">{patient.contact.phone}</span>
+                <span className="info-value">{individual.contact.phone}</span>
               </div>
             </div>
           </div>
@@ -213,7 +213,7 @@ const VisitReportDocument: React.FC<VisitReportDocumentProps> = ({
             Unauthorized disclosure is prohibited by law.
           </p>
           <div className="footer-info">
-            <span>MRN: {patient.medicalRecordNumber}</span>
+            <span>MRN: {individual.id}</span>
             <span>Page 1 of 1</span>
             <span>Printed: {currentDate}</span>
           </div>

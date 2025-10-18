@@ -10,7 +10,7 @@
 import { AzureOpenAI } from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { 
-  Patient,
+  Individual,
   Provider,
   InsuranceInfo,
   CMS1500,
@@ -18,7 +18,7 @@ import {
   VisitReports,
   MedicalHistory,
   Complexity,
-  PatientSchema,
+  IndividualSchema,
   ProviderSchema,
   InsuranceInfoSchema,
   ClaimSchema,
@@ -183,16 +183,16 @@ async function generateDataWithAI(
  * @param cacheConfig Cache configuration
  * @returns Patient object
  */
-export async function generatePatientWithAI(
-  config: AzureOpenAIConfig,
+export async function generateIndividualWithAI(
+  config?: AzureOpenAIConfig,
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
-): Promise<Patient> {
+): Promise<Individual> {
   
   // Generate cache key based on parameters
-  const cacheKey = generateCacheKey('generatePatient');
+  const cacheKey = generateCacheKey('generateIndividual');
   
   // Try to get from cache first
-  const cached = getFromCache<Patient>(cacheConfig, cacheKey);
+  const cached = getFromCache<Individual>(cacheConfig, cacheKey);
   if (cached) {
     console.log('✨ Patient data retrieved from cache');
     return cached;
@@ -215,6 +215,9 @@ Generate realistic, clinically coherent data following US healthcare standards.`
   const systemPrompt = 'You are an expert medical data generator creating synthetic, realistic patient demographics for educational purposes. Generate completely fictional yet realistic data.';
 
   try {
+    if (!config) {
+      throw new Error('Azure OpenAI configuration is required for AI data generation');
+    }
     const data = await generateDataWithAI(
       config,
       prompt,
@@ -224,7 +227,7 @@ Generate realistic, clinically coherent data following US healthcare standards.`
     );
     
     // Validate with Zod schema
-    const validation = validateWithSchema(PatientSchema, data);
+    const validation = validateWithSchema(IndividualSchema, data);
     
     if (!validation.success) {
       const errors = formatZodErrors(validation.errors);
@@ -334,12 +337,12 @@ Generate realistic, professional provider and facility data.`;
  */
 export async function generateInsuranceInfoWithAI(
   config: AzureOpenAIConfig,
-  patient: Patient,
+  individual: Individual,
   includeSecondary: boolean = false,
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<InsuranceInfo> {
   // Generate cache key based on parameters
-  const cacheKey = generateCacheKey('generateInsuranceInfo', patient.id, includeSecondary);
+  const cacheKey = generateCacheKey('generateInsuranceInfo', individual.id, includeSecondary);
   
   // Try to get from cache first
   const cached = getFromCache<InsuranceInfo>(cacheConfig, cacheKey);
@@ -348,17 +351,17 @@ export async function generateInsuranceInfoWithAI(
     return cached;
   }
 
-  // 70% chance to use patient as subscriber (matching dataGenerator.ts logic)
-  const usePatientAsSubscriber = Math.random() < 0.7;
+  // 70% chance to use individual as subscriber (matching dataGenerator.ts logic)
+  const useIndividualAsSubscriber = Math.random() < 0.7;
 
   const prompt = `Generate complete insurance information for a medical record.
 
-**Patient Information:**
-- Name: ${patient.firstName} ${patient.lastName}
-- DOB: ${patient.dateOfBirth}
-- Gender: ${patient.gender}
-- Address: ${patient.address.street}, ${patient.address.city}, ${patient.address.state} ${patient.address.zipCode}
-- Phone: ${patient.contact.phone}
+**Individual Information:**
+- Name: ${individual.firstName} ${individual.lastName}
+- DOB: ${individual.dateOfBirth}
+- Gender: ${individual.gender}
+- Address: ${individual.address.street}, ${individual.address.city}, ${individual.address.state} ${individual.address.zipCode}
+- Phone: ${individual.contact.phone}
 
 **Requirements:**
 - Primary insurance (required):
@@ -370,9 +373,9 @@ export async function generateInsuranceInfoWithAI(
   - Copay and deductible amounts
 ${includeSecondary ? '- Secondary insurance with similar details and different provider' : '- No secondary insurance (set to null)'}
 - Subscriber information:
-  ${usePatientAsSubscriber 
-    ? '- IMPORTANT: Use the EXACT patient information above for subscriber (name, DOB, gender, address, phone)'
-    : '- Generate DIFFERENT subscriber information (different person from patient)'}
+  ${useIndividualAsSubscriber 
+    ? '- IMPORTANT: Use the EXACT individual information above for subscriber (name, DOB, gender, address, phone)'
+    : '- Generate DIFFERENT subscriber information (different person from individual)'}
 - Insurance type (e.g., HMO, PPO, Medicare)
 - All data must be completely synthetic
 
@@ -400,15 +403,15 @@ Generate realistic insurance information following US healthcare standards.`;
     console.log('✅ Insurance data validated successfully');
     let validatedData = validation.data;
     
-    // Enforce the 70% rule: if we decided patient should be subscriber, override AI's response
-    if (usePatientAsSubscriber) {
+    // Enforce the 70% rule: if we decided individual should be subscriber, override AI's response
+    if (useIndividualAsSubscriber) {
       validatedData = {
         ...validatedData,
-        subscriberName: patient.name,
-        subscriberDOB: patient.dateOfBirth,
-        subscriberGender: patient.gender,
-        address: patient.address,
-        phone: patient.contact.phone
+        subscriberName: individual.name,
+        subscriberDOB: individual.dateOfBirth,
+        subscriberGender: individual.gender,
+        address: individual.address,
+        phone: individual.contact.phone
       };
     }
     
@@ -437,13 +440,13 @@ Generate realistic insurance information following US healthcare standards.`;
  */
 export async function generateCMS1500WithAI(
   config: AzureOpenAIConfig,
-  patient: Patient,
+  individual: Individual,
   insuranceInfo: InsuranceInfo,
   provider: Provider,
   cacheConfig: CacheConfig = DEFAULT_CACHE_CONFIG
 ): Promise<CMS1500> {
-  // Generate cache key based on patient ID
-  const cacheKey = generateCacheKey('generateCMS1500', patient.id);
+  // Generate cache key based on individual ID
+  const cacheKey = generateCacheKey('generateCMS1500', individual.id);
   
   // Try to get from cache first
   const cached = getFromCache<CMS1500>(cacheConfig, cacheKey);
@@ -452,10 +455,10 @@ export async function generateCMS1500WithAI(
     return cached;
   }
 
-  const prompt = `Based on this patient data, generate realistic CMS-1500 insurance claim form data:
+  const prompt = `Based on this individual data, generate realistic CMS-1500 insurance claim form data:
 
-Patient: ${patient.firstName} ${patient.lastName}
-DOB: ${patient.dateOfBirth}
+Individual: ${individual.firstName} ${individual.lastName}
+DOB: ${individual.dateOfBirth}
 Insurance: ${insuranceInfo.primaryInsurance.provider}
 Provider: ${provider.name}
 
@@ -500,7 +503,7 @@ Generate realistic, compliant claims data. All data must be completely synthetic
     
     // Construct the complete CMS1500 object using provided data
     const cms1500: CMS1500 = {
-      patient,
+      individual,
       insuranceInfo,
       provider,
       claimInfo: validation.data

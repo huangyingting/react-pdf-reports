@@ -1,16 +1,16 @@
 import React from 'react';
 import './MedicationHistoryDocument.css';
-import { MedicalHistory, Provider, Patient } from '../../utils/zodSchemas';
+import { Individual, MedicalHistory, Provider } from '../../utils/zodSchemas';
 
 interface MedicationHistoryDocumentProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
   medicalHistory: MedicalHistory;
   fontFamily?: string;
 }
 
 const MedicationHistoryDocument: React.FC<MedicationHistoryDocumentProps> = ({
-  patient,
+  individual,
   provider,
   medicalHistory,
   fontFamily = "'Arial', sans-serif"
@@ -55,19 +55,19 @@ const MedicationHistoryDocument: React.FC<MedicationHistoryDocumentProps> = ({
         <div className="medication-info-box">
           <div className="info-row">
             <span className="info-label">Patient Name:</span>
-            <span className="info-value strong">{patient.name}</span>
+            <span className="info-value strong">{individual.name}</span>
           </div>
           <div className="info-row">
             <span className="info-label">MRN:</span>
-            <span className="info-value strong">{patient.medicalRecordNumber}</span>
+            <span className="info-value strong">{individual.id}</span>
           </div>
           <div className="info-row">
             <span className="info-label">Date of Birth:</span>
-            <span className="info-value">{patient.dateOfBirth}</span>
+            <span className="info-value">{individual.dateOfBirth}</span>
           </div>
           <div className="info-row">
             <span className="info-label">Age / Gender:</span>
-            <span className="info-value">{patient.age} years / {patient.gender}</span>
+            <span className="info-value">{individual.age} years / {individual.gender}</span>
           </div>
           <div className="info-row">
             <span className="info-label">Primary Care Provider:</span>
@@ -210,7 +210,7 @@ const MedicationHistoryDocument: React.FC<MedicationHistoryDocumentProps> = ({
             Unauthorized disclosure is prohibited by law.
           </p>
           <div className="footer-info">
-            <span>MRN: {patient.medicalRecordNumber}</span>
+            <span>MRN: {individual.id}</span>
             <span>Page 1 of 1</span>
             <span>Generated: {currentDate}</span>
           </div>

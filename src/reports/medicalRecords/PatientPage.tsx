@@ -1,15 +1,15 @@
 import React from 'react';
-import { Patient, Provider, InsuranceInfo, LabReports, MedicalHistory } from '../../utils/zodSchemas';
+import { Individual, Provider, InsuranceInfo, LabReports, MedicalHistory } from '../../utils/zodSchemas';
 
 interface PatientPageProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
   insuranceInfo: InsuranceInfo;
   labReports?: LabReports;
   medicalHistory?: MedicalHistory;
 }
 
-const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceInfo, labReports: labReports, medicalHistory: medicalHistoryData }) => {
+const PatientPage: React.FC<PatientPageProps> = ({ individual, provider, insuranceInfo, labReports: labReports, medicalHistory: medicalHistoryData }) => {
 
   // Extract primary insurance from InsuranceInfo
   const primaryInsurance = insuranceInfo?.primaryInsurance;
@@ -45,8 +45,8 @@ const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceI
   }
   const bloodType = bloodTypeResult?.value || 'Not on file';
 
-  // Use pharmacy data from patient demographics
-  const pharmacy = patient?.pharmacy || { name: 'Not specified', address: 'Not specified', phone: 'Not specified' };
+  // Use pharmacy data from individual demographics
+  const pharmacy = individual?.pharmacy || { name: 'Not specified', address: 'Not specified', phone: 'Not specified' };
 
   return (
     <div className="medical-page demographics-page">
@@ -75,21 +75,21 @@ const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceI
             <tbody>
               <tr>
                 <td className="label">Medical Record #:</td>
-                <td className="value">{patient.id}</td>
+                <td className="value">{individual.id}</td>
                 <td className="label">Full Name:</td>
-                <td className="value">{patient.firstName} {patient.lastName}</td>
+                <td className="value">{individual.firstName} {individual.lastName}</td>
               </tr>
               <tr>
                 <td className="label">Date of Birth:</td>
-                <td className="value">{patient.dateOfBirth}</td>
+                <td className="value">{individual.dateOfBirth}</td>
                 <td className="label">Age:</td>
-                <td className="value">{patient.age} years</td>
+                <td className="value">{individual.age} years</td>
               </tr>
               <tr>
                 <td className="label">Gender:</td>
-                <td className="value">{patient.gender}</td>
+                <td className="value">{individual.gender}</td>
                 <td className="label">SSN:</td>
-                <td className="value">{patient.ssn}</td>
+                <td className="value">{individual.ssn}</td>
               </tr>
             </tbody>
           </table>
@@ -103,18 +103,18 @@ const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceI
               <tr>
                 <td className="label">Address:</td>
                 <td className="value" colSpan={3}>
-                  {patient.address.street}, {patient.address.city}, {patient.address.state} {patient.address.zipCode}, {patient.address.country}
+                  {individual.address.street}, {individual.address.city}, {individual.address.state} {individual.address.zipCode}, {individual.address.country}
                 </td>
               </tr>
               <tr>
                 <td className="label">Phone:</td>
-                <td className="value">{patient.contact.phone}</td>
+                <td className="value">{individual.contact.phone}</td>
                 <td className="label">Email:</td>
-                <td className="value">{patient.contact.email}</td>
+                <td className="value">{individual.contact.email}</td>
               </tr>
               <tr>
                 <td className="label">Emergency Contact:</td>
-                <td className="value" colSpan={3}>{patient.contact.emergencyContact}</td>
+                <td className="value" colSpan={3}>{individual.contact.emergencyContact}</td>
               </tr>
             </tbody>
           </table>
@@ -195,8 +195,8 @@ const PatientPage: React.FC<PatientPageProps> = ({ patient, provider, insuranceI
         </div>
         <div className="page-info">
           <span>Page 1 of 5</span>
-          <span>Patient: {patient.firstName} {patient.lastName}</span>
-          <span>MRN: {patient.id}</span>
+          <span>Patient: {individual.firstName} {individual.lastName}</span>
+          <span>MRN: {individual.id}</span>
         </div>
       </footer>
     </div>

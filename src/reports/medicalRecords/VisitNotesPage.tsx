@@ -1,14 +1,14 @@
 import React from 'react';
-import { Patient, Provider, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
+import { Individual, Provider, VisitReport, MedicalHistory } from '../../utils/zodSchemas';
 
 interface VisitNotesPageProps {
-  patient: Patient;
+  individual: Individual;
   provider?: Provider;
   visitReport?: VisitReport;
   medicalHistory?: MedicalHistory;
 }
 
-const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ patient, provider, visitReport, medicalHistory }) => {
+const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ individual, provider, visitReport, medicalHistory }) => {
   const currentDate = new Date().toLocaleDateString();
   
   const renderRecentVisits = () => {
@@ -262,7 +262,7 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ patient, provider, visi
             <p><strong>CONFIDENTIAL MEDICAL RECORD:</strong> This document contains privileged and confidential information intended only for the addressee. If you have received this in error, please notify the sender immediately.</p>
           </div>
           <div className="page-info">
-            <span>Patient ID: {patient?.id || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
+            <span>Patient ID: {individual?.id || 'N/A'} | DOB: {individual?.dateOfBirth || 'N/A'}</span>
             <span>Page 5a of 5 | Visit Notes - Recent Visits</span>
           </div>
         </div>
@@ -299,7 +299,7 @@ const VisitNotesPage: React.FC<VisitNotesPageProps> = ({ patient, provider, visi
             <p><strong>CONFIDENTIAL MEDICAL RECORD:</strong> This document contains privileged and confidential information intended only for the addressee. If you have received this in error, please notify the sender immediately.</p>
           </div>
           <div className="page-info">
-            <span>Patient ID: {patient?.id || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
+            <span>Patient ID: {individual?.id || 'N/A'} | DOB: {individual?.dateOfBirth || 'N/A'}</span>
             <span>Page 5b of 5 | Visit Notes - Summary & Coordination</span>
           </div>
         </div>

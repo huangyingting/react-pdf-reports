@@ -1,9 +1,9 @@
 import React from 'react';
 import './PassportDocument.css';
-import { Patient } from '../../utils/zodSchemas';
+import { Passport } from '../../utils/zodSchemas';
 
 interface PassportDocumentProps {
-  data: Patient;
+  data: Passport;
   fontFamily?: string;
 }
 
@@ -11,6 +11,9 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
   data, 
   fontFamily = "'Arial', sans-serif" 
 }) => {
+  // Extract individual from passport data
+  const individual = data.individual;
+  
   // Select a random user photo (1-4)
   const photoIndex = Math.floor(Math.random() * 4) + 1;
   const photoUrl = `/docgen/user-${photoIndex}.jpg`;
@@ -25,26 +28,8 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
     return `${day} ${monthName} ${year}`;
   };
 
-  // Calculate passport validity dates (10 years for adults, 5 years for minors)
-  const issuanceDate = new Date();
-  const expiryDate = new Date();
-  expiryDate.setFullYear(expiryDate.getFullYear() + 10);
-
-  // Generate a realistic passport number (9 digits starting with 5-6)
-  const passportNumber = (Math.floor(Math.random() * 2) + 5).toString() + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
-
   // Extract address info
-  const address = data.address || { street: '', city: '', state: '', zipCode: '', country: 'USA' };
-
-  // Generate MRZ lines
-  const lastName = data.lastName.substring(0, 33).toUpperCase().padEnd(33, '<');
-  const firstName = data.firstName.substring(0, 14).toUpperCase().padEnd(14, '<');
-  const mrzLine1 = `P<USA${lastName}<<${firstName}`;
-  
-  const birthDate = data.dateOfBirth.replace(/-/g, '').substring(2, 8);
-  const expiryDateMrz = expiryDate.toISOString().substring(2, 8).replace(/-/g, '');
-  const checkDigits = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
-  const mrzLine2 = `${passportNumber}7USA${birthDate}M${expiryDateMrz}${checkDigits}<<<<<<<<`;
+  const address = individual.address || { street: '', city: '', state: '', zipCode: '', country: 'USA' };
 
   return (
     <div
@@ -98,7 +83,7 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
               </div>
               <div className="header-field-wide">
                 <div className="header-label">Passport No. / Nº de passeport / No. de Pasaporte</div>
-                <div className="header-value-large">{passportNumber}</div>
+                <div className="header-value-large">{data.passportNumber}</div>
               </div>
             </div>
 
@@ -108,14 +93,14 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
                 {/* Surname */}
                 <div className="data-field">
                   <div className="data-label">Surname / Nom / Apellidos</div>
-                  <div className="data-value">{data.lastName.toUpperCase()}</div>
+                  <div className="data-value">{individual.lastName.toUpperCase()}</div>
                 </div>
 
                 {/* Given Names */}
                 <div className="data-field">
                   <div className="data-label">Given Names / Prénoms / Nombres</div>
                   <div className="data-value">
-                    {data.firstName.toUpperCase()} {data.middleInitial?.toUpperCase() || ''}
+                    {individual.firstName.toUpperCase()} {individual.middleInitial?.toUpperCase() || ''}
                   </div>
                 </div>
 
@@ -128,7 +113,7 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
                 {/* Date of Birth */}
                 <div className="data-field">
                   <div className="data-label">Date of birth / Date de naissance / Fecha de nacimiento</div>
-                  <div className="data-value">{formatDateForPassport(data.dateOfBirth)}</div>
+                  <div className="data-value">{formatDateForPassport(individual.dateOfBirth)}</div>
                 </div>
 
                 {/* Place of Birth */}
@@ -140,13 +125,13 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
                 {/* Date of Issue */}
                 <div className="data-field">
                   <div className="data-label">Date of issue / Date de délivrance / Fecha de expedición</div>
-                  <div className="data-value">{formatDateForPassport(issuanceDate.toISOString())}</div>
+                  <div className="data-value">{formatDateForPassport(data.issuanceDate)}</div>
                 </div>
 
                 {/* Date of Expiry */}
                 <div className="data-field">
                   <div className="data-label">Date of expiration / Date d'expiration / Fecha de caducidad</div>
-                  <div className="data-value">{formatDateForPassport(expiryDate.toISOString())}</div>
+                  <div className="data-value">{formatDateForPassport(data.expiryDate)}</div>
                 </div>
 
                 {/* Endorsements */}
@@ -160,7 +145,7 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
                 {/* Sex */}
                 <div className="data-field-right">
                   <div className="data-label">Sex / Sexe / Sexo</div>
-                  <div className="data-value">{data.gender === 'Female' ? 'F' : 'M'}</div>
+                  <div className="data-value">{individual.gender === 'Female' ? 'F' : 'M'}</div>
                 </div>
 
                 {/* Authority */}
@@ -178,8 +163,8 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
 
         {/* Machine Readable Zone */}
         <div className="mrz">
-          <div className="mrz-line">{mrzLine1}</div>
-          <div className="mrz-line">{mrzLine2}</div>
+          <div className="mrz-line">{data.mrzLine1}</div>
+          <div className="mrz-line">{data.mrzLine2}</div>
         </div>
         </div>
       </div>

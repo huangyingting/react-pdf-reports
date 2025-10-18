@@ -1,13 +1,13 @@
 import React from 'react';
-import { Patient, Provider, MedicalHistory } from '../../utils/zodSchemas';
+import { Individual, Provider, MedicalHistory } from '../../utils/zodSchemas';
 
 interface MedicationsPageProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
   medicalHistory?: MedicalHistory;
 }
 
-const MedicationsPage: React.FC<MedicationsPageProps> = ({ patient, provider, medicalHistory }) => {
+const MedicationsPage: React.FC<MedicationsPageProps> = ({ individual, provider, medicalHistory }) => {
   const medications = medicalHistory?.medications;
   const currentDate = new Date().toLocaleDateString();
 
@@ -199,8 +199,8 @@ const MedicationsPage: React.FC<MedicationsPageProps> = ({ patient, provider, me
         </div>
         <div className="page-info">
           <span>Page 3 of 5</span>
-          <span>Patient: {patient.firstName} {patient.lastName}</span>
-          <span>MRN: {patient.id}</span>
+          <span>Patient: {individual.firstName} {individual.lastName}</span>
+          <span>MRN: {individual.id}</span>
         </div>
       </footer>
     </div>

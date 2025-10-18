@@ -1,13 +1,13 @@
 import React from 'react';
-import { MedicalHistory, Patient, Provider } from '../../utils/zodSchemas';
+import { Individual, Provider, MedicalHistory } from '../../utils/zodSchemas';
 
 interface MedicalHistoryPageProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
   medicalHistory: MedicalHistory;
 }
 
-const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ patient, provider, medicalHistory }) => {
+const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ individual, provider, medicalHistory }) => {
   const { allergies, medications } = medicalHistory;
   const currentDate = new Date().toLocaleDateString();
   
@@ -135,7 +135,7 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ patient, provid
               <ul>
                 <li>Current: {medications?.current?.length || 0} medications</li>
                 <li>Recently Discontinued: {medications?.discontinued?.length || 0}</li>
-                <li>Pharmacy: {patient?.pharmacy?.name || 'Not on file'}</li>
+                <li>Pharmacy: {individual?.pharmacy?.name || 'Not on file'}</li>
               </ul>
             </div>
             <div className="risk-category">
@@ -166,8 +166,8 @@ const MedicalHistoryPage: React.FC<MedicalHistoryPageProps> = ({ patient, provid
         </div>
         <div className="page-info">
           <span>Page 2 of 5</span>
-          <span>Patient: {patient.firstName} {patient.lastName}</span>
-          <span>MRN: {patient.id}</span>
+          <span>Patient: {individual.firstName} {individual.lastName}</span>
+          <span>MRN: {individual.id}</span>
         </div>
       </footer>
     </div>

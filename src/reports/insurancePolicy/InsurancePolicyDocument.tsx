@@ -1,9 +1,12 @@
 import React from 'react';
 import './InsurancePolicyDocument.css';
-import { InsurancePolicy } from '../../utils/zodSchemas';
+import { Individual, InsuranceInfo } from '../../utils/zodSchemas';
 
 interface InsurancePolicyDocumentProps {
-  data: InsurancePolicy;
+  data: {
+    individual: Individual;
+    insuranceInfo: InsuranceInfo;
+  };
   fontFamily?: string;
 }
 
@@ -11,7 +14,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
   data,
   fontFamily = "'Arial', sans-serif"
 }) => {
-  const { patient, insuranceInfo } = data;
+  const { individual, insuranceInfo } = data;
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -35,7 +38,7 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         <div className="policy-letterhead">
           <div className="company-header">
             <h1 className="company-name">{insuranceInfo.primaryInsurance.provider.toUpperCase()}</h1>
-            <p className="company-address">P.O. Box {Math.floor(Math.random() * 90000 + 10000)} • {insuranceInfo.address?.city || patient.address.city}, {insuranceInfo.address?.state || patient.address.state} {insuranceInfo.address?.zipCode || patient.address.zipCode}</p>
+            <p className="company-address">P.O. Box {Math.floor(Math.random() * 90000 + 10000)} • {insuranceInfo.address?.city || individual.address.city}, {insuranceInfo.address?.state || individual.address.state} {insuranceInfo.address?.zipCode || individual.address.zipCode}</p>
           </div>
           <div className="company-contact">
             <p>Customer Service: 1-800-{Math.floor(Math.random() * 900 + 100)}-{Math.floor(Math.random() * 9000 + 1000)}</p>
@@ -83,16 +86,16 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
             <tbody>
               <tr>
                 <td className="label-col">Name:</td>
-                <td className="value-col">{insuranceInfo.subscriberName || patient.name}</td>
+                <td className="value-col">{insuranceInfo.subscriberName || individual.name}</td>
                 <td className="label-col">DOB:</td>
-                <td className="value-col">{insuranceInfo.subscriberDOB || patient.dateOfBirth}</td>
+                <td className="value-col">{insuranceInfo.subscriberDOB || individual.dateOfBirth}</td>
                 <td className="label-col">Gender:</td>
-                <td className="value-col">{insuranceInfo.subscriberGender || patient.gender}</td>
+                <td className="value-col">{insuranceInfo.subscriberGender || individual.gender}</td>
               </tr>
               <tr>
                 <td className="label-col">Address:</td>
                 <td className="value-col" colSpan={5}>
-                  {insuranceInfo.address?.street || patient.address.street}, {insuranceInfo.address?.city || patient.address.city}, {insuranceInfo.address?.state || patient.address.state} {insuranceInfo.address?.zipCode || patient.address.zipCode}
+                  {insuranceInfo.address?.street || individual.address.street}, {insuranceInfo.address?.city || individual.address.city}, {insuranceInfo.address?.state || individual.address.state} {insuranceInfo.address?.zipCode || individual.address.zipCode}
                 </td>
               </tr>
             </tbody>
@@ -100,18 +103,18 @@ const InsurancePolicyDocument: React.FC<InsurancePolicyDocumentProps> = ({
         </div>
 
         {/* Dependent Information (if subscriber is different from patient) */}
-        {insuranceInfo.subscriberName && insuranceInfo.subscriberName !== patient.name && (
+        {insuranceInfo.subscriberName && insuranceInfo.subscriberName !== individual.name && (
           <div className="compact-section">
             <h3 className="section-title">DEPENDENT INFORMATION</h3>
             <table className="info-table">
               <tbody>
                 <tr>
                   <td className="label-col">Name:</td>
-                  <td className="value-col">{patient.name}</td>
+                  <td className="value-col">{individual.name}</td>
                   <td className="label-col">DOB:</td>
-                  <td className="value-col">{patient.dateOfBirth}</td>
+                  <td className="value-col">{individual.dateOfBirth}</td>
                   <td className="label-col">Gender:</td>
-                  <td className="value-col">{patient.gender}</td>
+                  <td className="value-col">{individual.gender}</td>
                 </tr>
               </tbody>
             </table>

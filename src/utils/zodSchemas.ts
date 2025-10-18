@@ -61,10 +61,10 @@ export const SubscriberSchema = z.object({
 });
 
 // ============================================================================
-// Patient
+// Individual
 // ============================================================================
 
-export const PatientSchema = z.object({
+export const IndividualSchema = z.object({
   id: z.string().describe('Unique patient identifier'),
   name: z.string().describe('Full name (FirstName MiddleInitial LastName)'),
   firstName: z.string().describe('First name'),
@@ -78,7 +78,14 @@ export const PatientSchema = z.object({
   pharmacy: PharmacySchema,
   medicalRecordNumber: z.string().describe('Medical record number (MRN)'),
   ssn: z.string().describe('Social Security Number in XXX-XX-XXXX format'),
-  accountNumber: z.string().describe('Account number')
+  accountNumber: z.string().describe('Account number'),
+  
+  // Employer Information
+  companyName: z.string().describe('Employer/company name'),
+  employerEIN: z.string().describe('Employer Identification Number in XX-XXXXXXX format'),
+  employerAddress: AddressSchema.describe('Employer address'),
+  employerIndustry: z.string().describe('Industry/business type'),
+  employerPhone: z.string().nullable().describe('Employer contact phone number (optional)')
 });
 
 // ============================================================================
@@ -229,14 +236,14 @@ export const VisitNoteSchema = z.object({
 // ============================================================================
 
 export const CMS1500Schema = z.object({
-  patient: PatientSchema,
+  individual: IndividualSchema,
   insuranceInfo: InsuranceInfoSchema,
   provider: ProviderSchema,
   claimInfo: ClaimSchema
 });
 
 export const InsurancePolicySchema = z.object({
-  patient: PatientSchema,
+  individual: IndividualSchema,
   insuranceInfo: InsuranceInfoSchema
 });
 
@@ -291,6 +298,27 @@ export const W2Schema = z.object({
   
   // Control Number (optional)
   controlNumber: z.string().nullable().describe('Employer control number')
+});
+
+export const PassportSchema = z.object({
+  individual: IndividualSchema.describe('Individual passport holder information'),
+  
+  // Passport Identification
+  passportNumber: z.string().describe('Passport number (9 digits, typically starting with 5-6)'),
+  
+  // Issue and Expiry
+  issuanceDate: z.string().describe('Date of issue (ISO 8601 format: YYYY-MM-DD)'),
+  expiryDate: z.string().describe('Date of expiration (ISO 8601 format: YYYY-MM-DD)'),
+  
+  // Authority
+  authority: z.string().describe('Issuing authority (typically "United States Department of State")'),
+  
+  // Machine Readable Zone (MRZ)
+  mrzLine1: z.string().describe('First line of Machine Readable Zone'),
+  mrzLine2: z.string().describe('Second line of Machine Readable Zone'),
+  
+  // Endorsements
+  endorsements: z.string().nullable().describe('Special endorsements or annotations')
 });
 
 // ============================================================================
@@ -448,7 +476,7 @@ export type Gender = z.infer<typeof GenderSchema>;
 export type Address = z.infer<typeof AddressSchema>;
 export type Contact = z.infer<typeof ContactSchema>;
 export type Pharmacy = z.infer<typeof PharmacySchema>;
-export type Patient = z.infer<typeof PatientSchema>;
+export type Individual = z.infer<typeof IndividualSchema>;
 export type Insurance = z.infer<typeof InsuranceSchema>;
 export type InsuranceInfo = z.infer<typeof InsuranceInfoSchema>;
 export type ReferringProvider = z.infer<typeof ReferringProviderSchema>;
@@ -467,6 +495,7 @@ export type InsurancePolicy = z.infer<typeof InsurancePolicySchema>;
 export type VisitReport = z.infer<typeof VisitReportSchema>;
 export type VisitReports = z.infer<typeof VisitReportsSchema>;
 export type W2 = z.infer<typeof W2Schema>;
+export type Passport = z.infer<typeof PassportSchema>;
 
 // Medical History Types
 export type Allergy = z.infer<typeof AllergySchema>;
@@ -496,14 +525,15 @@ export type Complexity = z.infer<typeof ComplexitySchema>;
 
 // Generated Data Schema - Complete data structure for all generated reports
 export const GeneratedDataSchema = z.object({
-  patient: PatientSchema,
+  individual: IndividualSchema,
   provider: ProviderSchema,
   insuranceInfo: InsuranceInfoSchema,
   medicalHistory: MedicalHistorySchema,
   visitReports: VisitReportsSchema,
   labReports: LabReportsSchema,
   cms1500: CMS1500Schema,
-  w2: W2Schema
+  w2: W2Schema,
+  passport: PassportSchema
 });
 
 export type GeneratedData = z.infer<typeof GeneratedDataSchema>;

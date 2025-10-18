@@ -1,15 +1,15 @@
 import React from 'react';
-import { Patient, Provider, LabReports, VisitReport } from '../../utils/zodSchemas';
+import { Individual, Provider, LabReport, VisitReport } from '../../utils/zodSchemas';
 
 interface LabReportsPageProps {
-  patient: Patient;
+  individual: Individual;
   provider: Provider;
-  labReports?: LabReports;
+  labReports?: LabReport[];
   visitReport?: VisitReport;
 }
 
-const LabResultsPage: React.FC<LabReportsPageProps> = ({
-  patient,
+const LabReportsPage: React.FC<LabReportsPageProps> = ({
+  individual,
   provider,
   labReports,
   visitReport,
@@ -253,7 +253,7 @@ const LabResultsPage: React.FC<LabReportsPageProps> = ({
             <p><strong>CONFIDENTIAL MEDICAL RECORD:</strong> This document contains privileged and confidential information intended only for the addressee. If you have received this in error, please notify the sender immediately.</p>
           </div>
           <div className="page-info">
-            <span>Patient ID: {patient?.id || 'N/A'} | DOB: {patient?.dateOfBirth || 'N/A'}</span>
+            <span>Patient ID: {individual?.id || 'N/A'} | DOB: {individual?.dateOfBirth || 'N/A'}</span>
             <span>Page 4.{page} of 5 | Lab Results</span>
           </div>
         </div>
@@ -303,4 +303,4 @@ const LabResultsPage: React.FC<LabReportsPageProps> = ({
   );
 };
 
-export default LabResultsPage;
+export default LabReportsPage;

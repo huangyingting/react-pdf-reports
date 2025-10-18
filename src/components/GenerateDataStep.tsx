@@ -28,18 +28,19 @@ import {
 } from '../utils/zodSchemas';
 import { 
   DATA_GENERATION_PRESETS, 
-  generatePatient,
+  generateIndividual,
   generateProvider,
   generateInsuranceInfo,
   generateMedicalHistory,
   generateVisitsReport,
   generateLabReports,
   generateCMS1500,
-  generateW2
+  generateW2,
+  generatePassport
 } from '../utils/dataGenerator';
 import { 
   AzureOpenAIConfig, 
-  generatePatientWithAI,
+  generateIndividualWithAI,
   generateProviderWithAI,
   generateInsuranceInfoWithAI,
   generateMedicalHistoryWithAI,
@@ -107,9 +108,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         console.log('[GenerateDataStep] Using AI generation with Azure OpenAI');
         
         // Generate using AI functions
-        const patient = await generatePatientWithAI(azureConfig);
+        const individual = await generateIndividualWithAI(azureConfig);
         const provider = await generateProviderWithAI(azureConfig);
-        const insuranceInfo = await generateInsuranceInfoWithAI(azureConfig, patient, customOptions.includeSecondaryInsurance);
+        const insuranceInfo = await generateInsuranceInfoWithAI(azureConfig, individual, customOptions.includeSecondaryInsurance);
         const medicalHistory = await generateMedicalHistoryWithAI(azureConfig, customOptions.complexity);
         const visitReports = await generateVisitReportsWithAI(azureConfig, customOptions.numberOfVisits, provider.name);
 
@@ -124,28 +125,32 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
         const labReports = await generateLabReportsWithAI(azureConfig, selectedLabTests, provider.name);
         
-        const cms1500 = await generateCMS1500WithAI(azureConfig, patient, insuranceInfo, provider);
+        const cms1500 = await generateCMS1500WithAI(azureConfig, individual, insuranceInfo, provider);
         
-        // Generate W-2 using faker for now (can be enhanced with AI later)
-        const w2 = generateW2(patient, provider);
+        // Generate W-2 (employer info is now part of individual)
+        const w2 = generateW2(individual);
+        
+        // Generate Passport
+        const passport = generatePassport(individual);
         
         generatedData = {
-          patient,
+          individual,
           provider,
           insuranceInfo,
           medicalHistory,
           visitReports,
           labReports,
           cms1500,
-          w2
+          w2,
+          passport
         };
       } else {
         // Use standard Faker.js generation
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        const patient = generatePatient();
+        const individual = generateIndividual();
         const provider = generateProvider();
-        const insuranceInfo = generateInsuranceInfo(patient,customOptions.includeSecondaryInsurance);
+        const insuranceInfo = generateInsuranceInfo(individual,customOptions.includeSecondaryInsurance);
         const medicalHistory = generateMedicalHistory(customOptions.complexity);
         const visitReports = generateVisitsReport(customOptions.numberOfVisits, provider.name);
         
@@ -160,20 +165,24 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         const selectedLabTests = shuffled.slice(0, customOptions.numberOfLabTests);
         const labReports = generateLabReports(selectedLabTests, provider.name);
         
-        const cms1500 = generateCMS1500(patient, insuranceInfo, provider);
+        const cms1500 = generateCMS1500(individual, insuranceInfo, provider);
         
-        // Generate W-2
-        const w2 = generateW2(patient, provider);
+        // Generate W-2 (employer info is now part of individual)
+        const w2 = generateW2(individual);
+        
+        // Generate Passport
+        const passport = generatePassport(individual);
         
         generatedData = {
-          patient,
+          individual,
           provider,
           insuranceInfo,
           medicalHistory,
           visitReports,
           labReports,
           cms1500,
-          w2
+          w2,
+          passport
         };
       }
       
