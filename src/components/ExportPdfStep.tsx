@@ -7,7 +7,7 @@ import { GeneratedData, LabTestType } from '../utils/zodSchemas';
 
 type ExportFormat = 'pdf' | 'canvas';
 type QualityLevel = 'poor' | 'standard' | 'high';
-type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | 'passport' | LabTestType;
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | 'passport' | 'w2' | LabTestType;
 
 interface FontFamily {
   value: string;
@@ -236,6 +236,15 @@ const ExportPdfStep: React.FC<ExportPdfStepProps> = ({
                 description="Authentic-looking U.S. passport document with biographical data, machine readable zone (MRZ), and official seals - complete with passport photo"
                 onPreview={() => onPreview('passport')}
                 onGenerate={() => onExport('passport', `${generatedData?.patient?.id || 'patient'}-PASSPORT${getFilenameSuffix()}`.toUpperCase())}
+                isLoading={isLoading}
+                iconType="insurance"
+              />
+
+              <DocumentCard
+                title="W-2 Wage and Tax Statement"
+                description="IRS Form W-2 wage and tax statement for employees showing annual wages and tax withholdings"
+                onPreview={() => onPreview('w2')}
+                onGenerate={() => onExport('w2', `${generatedData?.patient?.id || 'patient'}-W2${getFilenameSuffix()}`.toUpperCase())}
                 isLoading={isLoading}
                 iconType="insurance"
               />

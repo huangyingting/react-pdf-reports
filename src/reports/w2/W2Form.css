@@ -1,0 +1,405 @@
+/* W-2 Form Styles - Authentic IRS Form W-2 Layout */
+.w2-report {
+  background: #f5f5f5;
+  color: #000;
+  line-height: 1.2;
+  font-size: 8px;
+  padding: 0;
+}
+
+/* Ensure font family inheritance */
+.w2-report * {
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* A4 Page Structure */
+.w2-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  margin: 0 auto 15px auto;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.w2-page:last-child {
+  margin-bottom: 0;
+}
+
+/* W-2 Form Container - actual form size */
+.w2-form {
+  width: 180mm;
+  border: 2px solid #000;
+  background: white;
+  position: relative;
+  padding: 0;
+}
+
+/* VOID checkbox in top left */
+.w2-void {
+  position: absolute;
+  top: 3mm;
+  left: 3mm;
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  font-size: 7px;
+  font-weight: bold;
+  z-index: 10;
+}
+
+.w2-void input[type="checkbox"] {
+  width: 3mm;
+  height: 3mm;
+  margin: 0;
+}
+
+/* Top Section - Identity and Header */
+.w2-top-section {
+  display: flex;
+  border-bottom: 1px solid #000;
+}
+
+/* Left Column (boxes a-f) */
+.w2-left-column {
+  flex: 0 0 65%;
+  border-right: 1px solid #000;
+}
+
+/* Right Header (Form info and year) */
+.w2-right-header {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+}
+
+.w2-form-info {
+  padding: 2mm;
+  text-align: right;
+  border-bottom: 1px solid #000;
+}
+
+.w2-omb {
+  font-size: 6px;
+  font-weight: bold;
+}
+
+.w2-safe-box {
+  padding: 2mm;
+  text-align: center;
+  border-bottom: 1px solid #000;
+  background: #f9f9f9;
+}
+
+.w2-safe-label {
+  font-size: 7px;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.w2-efile {
+  margin-top: 1mm;
+  font-size: 9px;
+  font-weight: bold;
+  color: #0066cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
+}
+
+.w2-form-number-box {
+  padding: 2mm 3mm;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1mm;
+}
+
+.w2-form-number {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.w2-form-title {
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.w2-year-box {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 1mm 0;
+}
+
+.w2-copy-label {
+  font-size: 6px;
+  font-weight: bold;
+  margin-top: 2mm;
+  line-height: 1.3;
+}
+
+.w2-instruction {
+  font-size: 5px;
+  margin-top: 1mm;
+  line-height: 1.3;
+}
+
+/* Box Styles */
+.w2-box {
+  border-bottom: 1px solid #000;
+  padding: 1.5mm 2mm;
+  min-height: 8mm;
+}
+
+.w2-box:last-child {
+  border-bottom: none;
+}
+
+.w2-box-label {
+  font-size: 6px;
+  font-weight: bold;
+  margin-bottom: 1mm;
+  line-height: 1.2;
+  display: block;
+}
+
+.w2-box-value {
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.3;
+}
+
+.w2-multiline {
+  line-height: 1.4;
+}
+
+.w2-multiline div {
+  margin-bottom: 0.5mm;
+}
+
+/* Specific boxes in left column */
+.w2-box-a {
+  min-height: 10mm;
+}
+
+.w2-box-b {
+  border-right: none;
+}
+
+.w2-box-c {
+  min-height: 15mm;
+}
+
+.w2-box-d {
+  min-height: 8mm;
+}
+
+.w2-box-e {
+  min-height: 10mm;
+}
+
+.w2-box-f {
+  min-height: 12mm;
+  border-bottom: none;
+}
+
+/* Numbered Boxes Section */
+.w2-numbered-boxes {
+  border-top: none;
+}
+
+.w2-box-row {
+  display: flex;
+  border-bottom: 1px solid #000;
+}
+
+.w2-box-row .w2-box {
+  flex: 1;
+  border-right: 1px solid #000;
+  border-bottom: none;
+  min-height: 12mm;
+}
+
+.w2-box-row .w2-box:last-child {
+  border-right: none;
+}
+
+/* Box 12 and 13 special layout */
+.w2-box-12-13-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.w2-box-12 {
+  flex: 1;
+  border-bottom: 1px solid #000;
+  padding: 1.5mm 2mm;
+}
+
+.w2-box-12-codes {
+  margin-top: 1mm;
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+}
+
+.w2-box-12-code-row {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  font-size: 9px;
+}
+
+.w2-code-letter {
+  font-weight: bold;
+  width: 3mm;
+}
+
+.w2-code-box {
+  font-weight: bold;
+  border: 1px solid #000;
+  padding: 0.5mm 1.5mm;
+  min-width: 6mm;
+  text-align: center;
+}
+
+.w2-code-amount {
+  flex: 1;
+  font-weight: normal;
+}
+
+.w2-box-13 {
+  padding: 1.5mm 2mm;
+  border-bottom: none;
+}
+
+.w2-box-13-checks {
+  display: flex;
+  gap: 3mm;
+  margin-top: 1mm;
+}
+
+.w2-box-13-checks label {
+  display: flex;
+  align-items: flex-start;
+  gap: 1mm;
+  font-size: 6px;
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.w2-box-13-checks input[type="checkbox"] {
+  width: 3mm;
+  height: 3mm;
+  margin-top: 0.5mm;
+  flex-shrink: 0;
+}
+
+/* Box 14 - Other */
+.w2-box-14 {
+  min-height: 15mm;
+  border-bottom: 1px solid #000;
+}
+
+/* State and Local Information Row */
+.w2-state-local-row {
+  display: flex;
+  border-bottom: none;
+}
+
+.w2-state-local-row .w2-box {
+  border-right: 1px solid #000;
+  border-bottom: none;
+  min-height: 10mm;
+}
+
+.w2-state-local-row .w2-box:last-child {
+  border-right: none;
+}
+
+.w2-box-15 {
+  flex: 0 0 8%;
+}
+
+.w2-box-15b {
+  flex: 0 0 18%;
+}
+
+.w2-box-16 {
+  flex: 0 0 18%;
+}
+
+.w2-box-17 {
+  flex: 0 0 14%;
+}
+
+.w2-box-18 {
+  flex: 0 0 18%;
+}
+
+.w2-box-19 {
+  flex: 0 0 12%;
+}
+
+.w2-box-20 {
+  flex: 1;
+}
+
+/* Footer */
+.w2-footer {
+  border-top: 2px solid #000;
+  padding: 1.5mm 2mm;
+  background: #f9f9f9;
+  font-size: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.w2-footer-left {
+  font-weight: normal;
+}
+
+.w2-footer-left strong {
+  font-weight: bold;
+}
+
+/* Print Styles */
+@media print {
+  .w2-report {
+    background: white;
+  }
+
+  .w2-page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    padding: 20mm;
+    box-shadow: none;
+    page-break-after: always;
+  }
+
+  .w2-page:last-child {
+    page-break-after: auto;
+  }
+
+  .w2-form {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure borders print properly */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

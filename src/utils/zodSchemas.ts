@@ -248,6 +248,52 @@ export const VisitReportSchema = z.object({
 export const VisitReportsSchema = z.array(VisitReportSchema).describe('Array of visit reports');
 
 // ============================================================================
+// W-2 Wage and Tax Statement Schema
+// ============================================================================
+
+export const W2Schema = z.object({
+  // Employee Information
+  employeeSSN: z.string().describe('Employee Social Security Number in XXX-XX-XXXX format'),
+  employeeName: z.string().describe('Employee full name (FirstName LastName)'),
+  employeeAddress: AddressSchema.describe('Employee address'),
+  
+  // Employer Information
+  employerEIN: z.string().describe('Employer Identification Number in XX-XXXXXXX format'),
+  employerName: z.string().describe('Employer name'),
+  employerAddress: AddressSchema.describe('Employer address'),
+  
+  // Wage and Tax Information
+  taxYear: z.string().describe('Tax year (YYYY format)'),
+  wages: z.string().describe('Wages, tips, other compensation (Box 1)'),
+  federalIncomeTaxWithheld: z.string().describe('Federal income tax withheld (Box 2)'),
+  socialSecurityWages: z.string().describe('Social security wages (Box 3)'),
+  socialSecurityTaxWithheld: z.string().describe('Social security tax withheld (Box 4)'),
+  medicareWages: z.string().describe('Medicare wages and tips (Box 5)'),
+  medicareTaxWithheld: z.string().describe('Medicare tax withheld (Box 6)'),
+  socialSecurityTips: z.string().nullable().describe('Social security tips (Box 7)'),
+  allocatedTips: z.string().nullable().describe('Allocated tips (Box 8)'),
+  dependentCareBenefits: z.string().nullable().describe('Dependent care benefits (Box 10)'),
+  nonqualifiedPlans: z.string().nullable().describe('Nonqualified plans (Box 11)'),
+  box12Codes: z.array(z.object({
+    code: z.string().describe('Box 12 code (e.g., D, DD, W)'),
+    amount: z.string().describe('Amount for the code')
+  })).nullable().describe('Box 12 codes and amounts'),
+  statutoryEmployee: z.boolean().nullable().describe('Statutory employee checkbox (Box 13)'),
+  retirementPlan: z.boolean().nullable().describe('Retirement plan checkbox (Box 13)'),
+  thirdPartySickPay: z.boolean().nullable().describe('Third-party sick pay checkbox (Box 13)'),
+  
+  // State and Local Information
+  stateWages: z.string().nullable().describe('State wages, tips, etc. (Box 16)'),
+  stateIncomeTax: z.string().nullable().describe('State income tax (Box 17)'),
+  localWages: z.string().nullable().describe('Local wages, tips, etc. (Box 18)'),
+  localIncomeTax: z.string().nullable().describe('Local income tax (Box 19)'),
+  localityName: z.string().nullable().describe('Locality name (Box 20)'),
+  
+  // Control Number (optional)
+  controlNumber: z.string().nullable().describe('Employer control number')
+});
+
+// ============================================================================
 // Medical History Schemas
 // ============================================================================
 
@@ -420,6 +466,7 @@ export type CMS1500 = z.infer<typeof CMS1500Schema>;
 export type InsurancePolicy = z.infer<typeof InsurancePolicySchema>;
 export type VisitReport = z.infer<typeof VisitReportSchema>;
 export type VisitReports = z.infer<typeof VisitReportsSchema>;
+export type W2 = z.infer<typeof W2Schema>;
 
 // Medical History Types
 export type Allergy = z.infer<typeof AllergySchema>;
@@ -455,7 +502,8 @@ export const GeneratedDataSchema = z.object({
   medicalHistory: MedicalHistorySchema,
   visitReports: VisitReportsSchema,
   labReports: LabReportsSchema,
-  cms1500: CMS1500Schema
+  cms1500: CMS1500Schema,
+  w2: W2Schema
 });
 
 export type GeneratedData = z.infer<typeof GeneratedDataSchema>;

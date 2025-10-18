@@ -26,7 +26,8 @@ import {
   CMS1500,
   Insured,
   Subscriber,
-  InsuranceTypeSchema
+  InsuranceTypeSchema,
+  W2
 } from './zodSchemas';
 
 import { DataPreset } from './zodSchemas';
@@ -1974,4 +1975,81 @@ export const generateCMS1500 = (patient: Patient, insuranceInfo: InsuranceInfo, 
   };
 
   return result;
+};
+
+export const generateW2 = (patient: Patient, provider: Provider): W2 => {
+  const currentYear = new Date().getFullYear();
+  const previousYear = currentYear - 1;
+  
+  // Generate wages between $30,000 and $150,000
+  const annualWages = faker.number.int({ min: 30000, max: 150000 });
+  
+  // Calculate taxes (approximate percentages)
+  const federalTaxRate = 0.15; // ~15% federal
+  const socialSecurityRate = 0.062; // 6.2% social security
+  const medicareRate = 0.0145; // 1.45% medicare
+  const stateTaxRate = 0.05; // ~5% state
+  
+  const federalTax = Math.round(annualWages * federalTaxRate * 100) / 100;
+  const socialSecurityTax = Math.round(annualWages * socialSecurityRate * 100) / 100;
+  const medicareTax = Math.round(annualWages * medicareRate * 100) / 100;
+  const stateTax = Math.round(annualWages * stateTaxRate * 100) / 100;
+  
+  // Generate Box 12 codes (common examples: D for 401k, DD for employer health coverage)
+  const box12Codes = [];
+  if (faker.datatype.boolean()) {
+    // 401k contribution
+    const contribution401k = Math.round(annualWages * faker.number.float({ min: 0.03, max: 0.06 }) * 100) / 100;
+    box12Codes.push({
+      code: 'D',
+      amount: contribution401k.toFixed(2)
+    });
+  }
+  if (faker.datatype.boolean()) {
+    // Employer health coverage
+    const healthCoverage = faker.number.int({ min: 5000, max: 15000 });
+    box12Codes.push({
+      code: 'DD',
+      amount: healthCoverage.toFixed(2)
+    });
+  }
+  
+  return {
+    // Employee Information
+    employeeSSN: patient.ssn,
+    employeeName: `${patient.firstName} ${patient.lastName}`,
+    employeeAddress: patient.address,
+    
+    // Employer Information (using provider's facility as employer)
+    employerEIN: `${faker.number.int({ min: 10, max: 99 })}-${faker.number.int({ min: 1000000, max: 9999999 })}`,
+    employerName: provider.facilityName || faker.company.name(),
+    employerAddress: provider.facilityAddress || provider.address,
+    
+    // Wage and Tax Information
+    taxYear: previousYear.toString(),
+    wages: annualWages.toFixed(2),
+    federalIncomeTaxWithheld: federalTax.toFixed(2),
+    socialSecurityWages: annualWages.toFixed(2),
+    socialSecurityTaxWithheld: socialSecurityTax.toFixed(2),
+    medicareWages: annualWages.toFixed(2),
+    medicareTaxWithheld: medicareTax.toFixed(2),
+    socialSecurityTips: null,
+    allocatedTips: null,
+    dependentCareBenefits: faker.datatype.boolean() ? faker.number.int({ min: 1000, max: 5000 }).toFixed(2) : null,
+    nonqualifiedPlans: null,
+    box12Codes: box12Codes.length > 0 ? box12Codes : null,
+    statutoryEmployee: false,
+    retirementPlan: box12Codes.some(c => c.code === 'D'),
+    thirdPartySickPay: false,
+    
+    // State and Local Information
+    stateWages: annualWages.toFixed(2),
+    stateIncomeTax: stateTax.toFixed(2),
+    localWages: null,
+    localIncomeTax: null,
+    localityName: null,
+    
+    // Control Number
+    controlNumber: faker.string.alphanumeric(10).toUpperCase()
+  };
 };

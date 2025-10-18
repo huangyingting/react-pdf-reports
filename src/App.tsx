@@ -28,6 +28,7 @@ import VisitReportDocument from './reports/visitReport/VisitReportDocument';
 import MedicationHistoryDocument from './reports/medicationHistory/MedicationHistoryDocument';
 import LaboratoryReportDocument from './reports/labReport/LabReportDocument';
 import PassportDocument from './reports/passport/PassportDocument';
+import W2Form from './reports/w2/W2Form';
 import {
   InsurancePolicy,
   VisitReport,
@@ -51,7 +52,7 @@ interface FontFamily {
 
 type QualityLevel = 'poor' | 'standard' | 'high';
 type ExportFormat = 'pdf' | 'canvas';
-type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | 'passport' | LabTestType;
+type ReportType = 'medical' | 'cms1500' | 'insurancePolicy' | 'visitReport' | 'medicationHistory' | 'passport' | 'w2' | LabTestType;
 
 function App() {
   // Workflow state management
@@ -163,8 +164,9 @@ function App() {
           : reportType === 'visitReport' ? 'visit-report-document'
             : reportType === 'medicationHistory' ? 'medication-history-document'
               : reportType === 'passport' ? 'passport-report'
-                : isLabTest ? `laboratory-report-${(reportType as string).toLowerCase()}`
-                  : 'medical-records-report';
+                : reportType === 'w2' ? 'w2-report'
+                  : isLabTest ? `laboratory-report-${(reportType as string).toLowerCase()}`
+                    : 'medical-records-report';
 
       if (exportFormat === 'canvas') {
         await exportToPDFAsImage(elementId, `${filename}-canvas`, {
@@ -273,6 +275,15 @@ function App() {
       );
     }
 
+    if (activeReportType === 'w2') {
+      return (
+        <W2Form
+          data={generatedData.w2}
+          fontFamily={fontFamilyStyle}
+        />
+      );
+    }
+
     // Check if it's a laboratory report type
     const labTestTypes: LabTestType[] = ['CBC', 'BMP', 'CMP', 'Urinalysis', 'Lipid', 'LFT', 'Thyroid', 'HbA1c', 'Coagulation', 'Microbiology', 'Pathology', 'Hormone', 'Infectious'];
     if (labTestTypes.includes(activeReportType as LabTestType)) {
@@ -363,6 +374,7 @@ function App() {
     if (reportType === 'insurancePolicy') return 'Insurance Policy Document';
     if (reportType === 'visitReport') return 'Visit Report';
     if (reportType === 'medicationHistory') return 'Medication History';
+    if (reportType === 'w2') return 'W-2 Wage and Tax Statement';
     if (labTitles[reportType]) return labTitles[reportType];
     return 'Medical Records Report';
   };

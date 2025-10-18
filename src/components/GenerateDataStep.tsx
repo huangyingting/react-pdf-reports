@@ -34,7 +34,8 @@ import {
   generateMedicalHistory,
   generateVisitsReport,
   generateLabReports,
-  generateCMS1500
+  generateCMS1500,
+  generateW2
 } from '../utils/dataGenerator';
 import { 
   AzureOpenAIConfig, 
@@ -125,6 +126,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         
         const cms1500 = await generateCMS1500WithAI(azureConfig, patient, insuranceInfo, provider);
         
+        // Generate W-2 using faker for now (can be enhanced with AI later)
+        const w2 = generateW2(patient, provider);
+        
         generatedData = {
           patient,
           provider,
@@ -132,7 +136,8 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
           medicalHistory,
           visitReports,
           labReports,
-          cms1500
+          cms1500,
+          w2
         };
       } else {
         // Use standard Faker.js generation
@@ -157,6 +162,9 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
         
         const cms1500 = generateCMS1500(patient, insuranceInfo, provider);
         
+        // Generate W-2
+        const w2 = generateW2(patient, provider);
+        
         generatedData = {
           patient,
           provider,
@@ -164,7 +172,8 @@ const GenerateDataStep: React.FC<GenerateDataStepProps> = ({ onDataGenerated, on
           medicalHistory,
           visitReports,
           labReports,
-          cms1500
+          cms1500,
+          w2
         };
       }
       
