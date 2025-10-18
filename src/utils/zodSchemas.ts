@@ -258,17 +258,7 @@ export const VisitReportsSchema = z.array(VisitReportSchema).describe('Array of 
 // W-2 Wage and Tax Statement Schema
 // ============================================================================
 
-export const W2Schema = z.object({
-  // Employee Information
-  employeeSSN: z.string().describe('Employee Social Security Number in XXX-XX-XXXX format'),
-  employeeName: z.string().describe('Employee full name (FirstName LastName)'),
-  employeeAddress: AddressSchema.describe('Employee address'),
-  
-  // Employer Information
-  employerEIN: z.string().describe('Employer Identification Number in XX-XXXXXXX format'),
-  employerName: z.string().describe('Employer name'),
-  employerAddress: AddressSchema.describe('Employer address'),
-  
+export const W2Schema = z.object({ 
   // Wage and Tax Information
   taxYear: z.string().describe('Tax year (YYYY format)'),
   wages: z.string().describe('Wages, tips, other compensation (Box 1)'),
@@ -300,9 +290,7 @@ export const W2Schema = z.object({
   controlNumber: z.string().nullable().describe('Employer control number')
 });
 
-export const PassportSchema = z.object({
-  individual: IndividualSchema.describe('Individual passport holder information'),
-  
+export const PassportSchema = z.object({  
   // Passport Identification
   passportNumber: z.string().describe('Passport number (9 digits, typically starting with 5-6)'),
   

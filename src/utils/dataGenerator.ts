@@ -22,7 +22,6 @@ import {
   VitalSigns,
   VisitReport,
   VisitNote,
-  InsurancePolicy,
   CMS1500,
   Insured,
   Subscriber,
@@ -1999,17 +1998,6 @@ function calculateBMI(weight: number, height: string): string {
   return bmi.toFixed(1);
 }
 
-// ============================================================================
-// GENERATOR FUNCTIONS - DOCUMENT ASSEMBLY
-// ============================================================================
-
-export const generateInsurancePolicy = (individual: Individual, insuranceInfo: InsuranceInfo): InsurancePolicy => {
-  return {
-    individual: individual,
-    insuranceInfo: insuranceInfo
-  };
-}
-
 export const generateCMS1500 = (individual: Individual, insuranceInfo: InsuranceInfo, provider: Provider): CMS1500 => {
 
   const result: CMS1500 = {
@@ -2026,7 +2014,7 @@ export const generateCMS1500 = (individual: Individual, insuranceInfo: Insurance
   return result;
 };
 
-export const generateW2 = (individual: Individual): W2 => {
+export const generateW2 = (_individual: Individual): W2 => {
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
   
@@ -2063,17 +2051,7 @@ export const generateW2 = (individual: Individual): W2 => {
     });
   }
   
-  return {
-    // Employee Information
-    employeeSSN: individual.ssn,
-    employeeName: `${individual.firstName} ${individual.lastName}`,
-    employeeAddress: individual.address,
-    
-    // Employer Information (extracted from individual)
-    employerEIN: individual.employerEIN,
-    employerName: individual.companyName,
-    employerAddress: individual.employerAddress,
-    
+  return {    
     // Wage and Tax Information
     taxYear: previousYear.toString(),
     wages: annualWages.toFixed(2),
@@ -2140,7 +2118,6 @@ export const generatePassport = (individual: Individual): Passport => {
   const mrzLine2 = `${passportNumber}7USA${birthDate}${individual.gender === 'Female' ? 'F' : 'M'}${expiryDateMrz}${checkDigits}<<<<<<<<`;
 
   return {
-    individual,
     passportNumber,
     issuanceDate: issuanceDateISO,
     expiryDate: expiryDateISO,

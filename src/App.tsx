@@ -269,7 +269,8 @@ function App() {
     if (activeReportType === 'passport') {
       return (
         <PassportDocument
-          data={generatedData.passport}
+          individual={generatedData.individual}
+          passport={generatedData.passport}
           fontFamily={fontFamilyStyle}
         />
       );
@@ -278,7 +279,8 @@ function App() {
     if (activeReportType === 'w2') {
       return (
         <W2Form
-          data={generatedData.w2}
+          individual={generatedData.individual}
+          w2={generatedData.w2}
           fontFamily={fontFamilyStyle}
         />
       );
@@ -579,7 +581,8 @@ function App() {
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               <PassportDocument
-                data={generatedData.passport}
+                individual={generatedData.individual}
+                passport={generatedData.passport}
                 fontFamily={fontFamilies.find(f => f.value === fontFamily)?.css || "'Arial', sans-serif"}
               />
               {/* Laboratory Reports */}

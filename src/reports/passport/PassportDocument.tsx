@@ -1,18 +1,19 @@
 import React from 'react';
 import './PassportDocument.css';
-import { Passport } from '../../utils/zodSchemas';
+import { Individual, Passport } from '../../utils/zodSchemas';
 
 interface PassportDocumentProps {
-  data: Passport;
+  individual: Individual
+  passport: Passport;
   fontFamily?: string;
 }
 
 const PassportDocument: React.FC<PassportDocumentProps> = ({ 
-  data, 
+  individual,
+  passport,
   fontFamily = "'Arial', sans-serif" 
 }) => {
-  // Extract individual from passport data
-  const individual = data.individual;
+
   
   // Select a random user photo (1-4)
   const photoIndex = Math.floor(Math.random() * 4) + 1;
@@ -83,7 +84,7 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
               </div>
               <div className="header-field-wide">
                 <div className="header-label">Passport No. / Nº de passeport / No. de Pasaporte</div>
-                <div className="header-value-large">{data.passportNumber}</div>
+                <div className="header-value-large">{passport.passportNumber}</div>
               </div>
             </div>
 
@@ -125,13 +126,13 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
                 {/* Date of Issue */}
                 <div className="data-field">
                   <div className="data-label">Date of issue / Date de délivrance / Fecha de expedición</div>
-                  <div className="data-value">{formatDateForPassport(data.issuanceDate)}</div>
+                  <div className="data-value">{formatDateForPassport(passport.issuanceDate)}</div>
                 </div>
 
                 {/* Date of Expiry */}
                 <div className="data-field">
                   <div className="data-label">Date of expiration / Date d'expiration / Fecha de caducidad</div>
-                  <div className="data-value">{formatDateForPassport(data.expiryDate)}</div>
+                  <div className="data-value">{formatDateForPassport(passport.expiryDate)}</div>
                 </div>
 
                 {/* Endorsements */}
@@ -163,8 +164,8 @@ const PassportDocument: React.FC<PassportDocumentProps> = ({
 
         {/* Machine Readable Zone */}
         <div className="mrz">
-          <div className="mrz-line">{data.mrzLine1}</div>
-          <div className="mrz-line">{data.mrzLine2}</div>
+          <div className="mrz-line">{passport.mrzLine1}</div>
+          <div className="mrz-line">{passport.mrzLine2}</div>
         </div>
         </div>
       </div>

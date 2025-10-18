@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Tabs, Tab, Button, TextField, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import { ExpandMore as ExpandMoreIcon, Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { GeneratedData, Individual, InsuranceInfo, Provider, MedicalHistory, VisitReport, LabReport, LabTestType, ChronicCondition, DiscontinuedMedication, SurgicalHistory, FamilyHistory } from '../utils/zodSchemas';
-import { MEDICAL_SPECIALTIES } from '../utils/dataGenerator';
+import { MEDICAL_SPECIALTIES, INDUSTRIES } from '../utils/dataGenerator';
 import { StepContainer, SectionTitle, FormGrid, TabContent, LoadingSpinner, FloatingActionBar, SubTitle } from './SharedComponents';
 import * as styles from '../styles/commonStyles';
 
@@ -646,6 +646,85 @@ const PatientInfoSection: React.FC<PatientInfoSectionProps> = ({ data, onChange 
         label="ZIP Code"
         value={data.address.zipCode}
         onChange={(e) => onChange('address.zipCode', e.target.value)}
+        fullWidth
+        size="small"
+      />
+    </FormGrid>
+
+    <SubTitle sx={{ mt: 3, mb: 2 }}>
+      Employment Information
+    </SubTitle>
+    
+    <FormGrid>
+      <TextField
+        label="Company Name"
+        value={data.companyName || ''}
+        onChange={(e) => onChange('companyName', e.target.value)}
+        fullWidth
+        size="small"
+      />
+      
+      <TextField
+        label="Employer EIN"
+        value={data.employerEIN || ''}
+        onChange={(e) => onChange('employerEIN', e.target.value)}
+        placeholder="XX-XXXXXXX"
+        fullWidth
+        size="small"
+      />
+      
+      <FormControl fullWidth size="small">
+        <InputLabel>Industry</InputLabel>
+        <Select
+          value={data.employerIndustry || ''}
+          onChange={(e) => onChange('employerIndustry', e.target.value)}
+          label="Industry"
+        >
+          <MenuItem value="">Select...</MenuItem>
+          {INDUSTRIES.map((industry) => (
+            <MenuItem key={industry} value={industry}>{industry}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      
+      <TextField
+        label="Employer Phone"
+        value={data.employerPhone || ''}
+        onChange={(e) => onChange('employerPhone', e.target.value)}
+        fullWidth
+        size="small"
+      />
+
+      <TextField
+        label="Employer Street Address"
+        value={data.employerAddress?.street || ''}
+        onChange={(e) => onChange('employerAddress.street', e.target.value)}
+        fullWidth
+        size="small"
+        sx={{ gridColumn: 'span 2' }}
+      />
+      
+      <TextField
+        label="Employer City"
+        value={data.employerAddress?.city || ''}
+        onChange={(e) => onChange('employerAddress.city', e.target.value)}
+        fullWidth
+        size="small"
+      />
+      
+      <TextField
+        label="Employer State"
+        value={data.employerAddress?.state || ''}
+        onChange={(e) => onChange('employerAddress.state', e.target.value)}
+        inputProps={{ maxLength: 2 }}
+        fullWidth
+        size="small"
+      />
+      
+      <TextField
+        label="Employer ZIP Code"
+        value={data.employerAddress?.zipCode || ''}
+        onChange={(e) => onChange('employerAddress.zipCode', e.target.value)}
         fullWidth
         size="small"
       />
